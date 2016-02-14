@@ -18,7 +18,7 @@ class App {
     fs.readFile(fileName, 'utf-8', function(err, data) {
       if (err) throw err;
       console.log('OK: ' + fileName);
-      console.log(data)
+      console.log(`Validating contents of ${fileName}...`);
     });
   }
   
