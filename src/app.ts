@@ -1,5 +1,6 @@
 import MainMenu from './menu/main_menu';
 import * as fs from 'fs';
+import * as rl from 'readline';
 
 class App {
   
@@ -17,8 +18,18 @@ class App {
     
     fs.readFile(fileName, 'utf-8', function(err, data) {
       if (err) throw err;
-      console.log('OK: ' + fileName);
+      console.log(`OK: ${fileName}`);
       console.log(`Validating contents of ${fileName}...`);
+      
+      const rd = rl.createInterface({
+        input: fs.createReadStream(fileName),
+        output: process.stdout,
+        terminal: false
+      });
+
+      rd.on('line', function(line) {
+        console.log(`VALID: ${line}`);
+      });
     });
   }
   
