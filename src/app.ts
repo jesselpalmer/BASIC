@@ -8,8 +8,9 @@ class App {
     const mainMenu = new MainMenu();
     mainMenu.printWelcome();
   }
-  
-  openFile(fileName? : string) {
+  constructor() {
+    
+    this.openFile(fileName? : string) {
     if (!process.argv[2]) {
       fileName = 'game.bas';
     } else {
@@ -36,6 +37,11 @@ class App {
   startREPL() {
     console.log('>>>');
   }
+    
+  }
+  
+  
+  
 }
 
 const app = new App();
