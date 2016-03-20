@@ -1,13 +1,13 @@
 import { Header } from './header';
 
 export class REPL {
-    constructor() {
-    }
+  constructor() {
+  }
 
-    start() : void {
-        const header = new Header();
-        header.printWelcome();
+  start() : void {
+    const header = new Header();
+    header.printWelcome();
         
-        console.log('>>>');
-    }
+    console.log('>>>');
+  }
 }
