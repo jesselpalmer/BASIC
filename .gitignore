@@ -1,3 +1,14 @@
+# Node modules folder
 node_modules
+
+# TypeScript Definition files
 typings
+
+# JavaScript build files
 *.js*
+
+# Mac OS files
+.DS_Store
+
+# Intellij IDE settings
+.idea
