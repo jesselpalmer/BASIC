@@ -1,45 +1,26 @@
-import { MainMenu } from './menu/main_menu';
-import * as fs from 'fs';
-import * as rl from 'readline';
+import { REPL } from './repl/repl';
+import { RunProgram } from './run_program/run_program';
 
 class App {
-  
-  constructor() {
-    this.start();
-    this.openFile();
-  }
-  
-  start() {
-    const mainMenu = new MainMenu();
-    mainMenu.printWelcome();
-  }
-  
-  startREPL() {
-    console.log('>>>');
-  }
-    
-  openFile(fileName? : string) {
-      if (!process.argv[2]) {
-        fileName = 'game.bas';
-      } else {
-        fileName = process.argv[2];
-      }
-      
-      fs.readFile(fileName, 'utf-8', function(err, data) {
-        if (err) throw err;
-        console.log(`OK: ${fileName}`);
-        console.log(`Validating contents of ${fileName}...`);
-        
-        const rd = rl.createInterface({
-          input: fs.createReadStream(fileName),
-          output: process.stdout,
-          terminal: false
-        });
 
-        rd.on('line', function(line) {
-          console.log(`VALID: ${line}`);
-        });
-    });
+  constructor() {
+    let filePath : string = process.argv[2] ?  process.argv[2] : null;
+
+    if (filePath) {
+      this.runProgram(filePath);
+    } else {
+      this.startRepl();
+    }
+  }
+
+  runProgram(filePath : string) : void {
+    const program = new RunProgram(filePath);
+    program.start();
+  }
+
+  startRepl() : void {
+    const repl = new REPL();
+    repl.start();
   }
 }
 
