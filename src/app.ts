@@ -1,5 +1,5 @@
 import { REPL } from './repl/repl';
-import { RunProgram } from './run_program/run_program';
+import { ExecProgram } from './exec_program/exec_program';
 
 class App {
 
@@ -7,15 +7,15 @@ class App {
     let filePath : string = process.argv[2] ?  process.argv[2] : null;
 
     if (filePath) {
-      this.runProgram(filePath);
+      this.execProgram(filePath);
     } else {
       this.startRepl();
     }
   }
 
-  runProgram(filePath : string) : void {
-    const program = new RunProgram(filePath);
-    program.start();
+  execProgram(filePath : string) : void {
+    const program = new ExecProgram();
+    program.start(filePath);
   }
 
   startRepl() : void {
