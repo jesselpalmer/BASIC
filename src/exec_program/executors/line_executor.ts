@@ -5,7 +5,7 @@ export class LineExecutor {
   constructor() {
   }
   
-  run(line : string) : void {
+  execLine(line : string) : void {
     const command : string = line.split(' ')[1];
     const message : string = line.split(/[""]/)[1];
     

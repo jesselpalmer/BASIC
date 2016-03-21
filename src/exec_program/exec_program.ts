@@ -1,16 +1,14 @@
 import * as rl from 'readline';
 import * as fs from 'fs';
-import { LineValidator } from './line_validator';
+import { LineValidator } from './validators/line_validator';
+import { LineExecutor } from './executors/line_executor';
 
-export class RunProgram {
-  filePath : string;
-
-  constructor(filePath : string) {
-    this.filePath = filePath;
+export class ExecProgram {
+  constructor() {
   }
 
-  start() : void {
-    this.openFile(this.filePath);
+  start(filePath : string) : void {
+    this.openFile(filePath);
   }
 
   openFile(filePath : string) : void {
@@ -33,9 +31,12 @@ export class RunProgram {
   
   readLine(line) : void {
     let fv = new LineValidator();
+    let le = new LineExecutor();
     
     if (fv.isLineValid(line)) {
-      console.log(`${line}`);
+      le.execLine(line);
+    } else {
+      console.log(`INVALID: ${line}`);
     }
   }
 }
