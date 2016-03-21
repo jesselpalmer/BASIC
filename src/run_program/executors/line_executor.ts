@@ -6,12 +6,15 @@ export class LineExecutor {
   }
   
   run(line : string) : void {
-    switch (line) {
+    const command : string = line.split(' ')[1];
+    const message : string = line.split(/[""]/)[1];
+    
+    switch (command) {
       case 'PRINT':
-        print(line);
+        print(message);
         break;
       case 'REM':
-        rem(line);
+        rem(message);
         break;
       default:
         console.log(`Invalid command`);
