@@ -1,5 +1,5 @@
 # BASIC
-BASIC Interpreter
+BASIC Interpreter that can be installed using Node.js.
 
 # Usage
 ## Valid commands
