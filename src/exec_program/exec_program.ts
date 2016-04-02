@@ -13,7 +13,6 @@ export class ExecProgram {
 
   openFile(filePath : string) : void {
     const fileEncoding : string = 'utf-8';
-    filePath = 'game.bas'; // seed added for testing
 
     fs.readFile(filePath, fileEncoding, (err, fileContents) => {
       if (err) throw err;
