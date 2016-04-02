@@ -14,7 +14,7 @@ Run TypeScript complier:
 
 `tsc`
 
-Run BASIC program
+Run a BASIC program
 
 `node app <program name>`
 
