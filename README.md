@@ -2,21 +2,31 @@
 BASIC Interpreter that can be installed using Node.js.
 
 # Installation
-Clone the repo:
+1. Clone the repo:
 
-`git clone https://github.com/jesselpalmer/BASIC.git`
+  `git clone https://github.com/jesselpalmer/BASIC.git`
 
-Install dependencies:
+2. cd into the BASIC repo:
 
-`npm install`
+  `cd BASIC`
 
-Run TypeScript complier:
+3. Install dependencies:
 
-`tsc`
+  `npm install`
 
-Run a BASIC program
+4. Run TypeScript complier:
 
-`node app <program name>`
+  `tsc`
+
+5. cd into the src directory:
+
+  `cd src`
+
+6. Create a BASIC program using the guidelines below.
+
+7. Run the BASIC program that you created
+
+  `node app <program name>`
 
 # Usage
 ## Valid commands
