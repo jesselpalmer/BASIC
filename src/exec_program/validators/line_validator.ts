@@ -1,14 +1,17 @@
 import { commands } from '../../dictionaries/commands';
 
 export class LineValidator {
-  _usedLineNumbers : Array<number> = [];
+  static _usedLineNumbers : Array<number> = [];
   _isLineValid : boolean = true;
 
   constructor() {
   }
   
-  hasLineNumberBeenUsed(line : string) : boolean {
-    return false;
+  hasLineNumberBeenUsed(lineNumber : number) : boolean {
+    if (LineValidator._usedLineNumbers.indexOf(lineNumber) === -1) {
+      return false;
+    }
+    return true;
   }
   
   isLineNumberANumber() : boolean {
@@ -19,10 +22,15 @@ export class LineValidator {
     return true;
   }
   
-  validateLineNumber(lineNumber : string) {
+  validateLineNumber(lineNumberStr : string) {
+    const radix = 10;
+    const lineNumber = parseInt(lineNumberStr, radix);
+    
     if (this.hasLineNumberBeenUsed(lineNumber)) {
       console.log(`INVALID: Line number has been used ${lineNumber}`);
       this._isLineValid = false;
+    } else {
+      LineValidator._usedLineNumbers.push(lineNumber);
     }
   }
   
