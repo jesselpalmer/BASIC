@@ -2,7 +2,7 @@ import { commands } from '../../dictionaries/commands';
 
 export class LineValidator {
   static _usedLineNumbers : Array<number> = [];
-  _isLineValid : boolean = true;
+  private _isLineValid : boolean = true;
 
   constructor() {
   }
