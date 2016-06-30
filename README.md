@@ -1,6 +1,10 @@
 # BASIC
 BASIC Interpreter that can be installed using Node.js.
 
+# Dependencies
+1. [Node.js](https://nodejs.org/en/)
+2. [TypeScript Definition Manager](https://github.com/typings/typings)
+
 # Installation
 1. Clone the repo:
 
@@ -13,18 +17,22 @@ BASIC Interpreter that can be installed using Node.js.
 3. Install dependencies:
 
   `npm install`
+  
+4. Install typings:
 
-4. Run TypeScript complier:
+  `typings install`
+
+5. Run TypeScript complier:
 
   `tsc`
 
-5. cd into the src directory:
+6. cd into the src directory:
 
   `cd src`
 
-6. Create a BASIC program using the guidelines below.
+7. Create a BASIC program using the guidelines below.
 
-7. Run the BASIC program that you created
+8. Run the BASIC program that you created
 
   `node app <program name>`
 
