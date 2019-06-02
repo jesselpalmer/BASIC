@@ -1,5 +1,5 @@
 {
-  "name": "basic-lang",
+  "name": "basic.js",
   "version": "0.0.0",
   "description": "BASIC interpreter",
   "main": "app.js",
