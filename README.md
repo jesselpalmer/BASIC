@@ -1,5 +1,5 @@
 # BASIC
-BASIC Interpreter that can be installed using Node.js.
+BASIC interpreter
 
 # Dependencies
 1. [Node.js](https://nodejs.org/en/)
