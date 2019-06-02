@@ -4,6 +4,8 @@
   "description": "BASIC interpreter",
   "main": "app.js",
   "scripts": {
+    "build": "node_modules/.bin/tsc",
+    "build:watch": "node_modules/.bin/tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
