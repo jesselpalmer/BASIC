@@ -1,5 +1,5 @@
 {
-  "name": "basic.js",
+  "name": "node-basic.js",
   "version": "0.0.1",
   "description": "BASIC interpreter",
   "main": "./lib/app.js",
