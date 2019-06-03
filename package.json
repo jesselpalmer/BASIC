@@ -1,6 +1,6 @@
 {
   "name": "node-basic.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "BASIC interpreter",
   "main": "./lib/app.js",
   "scripts": {
