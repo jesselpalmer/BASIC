@@ -1,8 +1,8 @@
 {
   "name": "basic.js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "BASIC interpreter",
-  "main": "app.js",
+  "main": "./lib/app.js",
   "scripts": {
     "build": "node_modules/.bin/tsc",
     "build:watch": "node_modules/.bin/tsc -w",
