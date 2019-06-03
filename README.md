@@ -1,50 +1,41 @@
 # BASIC
 BASIC interpreter
 
-# Dependencies
-1. [Node.js](https://nodejs.org/en/)
-2. [TypeScript Definition Manager](https://github.com/typings/typings)
+## Installation
 
-# Installation
-1. Clone the repo:
+1. Install library:
 
-  `git clone https://github.com/jesselpalmer/BASIC.git`
+  ```bash
+  npm install node-basic.js
+  ```
 
-2. cd into the BASIC repo:
+2. Create a file to import the library such as app.js:
 
-  `cd BASIC`
+  ```javascript
+  var nodeBasic = require('node-basic.js');
+  ```
 
-3. Install dependencies:
+3. Create a BASIC program using the guidelines below.
 
-  `npm install`
-  
-4. Install typings:
+4. Run the BASIC program that you created
 
-  `typings install`
+  ```bash
+  node <filename you created in step 2> <program name>
+  ```
 
-5. Run TypeScript complier:
+## Usage
 
-  `tsc`
+### Valid commands
 
-6. cd into the src directory:
-
-  `cd src`
-
-7. Create a BASIC program using the guidelines below.
-
-8. Run the BASIC program that you created
-
-  `node app <program name>`
-
-# Usage
-## Valid commands
-`PRINT` - Prints lines to the console.   
+`PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.
 
-## File extensions
+### File extensions
+
 File should end in `.bas`.
 
-## Sample file
+### Sample file
+
 ```bas
 10 REM "BASIC HELLO WORLD PROGRAM"
 20 PRINT "HELLO WORLD"
