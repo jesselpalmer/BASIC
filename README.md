@@ -23,6 +23,12 @@ BASIC interpreter
   ```bash
   node <filename you created in step 2> <program name>
   ```
+  
+  Example:
+
+  ```bash
+  node app.js game.bas
+  ```
 
 ## Usage
 
