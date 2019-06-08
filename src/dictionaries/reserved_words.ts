@@ -1,4 +1,4 @@
-export const reserve_words : Set<string> = new Set([
+export const reservedWords: Set<string> = new Set([
   'CLS',
   'DATA',
   'DEF',
@@ -16,4 +16,4 @@ export const reserve_words : Set<string> = new Set([
   'REM',
   'RETURN',
   'STOP'
-]);
+])

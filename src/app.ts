@@ -13,12 +13,12 @@ class App {
     }
   }
 
-  execProgram(filePath : string) : void {
+  private execProgram(filePath : string) : void {
     const program = new ExecProgram();
     program.start(filePath);
   }
 
-  startRepl() : void {
+  private startRepl() : void {
     const repl = new REPL();
     repl.start();
   }

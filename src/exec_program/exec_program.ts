@@ -1,38 +1,38 @@
-import * as rl from 'readline';
-import * as fs from 'fs';
-import { LineValidator } from './validators/line_validator';
-import { LineExecutor } from './executors/line_executor';
+import * as rl from 'readline'
+import * as fs from 'fs'
+import { LineValidator } from './validators/line_validator'
+import { LineExecutor } from './executors/line_executor'
 
 export class ExecProgram {
-  start(filePath : string) : void {
-    this.openFile(filePath);
+  public start(filePath: string): void {
+    this.openFile(filePath)
   }
 
-  openFile(filePath : string) : void {
-    const fileEncoding : string = 'utf-8';
+  private openFile(filePath: string): void {
+    const fileEncoding = 'utf-8'
 
-    fs.readFile(filePath, fileEncoding, (err, fileContents) => {
-      if (err) throw err;
-      console.log(`OK: ${filePath}`);
+    fs.readFile(filePath, fileEncoding, (err): void => {
+      if (err) throw err
+      console.log(`OK: ${filePath}`)
 
       const rd = rl.createInterface({
         input: fs.createReadStream(filePath),
         output: process.stdout,
         terminal: false
-      });
+      })
 
-      rd.on('line', this.readLine);     
-    });
+      rd.on('line', this.readLine)
+    })
   }
   
-  readLine(line) : void {
-    let fv = new LineValidator();
-    let le = new LineExecutor();
+  private readLine(line): void {
+    const fv = new LineValidator()
+    const le = new LineExecutor()
     
     if (fv.isLineValid(line)) {
-      le.execLine(line);
+      le.execLine(line)
     } else {
-      console.log(`INVALID: ${line}`);
+      console.log(`INVALID: ${line}`)
     }
   }
 }

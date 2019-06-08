@@ -1,5 +1,5 @@
 export class Header {
-  printWelcome() : void {
-    console.log('BASIC 0.0.0 (March, 21, 2016)');
+  public printWelcome(): void {
+    console.log('BASIC 0.0.0 (March, 21, 2016)')
   }
 }
