@@ -4,8 +4,10 @@
   "description": "BASIC interpreter",
   "main": "./lib/app.js",
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
+    "build": "npm run lint && ./node_modules/.bin/tsc",
     "build:watch": "./node_modules/.bin/tsc -w",
+    "lint": "./node_modules/.bin/eslint ./src/**/*.*",
+    "lint:fix": "./node_modules/.bin/eslint --fix ./src/**/*.*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
