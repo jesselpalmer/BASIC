@@ -1,3 +1,4 @@
+import { cls } from './commands/cls_command';
 import { print } from './commands/print_command';
 import { rem } from './commands/rem_command';
 
@@ -10,6 +11,9 @@ export class LineExecutor {
     const message : string = line.split(/[""]/)[1];
     
     switch (command) {
+      case 'CLS':
+        cls();
+        break;
       case 'PRINT':
         print(message);
         break;

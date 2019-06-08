@@ -28,6 +28,7 @@ BASIC interpreter
 
 ### Valid commands
 
+`CLS` - Clears the console.  
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.
 
@@ -42,4 +43,5 @@ File should end in `.bas`.
 20 PRINT "HELLO WORLD"
 30 PRINT "HELLO WORLD 2X"
 40 PRINT "HELLO WORLD 3X"
+50 CLS
 ```
