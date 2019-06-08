@@ -1,16 +1,16 @@
 export class LineValidator {
-  static _usedLineNumbers : Array<number> = [];
+  static _usedLineNumbers : Set<number> = new Set();
   
   hasLineNumberBeenUsed(lineNumberStr : string) : boolean {
     const radix = 10;
     const lineNumber = parseInt(lineNumberStr, radix);
     let hasLineNumBeenUsed = false;
     
-    if (LineValidator._usedLineNumbers.indexOf(lineNumber) !== -1) {
+    if (LineValidator._usedLineNumbers.has(lineNumber)) {
       console.log(`INVALID: Line number has been used ${lineNumber}`);
       hasLineNumBeenUsed = true;
     } else {
-      LineValidator._usedLineNumbers.push(lineNumber);
+      LineValidator._usedLineNumbers.add(lineNumber);
     }
 
     return hasLineNumBeenUsed;
