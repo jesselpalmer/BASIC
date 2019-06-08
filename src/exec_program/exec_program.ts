@@ -4,9 +4,6 @@ import { LineValidator } from './validators/line_validator';
 import { LineExecutor } from './executors/line_executor';
 
 export class ExecProgram {
-  constructor() {
-  }
-
   start(filePath : string) : void {
     this.openFile(filePath);
   }

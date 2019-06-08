@@ -1,10 +1,5 @@
-import { commands } from '../../dictionaries/commands';
-
 export class LineValidator {
   static _usedLineNumbers : Array<number> = [];
-
-  constructor() {
-  }
   
   hasLineNumberBeenUsed(lineNumberStr : string) : boolean {
     const radix = 10;
