@@ -9,3 +9,7 @@ node_modules
 
 # VS Code directory
 .vscode
+
+# Ignore test files
+./src/game.bas
+./lib/game.bas
