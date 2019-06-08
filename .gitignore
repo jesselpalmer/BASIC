@@ -11,5 +11,5 @@ node_modules
 .vscode
 
 # Ignore test files
-./src/game.bas
-./lib/game.bas
+src/game.bas
+lib/game.bas
