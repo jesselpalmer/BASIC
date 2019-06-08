@@ -1,19 +1,19 @@
-export const reserve_words : Array<string> = [
-  "CLS",
-  "DATA",
-  "DEF",
-  "DIM",
-  "END",
-  "GOTO",
-  "GOSUB",
-  "IF",
-  "FOR",
-  "LET",
-  "LOOP",
-  "NEXT",
-  "PRINT",
-  "READ",
-  "REM",
-  "RETURN",
-  "STOP"
-];
+export const reserve_words : Set<string> = new Set([
+  'CLS',
+  'DATA',
+  'DEF',
+  'DIM',
+  'END',
+  'GOTO',
+  'GOSUB',
+  'IF',
+  'FOR',
+  'LET',
+  'LOOP',
+  'NEXT',
+  'PRINT',
+  'READ',
+  'REM',
+  'RETURN',
+  'STOP'
+]);

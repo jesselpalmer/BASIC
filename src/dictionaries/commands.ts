@@ -1,4 +1,5 @@
-export const commands : Array<string> = [
-  "PRINT",
-  "REM"
-];
+export const commands : Set<string> = new Set([
+  'CLS',
+  'PRINT',
+  'REM'
+]);
