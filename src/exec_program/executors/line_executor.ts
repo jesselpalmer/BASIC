@@ -3,9 +3,6 @@ import { print } from './commands/print_command';
 import { rem } from './commands/rem_command';
 
 export class LineExecutor {
-  constructor() {
-  }
-  
   execLine(line : string) : void {
     const command : string = line.split(' ')[1];
     const message : string = line.split(/[""]/)[1];
