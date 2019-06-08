@@ -7,13 +7,13 @@ BASIC interpreter
 1. Install library:
 
   ```bash
-  npm install node-basic.js
+  npm install node-basic-lang
   ```
 
 2. Create a file to import the library such as app.js:
 
   ```javascript
-  var nodeBasic = require('node-basic.js');
+  var nodeBasic = require('node-basic-lang');
   ```
 
 3. Create a BASIC program using the guidelines below.
