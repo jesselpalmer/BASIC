@@ -37,6 +37,7 @@ BASIC interpreter
 `CLS` - Clears the console.  
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.
+`END` - Exits the program.
 
 ### File extensions
 
@@ -46,8 +47,9 @@ File should end in `.bas`.
 
 ```bas
 10 REM "BASIC HELLO WORLD PROGRAM"
-20 PRINT "HELLO WORLD"
-30 PRINT "HELLO WORLD 2X"
-40 PRINT "HELLO WORLD 3X"
-50 CLS
+20 CLS
+30 PRINT "HELLO WORLD"
+40 PRINT "HELLO WORLD 2X"
+50 PRINT "HELLO WORLD 3X"
+60 END
 ```

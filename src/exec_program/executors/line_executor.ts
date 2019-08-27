@@ -1,4 +1,5 @@
 import { cls } from './commands/cls_command';
+import { end } from './commands/end_command';
 import { print } from './commands/print_command';
 import { rem } from './commands/rem_command';
 
@@ -17,6 +18,8 @@ export class LineExecutor {
       case 'REM':
         rem(message);
         break;
+      case 'END':
+        end();
       case '':
         break;
       default:
