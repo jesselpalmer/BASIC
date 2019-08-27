@@ -17,6 +17,8 @@ export class LineExecutor {
       case 'REM':
         rem(message);
         break;
+      case '':
+        break;
       default:
         console.log(`Invalid command`);
     }
