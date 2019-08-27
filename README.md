@@ -36,7 +36,7 @@ BASIC interpreter
 
 `CLS` - Clears the console.  
 `PRINT` - Prints lines to the console.  
-`REM` - Comments for the user. The interpreter ignores these lines.
+`REM` - Comments for the user. The interpreter ignores these lines.  
 `END` - Exits the program.
 
 ### File extensions
