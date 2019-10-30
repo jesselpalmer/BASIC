@@ -34,6 +34,7 @@ BASIC interpreter
 
 ### Valid commands
 
+`ABS` - Prints out the absolute value of a number.  
 `CLS` - Clears the console.  
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.  
@@ -46,10 +47,13 @@ File should end in `.bas`.
 ### Sample file
 
 ```bas
-10 REM "BASIC HELLO WORLD PROGRAM"
-20 CLS
+10 CLS
+20 REM "BASIC HELLO WORLD PROGRAM"
 30 PRINT "HELLO WORLD"
-40 PRINT "HELLO WORLD 2X"
-50 PRINT "HELLO WORLD 3X"
-60 END
+40
+50 PRINT "HELLO WORLD 2X"
+60
+70 PRINT "HELLO WORLD 3X"
+80 ABS "-3.14"
+90 END
 ```
