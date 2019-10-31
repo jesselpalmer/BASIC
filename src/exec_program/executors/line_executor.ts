@@ -1,6 +1,7 @@
 import { abs } from './commands/abs_command';
 import { cls } from './commands/cls_command';
 import { end } from './commands/end_command';
+import { int } from './commands/int_command';
 import { print } from './commands/print_command';
 import { rem } from './commands/rem_command';
 
@@ -18,6 +19,9 @@ export class LineExecutor {
         break;
       case 'END':
         end();
+      case 'INT':
+        int(message);
+        break;
       case 'PRINT':
         print(message);
         break;
