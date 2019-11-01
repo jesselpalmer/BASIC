@@ -36,7 +36,7 @@ BASIC interpreter
 
 `ABS` - Prints out the absolute value of a number.  
 `CLS` - Clears the console.  
-`INT` - Prints out an integer by rounding any decimal number down.
+`INT` - Prints out an integer by rounding any decimal number down.  
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.  
 `END` - Exits the program.
