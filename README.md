@@ -1,3 +1,5 @@
+[![npm](https://img.shields.io/npm/dw/node-basic-lang.svg)](https://www.npmjs.com/package/node-basic-lang)
+
 # BASIC
 
 BASIC interpreter
