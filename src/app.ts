@@ -2,8 +2,11 @@ import { REPL } from './repl/repl';
 import { ExecProgram } from './exec_program/exec_program';
 
 class App {
-
   constructor() {
+    this.main()
+  }
+
+  private main() {
     let filePath : string = process.argv[2] ?  process.argv[2] : null;
 
     if (filePath) {
