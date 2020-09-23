@@ -7,23 +7,27 @@ class App {
   }
 
   private main() {
-    let filePath : string = process.argv[2] ?  process.argv[2] : null;
+    const isTooManyArgs = process.argv.length > 3
+    const isFilenameInputted = process.argv.length === 3
 
-    if (filePath) {
-      this.execProgram(filePath);
+    if (isTooManyArgs) {
+      console.log('Usage: nBASIC [script]')
+    } else if (isFilenameInputted) {
+      const filePath : string = process.argv[2]
+      this.runFile(filePath)
     } else {
-      this.startRepl();
+      this.runPrompt()
     }
   }
 
-  private execProgram(filePath : string) : void {
-    const program = new ExecProgram();
-    program.start(filePath);
+  private runFile(filePath : string) : void {
+    const program = new ExecProgram()
+    program.start(filePath)
   }
 
-  private startRepl() : void {
-    const repl = new REPL();
-    repl.start();
+  private runPrompt() : void {
+    const repl = new REPL()
+    repl.start()
   }
 }
 
