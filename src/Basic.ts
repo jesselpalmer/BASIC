@@ -1,7 +1,9 @@
 import { REPL } from './repl/repl'
 import { ExecProgram } from './exec_program/exec_program'
 
-class App {
+const INVALID_ARGUMENT_EXIT_CODE = 9
+
+class Basic {
   constructor() {
     this.main()
   }
@@ -13,6 +15,7 @@ class App {
 
     if (isTooManyArgs) {
       console.log('Usage: nBASIC [script]')
+      process.exit(INVALID_ARGUMENT_EXIT_CODE)
     } else if (isFilenameInputted) {
       const filePath: string = process.argv[filenameIndex]
       this.runFile(filePath)
@@ -32,4 +35,4 @@ class App {
   }
 }
 
-const app = new App()
+const basic = new Basic()
