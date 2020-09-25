@@ -1,4 +1,4 @@
-import { strictEqual, ok } from 'assert'
+import { strictEqual } from 'assert'
 import Basic from './basic'
 
 describe(`Basic class test suite`, () => {
