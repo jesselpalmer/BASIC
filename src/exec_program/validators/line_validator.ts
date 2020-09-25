@@ -1,7 +1,7 @@
 export class LineValidator {
   static _usedLineNumbers: Set<number> = new Set()
   
-  hasLineNumberBeenUsed(lineNumberStr: string) : boolean {
+  hasLineNumberBeenUsed(lineNumberStr: string): boolean {
     const radix = 10
     const lineNumber = parseInt(lineNumberStr, radix)
     let hasLineNumBeenUsed = false
@@ -16,7 +16,7 @@ export class LineValidator {
     return hasLineNumBeenUsed
   }
   
-  isLineNumberANumber(lineNumberStr: string) : boolean {
+  isLineNumberANumber(lineNumberStr: string): boolean {
     const radix = 10
     let isLineValid = true
     
@@ -28,8 +28,8 @@ export class LineValidator {
     return isLineValid
   }
   
-  isLineValid(line: string) : boolean {
-    const lineTokens = line.split(' ')
+  isLineValid(line: string): boolean {
+    const lineTokens: string[] = line.split(' ')
     const lineNumber = lineTokens[0]
     let isLineValid = true
     

@@ -1,3 +1,3 @@
-export function end() : void {
-  process.exit();
+export function end(): void {
+  process.exit()
 }

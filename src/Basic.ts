@@ -1,4 +1,4 @@
-import { REPL } from './repl/repl'
+import { Repl } from './repl/repl'
 import { ExecProgram } from './exec_program/exec_program'
 
 const INVALID_ARGUMENT_EXIT_CODE = 9
@@ -17,7 +17,7 @@ class Basic {
       console.log('Usage: nBASIC [script]')
       process.exit(INVALID_ARGUMENT_EXIT_CODE)
     } else if (isFilenameInputted) {
-      const filePath: string = process.argv[filenameIndex]
+      const filePath = process.argv[filenameIndex]
       this.runFile(filePath)
     } else {
       this.runPrompt()
@@ -30,9 +30,9 @@ class Basic {
   }
 
   private runPrompt(): void {
-    const repl = new REPL()
+    const repl = new Repl()
     repl.start()
   }
 }
 
-const basic = new Basic()
+new Basic()
