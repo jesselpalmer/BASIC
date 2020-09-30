@@ -1,5 +1,5 @@
 import { strictEqual } from 'assert'
-import Basic from './basic'
+import Basic from './basics'
 
 describe(`Basic class test suite`, () => {
   it(`should create an instance`, () => {
