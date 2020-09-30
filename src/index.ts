@@ -1,3 +1,3 @@
-import Basic from './basics'
+import Basic from './basic'
 
 new Basic()
