@@ -1,6 +1,6 @@
 import constants from './shared/constants'
-import { ExecProgram } from './exec_program/exec_program'
-import { Repl } from './repl/repl'
+import ExecProgram from './exec_program/exec_program'
+import Repl from './repl/repl'
 
 export default class Basic {
   constructor() {

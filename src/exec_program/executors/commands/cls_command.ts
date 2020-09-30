@@ -1,3 +1,3 @@
-export function cls(): void {
+export default function cls(): void {
   console.clear()
 }

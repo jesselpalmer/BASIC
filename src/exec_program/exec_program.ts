@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import { LineValidator } from './validators/line_validator'
 import { LineExecutor } from './executors/line_executor'
 
-export class ExecProgram {
+export default class ExecProgram {
   public start(filePath: string): void {
     this.openFile(filePath)
   }

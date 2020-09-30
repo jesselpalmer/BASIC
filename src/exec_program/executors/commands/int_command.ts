@@ -1,4 +1,4 @@
-export function int(line: string): void {
+export default function int(line: string): void {
   const number = parseInt(line, 10)
 
   if (isNaN(number)) {
