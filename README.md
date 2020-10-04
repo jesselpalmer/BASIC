@@ -17,7 +17,7 @@ BASIC interpreter
 3. Run the BASIC program that you created
 
   ```bash
-  basic <program name>
+  basic <program name>.bas
   ```
   
   Example:
