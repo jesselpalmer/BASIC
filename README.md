@@ -6,35 +6,29 @@ BASIC interpreter
 
 ## Installation
 
-1. Install library:
+1. Install the `node-basic-lang` library globally:
 
   ```bash
-  npm install node-basic-lang
+  npm install -g node-basic-lang
   ```
 
-2. Create a file to import the library such as app.js:
+2. Create a BASIC program using the [supported commands](#supported-commands) below. Make sure that the file ends in `.bas`.
 
-  ```javascript
-  var nodeBasic = require('node-basic-lang');
-  ```
-
-3. Create a BASIC program using the guidelines below.
-
-4. Run the BASIC program that you created
+3. Run the BASIC program that you created
 
   ```bash
-  node <filename you created in step 2> <program name>
+  basic <program name>
   ```
   
   Example:
 
   ```bash
-  node app.js game.bas
+  basic game.bas
   ```
 
 ## Usage
 
-### Valid commands
+### Supported commands
 
 `ABS` - Prints out the absolute value of a number.  
 `CLS` - Clears the console.  
@@ -42,10 +36,6 @@ BASIC interpreter
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.  
 `END` - Exits the program.
-
-### File extensions
-
-File should end in `.bas`.
 
 ### Sample file
 
