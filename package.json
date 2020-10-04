@@ -1,6 +1,6 @@
 {
   "name": "node-basic-lang",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "BASIC interpreter",
   "main": "./lib/index.js",
   "scripts": {
