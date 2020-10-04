@@ -2,7 +2,7 @@
   "name": "node-basic-lang",
   "version": "0.0.3",
   "description": "BASIC interpreter",
-  "main": "./lib/app.js",
+  "main": "./lib/index.js",
   "scripts": {
     "build": "npm run lint && ./node_modules/.bin/tsc",
     "build:watch": "./node_modules/.bin/tsc -w",
@@ -26,6 +26,9 @@
     "url": "https://github.com/jesselpalmer/BASIC/issues"
   },
   "homepage": "https://github.com/jesselpalmer/BASIC#readme",
+  "bin": {
+    "basic": "./bin/basic.js"
+  },
   "devDependencies": {
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.11.2",
@@ -36,5 +39,6 @@
     "mocha": "^8.1.3",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
-  }
+  },
+  "preferGlobal": true
 }
