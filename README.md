@@ -6,15 +6,17 @@ BASIC interpreter
 
 ## Installation
 
-1. Install the `node-basic-lang` library globally:
+Install the `node-basic-lang` library globally:
 
   ```bash
   npm install -g node-basic-lang
   ```
 
-2. Create a BASIC program using the [supported commands](#supported-commands) below. Make sure that the file ends in `.bas`.
+## Executing files
 
-3. Run the BASIC program that you created
+1. Create a BASIC program using the [supported commands](#supported-commands) below. Make sure that the file ends in `.bas`.
+
+2. Run the BASIC program that you created
 
   ```bash
   basic <program name>.bas
@@ -26,9 +28,17 @@ BASIC interpreter
   basic game.bas
   ```
 
-## Usage
+## Using the REPL
 
-### Supported commands
+You can use the REPL just by running the following command in the terminal:
+
+ ```bash
+  basic
+  ```
+
+Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
+
+## Supported commands
 
 `ABS` - Prints out the absolute value of a number.  
 `CLS` - Clears the console.  
@@ -37,7 +47,7 @@ BASIC interpreter
 `REM` - Comments for the user. The interpreter ignores these lines.  
 `END` - Exits the program.
 
-### Sample file
+## Sample file
 
 ```bas
 10 CLS
