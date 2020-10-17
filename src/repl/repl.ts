@@ -21,7 +21,7 @@ export default class Repl {
       }
       program.readLine(line)
       rl.prompt()
-    }).on('close', function() {
+    }).on('close', () => {
       console.log()
       console.log(`Have a great day :)`)
       process.exit(0)
