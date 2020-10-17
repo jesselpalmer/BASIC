@@ -25,7 +25,7 @@ export default class ExecProgram {
     })
   }
   
-  private readLine(line: string): void {
+  public readLine(line: string): void {
     const fv = new LineValidator()
     const le = new LineExecutor()
     
