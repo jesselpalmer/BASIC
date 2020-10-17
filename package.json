@@ -8,6 +8,7 @@
     "build:watch": "./node_modules/.bin/tsc -w",
     "lint": "./node_modules/.bin/eslint . --ext .ts",
     "lint:fix": "./node_modules/.bin/eslint --fix ./src/**/*.*",
+    "start": "node ./lib/index.js",
     "test": "mocha"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
