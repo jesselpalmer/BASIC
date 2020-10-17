@@ -21,8 +21,8 @@ Install the `node-basic-lang` library globally:
   ```bash
   basic <program name>.bas
   ```
-  
-  Example:
+
+Example:
 
   ```bash
   basic game.bas
