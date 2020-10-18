@@ -10,9 +10,9 @@ BASIC interpreter
 
 2. Install the `node-basic-lang` library globally:
 
-  ```bash
-  npm install -g node-basic-lang
-  ```
+```bash
+npm install -g node-basic-lang
+```
 
 ## Executing files
 
@@ -20,23 +20,23 @@ BASIC interpreter
 
 2. Run the BASIC program that you created
 
-  ```bash
-  basic <program name>.bas
-  ```
+```bash
+basic <program name>.bas
+```
 
 Example:
 
-  ```bash
-  basic game.bas
-  ```
+```bash
+basic game.bas
+```
 
 ## Using the REPL
 
 You can use the REPL just by running the following command in the terminal:
 
  ```bash
-  basic
-  ```
+basic
+ ```
 
 Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
 
