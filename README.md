@@ -6,9 +6,9 @@ BASIC interpreter
 
 ## Installation
 
-You need to have at least version`4.2.4` of [node.js](https://nodejs.org/en/) installed.
+1. You need to have at least version`4.2.4` of [node.js](https://nodejs.org/en/) installed.
 
-Install the `node-basic-lang` library globally:
+2. Install the `node-basic-lang` library globally:
 
   ```bash
   npm install -g node-basic-lang
