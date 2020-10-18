@@ -1,5 +1,6 @@
 import readline = require('readline')
 import ExecProgram from '../exec_program/exec_program'
+import constants from '../shared/constants'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -9,22 +10,24 @@ const rl = readline.createInterface({
 export default class Repl {
   public start(): void {
     const program = new ExecProgram()
-    console.log(`BASIC 0.0.8 (October 17, 2020)`)
+    console.log(constants.Strings.Repl.WELCOME_MESSAGE)
 
-    rl.setPrompt(`>>> `)
+    rl.setPrompt(constants.Strings.Repl.PROMPT)
     rl.prompt()
 
     rl.on('line', (line) => {
-      if (line === null || line === '') {
-        console.log(`Have a great day :)`)
-        process.exit(0)
+      const isLineEmpty = line === null || line === ''
+
+      if (isLineEmpty) {
+        console.log(constants.Strings.Repl.EXIT_MESSAGE)
+        process.exit(constants.ExitCodes.NORMAL)
       }
       program.readLine(line)
       rl.prompt()
     }).on('close', () => {
       console.log()
-      console.log(`Have a great day :)`)
-      process.exit(0)
+      console.log(constants.Strings.Repl.EXIT_MESSAGE)
+      process.exit(constants.ExitCodes.NORMAL)
     })
   }
 }
