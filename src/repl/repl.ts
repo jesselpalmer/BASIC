@@ -22,6 +22,7 @@ export default class Repl {
         console.log(constants.Strings.Repl.EXIT_MESSAGE)
         process.exit(constants.ExitCodes.NORMAL)
       }
+      
       program.readLine(line)
       rl.prompt()
     }).on('close', () => {
