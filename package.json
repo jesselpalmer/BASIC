@@ -31,15 +31,15 @@
     "basic": "./bin/basic.js"
   },
   "devDependencies": {
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^14.14.10",
-    "@typescript-eslint/eslint-plugin": "^4.8.2",
-    "@typescript-eslint/parser": "^4.8.2",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.35",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
     "assert": "^2.0.0",
-    "eslint": "^7.14.0",
-    "mocha": "^8.2.1",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.1.2"
+    "eslint": "^7.22.0",
+    "mocha": "^8.3.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
   },
   "preferGlobal": true
 }
