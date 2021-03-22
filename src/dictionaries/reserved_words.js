@@ -1,0 +1,19 @@
+export const reservedWords = new Set([
+  'CLS',
+  'DATA',
+  'DEF',
+  'DIM',
+  'END',
+  'GOTO',
+  'GOSUB',
+  'IF',
+  'FOR',
+  'LET',
+  'LOOP',
+  'NEXT',
+  'PRINT',
+  'READ',
+  'REM',
+  'RETURN',
+  'STOP'
+])
