@@ -1,3 +1,4 @@
 #!/usr/bin/env node
+'use strict';
 
-var basic = require('../lib/index.js')
+require('../lib/main.js')
