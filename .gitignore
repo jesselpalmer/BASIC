@@ -7,8 +7,9 @@ node_modules
 # Intellij IDE settings
 .idea
 
-# VS Code directory
+# VS Code files
 .vscode
+basic.code-workspace
 
 # Sample file
 game.bas
