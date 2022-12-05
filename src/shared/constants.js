@@ -5,7 +5,7 @@ const constants = {
   },
   Strings: {
     Repl: {
-      WELCOME_MESSAGE: 'BASIC 0.0.8 (October 17, 2020)',
+      WELCOME_MESSAGE: 'BASIC 0.0.9 (December 4, 2022)',
       PROMPT: '>>> ',
       EXIT_MESSAGE: 'Have a great day :)'
     }
