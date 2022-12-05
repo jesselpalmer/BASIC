@@ -13,7 +13,7 @@
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {
-    "node": ">=4.2.4"
+    "node": ">=14"
   },
   "keywords": [
     "BASIC",
