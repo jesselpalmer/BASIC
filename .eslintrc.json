@@ -1,18 +1,31 @@
 {
-  "root": true,
-  "extends": [
-    "eslint:recommended"
-  ],
   "env": {
+    "browser": true,
     "es6": true,
-    "mocha": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
+  "ignorePatterns": [
+    "lib",
+    "test"
+  ],
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "rules": {
-    "semi": ["error", "always"],
-    "quotes": ["error", "single"]
+    "require-jsdoc": "off",
+    "max-len": [
+      "error",
+      {
+        "code": 80,
+        "ignorePattern": "^import .*|^export .*"
+      }
+    ]
   }
 }
