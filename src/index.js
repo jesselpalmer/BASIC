@@ -1,3 +1,3 @@
-import Basic from './basic'
+import Basic from './basic';
 
-new Basic()
+new Basic();

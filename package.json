@@ -7,7 +7,7 @@
     "build": "./node_modules/.bin/webpack",
     "build:watch": "./node_modules/.bin/webpack --watch",
     "lint": "./node_modules/.bin/eslint .",
-    "lint:fix": "./node_modules/.bin/eslint --fix ./src/**/*.*",
+    "lint:fix": "./node_modules/.bin/eslint ./src/**/*.* --fix",
     "start": "node ./lib/main.js",
     "test": "jest --forceExit"
   },

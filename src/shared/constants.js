@@ -1,15 +1,15 @@
 const constants = {
   ExitCodes: {
     NORMAL: 0,
-    INVALID_ARGUMENT: 9
+    INVALID_ARGUMENT: 9,
   },
   Strings: {
     Repl: {
       WELCOME_MESSAGE: 'BASIC 0.0.10 (December 6, 2022)',
       PROMPT: '>>> ',
-      EXIT_MESSAGE: 'Have a great day :)'
-    }
-  }
-}
+      EXIT_MESSAGE: 'Have a great day :)',
+    },
+  },
+};
 
-export default constants
+export default constants;

@@ -1,3 +1,3 @@
 export default function print(line) {
-  console.log(`${line}`)
+  console.log(`${line}`);
 }

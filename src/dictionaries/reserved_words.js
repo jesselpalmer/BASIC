@@ -15,5 +15,5 @@ export const reservedWords = new Set([
   'READ',
   'REM',
   'RETURN',
-  'STOP'
-])
+  'STOP',
+]);

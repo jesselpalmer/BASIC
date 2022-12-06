@@ -3,7 +3,7 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: __dirname + '/lib',
-    filename: '[name].js'
+    filename: '[name].js',
   },
   target: 'node',
   module: {
@@ -12,12 +12,12 @@ module.exports = {
         test: /\.m?js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      }
-    ]
-  }
-}
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
+    ],
+  },
+};

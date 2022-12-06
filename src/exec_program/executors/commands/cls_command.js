@@ -1,3 +1,3 @@
 export default function cls() {
-  console.clear()
+  console.clear();
 }
