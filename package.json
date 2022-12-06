@@ -47,5 +47,13 @@
     "testPathIgnorePatterns": [
       "./lib"
     ]
+  },
+  "private": false,
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
+  },
+  "funding": {
+    "type" : "github",
+    "url" : "https://github.com/sponsors/jesselpalmer"
   }
 }
