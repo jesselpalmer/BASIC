@@ -13,7 +13,7 @@ export default class Basic {
     const filenameIndex = 2;
 
     if (isTooManyArgs) {
-      console.log('Usage: nBASIC [script]');
+      console.log(constants.ErrorMessages.TOO_MANY_ARGS);
       process.exit(constants.ExitCodes.INVALID_ARGUMENT);
     } else if (isFilenameInputted) {
       const filePath = process.argv[filenameIndex];
