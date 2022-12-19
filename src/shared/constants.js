@@ -10,6 +10,9 @@ const constants = {
       EXIT_MESSAGE: 'Have a great day :)',
     },
   },
+  ErrorMessages: {
+    TOO_MANY_ARGS: 'Usage: nBASIC [script]',
+  },
 };
 
 export default constants;
