@@ -1,9 +1,9 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
+import readline from 'readline';
 
 import constants from './shared/constants';
-import Repl from './repl/repl';
 
 export default class Basic {
   constructor() {
@@ -19,8 +19,30 @@ export default class Basic {
   }
 
   runPrompt() {
-    const repl = new Repl();
-    repl.start();
+    console.log(constants.Strings.Repl.WELCOME_MESSAGE);
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.setPrompt(constants.Strings.Repl.PROMPT);
+    rl.prompt();
+
+    rl.on('line', (line) => {
+      const isLineEmpty = line === null || line === '';
+
+      if (isLineEmpty) {
+        console.log(constants.Strings.Repl.EXIT_MESSAGE);
+        process.exit(constants.ExitCodes.NORMAL);
+      }
+
+      this.run(line);
+      rl.prompt();
+    }).on('close', () => {
+      console.log(constants.Strings.Repl.EXIT_MESSAGE);
+      process.exit(constants.ExitCodes.NORMAL);
+    });
   }
 
   runFile(filePathStr) {

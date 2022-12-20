@@ -1,4 +1,7 @@
 const constants = {
+  ExitCodes: {
+    NORMAL: 0,
+  },
   Strings: {
     Repl: {
       WELCOME_MESSAGE: 'BASIC 0.0.10 (December 6, 2022)',
