@@ -49,8 +49,10 @@ export default class Basic {
     const filePath = path.basename(filePathStr);
 
     try {
-      const data = fs.readFileSync(filePath, {flag: 'r'});
-      this.run(data.toString(constants.DEFAULT_CHAR_SET));
+      const source = fs.readFileSync(filePath, {
+        encoding: constants.DEFAULT_CHAR_SET,
+        flag: 'r'});
+      this.run(source);
     } catch (err) {
       console.error(err);
       process.exit(os.constants.errno.ENOENT);
