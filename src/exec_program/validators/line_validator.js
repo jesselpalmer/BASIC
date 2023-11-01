@@ -23,7 +23,9 @@ export class LineValidator {
     let isLineValid = true;
 
     if (isNaN(parseInt(lineNumberStr, radix))) {
-      console.log(`INVALID: Line number is not a valid number ${lineNumberStr}`);
+      console.log(`
+        INVALID: Line number is not a valid number ${lineNumberStr}
+        `);
       isLineValid = false;
     }
 
