@@ -2,8 +2,8 @@
 
 The interpreter can now be imported and constructed without printing, opening
 stdin/readline, or exiting Node. The package entry exports `Basic` and
-`createHost`; the executable is a separate entrypoint. Build the checkout first
-with `npm run build`.
+`createHost`; the executable is a separate entrypoint. On Node.js 24.x the source
+runs directly as ES modules, with no build step or runtime dependencies.
 
 This API still executes the **legacy** statements documented in the README.
 It is a foundation for the parser/runtime work, not the completed
@@ -13,7 +13,7 @@ variables, expression functions, or BASIC `INPUT` yet.
 ## Core API
 
 ```js
-const {Basic} = require('node-basic-lang');
+import {Basic} from 'node-basic-lang';
 const output = [];
 const basic = new Basic({write: (text) => output.push(text)});
 
@@ -21,6 +21,10 @@ basic.run('10 PRINT "first"\n20 END\n30 PRINT "not reached"');
 basic.run('10 PRINT "second"');
 // output is ['first\n', 'second\n']
 ```
+
+CommonJS callers on Node 24 can use
+`const {Basic} = require('node-basic-lang');`. Both forms resolve the same
+`src/index.js` public entry. Internal source paths are not package exports.
 
 - `new Basic(host = {})` constructs a quiet interpreter in `ready` state.
 - `run(source)` resets state, executes nonblank source lines in their existing
@@ -99,5 +103,8 @@ terminal input and file reads.
 construction with stdin held open, normal and error completion, repeated and
 independent runs, `END` followed by another interactive program, natural file
 exit with stdin held open, EOF, SIGINT, input cancellation, piped lines, stream
-errors, and removal of input/abort/signal listeners. Build and lint remain
-separate commands: `npm run build` and `npm run lint`.
+errors, and removal of input/abort/signal listeners. `npm run lint` checks the
+source, tests, executable, and development scripts. `npm run test:package`
+installs a local tarball in a temporary consumer and verifies quiet ESM and
+CommonJS imports, interpreter output, the installed CLI, and its metadata-derived
+banner. No package is published by these checks.

@@ -1,4 +1,4 @@
-import {LineValidator} from '../line_validator';
+import {LineValidator} from '../line_validator.js';
 
 describe('LineValidator', () => {
   it('accepts valid lines and rejects a repeated line number', () => {

@@ -1,8 +1,8 @@
-import {promises as fs} from 'fs';
-import Basic from '../basic';
-import Repl from '../repl/repl';
-import constants from '../shared/constants';
-import TerminalHost from './terminal_host';
+import {promises as fs} from 'node:fs';
+import Basic from '../basic.js';
+import Repl from '../repl/repl.js';
+import constants from '../shared/constants.js';
+import TerminalHost from './terminal_host.js';
 
 export async function runFile(filePath, host, {signal} = {}) {
   const source = await fs.readFile(filePath, {encoding: 'utf8', signal});

@@ -1,9 +1,10 @@
-import {spawn, spawnSync} from 'child_process';
-import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'fs';
-import {tmpdir} from 'os';
-import {join, resolve} from 'path';
+import {spawn, spawnSync} from 'node:child_process';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join, resolve} from 'node:path';
+import metadata from '../../package.json' with {type: 'json'};
 
-const root = resolve(__dirname, '../..');
+const root = resolve(import.meta.dirname, '../..');
 const executable = join(root, 'bin/basic');
 
 function run(args, input = '', status = 0) {
@@ -45,7 +46,11 @@ function runWithOpenInput(args, onOutput = () => {}) {
   });
 }
 
-describe('built CLI and core lifecycle', () => {
+describe('CLI and core lifecycle', () => {
+  it('shows the version from package metadata', () => {
+    expect(run([]).stdout.split('\n')[0]).toBe(`BASIC ${metadata.version}`);
+  });
+
   it('executes the current README sample', () => {
     const readme = readFileSync(join(root, 'README.md'), 'utf8');
     const sample = readme.match(/```bas\n([\s\S]*?)```/)[1];
@@ -65,7 +70,7 @@ describe('built CLI and core lifecycle', () => {
   });
 
   it('reports duplicate file lines and exits without executing them', () => {
-    const file = join(__dirname, 'fixtures/duplicate-lines.bas');
+    const file = join(import.meta.dirname, 'fixtures/duplicate-lines.bas');
     const {stdout, stderr} = run([file], '', 1);
     expect(stdout).toContain('FIRST UNIQUE OUTPUT\n');
     expect(stdout).toContain('SECOND UNIQUE OUTPUT\n');
@@ -96,11 +101,14 @@ describe('built CLI and core lifecycle', () => {
     expect(stdout).toContain('second run\n');
   });
 
-  it('imports the core and constructs interpreters without side effects',
-      async () => {
-        const result = await runWithOpenInput([
-          '-e', 'const {Basic} = require("."); new Basic(); new Basic();',
-        ]);
+  it.each([
+    ['CommonJS', ['-e',
+      'const {Basic} = require("node-basic-lang"); new Basic(); new Basic();']],
+    ['ES modules', ['--input-type=module', '-e',
+      'import {Basic} from "node-basic-lang"; new Basic(); new Basic();']],
+  ])('imports with %s and constructs interpreters quietly',
+      async (_format, args) => {
+        const result = await runWithOpenInput(args);
         expect(result).toEqual({
           status: 0, signal: null, stdout: '', stderr: '',
         });
@@ -121,7 +129,7 @@ describe('built CLI and core lifecycle', () => {
 
   it('reports missing files without an unhandled exception', async () => {
     const result = await runWithOpenInput([
-      executable, join(__dirname, 'fixtures/missing.bas'),
+      executable, join(import.meta.dirname, 'fixtures/missing.bas'),
     ]);
     expect(result.status).toBe(1);
     expect(result.signal).toBeNull();

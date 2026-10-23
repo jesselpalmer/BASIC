@@ -1,5 +1,6 @@
-import {PassThrough} from 'stream';
-import TerminalHost from './terminal_host';
+import {jest} from '@jest/globals';
+import {PassThrough} from 'node:stream';
+import TerminalHost from './terminal_host.js';
 
 describe('TerminalHost input lifecycle', () => {
   let input;

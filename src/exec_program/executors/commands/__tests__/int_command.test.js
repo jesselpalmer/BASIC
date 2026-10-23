@@ -1,4 +1,5 @@
-import int from '../int_command';
+import {jest} from '@jest/globals';
+import int from '../int_command.js';
 
 describe('INT', () => {
   let output;

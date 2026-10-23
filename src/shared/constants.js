@@ -1,3 +1,5 @@
+import metadata from '../../package.json' with {type: 'json'};
+
 const constants = {
   ExitCodes: {
     NORMAL: 0,
@@ -5,13 +7,13 @@ const constants = {
   },
   Strings: {
     Repl: {
-      WELCOME_MESSAGE: 'BASIC 0.0.10 (December 6, 2022)',
+      WELCOME_MESSAGE: `BASIC ${metadata.version}`,
       PROMPT: '>>> ',
       EXIT_MESSAGE: 'Have a great day :)',
     },
   },
   ErrorMessages: {
-    TOO_MANY_ARGS: 'Usage: nBASIC [script]',
+    TOO_MANY_ARGS: 'Usage: basic [script]',
   },
 };
 

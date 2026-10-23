@@ -1,5 +1,6 @@
-import Basic from './basic';
-import {createHost} from './core/host';
+import {jest} from '@jest/globals';
+import Basic from './basic.js';
+import {createHost} from './core/host.js';
 
 describe('Basic host boundary', () => {
   it('constructs quietly without starting a session', () => {

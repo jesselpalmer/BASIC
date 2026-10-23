@@ -1,6 +1,6 @@
-import {createHost} from '../core/host';
-import {LineValidator} from './validators/line_validator';
-import {LineExecutor} from './executors/line_executor';
+import {createHost} from '../core/host.js';
+import {LineValidator} from './validators/line_validator.js';
+import {LineExecutor} from './executors/line_executor.js';
 
 export default class ExecProgram {
   constructor(host = {}) {
