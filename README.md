@@ -109,6 +109,21 @@ this checkout without building; this change does not update the published packag
 `REM` - Comments for the user. The interpreter ignores these lines.  
 `END` - Completes the current BASIC run and returns to its host.
 
+Labels must be decimal integers from 1 through 65535, followed by a space or
+tab. Leading zeros are allowed: `010` and `10` identify the same line. Leading
+spaces/tabs, lowercase commands, and LF/CRLF files are supported.
+
+`PRINT`, `ABS`, and `INT` currently take exactly one quoted string. Double a quote
+inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
+remain literal. `REM` ignores everything after the keyword, including unmatched
+quotes. `CLS` and `END` take no arguments. Malformed labels, unterminated strings,
+unexpected characters, and trailing operands now produce located errors instead
+of being partially interpreted or silently ignored.
+
+The [tokenizer](docs/tokenizer.md) also recognizes the planned expression syntax.
+Expression execution, numeric program ordering, full-program validation, and
+stored editing are still upcoming work; unsupported commands fail explicitly.
+
 ## Sample file
 
 ```bas

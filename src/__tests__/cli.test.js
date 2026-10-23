@@ -74,7 +74,7 @@ describe('CLI and core lifecycle', () => {
     const {stdout, stderr} = run([file], '', 1);
     expect(stdout).toContain('FIRST UNIQUE OUTPUT\n');
     expect(stdout).toContain('SECOND UNIQUE OUTPUT\n');
-    expect(stderr).toContain('INVALID: Line number has been used 10');
+    expect(stderr).toContain('Line 10, column 1: Duplicate line label 10');
     expect(stdout).not.toContain('DUPLICATE MUST NOT EXECUTE');
     expect(run([file], '', 1).stdout).toBe(stdout);
   });
@@ -86,10 +86,38 @@ describe('CLI and core lifecycle', () => {
       '20 INT "-1.6"', '',
     ].join('\n'));
     expect(stdout).toContain('FIRST UNIQUE OUTPUT');
-    expect(stderr).toContain('INVALID: Line number has been used 10');
+    expect(stderr).toContain('Line 10, column 1: Duplicate line label 10');
     expect(stdout).not.toContain('DUPLICATE MUST NOT EXECUTE');
     expect(stdout).toContain('-2');
   });
+
+  it('executes tokenized input and recovers after a lexical error', () => {
+    const {stdout, stderr} = run([], [
+      '\t10\tprint "Hello ""World"""',
+      '20 print "unfinished',
+      '10 print "recovered"', '',
+    ].join('\n'));
+    expect(stdout).toContain('Hello "World"\n');
+    expect(stdout).toContain('recovered\n');
+    expect(stderr).toBe('Line 20, column 10: Unterminated string\n');
+  });
+
+  it('reports a file lexical error with its physical location and exits 1',
+      () => {
+        const directory = mkdtempSync(join(tmpdir(), 'basic-lexical-'));
+        try {
+          const file = join(directory, 'invalid.bas');
+          writeFileSync(file, '\r\n\t10abc PRINT "must not run"');
+          const {stdout, stderr} = run([file], '', 1);
+          expect(stdout).toBe('');
+          expect(stderr).toContain(
+              'Source line 2, column 2: Invalid line label "10abc"',
+          );
+          expect(stderr).not.toContain(' at ');
+        } finally {
+          rmSync(directory, {recursive: true, force: true});
+        }
+      });
 
   it('continues the interactive session after END', () => {
     const {stdout, stderr} = run([], [
