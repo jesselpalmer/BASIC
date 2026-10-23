@@ -5,32 +5,35 @@ import int from './commands/int_command';
 import print from './commands/print_command';
 
 export class LineExecutor {
+  constructor(host) {
+    this.host = host;
+  }
+
   execLine(line) {
     const command = line.split(' ')[1];
     const message = line.split(/[""]/)[1];
 
     switch (command) {
       case 'ABS':
-        abs(message);
+        abs(message, this.host);
         break;
       case 'CLS':
-        cls();
+        cls(this.host);
         break;
       case 'END':
-        end();
-        break;
+        return end();
       case 'INT':
-        int(message);
+        int(message, this.host);
         break;
       case 'PRINT':
-        print(message);
+        print(message, this.host);
         break;
       case 'REM':
-        break;
       case '':
         break;
       default:
-        console.log(`Invalid command`);
+        throw new Error('Invalid command');
     }
+    return 'running';
   }
 }

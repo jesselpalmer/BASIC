@@ -1,9 +1,13 @@
 module.exports = {
   mode: 'development',
-  entry: './src/index.js',
+  entry: {
+    main: './src/cli/main.js',
+    index: './src/index.js',
+  },
   output: {
     path: __dirname + '/lib',
     filename: '[name].js',
+    library: {type: 'commonjs2'},
   },
   target: 'node',
   module: {

@@ -3,46 +3,17 @@ export class LineValidator {
     this._usedLineNumbers = new Set();
   }
 
-  hasLineNumberBeenUsed(lineNumberStr) {
-    const radix = 10;
-    const lineNumber = parseInt(lineNumberStr, radix);
-    let hasLineNumBeenUsed = false;
-
+  validate(line) {
+    const lineNumberStr = line.split(' ')[0];
+    const lineNumber = parseInt(lineNumberStr, 10);
+    if (isNaN(lineNumber)) {
+      throw new Error(
+          `INVALID: Line number is not a valid number ${lineNumberStr}`,
+      );
+    }
     if (this._usedLineNumbers.has(lineNumber)) {
-      console.log(`INVALID: Line number has been used ${lineNumber}`);
-      hasLineNumBeenUsed = true;
-    } else {
-      this._usedLineNumbers.add(lineNumber);
+      throw new Error(`INVALID: Line number has been used ${lineNumber}`);
     }
-
-    return hasLineNumBeenUsed;
-  }
-
-  isLineNumberANumber(lineNumberStr) {
-    const radix = 10;
-    let isLineValid = true;
-
-    if (isNaN(parseInt(lineNumberStr, radix))) {
-      console.log(`
-        INVALID: Line number is not a valid number ${lineNumberStr}
-        `);
-      isLineValid = false;
-    }
-
-    return isLineValid;
-  }
-
-  isLineValid(line) {
-    const lineTokens = line.split(' ');
-    const lineNumber = lineTokens[0];
-    let isLineValid = true;
-
-    if (!this.isLineNumberANumber(lineNumber)) {
-      isLineValid = false;
-    } else if (this.hasLineNumberBeenUsed(lineNumber)) {
-      isLineValid = false;
-    }
-
-    return isLineValid;
+    this._usedLineNumbers.add(lineNumber);
   }
 }

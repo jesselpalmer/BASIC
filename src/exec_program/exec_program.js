@@ -1,42 +1,41 @@
-import * as rl from 'readline';
-import * as fs from 'fs';
+import {createHost} from '../core/host';
 import {LineValidator} from './validators/line_validator';
 import {LineExecutor} from './executors/line_executor';
 
 export default class ExecProgram {
-  constructor() {
+  constructor(host = {}) {
+    this.host = createHost(host);
+    this.reset();
+  }
+
+  reset() {
     this._lineValidator = new LineValidator();
-    this._lineExecutor = new LineExecutor();
+    this._lineExecutor = new LineExecutor(this.host);
+    this.status = 'ready';
   }
 
-  start(filePath) {
-    this.openFile(filePath);
-  }
-
-  openFile(filePath) {
-    const fileEncoding = 'utf-8';
-    // Each file owns its history, including when this runner is reused.
-    const fileProgram = new ExecProgram();
-
-    fs.readFile(filePath, fileEncoding, (err) => {
-      if (err) throw err;
-      console.log(`OK: ${filePath}`);
-
-      const rd = rl.createInterface({
-        input: fs.createReadStream(filePath),
-        output: process.stdout,
-        terminal: false,
-      });
-
-      rd.on('line', (line) => fileProgram.readLine(line));
-    });
+  run(source) {
+    this.reset();
+    for (const line of source.split(/\r?\n/)) {
+      if (line.trim() === '') continue;
+      this.readLine(line);
+      if (this.status === 'halted') break;
+    }
+    this.status = 'halted';
+    return {status: this.status};
   }
 
   readLine(line) {
-    if (this._lineValidator.isLineValid(line)) {
-      this._lineExecutor.execLine(line);
-    } else {
-      console.log(`INVALID: ${line}`);
+    if (this.status === 'halted' || this.status === 'error') {
+      return {status: this.status};
+    }
+    try {
+      this._lineValidator.validate(line);
+      this.status = this._lineExecutor.execLine(line);
+      return {status: this.status};
+    } catch (error) {
+      this.status = 'error';
+      throw error;
     }
   }
 }
