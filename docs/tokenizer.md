@@ -75,10 +75,11 @@ and doubled quotes. They require exactly one quoted argument for legacy
 `PRINT`/`ABS`/`INT`, no arguments for `CLS`/`END`, and reject trailing operands.
 Duplicate labels are compared numerically.
 
-This is lexical analysis plus a small adapter for legacy commands. It does not
-build syntax trees, evaluate expressions, sort programs, validate all lines before
-execution, or provide a stored editor. Those changes follow in the parser and
-runtime tickets. `END` still stops scanning/execution of subsequent file lines.
+The separate [parser API](parser.md) consumes these tokens to build syntax trees
+and immutable programs sorted by label. The existing CLI and `Basic` still use
+the small legacy adapter; `END` stops scanning/execution of subsequent file lines
+there. Expression evaluation, execution of parsed programs, and stored editing
+follow in the runtime/editor tickets.
 
 `npm test` covers token values/boundaries, exact positions, malformed inputs,
 state isolation, interpreter integration, and CLI diagnostics/recovery.

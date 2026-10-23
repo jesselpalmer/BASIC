@@ -1,9 +1,10 @@
 # Interpreter and terminal lifecycle
 
 The interpreter can now be imported and constructed without printing, opening
-stdin/readline, or exiting Node. The package entry exports `Basic` and
-`createHost`; the executable is a separate entrypoint. On Node.js 24.x the source
-runs directly as ES modules, with no build step or runtime dependencies.
+stdin/readline, or exiting Node. The package entry exports `Basic`, `createHost`,
+and the separate [parser API](parser.md); the executable has its own entrypoint.
+On Node.js 24.x the source runs directly as ES modules, with no build step or
+runtime dependencies.
 
 This API still executes the **legacy** statements documented in the README.
 It is a foundation for the parser/runtime work, not the completed
@@ -29,7 +30,8 @@ CommonJS callers on Node 24 can use
 - `new Basic(host = {})` constructs a quiet interpreter in `ready` state.
 - `run(source)` resets state, executes nonblank source lines in their existing
   physical order, and returns `{status: 'halted'}` after `END` or end of source.
-  Numeric sorting and complete-program validation arrive with the parser work.
+  The separate parser already provides ordered, syntax-checked snapshots;
+  switching this execution loop to those snapshots belongs to #37.
 - `readLine(line)` executes one legacy numbered statement and returns
   `{status: 'running'}` or `{status: 'halted'}`. It keeps validation history across
   calls. After completion or failure, further calls do not execute until reset.
@@ -45,8 +47,9 @@ Each interpreter has its own state. The core neither reads files nor owns
 terminal resources. Only the host decides how to display errors or close itself.
 File execution passes original physical line numbers and offsets to the
 tokenizer, including blank lines and CRLF endings. Errors are still discovered
-as each legacy line executes; the parser work will validate the whole program
-before any output.
+as each legacy line executes. `parseProgram(source)` validates all syntax and
+duplicates before returning a snapshot, but the legacy execution loop does not
+yet consume those snapshots.
 
 ## Host callbacks
 

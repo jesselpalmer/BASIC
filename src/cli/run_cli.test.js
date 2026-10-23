@@ -1,6 +1,6 @@
 import {jest} from '@jest/globals';
 import {PassThrough} from 'node:stream';
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdtempSync, promises as fs, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {runCli, runFile} from './run_cli.js';
@@ -37,7 +37,16 @@ describe('CLI adapter lifecycle', () => {
   it('runs a file without opening terminal input', async () => {
     const file = join(directory, 'program.bas');
     writeFileSync(file, '10 PRINT "file"\n20 END\n30 PRINT "skipped"');
-    expect(await runCli([file], {host})).toBe(0);
+    const read = jest.spyOn(fs, 'readFile');
+    try {
+      expect(await runCli([file], {host})).toBe(0);
+      expect(read).toHaveBeenCalledTimes(1);
+      expect(read).toHaveBeenCalledWith(file, expect.objectContaining({
+        encoding: 'utf8',
+      }));
+    } finally {
+      read.mockRestore();
+    }
     expect(output.read().toString()).toBe('file\n');
     expect(errors.read()).toBeNull();
   });
