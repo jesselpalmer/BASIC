@@ -357,9 +357,10 @@ quoted argument. v0.1 replaces them with expression functions:
 | `20 INT "-1.6"` | `20 PRINT INT(-1.6)` |
 
 The old standalone forms will not be aliases in v0.1. Numbered REPL entries change
-from immediate execution to stored-program edits, blank input becomes harmless,
-and `END` finishes a run instead of exiting the application. README and release
-notes must call out these changes when the implementation switches behavior.
+from immediate execution to stored-program edits and blank input becomes harmless.
+The lifecycle refactor has already changed `END` to finish a run instead of
+exiting the application. README and release notes must call out the remaining
+changes when the implementation switches behavior.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, graphics, and

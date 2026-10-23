@@ -1,34 +1,27 @@
-const readline = require('readline');
-import ExecProgram from '../exec_program/exec_program';
+import Basic from '../basic';
 import constants from '../shared/constants';
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
 export default class Repl {
-  start() {
-    const program = new ExecProgram();
-    console.log(constants.Strings.Repl.WELCOME_MESSAGE);
+  constructor(host) {
+    this.host = host;
+  }
 
-    rl.setPrompt(constants.Strings.Repl.PROMPT);
-    rl.prompt();
-
-    rl.on('line', (line) => {
-      const isLineEmpty = line === null || line === '';
-
-      if (isLineEmpty) {
-        console.log(constants.Strings.Repl.EXIT_MESSAGE);
-        process.exit(constants.ExitCodes.NORMAL);
+  async start({signal} = {}) {
+    const program = new Basic(this.host);
+    this.host.write(`${constants.Strings.Repl.WELCOME_MESSAGE}\n`);
+    for (;;) {
+      const line = await this.host.readLine(
+          constants.Strings.Repl.PROMPT, {signal},
+      );
+      if (line === null || line === '') break;
+      try {
+        const result = program.readLine(line);
+        if (result.status === 'halted') program.reset();
+      } catch (error) {
+        this.host.writeError(`${error.message}\n`);
+        program.reset();
       }
-
-      program.readLine(line);
-      rl.prompt();
-    }).on('close', () => {
-      console.log();
-      console.log(constants.Strings.Repl.EXIT_MESSAGE);
-      process.exit(constants.ExitCodes.NORMAL);
-    });
+    }
+    this.host.write(`${constants.Strings.Repl.EXIT_MESSAGE}\n`);
   }
 }

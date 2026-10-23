@@ -1,3 +1,3 @@
-export default function print(line) {
-  console.log(`${line}`);
+export default function print(line, host) {
+  host.write(`${line}\n`);
 }

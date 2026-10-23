@@ -1,61 +1,58 @@
 import ExecProgram from './exec_program';
-import {mkdtempSync, rmSync, writeFileSync} from 'fs';
-import {tmpdir} from 'os';
-import {join} from 'path';
 
-describe('ExecProgram line execution', () => {
-  let output;
+describe('ExecProgram lifecycle', () => {
+  let write;
+  let program;
 
   beforeEach(() => {
-    output = jest.spyOn(console, 'log').mockImplementation(() => {});
+    write = jest.fn();
+    program = new ExecProgram({write});
   });
 
-  afterEach(() => jest.restoreAllMocks());
-
   it('retains validation history across session lines', () => {
-    const program = new ExecProgram();
     program.readLine('10 PRINT "first"');
     program.readLine('20 PRINT "second"');
-    program.readLine('10 PRINT "duplicate"');
-    expect(output).toHaveBeenCalledWith('first');
-    expect(output).toHaveBeenCalledWith('second');
-    expect(output).not.toHaveBeenCalledWith('duplicate');
-    expect(output).toHaveBeenCalledWith(
-        'INVALID: Line number has been used 10',
+    expect(() => program.readLine('10 PRINT "duplicate"')).toThrow(
+        'Line number has been used 10',
     );
+    expect(write.mock.calls).toEqual([['first\n'], ['second\n']]);
+    expect(program.status).toBe('error');
   });
 
   it('keeps independent sessions isolated', () => {
-    new ExecProgram().readLine('10 PRINT "session one"');
-    new ExecProgram().readLine('10 PRINT "session two"');
-    expect(output).toHaveBeenCalledWith('session one');
-    expect(output).toHaveBeenCalledWith('session two');
+    program.readLine('10 PRINT "session one"');
+    new ExecProgram({write}).readLine('10 PRINT "session two"');
+    expect(write.mock.calls).toEqual([['session one\n'], ['session two\n']]);
   });
 
-  it('isolates files opened concurrently by the same runner', async () => {
-    const directory = mkdtempSync(join(tmpdir(), 'basic-files-'));
-    const firstFile = join(directory, 'first.bas');
-    const secondFile = join(directory, 'second.bas');
-    writeFileSync(firstFile, '10 PRINT "first file"\n');
-    writeFileSync(secondFile, '10 PRINT "second file"\n');
-    const program = new ExecProgram();
-    try {
-      await new Promise((resolve) => {
-        const seen = new Set();
-        output.mockImplementation((text) => {
-          if (text === 'first file' || text === 'second file') seen.add(text);
-          if (seen.size === 2) resolve();
-        });
-        program.start(firstFile);
-        program.start(secondFile);
-      });
-      expect(output).toHaveBeenCalledWith('first file');
-      expect(output).toHaveBeenCalledWith('second file');
-      expect(output).not.toHaveBeenCalledWith(
-          'INVALID: Line number has been used 10',
-      );
-    } finally {
-      rmSync(directory, {recursive: true, force: true});
-    }
+  it('END halts the run without executing subsequent statements', () => {
+    const result = program.run('10 PRINT "before"\n20 END\n30 PRINT "after"');
+    expect(result).toEqual({status: 'halted'});
+    program.readLine('40 PRINT "still stopped"');
+    expect(write.mock.calls).toEqual([['before\n']]);
+  });
+
+  it('starts each run with independent validation and completion state', () => {
+    program.run('10 PRINT "first"\n20 END');
+    program.run('10 PRINT "second"\n');
+    expect(write.mock.calls).toEqual([['first\n'], ['second\n']]);
+    expect(program.status).toBe('halted');
+  });
+
+  it('halts on an error and can be explicitly reset or rerun', () => {
+    expect(() => program.run('10 INT "bad"\n20 PRINT "skipped"'))
+        .toThrow('Invalid number');
+    expect(program.status).toBe('error');
+    program.readLine('30 PRINT "also skipped"');
+    expect(write).not.toHaveBeenCalled();
+    program.reset();
+    program.readLine('10 PRINT "recovered"');
+    program.run('10 PRINT "rerun"');
+    expect(write.mock.calls).toEqual([['recovered\n'], ['rerun\n']]);
+  });
+
+  it('finishes an empty program without host interaction', () => {
+    expect(program.run('\n \r\n')).toEqual({status: 'halted'});
+    expect(write).not.toHaveBeenCalled();
   });
 });

@@ -13,8 +13,9 @@ the commands below describe the current executable.
 
 For a local checkout, install dependencies with `npm ci`, run `npm run build`,
 then run `npm test` and `npm run lint`. Rebuild after source changes: `bin/basic`
-loads the checked-in `lib/main.js` bundle. CLI regression tests exercise that
-same executable, including the sample below.
+loads the checked-in `lib/main.js` CLI bundle. The separate `lib/index.js` bundle
+exports the interpreter without starting a terminal. CLI regression tests
+exercise the executable, including the sample below.
 
 ## Installation
 
@@ -52,6 +53,28 @@ basic
 
 Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
 
+`END` finishes the current run and returns to the prompt. You can then enter
+another program, reusing its line numbers. For now, a blank line or EOF closes
+the session; stored-program editing and `EXIT` are planned for v0.1.
+
+Errors are reported to stderr. A file error stops execution with a nonzero exit
+code; an interactive command error resets the current run and leaves the prompt
+usable. Ctrl+C closes a waiting terminal with exit code 130.
+
+## Embedding the interpreter
+
+```js
+const {Basic} = require('node-basic-lang');
+const basic = new Basic({write: (text) => process.stdout.write(text)});
+basic.run('10 PRINT "Hello"\n20 END');
+```
+
+Imports and construction are quiet. `END` returns normally to the caller, and
+each `run(source)` starts fresh. The default host discards output; provide the
+callbacks you need. See [the host API](docs/interpreter-host.md) for lifecycle,
+async input, randomness, and current limitations. These exports are available in
+this checkout after building; this change does not update the published package.
+
 ## Supported commands
 
 `ABS` - Prints out the absolute value of a number.  
@@ -59,7 +82,7 @@ Make sure that you enter a unique line number for each command, just like you wo
 `INT` - Prints out an integer by rounding any decimal number down.  
 `PRINT` - Prints lines to the console.  
 `REM` - Comments for the user. The interpreter ignores these lines.  
-`END` - Exits the program.
+`END` - Completes the current BASIC run and returns to its host.
 
 ## Sample file
 

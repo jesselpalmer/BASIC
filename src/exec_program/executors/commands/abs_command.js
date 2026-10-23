@@ -1,9 +1,5 @@
-export default function abs(line) {
+export default function abs(line, host) {
   const number = parseFloat(line);
-
-  if (isNaN(number)) {
-    console.error('Invalid number');
-  } else {
-    console.log(Math.abs(number));
-  }
+  if (!Number.isFinite(number)) throw new Error('Invalid number');
+  host.write(`${Math.abs(number)}\n`);
 }
