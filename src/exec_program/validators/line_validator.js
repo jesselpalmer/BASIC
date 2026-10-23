@@ -8,11 +8,11 @@ export class LineValidator {
     const lineNumber = parseInt(lineNumberStr, radix);
     let hasLineNumBeenUsed = false;
 
-    if (LineValidator._usedLineNumbers.has(lineNumber)) {
+    if (this._usedLineNumbers.has(lineNumber)) {
       console.log(`INVALID: Line number has been used ${lineNumber}`);
       hasLineNumBeenUsed = true;
     } else {
-      LineValidator._usedLineNumbers.add(lineNumber);
+      this._usedLineNumbers.add(lineNumber);
     }
 
     return hasLineNumBeenUsed;
