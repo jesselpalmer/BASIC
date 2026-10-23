@@ -2,18 +2,17 @@
   "name": "node-basic-lang",
   "version": "0.0.10",
   "description": "BASIC interpreter",
-  "main": "./lib/index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "build": "./node_modules/.bin/webpack",
-    "build:watch": "./node_modules/.bin/webpack --watch",
-    "lint": "./node_modules/.bin/eslint .",
-    "lint:fix": "./node_modules/.bin/eslint ./src/**/*.* --fix",
-    "start": "node ./lib/main.js",
-    "test": "jest"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start": "node ./bin/basic",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test:package": "node ./scripts/test-package.js"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {
-    "node": ">=16"
+    "node": "24.x"
   },
   "keywords": [
     "BASIC",
@@ -31,31 +30,30 @@
     "basic": "./bin/basic"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.5",
-    "@babel/eslint-parser": "^7.19.1",
-    "@babel/preset-env": "^7.13.10",
-    "babel-loader": "^9.1.0",
-    "eslint": "^8.29.0",
-    "eslint-config-google": "^0.14.0",
-    "jest": "^29.3.1",
-    "webpack": "^5.27.1",
-    "webpack-cli": "^5.0.0"
+    "@eslint/js": "^10.0.1",
+    "@jest/globals": "^30.5.2",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "jest": "^30.5.2"
   },
-  "preferGlobal": true,
   "jest": {
-    "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
-    },
-    "testPathIgnorePatterns": [
-      "./lib"
-    ]
+    "transform": {}
   },
   "private": false,
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org/"
   },
   "funding": {
     "type": "github",
     "url": "https://github.com/sponsors/jesselpalmer"
-  }
+  },
+  "type": "module",
+  "exports": "./src/index.js",
+  "files": [
+    "bin/",
+    "src/",
+    "!src/**/*.test.js",
+    "!src/**/__tests__/",
+    "docs/"
+  ]
 }

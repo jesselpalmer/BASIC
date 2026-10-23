@@ -1,4 +1,4 @@
-import {runCli} from './run_cli';
+import {runCli} from './run_cli.js';
 
 runCli(process.argv.slice(2)).then((code) => {
   process.exitCode = code;

@@ -1,4 +1,5 @@
-import ExecProgram from './exec_program';
+import {jest} from '@jest/globals';
+import ExecProgram from './exec_program.js';
 
 describe('ExecProgram lifecycle', () => {
   let write;

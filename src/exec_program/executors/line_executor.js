@@ -1,8 +1,8 @@
-import abs from './commands/abs_command';
-import cls from './commands/cls_command';
-import end from './commands/end_command';
-import int from './commands/int_command';
-import print from './commands/print_command';
+import abs from './commands/abs_command.js';
+import cls from './commands/cls_command.js';
+import end from './commands/end_command.js';
+import int from './commands/int_command.js';
+import print from './commands/print_command.js';
 
 export class LineExecutor {
   constructor(host) {

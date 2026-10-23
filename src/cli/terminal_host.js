@@ -1,4 +1,4 @@
-import {createInterface, cursorTo, clearScreenDown} from 'readline';
+import {createInterface, cursorTo, clearScreenDown} from 'node:readline';
 
 function abortError() {
   const error = new Error('Input cancelled');

@@ -1,9 +1,10 @@
-import {PassThrough} from 'stream';
-import {mkdtempSync, rmSync, writeFileSync} from 'fs';
-import {tmpdir} from 'os';
-import {join} from 'path';
-import {runCli, runFile} from './run_cli';
-import TerminalHost from './terminal_host';
+import {jest} from '@jest/globals';
+import {PassThrough} from 'node:stream';
+import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {runCli, runFile} from './run_cli.js';
+import TerminalHost from './terminal_host.js';
 
 describe('CLI adapter lifecycle', () => {
   let directory;

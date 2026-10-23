@@ -1,5 +1,5 @@
-import Basic from '../basic';
-import constants from '../shared/constants';
+import Basic from '../basic.js';
+import constants from '../shared/constants.js';
 
 export default class Repl {
   constructor(host) {

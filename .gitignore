@@ -1,6 +1,12 @@
 # Node modules directory
 node_modules
 
+# Local package archives and generated output
+*.tgz
+coverage/
+lib/
+dist/
+
 # Mac OS files
 .DS_Store
 
