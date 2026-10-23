@@ -16,22 +16,26 @@ export default class ExecProgram {
 
   run(source) {
     this.reset();
-    for (const line of source.split(/\r?\n/)) {
-      if (line.trim() === '') continue;
-      this.readLine(line);
+    let physicalLine = 1;
+    let offset = 0;
+    // Keep line endings so diagnostics retain offsets in the original file.
+    for (const line of source.split(/(?<=\n)/)) {
+      this.readLine(line, {line: physicalLine, offset});
       if (this.status === 'halted') break;
+      physicalLine++;
+      offset += line.length;
     }
     this.status = 'halted';
     return {status: this.status};
   }
 
-  readLine(line) {
+  readLine(line, location = {}) {
     if (this.status === 'halted' || this.status === 'error') {
       return {status: this.status};
     }
     try {
-      this._lineValidator.validate(line);
-      this.status = this._lineExecutor.execLine(line);
+      const tokens = this._lineValidator.validate(line, location);
+      this.status = this._lineExecutor.execLine(tokens);
       return {status: this.status};
     } catch (error) {
       this.status = 'error';

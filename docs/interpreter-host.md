@@ -36,11 +36,17 @@ CommonJS callers on Node 24 can use
 - `reset()` clears validation/completion state and returns to `ready`.
 - Invalid lines, commands, and numeric command arguments throw an `Error` and
   leave `status` equal to `error`. Host callback errors propagate the same way.
-  A new `run()` or explicit `reset()` allows recovery. Structured source
-  diagnostics will arrive with the tokenizer/parser.
+  A new `run()` or explicit `reset()` allows recovery. Lexical, duplicate-label,
+  and legacy statement-syntax failures provide a structured `error.diagnostic`
+  as described in [the tokenizer API](tokenizer.md). Runtime/host failures still
+  use their existing errors.
 
 Each interpreter has its own state. The core neither reads files nor owns
 terminal resources. Only the host decides how to display errors or close itself.
+File execution passes original physical line numbers and offsets to the
+tokenizer, including blank lines and CRLF endings. Errors are still discovered
+as each legacy line executes; the parser work will validate the whole program
+before any output.
 
 ## Host callbacks
 
