@@ -1,9 +1,11 @@
 export default function int(line) {
-  const number = parseInt(line, 10);
+  const number = Number(line);
+  const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
 
-  if (isNaN(number)) {
+  if (typeof line !== 'string' || !decimal.test(line.trim()) ||
+      !Number.isFinite(number)) {
     console.error('Invalid number');
   } else {
-    console.log(Math.floor(parseInt(line, 10)));
+    console.log(Math.floor(number));
   }
 }

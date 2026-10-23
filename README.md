@@ -4,6 +4,18 @@
 
 BASIC interpreter
 
+## Development roadmap
+
+The [v0.1 language and session contract](docs/language-v0.1.md) defines the
+planned terminal MVP, including expressions, variables, control flow, and
+stored-program editing. Those features are being implemented incrementally;
+the commands below describe the current executable.
+
+For a local checkout, install dependencies with `npm ci`, run `npm run build`,
+then run `npm test` and `npm run lint`. Rebuild after source changes: `bin/basic`
+loads the checked-in `lib/main.js` bundle. CLI regression tests exercise that
+same executable, including the sample below.
+
 ## Installation
 
 1. You need to have at least version`v14.0.0` of [node.js](https://nodejs.org/en/) installed.
