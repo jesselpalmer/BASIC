@@ -30,8 +30,8 @@ describe('Basic host boundary', () => {
       constructor() {
         this.value = 'answer';
       }
-      async readLine() {
-        return this.value;
+      readLine() {
+        return Promise.resolve(this.value);
       }
       random() {
         return 0.41;
@@ -46,9 +46,10 @@ describe('Basic host boundary', () => {
   it('has a quiet default host and explicit unsupported input', async () => {
     const host = createHost();
     expect(() => new Basic().run('10 PRINT "discarded"')).not.toThrow();
-    await expect(host.readLine()).rejects.toThrow('Input is not supported');
-    expect(() => Reflect.apply(createHost, undefined, [{write: 'bad'}])).toThrow(
-      'must be a function',
-    );
+    const failure: unknown = await host.readLine().catch((error: unknown) => error);
+    expect(failure).toMatchObject({message: 'Input is not supported by this host'});
+    expect(() => {
+      Reflect.apply(createHost, undefined, [{write: 'bad'}]);
+    }).toThrow('must be a function');
   });
 });

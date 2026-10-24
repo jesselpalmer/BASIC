@@ -60,26 +60,26 @@ Every line, statement, and expression has a `location` containing `label`,
 1-based physical lines/columns, 0-based UTF-16 offsets, exclusive ends, and tabs
 counting as one source column. Line/statement spans exclude trailing whitespace.
 
-| Statement type | Additional fields |
-| --- | --- |
-| `LetStatement` | `target` (`Variable`) and `expression`. `LET` is required. |
+| Statement type   | Additional fields                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is required.                          |
 | `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`. |
-| `RemStatement` | `text`, including all whitespace/text after `REM`. |
-| `ClsStatement` | None. No arguments permitted. |
-| `EndStatement` | None. No arguments permitted. |
+| `RemStatement`   | `text`, including all whitespace/text after `REM`.                                  |
+| `ClsStatement`   | None. No arguments permitted.                                                       |
+| `EndStatement`   | None. No arguments permitted.                                                       |
 
 Blank `PRINT` has no items/separators and `trailingSemicolon: false`. Semicolon
 locations include a trailing semicolon when present. Empty items, leading
 semicolons, comma-based output zones, and trailing unconsumed tokens are errors.
 
-| Expression type | Additional fields |
-| --- | --- |
-| `NumberLiteral` / `StringLiteral` | `value` and original token `raw`. |
-| `Variable` | Normalized uppercase `name`, including a final `$` when present. |
-| `UnaryExpression` | `operator`, `operatorLocation`, and `argument`. |
-| `BinaryExpression` | `operator`, `operatorLocation`, `left`, and `right`. |
-| `GroupExpression` | `expression`; its location includes both parentheses. |
-| `CallExpression` | Normalized `name`, `nameLocation`, and `arguments`. |
+| Expression type                   | Additional fields                                                |
+| --------------------------------- | ---------------------------------------------------------------- |
+| `NumberLiteral` / `StringLiteral` | `value` and original token `raw`.                                |
+| `Variable`                        | Normalized uppercase `name`, including a final `$` when present. |
+| `UnaryExpression`                 | `operator`, `operatorLocation`, and `argument`.                  |
+| `BinaryExpression`                | `operator`, `operatorLocation`, `left`, and `right`.             |
+| `GroupExpression`                 | `expression`; its location includes both parentheses.            |
+| `CallExpression`                  | Normalized `name`, `nameLocation`, and `arguments`.              |
 
 Multiplication/division bind more tightly than addition/subtraction; binary
 operators associate left. Unary signs associate right and bind above binary

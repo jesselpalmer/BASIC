@@ -121,7 +121,7 @@ export default class TerminalHost implements Host {
       this.write(prompt);
     } catch (error) {
       this.close();
-      return Promise.reject(error);
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
     if (this._lines.length) return Promise.resolve(this._lines.shift()!);
     if (this._ended) return Promise.resolve(null);

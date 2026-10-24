@@ -19,7 +19,12 @@ jobs:
         with:
           bun-version-file: .bun-version
       - run: bun install --frozen-lockfile
-      - run: bun run typecheck
-      - run: bun run lint
-      - run: bun test
-      - run: bun run test:package
+      - run: bun run check
+      - name: Upload coverage
+        if: ${{ !cancelled() && hashFiles('coverage/lcov.info') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7

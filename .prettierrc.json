@@ -1,0 +1,8 @@
+{
+  "singleQuote": true,
+  "bracketSpacing": false,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "endOfLine": "lf",
+  "overrides": [{"files": "bin/basic", "options": {"parser": "babel"}}]
+}

@@ -63,15 +63,17 @@ describe('TerminalHost input lifecycle', () => {
   it('does not open input for an already cancelled request', async () => {
     const controller = new AbortController();
     controller.abort();
-    await expect(host.readLine('', {signal: controller.signal})).rejects.toMatchObject({
-      name: 'AbortError',
-    });
+    const failure = await host
+      .readLine('', {signal: controller.signal})
+      .catch((error: unknown) => error);
+    expect(failure).toMatchObject({name: 'AbortError'});
     expect(input.listenerCount('data')).toBe(0);
   });
 
   it('rejects overlapping requests without discarding the first', async () => {
     const first = host.readLine();
-    await expect(host.readLine()).rejects.toThrow('Only one input request');
+    const failure = await host.readLine().catch((error: unknown) => error);
+    expect(failure).toMatchObject({message: 'Only one input request may be pending'});
     input.write('first\n');
     expect(await first).toBe('first');
   });
@@ -98,11 +100,24 @@ describe('TerminalHost input lifecycle', () => {
     expect(input.listenerCount('error')).toBe(0);
   });
 
+  it('normalizes non-Error output failures and releases listeners', async () => {
+    host.write = () => {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- Simulate an untyped host callback.
+      throw 'broken output';
+    };
+    const failure = await host.readLine('Prompt? ').catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(Error);
+    expect(failure).toMatchObject({message: 'broken output'});
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+  });
+
   it('cleans up if writing the prompt fails', async () => {
     host.write = () => {
       throw new Error('broken output');
     };
-    await expect(host.readLine('Prompt? ')).rejects.toThrow('broken output');
+    const failure = await host.readLine('Prompt? ').catch((error: unknown) => error);
+    expect(failure).toMatchObject({message: 'broken output'});
     expect(input.listenerCount('data')).toBe(0);
     expect(input.listenerCount('error')).toBe(0);
   });

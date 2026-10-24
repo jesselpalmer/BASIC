@@ -16,10 +16,7 @@ Install [Bun](https://bun.com/docs/installation), then from a local checkout:
 
 ```bash
 bun install --frozen-lockfile
-bun run typecheck
-bun run lint
-bun test
-bun run test:package
+bun run check
 bun start
 # Or execute a file:
 bun start game.bas
@@ -30,9 +27,14 @@ step is required. `bin/basic` starts the CLI while `src/index.ts` exports the
 interpreter, parser, and public types without opening a terminal. The core and
 parser contain no Bun-specific runtime APIs, allowing future browser hosts.
 
-CI checks the frozen lockfile, types, lint, all 202 behavioral tests, and a packed
+CI checks the frozen lockfile and runs the same `bun run check` command: formatting,
+strict types, typed lint, the behavioral suite with coverage, and a packed
 installation in a temporary Bun consumer. The package check verifies quiet
 ES module/CommonJS imports, parser exports, and the installed executable.
+
+Use `bun run format` to apply formatting and `bun test` for a quick test run.
+See [quality checks and coverage](docs/quality-checks.md) for the complete commands,
+measured baseline, and coverage limitations.
 
 ## Installation
 
@@ -67,9 +69,9 @@ basic game.bas
 
 You can use the REPL just by running the following command in the terminal:
 
- ```bash
+```bash
 basic
- ```
+```
 
 Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
 

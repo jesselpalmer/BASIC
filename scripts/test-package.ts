@@ -76,7 +76,9 @@ try {
   }
 
   const typedConsumer = join(consumer, 'consumer.ts');
-  writeFileSync(typedConsumer, `
+  writeFileSync(
+    typedConsumer,
+    `
     import {Basic, parseProgram, type Host, type Program} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
@@ -90,11 +92,21 @@ try {
         void expressions;
       }
     }
-  `);
-  run(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'),
-    '--noEmit', '--strict', '--skipLibCheck', '--target', 'ESNext',
-    '--module', 'Preserve', '--moduleResolution', 'Bundler',
-    '--allowImportingTsExtensions', typedConsumer,
+  `,
+  );
+  run(process.execPath, [
+    join(root, 'node_modules/typescript/bin/tsc'),
+    '--noEmit',
+    '--strict',
+    '--skipLibCheck',
+    '--target',
+    'ESNext',
+    '--module',
+    'Preserve',
+    '--moduleResolution',
+    'Bundler',
+    '--allowImportingTsExtensions',
+    typedConsumer,
   ]);
 
   const shim = join(

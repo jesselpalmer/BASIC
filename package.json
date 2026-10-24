@@ -9,7 +9,11 @@
     "lint:fix": "bun ./node_modules/eslint/bin/eslint.js . --fix",
     "start": "bun ./bin/basic",
     "test": "bun test",
-    "test:package": "bun ./scripts/test-package.ts"
+    "test:package": "bun ./scripts/test-package.ts",
+    "format": "bun ./node_modules/prettier/bin/prettier.cjs --write . bin/basic",
+    "format:check": "bun ./node_modules/prettier/bin/prettier.cjs --check . bin/basic",
+    "test:coverage": "bun test --coverage",
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test:coverage && bun run test:package"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {
@@ -35,6 +39,7 @@
     "@types/bun": "^1.4.4",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
+    "prettier": "3.9.10",
     "typescript": "^6.0.0",
     "typescript-eslint": "^8.72.0"
   },
