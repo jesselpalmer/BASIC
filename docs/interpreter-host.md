@@ -2,14 +2,16 @@
 
 The interpreter can now be imported and constructed without printing, opening
 stdin/readline, or exiting the host process. The package entry exports `Basic`, `createHost`,
-and the separate [parser API](parser.md); the executable has its own entrypoint.
+and the separate [parser](parser.md) and [evaluator](evaluator.md) APIs; the executable
+has its own entrypoint.
 On Bun 1.4.4 the source runs directly as TypeScript ES modules, with no build step or
 runtime dependencies.
 
 This API still executes the **legacy** statements documented in the README.
 It is a foundation for the parser/runtime work, not the completed
 [v0.1 language](language-v0.1.md). There are no stored-program editor commands,
-variables, expression functions, or BASIC `INPUT` yet.
+variables, expression functions, or BASIC `INPUT` in `Basic` yet. Variables and
+expression functions are available through the separate evaluator API.
 
 ## Core API
 
@@ -64,9 +66,10 @@ never invokes them.
 | `readLine(prompt, {signal})` | Promise resolving to one input string without its line ending, or `null` at EOF. Reject with an `AbortError` on cancellation. The default rejects as unsupported. |
 | `random()`                   | Synchronous number `>= 0` and `< 1`; defaults to `Math.random`. Tests may inject a deterministic function.                                                        |
 
-The input and randomness interfaces are available for the future `INPUT` and
-`RND()` implementations. Existing legacy commands only consume `write` and
-`clear`. Async host callback results are not supported for those two operations.
+The input interface is available for future `INPUT` support. The separate
+evaluator consumes `random` for `RND()`. Existing legacy commands only consume
+`write` and `clear`. Async host callback results are not supported for those
+two operations.
 
 ## Terminal adapter
 

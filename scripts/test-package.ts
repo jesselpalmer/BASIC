@@ -38,7 +38,8 @@ try {
   assert.ok(!files.some((file) => file.endsWith('.test.ts') || file.includes('__tests__')));
 
   // Resolve the public package name outside this checkout, in both formats.
-  const exports = 'Basic, createHost, parseLine, parseProgram, validateProgram, BasicSyntaxError';
+  const exports =
+    'Basic, createHost, parseLine, parseProgram, validateProgram, BasicSyntaxError, Evaluator, BasicRuntimeError';
   for (const [format, statement] of [
     ['module', `import {${exports}} from "node-basic-lang";`],
     ['commonjs', `const {${exports}} = require("node-basic-lang");`],
@@ -46,7 +47,7 @@ try {
     const quiet = run(process.execPath, [
       `--input-type=${format}`,
       '-e',
-      `${statement} new Basic(); createHost();`,
+      `${statement} new Basic(); createHost(); new Evaluator();`,
     ]);
     assert.equal(quiet.stdout, '');
     assert.equal(quiet.stderr, '');
@@ -78,19 +79,40 @@ try {
     ]);
     assert.equal(parsed.stdout, '');
     assert.equal(parsed.stderr, '');
+    const evaluated = run(process.execPath, [
+      `--input-type=${format}`,
+      '-e',
+      `${statement}
+       const evaluator = new Evaluator({random: () => 0.41});
+       const assignment = parseLine('10 LET SECRET = INT(RND()*100)+1').statement;
+       evaluator.assign(assignment.target, evaluator.evaluate(assignment.expression));
+       const output = parseLine('20 PRINT SECRET+1').statement.items[0];
+       if (evaluator.evaluate(output) !== 43) process.exit(1);
+       evaluator.reset();
+       let failure;
+       try { evaluator.evaluate(output); } catch (error) { failure = error; }
+       if (!(failure instanceof BasicRuntimeError) ||
+           failure.diagnostic.code !== 'UNDEFINED_VARIABLE' ||
+           failure.diagnostic.label !== 20 ||
+           failure.diagnostic.column !== 10) process.exit(1);`,
+    ]);
+    assert.equal(evaluated.stdout, '');
+    assert.equal(evaluated.stderr, '');
   }
 
   const typedConsumer = join(consumer, 'consumer.ts');
   writeFileSync(
     typedConsumer,
     `
-    import {Basic, parseProgram, BasicSyntaxError, type Host, type Program} from 'node-basic-lang';
+    import {Basic, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
+            type BasicValue, type Host, type Program} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
     };
     const program: Program = parseProgram('10 PRINT 1');
     new Basic(host);
+    const evaluator = new Evaluator(host);
     try { parseProgram('10 PRINT 1+'); } catch (error) {
       if (!(error instanceof BasicSyntaxError)) throw error;
       const code: string = error.diagnostic.code;
@@ -99,9 +121,20 @@ try {
     for (const line of program.lines) {
       if (line.statement.type === 'PrintStatement') {
         const expressions = line.statement.items;
-        void expressions;
+        try {
+          const value: BasicValue = evaluator.evaluate(expressions[0]);
+          void value;
+        } catch (error) {
+          if (!(error instanceof BasicRuntimeError)) throw error;
+          const code: string = error.diagnostic.code;
+          void code;
+        }
+      }
+      if (line.statement.type === 'LetStatement') {
+        evaluator.assign(line.statement.target, evaluator.evaluate(line.statement.expression));
       }
     }
+    evaluator.reset();
   `,
   );
   run(process.execPath, [
@@ -138,7 +171,7 @@ try {
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');
-  console.log('Packed package: imports, parser, basic, and banner passed.');
+  console.log('Packed package: imports, parser, evaluator, basic, and banner passed.');
 } finally {
   rmSync(directory, {recursive: true, force: true});
 }
