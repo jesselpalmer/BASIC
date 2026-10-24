@@ -19,13 +19,21 @@ assert.equal(readSync(Number(process.argv[2]), Buffer.alloc(1), 0, 1, null), 1);
 const host = new TerminalHost({input, output});
 try {
   const result = await host.readLine().catch((error: unknown) => error);
-  assert.ok(result instanceof Error, 'Disconnected TTY setup must reject');
+  if (process.platform === 'darwin') {
+    // macOS reports this hangup as EOF; Linux fails native raw-mode setup.
+    assert.equal(result, null, 'Disconnected macOS TTY must settle at EOF');
+  } else {
+    assert.ok(result instanceof Error, 'Disconnected TTY setup must reject');
+  }
+  const destroyedBeforeClose = input.destroyed;
   host.close();
   for (const [index, event] of events.entries()) {
     assert.deepEqual(input.listeners(event), before[index], `Leaked ${event} listener`);
   }
   assert.deepEqual(output.listeners('resize'), [externalResize]);
-  assert.equal(input.destroyed, false, 'Host must not destroy the caller stream');
+  // EOF can close a native stream itself; host disposal must not destroy it.
+  assert.equal(input.destroyed, destroyedBeforeClose);
+  if (process.platform !== 'darwin') assert.equal(input.destroyed, false);
   assert.equal(output.destroyed, false, 'Host must not destroy the caller output');
   process.stdout.write('CLEAN\n');
 } finally {
