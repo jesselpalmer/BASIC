@@ -307,7 +307,8 @@ clear stored source, terminate the interactive host, or execute later statements
 
 These programs define the target MVP and become executable fixtures as the
 language tickets land. All three now execute through the current file/runtime
-path; complete stored-editor and persistence acceptance remains future work.
+path and the stored editor. File persistence and its acceptance checks remain
+planned work.
 
 ### Greeting
 
@@ -347,7 +348,7 @@ path; complete stored-editor and persistence acceptance remains future work.
 With injected `RND() = 0.41`, the secret is 42. Inputs 20, 80, and 42 must produce
 low/high feedback and success in three tries. A new run starts the count afresh.
 
-## Migration from the current dialect
+## Migration from the legacy dialect
 
 The earlier `ABS` and `INT` standalone commands printed their result from a
 quoted argument. The current runtime replaces them with expression functions:
@@ -359,9 +360,10 @@ quoted argument. The current runtime replaces them with expression functions:
 
 The old standalone forms are no longer aliases. Files now validate all syntax
 before execution and run in numeric label order; `END` finishes a run instead of
-exiting the application. Numbered REPL entries still execute immediately. The
-stored editor will later change them to edits and make blank input harmless.
-README and release notes must call out those remaining changes when they land.
+exiting the application. Numbered REPL entries edit stored source; `RUN` executes
+it, and blank input is harmless. `NEW` and `EXIT` ask before discarding unsaved
+source. The library's legacy `readLine` methods retain immediate execution; they
+are separate from the terminal session.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, graphics, and

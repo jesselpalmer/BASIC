@@ -4,9 +4,21 @@ import {join} from 'node:path';
 import type * as PublicApi from '../src/index.ts';
 import type {Host} from '../src/index.ts';
 
-type Api = Pick<typeof PublicApi, 'Basic' | 'BasicSyntaxError' | 'BasicRuntimeError'>;
+type Api = Pick<
+  typeof PublicApi,
+  | 'Basic'
+  | 'BasicSyntaxError'
+  | 'BasicRuntimeError'
+  | 'parseLine'
+  | 'parseProgram'
+  | 'validateProgram'
+  | 'Evaluator'
+>;
 
 export const libraryAcceptanceCases = [
+  'public program execution and stepping',
+  'public parser snapshots and diagnostics',
+  'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
   'times-table example',
@@ -63,6 +75,72 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     return {...result, requests};
   }
 
+  await check('public program execution and stepping', () => {
+    const {basic, output} = setup();
+    basic.run(
+      '50 END\n40 PRINT "package "; A\n30 PRINT "skipped"\n20 IF A=6 THEN 40\n10 LET A = INT(2.9)*3',
+    );
+    basic.run('10 GOTO 30\n20 PRINT "skipped"\n30 REM');
+    basic.reset(api.parseProgram('10 PRINT "step"'));
+    const result = basic.step();
+    assert.equal(result.status, 'halted');
+    assert.equal(result.currentLocation?.label, 10);
+    assert.equal(result.nextLocation, null);
+    assert.ok(Object.isFrozen(result));
+    basic.run('10 FOR I=1 TO 2\n20 PRINT I;\n30 NEXT I\n40 PRINT I');
+    assert.equal(output.join(''), 'package 6\nstep\n123\n');
+  });
+  await check('public parser snapshots and diagnostics', () => {
+    const program = api.parseProgram('20 END\n10 LET A = 1+2*3');
+    const first = program.lines[0];
+    assert.equal(first.label, 10);
+    assert.ok(first.statement.type === 'LetStatement');
+    assert.ok(first.statement.expression.type === 'BinaryExpression');
+    assert.ok(first.statement.expression.right.type === 'BinaryExpression');
+    assert.equal(first.statement.expression.right.operator, '*');
+    const replacement = api.parseLine('10 PRINT A;');
+    assert.ok(replacement);
+    const edited = api.validateProgram([program.lines[1], replacement]);
+    assert.ok(edited.lines[0].statement.type === 'PrintStatement');
+    assert.equal(edited.lines[0].statement.trailingSemicolon, true);
+    assert.ok(Object.isFrozen(edited.lines[0].statement.items));
+    assert.throws(
+      () => api.parseProgram('10 PRINT 1+'),
+      (error: unknown) => {
+        assert.ok(error instanceof api.BasicSyntaxError);
+        assert.equal(error.diagnostic.code, 'EXPECTED_EXPRESSION');
+        assert.equal(error.diagnostic.label, 10);
+        return true;
+      },
+    );
+  });
+  await check('public evaluator values and diagnostics', () => {
+    const evaluator = new api.Evaluator({random: () => 0.41});
+    const assignment = api.parseLine('10 LET SECRET = INT(RND()*100)+1');
+    assert.ok(assignment?.statement.type === 'LetStatement');
+    evaluator.assign(
+      assignment.statement.target,
+      evaluator.evaluate(assignment.statement.expression),
+    );
+    const output = api.parseLine('20 PRINT SECRET+1');
+    assert.ok(output?.statement.type === 'PrintStatement');
+    const expression = output.statement.items[0];
+    assert.equal(evaluator.evaluate(expression), 43);
+    evaluator.reset();
+    assert.throws(
+      () => evaluator.evaluate(expression),
+      (error: unknown) => {
+        assert.ok(error instanceof api.BasicRuntimeError);
+        assert.equal(error.diagnostic.code, 'UNDEFINED_VARIABLE');
+        assert.equal(error.diagnostic.label, 20);
+        assert.equal(error.diagnostic.column, 10);
+        return true;
+      },
+    );
+    const branch = api.parseLine('10 IF 1 < 2 THEN 20');
+    assert.ok(branch?.statement.type === 'IfStatement');
+    assert.ok(evaluator.compare(branch.statement.condition));
+  });
   await check('greeting preserves input', async () => {
     const {basic, output, prompts, remaining} = setup(['  Ada LoveLace  ']);
     assert.equal((await basic.runAsync(fixture('greeting.bas'))).status, 'halted');
@@ -204,7 +282,17 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check('nested, descending, empty, and inactive loops', () => {
     const {basic, output} = setup();
     basic.reset(
-      '10 FOR I=2 TO 1 STEP -1\n20 FOR J=1 TO 2\n30 PRINT I;":";J\n40 NEXT J\n50 NEXT I\n60 FOR K=3 TO 1\n70 PRINT "skipped"\n80 NEXT K\n90 PRINT I;":";J;":";K',
+      [
+        '10 FOR I=2 TO 1 STEP -1',
+        '20 FOR J=1 TO 2',
+        '30 PRINT I;":";J',
+        '40 NEXT J',
+        '50 NEXT I',
+        '60 FOR K=3 TO 1',
+        '70 PRINT "skipped"',
+        '80 NEXT K',
+        '90 PRINT I;":";J;":";K',
+      ].join('\n'),
     );
     let budget = 100;
     while (basic.status !== 'halted' && budget-- > 0) basic.step();

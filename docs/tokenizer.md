@@ -9,14 +9,14 @@ The default input is numbered BASIC source. Blank lines are accepted. The
 tokenizer enforces complete decimal labels in the range 1–65535 and requires a
 space/tab between a label and its statement. Leading zeros retain their original
 text but produce the same numeric identity. A bare label is lexically valid;
-the parser rejects it as a missing statement. The future editor will
-interpret it as deletion.
+the parser rejects it as a missing statement. The stored editor handles
+bare-label deletion before calling the parser.
 
 Options are `numbered` (default `true`), `line` (starting physical line, default
-`1`), and `offset` (starting source offset, default `0`). The transitional
+`1`), and `offset` (starting source offset, default `0`). The legacy library
 `Basic.readLine` adapter accepts `line` and `offset` for source fragments. Setting
-`numbered: false` permits tokenization of future unnumbered editor commands; it
-does not implement or execute those commands. A supplied fragment begins at
+`numbered: false` permits unnumbered tokens; it does not implement or execute
+editor commands. The REPL routes its session commands separately. A supplied fragment begins at
 column 1.
 
 ## Tokens

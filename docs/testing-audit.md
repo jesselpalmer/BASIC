@@ -1,8 +1,13 @@
-# Test automation audit
+# Test automation audit — historical record
 
 Tracking: [issue #83](https://github.com/jesselpalmer/BASIC/issues/83).
 Baseline: merged main `1f0b1668587c62863ef85a4cc031e766c5642b08` (after #81/#82).
 Runtime under test: Bun 1.4.4; TypeScript source is the distributed implementation.
+
+This records the baseline and changes in PR #84. Counts, file ownership, and
+limitations below describe that audit, not the latest checkout. See
+[quality checks](quality-checks.md) for current policy and the
+[maintainability audit](maintainability-audit.md) for the subsequent review.
 
 ## Assessment
 
@@ -35,8 +40,8 @@ and one type-only module. See [quality checks](quality-checks.md) for exact gate
 
 ## Behavior and boundary matrix
 
-These checks cover the currently implemented language contracts. The matrix
-points to test ownership so future features have an obvious place to extend it.
+These checks covered the language contracts implemented at the audit baseline.
+The matrix records test ownership at that point.
 
 | Area                      | Main edge cases and assertions                                                                                                                                                  | Owner                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -99,16 +104,10 @@ installation directories are removed in a `finally` block.
   Bun versions are not certified by this matrix. Global/POSIX signal cases are
   explicitly platform-conditional. Published-registry installation is not
   exercised: tests install the exact locally packed artifact without publishing.
-- **Instruction scheduling at the audit baseline:** #41 was still open when this
-  audit ran. It is now implemented: see [responsive execution](execution.md).
-  Additional tests exercise deterministic scheduling/limits and real CLI SIGINT
-  during self-jumps and long loops, including the packed installation. Synchronous
-  execution remains blocking.
-- **Feature work after the audit:** stored program editing (#42) now includes
-  source/session tests and installed CLI acceptance for editing, validation,
-  confirmations, dirty EOF recovery, INPUT routing, and interrupt/rerun flows.
-  LOAD/SAVE (#43) and the remaining editor/file acceptance work (#44/#45) still
-  follow. Graphics will need host-contract and rendering acceptance tests.
+- **Features outside this audit:** instruction scheduling (#41), stored editing
+  (#42), and persistence (#43) were still planned. Current behavior is documented
+  in [execution](execution.md) and [terminal sessions](terminal.md). Graphics will
+  require its own host-contract and rendering acceptance tests.
 
 ## Reproduce and extend
 
