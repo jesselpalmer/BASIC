@@ -1,5 +1,8 @@
 # Tokenization and source diagnostics
 
+The [language and session contract](language-v0.1.md) defines supported syntax;
+recognizing a token alone does not make it an executable statement.
+
 `src/parser/tokenizer.ts` provides the internal, host-independent
 `tokenize(source, options = {})` function. It performs no execution, filesystem
 access, or JavaScript evaluation. Every call owns its state; tokenizing a failed
@@ -30,7 +33,7 @@ offsets count JavaScript UTF-16 code units, so a tab counts as one source column
 | Type          | Value                                                                   |
 | ------------- | ----------------------------------------------------------------------- |
 | `LABEL`       | Numeric label, with original spelling in `raw`.                         |
-| `KEYWORD`     | Uppercase keyword or built-in function name from the v0.1 contract.     |
+| `KEYWORD`     | Uppercase reserved word, including built-ins and session commands.      |
 | `IDENTIFIER`  | Uppercase ASCII name, optionally ending in `$`.                         |
 | `NUMBER`      | Finite unsigned decimal value; `+` and `-` are separate operators.      |
 | `STRING`      | Decoded text: doubled quotes become one quote; other text is unchanged. |
@@ -45,6 +48,14 @@ statement boundaries. `REM` produces a comment token even for an empty comment.
 String values retain case, whitespace, and backslashes. Strings cannot cross a
 physical line. Identifier boundaries matter: `REMARK` and `PRINT2$` are names,
 not keywords followed by fragments.
+
+`src/dictionaries/reserved_words.ts` supplies the active lexical set. It includes
+statement words, grammar words (`THEN`, `TO`, `STEP`), built-ins (`ABS`, `INT`,
+`RND`), and session commands (`RUN`, `LIST`, `NEW`, `LOAD`, `SAVE`, `EXIT`). Session
+commands are reserved names but are rejected as numbered BASIC statements;
+`repl/repl.ts` routes them separately. The parser's statement switch and the
+runtime's dispatch determine executable statements. This dictionary is neither
+an unused legacy list nor a promise that every keyword is a statement.
 
 Numeric-looking words must be complete decimal literals. `12oops`, `1e2`,
 `0x10`, `1.2.3`, and non-finite decimal values fail instead of yielding a valid

@@ -1,5 +1,9 @@
 # Interpreter, stepping, and terminal lifecycle
 
+The [language and session contract](language-v0.1.md) is the syntax reference;
+the [architecture guide](architecture.md) maps public entrypoints and module
+ownership. This guide describes the `Basic` API and host lifecycle.
+
 `Basic` is the reusable statement runtime. Imports and construction are quiet:
 no terminal, filesystem, process exit, or Bun-specific API is used by the core.
 The CLI and library execute through the same parser, evaluator, and statement
@@ -232,9 +236,10 @@ adapter removes owned input-close, error, readline, and abort listeners.
 `src/core/input.ts` owns input validation, retries, and abortable host reads;
 `src/parser` owns syntax and snapshots; `src/cli` owns terminal/argument adapters;
 `src/repl/program.ts` owns editable source and `src/repl/repl.ts` owns session
-commands, confirmations, and fresh run snapshots. `src/basic.ts` and `src/index.ts` are the library entrypoints, while
-`bin/basic` is the executable. Superseded per-command handlers and the old line
-validator/executor were removed when their callers migrated.
+commands, confirmations, and fresh run snapshots. The public package entrypoint
+is `src/index.ts`; `src/basic.ts` is an internal compatibility re-export of the
+same runtime. `bin/basic` is the executable. Superseded per-command handlers and
+the old line validator/executor were removed when their callers migrated.
 
 `bun run check` verifies formatting, strict types, typed lint, behavioral tests
 with coverage, and the installed package. Tests exercise ordered execution,

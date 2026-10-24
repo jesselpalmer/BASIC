@@ -1,5 +1,8 @@
 # Parser API and program snapshots
 
+The [language and session contract](language-v0.1.md) defines supported syntax.
+This guide describes parsing boundaries, returned trees, and diagnostics.
+
 The package exports `parseLine`, `parseProgram`, and `validateProgram`. They
 consume source/parsed lines and return immutable data without executing BASIC,
 reading files, opening a terminal, evaluating JavaScript, or retaining program

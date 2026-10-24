@@ -1,5 +1,8 @@
 # Responsive execution
 
+The [language and session contract](language-v0.1.md) defines program behavior.
+This guide describes the library's scheduling and cancellation controls.
+
 `Basic.runAsync(source?, options?)` executes short batches and yields to the host
 between them. The default scheduler uses a cancellable `setTimeout` task after
 256 statements, allowing terminal signals, browser events, and other timers to

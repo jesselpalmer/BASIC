@@ -1,5 +1,8 @@
 # FOR/NEXT loops
 
+The [language and session contract](language-v0.1.md#for-and-next) defines loop
+syntax and semantics. This guide explains their runtime and host API behavior.
+
 Complete programs support numeric loops:
 
 ```bas
