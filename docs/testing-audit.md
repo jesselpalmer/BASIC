@@ -104,9 +104,11 @@ installation directories are removed in a `finally` block.
   Additional tests exercise deterministic scheduling/limits and real CLI SIGINT
   during self-jumps and long loops, including the packed installation. Synchronous
   execution remains blocking.
-- **Future MVP features:** stored program editing (#42), LOAD/SAVE (#43), and
-  editor/file acceptance work (#44/#45) need tests when implemented. Graphics
-  will need host-contract and rendering acceptance tests of its own.
+- **Feature work after the audit:** stored program editing (#42) now includes
+  source/session tests and installed CLI acceptance for editing, validation,
+  confirmations, dirty EOF recovery, INPUT routing, and interrupt/rerun flows.
+  LOAD/SAVE (#43) and the remaining editor/file acceptance work (#44/#45) still
+  follow. Graphics will need host-contract and rendering acceptance tests.
 
 ## Reproduce and extend
 

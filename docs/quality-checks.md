@@ -7,7 +7,8 @@ bun install --frozen-lockfile
 bun run check
 ```
 
-CI runs this same check on Linux and macOS. Commands stop on the first failure.
+CI runs this same check on Linux and macOS for pull requests to any branch,
+including stacked feature branches, and pushes to main. Commands stop on the first failure.
 
 | Command                 | Purpose                                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
