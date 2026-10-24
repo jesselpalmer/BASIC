@@ -1,4 +1,9 @@
 export type BasicValue = number | string;
+/** A copied, immutable observation of an explicitly assigned variable. */
+export interface VariableSnapshot {
+  readonly name: string;
+  readonly value: BasicValue;
+}
 export type ComparisonOperator = '=' | '<>' | '<' | '<=' | '>' | '>=';
 /** Physical source coordinates; line/column are 1-based UTF-16 units, offset is 0-based. */
 export interface Position {
@@ -30,6 +35,8 @@ export interface RunOptions extends InputOptions {
   yieldEvery?: number;
   /** Defaults to a cancellable timer task; an already-resolved promise does not yield to I/O. */
   scheduler?: ExecutionScheduler;
+  /** Optional debugger gate before each statement; cancellation releases a suspended gate. */
+  beforeStatement?: (signal: AbortSignal) => void | Promise<void>;
 }
 /** Synchronous output and async input capabilities; the interpreter owns no terminal or files. */
 export interface Host {

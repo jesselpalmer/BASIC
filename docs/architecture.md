@@ -123,7 +123,9 @@ terminal object's internal buffers or lifecycle fields. `cli/main.ts` and
 states and request-bound input callbacks. It owns cancellation and replacement
 boundaries without importing the DOM or terminal adapters. Each run takes a
 source snapshot and a fresh runtime. View callbacks render or observe; they
-cannot recursively start or stop execution.
+cannot recursively change execution. The debugger suspends the existing async
+driver through its before-statement gate, retaining INPUT, variables, loop frames,
+and async ownership; see [browser debugging](browser-debugger.md).
 
 `src/browser/document.ts` owns exact editable source, local storage outcomes,
 and replacement generations. Running state never becomes the editable document.

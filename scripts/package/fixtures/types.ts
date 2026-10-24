@@ -15,6 +15,7 @@ import {
   type ComparisonOperator,
   type RunOptions,
   type ExecutionScheduler,
+  type VariableSnapshot,
 } from 'node-basic-lang';
 const host: Host = {
   write(text: string) {
@@ -43,6 +44,13 @@ const scheduler: ExecutionScheduler = (signal) => {
 };
 const runOptions: RunOptions = {...options, instructionLimit: 10, yieldEvery: 2, scheduler};
 const asyncResult: RunResult = await basic.runAsync(program, runOptions);
+const variables: readonly VariableSnapshot[] = basic.variables;
+await basic.runAsync(program, {
+  beforeStatement: (signal) => {
+    void signal.aborted;
+  },
+});
+await basic.runAsync(program, {beforeStatement: () => Promise.resolve()});
 await basic.stepAsync(options);
 await basic.readLineAsync('20 REM', options);
 basic.cancel();
@@ -50,6 +58,8 @@ void asyncResult;
 void label;
 void diagnosticCode;
 const evaluator = new Evaluator(host);
+const evaluatorVariables: readonly VariableSnapshot[] = evaluator.snapshotVariables();
+void evaluatorVariables;
 const loops = parseProgram('10 FOR I=1 TO 2\n20 NEXT I');
 const header = loops.lines[0].statement;
 if (header.type === 'ForStatement') {
@@ -97,6 +107,12 @@ evaluator.reset();
 program.lines[0] = loops.lines[0];
 // @ts-expect-error Execution snapshots expose readonly status.
 result.status = 'ready';
+// @ts-expect-error Variable snapshots expose a readonly array.
+variables[0] = {name: 'N', value: 1};
+// @ts-expect-error Snapshot entries cannot alter interpreter variables.
+variables[0].value = 1;
+// @ts-expect-error Statement gates return void or a promise.
+void basic.runAsync(program, {beforeStatement: () => 'continue'});
 // @ts-expect-error Hosts must supply asynchronous input.
 const invalidHost: Host = {...host, readLine: () => 'answer'};
 // @ts-expect-error BASIC has no boolean value type.

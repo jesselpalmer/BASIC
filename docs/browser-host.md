@@ -45,9 +45,11 @@ than HTML. The host does not evaluate JavaScript or interpret output markup.
 `run(source)` snapshots its string argument, stops the previous execution, clears
 the transcript through the view, and creates a fresh interpreter with fresh
 variables and loop state. Editing a source field does not alter the active run.
-Every run resolves to an immutable `BrowserState` with `status`, `source`, and
-`diagnostic`. Status is `idle`, `running`, `waiting`, `stopped`, `finished`, or
-`error`; language failures resolve with the shared source-located diagnostic.
+Every run resolves to an immutable `BrowserState` with status, source, diagnostic,
+statement locations, and copied variables. Status is `idle`, `running`, `waiting`,
+`paused`, `stopped`, `finished`, or `error`; language failures resolve with the shared
+source-located diagnostic. See the [debugger guide](browser-debugger.md) for
+`run(source, {paused: true})`, `pause`, `step`, `resume`, and snapshot semantics.
 `state` exposes the latest snapshot, and `stateChanged` observes transitions.
 Construction does not invoke the view.
 
@@ -56,7 +58,8 @@ callback with its input control: it returns `false` after submission, cancellati
 or replacement, so delayed events cannot feed a different run. `submitInput(text)`
 is a convenience targeting the current request. Neither method queues input.
 Numeric validation and retry messages come from the core; string input retains
-spaces. A valid submission changes status to `running` before execution resumes.
+spaces. A valid submission changes status to `running` before execution resumes, unless
+the debugger has paused the pending request.
 
 `stop()` cancels pending input or execution, publishes `stopped`, and lets the
 run promise settle without requiring input or an injected scheduler to cooperate.
@@ -66,8 +69,8 @@ output or state. There are no persistent external listeners to dispose: each
 pending request owns and removes its abort listener, and the default scheduler
 clears its timer on cancellation. Applications own their DOM listeners.
 
-View callbacks are synchronous rendering boundaries. Calling `run` or `stop`
-inside one rejects or throws, respectively; schedule a browser event/task for a
+View callbacks are synchronous rendering boundaries. Calling `run`, `stop`, or a debugger command
+inside one rejects or throws; schedule a browser event/task for a
 lifecycle change. Submitting input synchronously from `requestInput` is supported.
 View exceptions reject the affected run with the original exception and leave an
 `error` state, rather than disguising application bugs as BASIC diagnostics.
