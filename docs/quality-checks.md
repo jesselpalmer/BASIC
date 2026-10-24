@@ -53,15 +53,14 @@ test count. Subprocess entrypoint coverage is not merged into the source report.
 | ---------------------------------------------- | ------------: | ----------------: |
 | Default, including newly added runtime modules |          100% |              100% |
 | `src/core/control_flow.ts`                     |           87% |              100% |
-| `src/cli/terminal_host.ts`                     |          100% |               75% |
 
 The control-flow exception covers the same two defensive guards previously in
 `runtime.ts`: a missing validated jump target and an inactive NEXT frame. Their
 12 executable lines are unreachable through a valid prepared program. Moving
 them into a smaller module changes its percentage, not the untested behavior.
-Runtime dispatch now has the default 100% floors. Terminal callback fields still
-have no-op initializers replaced before use. Do not corrupt private state or
-invoke unused callbacks just to raise a percentage. Review any policy change.
+Runtime dispatch and terminal lifecycle now have the default 100% floors; the
+unused terminal callback initializers have been removed. Do not corrupt private
+state or add dead callbacks to satisfy a metric. Review any policy change.
 
 The inventory walks `src/` independently of the modules loaded by tests. A new
 runtime file absent from LCOV fails the check, rather than silently disappearing

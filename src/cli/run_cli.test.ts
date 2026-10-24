@@ -5,6 +5,7 @@ import {PassThrough} from 'node:stream';
 import {mkdtempSync, promises as fs, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
+import {createHost} from '../core/host.ts';
 import {runCli, runFile} from './run_cli.ts';
 import TerminalHost from './terminal_host.ts';
 
@@ -18,6 +19,28 @@ function readAll(stream: PassThrough): string {
   }
   return Buffer.concat(chunks).toString();
 }
+
+it('accepts a structural CLI host and owns its session cleanup', async () => {
+  const output: string[] = [];
+  const host = {
+    ...createHost({
+      write: (text) => output.push(text),
+      readLine: () => Promise.resolve(null),
+    }),
+    writeError: jest.fn(),
+    discardEntry: jest.fn(),
+    setInterruptHandler: jest.fn(),
+    close: jest.fn(),
+  };
+  const signals = process.listeners('SIGINT');
+
+  expect(await runCli([], {host})).toBe(0);
+  expect(output).toEqual(['BASIC 0.0.10\n', 'Have a great day :)\n']);
+  expect(host.setInterruptHandler).toHaveBeenCalledWith(expect.any(Function));
+  expect(host.close).toHaveBeenCalledTimes(1);
+  expect(host.writeError).not.toHaveBeenCalled();
+  expect(process.listeners('SIGINT')).toEqual(signals);
+});
 
 it('routes TTY Ctrl+C through the owned interrupt handler', async () => {
   const input = Object.assign(new PassThrough(), {
