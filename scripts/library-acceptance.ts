@@ -24,6 +24,7 @@ export const libraryAcceptanceCases = [
   'times-table example',
   'stepping, reset, and instance isolation',
   'source-located syntax and runtime failures',
+  'arithmetic and string failures preserve diagnostics and allow recovery',
   'numeric retry and input EOF',
   'cancellation and late reply',
   'replacement run isolates old input',
@@ -233,6 +234,47 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     assert.equal(basic.state.nextLocation, null);
     assert.deepEqual(output, []);
     assert.equal(basic.run('10 END').status, 'halted');
+  });
+  await check('arithmetic and string failures preserve diagnostics and allow recovery', () => {
+    const {basic, output} = setup();
+    for (const {expression, code, column, message} of [
+      {
+        expression: '1/0',
+        code: 'DIVISION_BY_ZERO',
+        column: 11,
+        message: 'Cannot divide by zero',
+      },
+      {
+        expression: 'ABS("Ada")',
+        code: 'TYPE_MISMATCH',
+        column: 10,
+        message: 'Expected a number',
+      },
+      {
+        expression: '"Ada"+1',
+        code: 'TYPE_MISMATCH',
+        column: 15,
+        message: 'Expected a number',
+      },
+    ]) {
+      output.length = 0;
+      assert.throws(
+        () => basic.run(`10 PRINT "before"\n20 PRINT ${expression}\n30 PRINT "skipped"`),
+        (error: unknown) => {
+          assert.ok(error instanceof api.BasicRuntimeError);
+          assert.equal(error.diagnostic.code, code);
+          assert.equal(error.diagnostic.label, 20);
+          assert.equal(error.diagnostic.line, 2);
+          assert.equal(error.diagnostic.column, column);
+          assert.equal(error.message, `Line 20, column ${column}: ${message}`);
+          return true;
+        },
+      );
+      assert.deepEqual(output, ['before\n']);
+      assert.equal(basic.status, 'error');
+      assert.equal(basic.run('10 PRINT "recovered"').status, 'halted');
+      assert.deepEqual(output, ['before\n', 'recovered\n']);
+    }
   });
   await check('numeric retry and input EOF', async () => {
     const {basic, output, prompts} = setup(['12oops', ' \t-2.5\t ', null]);
