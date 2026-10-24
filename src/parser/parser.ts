@@ -227,6 +227,17 @@ class Parser {
       }
       case 'PRINT':
         return this.print(command);
+      case 'INPUT': {
+        let prompt: NodeOf<'StringLiteral'> | null = null;
+        if (this.at('STRING')) {
+          const text = this.expect('STRING', undefined, 'Expected a quoted prompt');
+          prompt = this.node('StringLiteral', text, text, {value: text.value, raw: text.raw});
+          this.expect('PUNCTUATION', ';', 'Expected ; after the INPUT prompt');
+        }
+        const name = this.expect('IDENTIFIER', undefined, 'Expected one variable after INPUT');
+        const target = this.node('Variable', name, name, {name: name.value});
+        return this.node('InputStatement', command, target, {prompt, target});
+      }
       case 'REM': {
         const comment = this.expect('COMMENT', undefined, 'Expected comment');
         return this.node('RemStatement', command, comment, {text: comment.value});

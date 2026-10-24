@@ -39,14 +39,21 @@ The package exports the parser, evaluator, errors, and public types separately.
 - `status` is read-only. `state`, and the return values of reset/run/step, are
   immutable `RunResult` snapshots. Later execution does not change old results.
 
+`runAsync(sourceOrProgram?, {signal}?)`, `stepAsync({signal}?)`, and
+`readLineAsync(source, {line, offset, signal}?)` return promises and support
+`INPUT`. Their non-input behavior matches the synchronous methods. The existing
+synchronous methods stay synchronous; reaching `INPUT` through them throws
+`ASYNC_INPUT_REQUIRED` before asking the host for a value. A synchronous run may
+still contain unreachable input after `END`.
+
 Each result contains:
 
-| Field             | Meaning                                                                    |
-| ----------------- | -------------------------------------------------------------------------- |
-| `status`          | `ready`, `running`, `halted`, or `error`.                                  |
-| `currentLocation` | Last attempted parsed statement, including a failed one; initially null.   |
-| `nextLocation`    | Next statement to execute; null on completion, error, or an empty program. |
-| `diagnostic`      | Frozen structured BASIC diagnostic on failure, otherwise null.             |
+| Field             | Meaning                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `status`          | `ready`, `running`, `waiting`, `halted`, or `error`.                                        |
+| `currentLocation` | Last attempted parsed statement, including a failed one; initially null.                    |
+| `nextLocation`    | Next statement to execute; null while waiting, on completion/error, or in an empty program. |
+| `diagnostic`      | Frozen structured BASIC diagnostic on failure, otherwise null.                              |
 
 Locations include the BASIC label and original physical positions, following
 [the parser convention](parser.md). They span statements, with more precise
@@ -56,7 +63,7 @@ remain mutable and do not affect the active snapshot after preparation.
 
 ## Statements and failures
 
-Implemented statements are `LET`, `PRINT`, `REM`, `CLS`, and `END`.
+Implemented statements are `LET`, `INPUT`, `PRINT`, `REM`, `CLS`, and `END`.
 [Expression evaluation](evaluator.md) supplies typed variables, arithmetic,
 string concatenation, and `ABS`, `INT`, and `RND`. Runs and instances never share
 mutable language state. Reset does not rewind the host's random sequence.
@@ -80,19 +87,54 @@ Host write/clear failures use `HOST_ERROR`, point at the statement, and retain
 the original thrown value as `error.cause`. The runtime's diagnostic is copied,
 so changing a caught error cannot change its saved state.
 
+## INPUT, waiting, and cancellation
+
+`INPUT ["prompt";] variable` accepts one variable and an optional literal prompt.
+The host receives the decoded literal followed by `? `, or just `? ` without a
+literal. It owns prompt display. A `$` target stores the exact answer, including
+empty strings, spaces, or text such as `RUN`. Other targets require complete
+finite signed decimal input; only surrounding spaces/tabs are trimmed. Empty,
+partial, exponent, hexadecimal, and non-finite input prints
+`Invalid number; please enter a finite decimal.` followed by a newline and
+asks again. The target is assigned only after successful validation.
+
+During a pending request, `state.status` is `waiting`, `currentLocation` points
+at `INPUT`, and no successor statement runs. A successful `stepAsync` completes
+only that statement; `runAsync` continues automatically. Another step or
+immediate entry while waiting rejects without replacing the pending request.
+The REPL awaits program input before asking for another editor entry.
+
+`cancel()` aborts pending input, halts execution, and returns an immutable state.
+The outstanding async operation rejects with `AbortError`. A supplied AbortSignal
+has the same effect. Reset or a new run also aborts the previous request and
+invalidates its continuation. The core settles cancellation even if the host
+ignores its signal; late values/rejections cannot assign variables, emit output,
+resume old statements, or overwrite a replacement run's state. Handle the old
+operation's rejection when intentionally replacing it. Cancelled values are not
+assigned, and a new run starts fresh variables.
+
+EOF rejects with `BasicRuntimeError` code `INPUT_ENDED`. Rejected/thrown host
+read failures and invalid host return types use `INPUT_FAILED`, preserving an
+original host error as cause where present. Retry-output failures use
+`HOST_ERROR`. Failure leaves an immutable diagnostic and `error` status;
+cancellation leaves `halted` with no BASIC diagnostic. The core removes its
+abort listeners on success, failure, cancellation, and replacement.
+
 An invalid replacement retains the previous loaded snapshot, but clears
 variables and leaves the runtime in `error`, with no executable next location.
 Only explicit reset/run can restart it. Parser APIs expect parsed trees, not
 untrusted/deserialized AST schemas; invalid API arguments may throw a TypeError
 with no BASIC diagnostic. Calls to reset/run/step/readLine from within a host
-callback are rejected before they can alter the current execution.
+callback are rejected before they can alter the current execution, including
+callbacks invoked to read input or display retries.
 
 ## Transitional immediate entries
 
 The REPL still executes numbered entries immediately until stored-program
 editing lands in #42. `basic.readLine(source, {line, offset}?)` is its adapter:
 it parses exactly one line and uses the same evaluator and statement executor.
-Variables persist across entries, entries run in arrival order, and duplicate
+Use `readLineAsync` for entries that may request input. Variables persist across
+entries, entries run in arrival order, and duplicate
 numeric labels fail. Blank fragments do nothing. `END` or an error blocks later
 entries until reset. The REPL resets automatically in those cases.
 
@@ -115,20 +157,24 @@ is a frozen callback object; caller-owned host instances remain mutable.
 | `readLine(prompt, {signal})` | Promise resolving to a complete line without its ending, or null at EOF. Reject with AbortError on cancellation; default rejects as unsupported. |
 | `random()`                   | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
 
-Input callbacks currently serve the terminal prompt. BASIC `INPUT` follows in
-#38. Async write/clear results are unsupported. The run loop is synchronous;
-yielding, busy-loop interruption, and instruction limits follow in #41.
+Input callbacks serve both the terminal prompt and BASIC `INPUT`. Async
+write/clear results are unsupported. Async execution awaits input, but does not
+yet promise yielding to timers during busy programs; fair batches, busy-loop
+interruption, and instruction limits follow in #41.
 
 ## Terminal and file adapters
 
 `src/cli/run_cli.ts` owns argument routing and filesystem access. `runFile` reads
-once and passes source to a fresh `Basic.run()`. It opens no terminal input for
-the current statements. Concurrent file runs have isolated variables and state.
+once and passes source to a fresh `Basic.runAsync(source, {signal})`. Terminal
+input opens only when an executed `INPUT` requests it. Concurrent file runs have
+isolated variables and state.
 `runCli` owns SIGINT handling and closes its terminal host in `finally`.
 `src/cli/main.ts` applies the returned code via `process.exitCode`, letting output
 drain naturally. Successful completion returns 0; file/syntax/runtime errors 1;
 Ctrl+C 130; excess arguments retain the earlier usage code 9. Program output
-goes to stdout and errors to stderr. The library never selects process exit codes.
+goes to stdout and errors to stderr. EOF during program input reports its BASIC
+location and exits 1 in either file or interactive mode. Ctrl+C during input
+exits 130. The library never selects process exit codes.
 
 `TerminalHost` opens readline lazily. Piped lines queue in order, including the
 final unterminated line at normal EOF. It permits one pending input request;
@@ -146,6 +192,7 @@ adapter removes owned input-close, error, readline, and abort listeners.
 
 `src/core/runtime.ts` owns statement dispatch and execution state;
 `src/core/evaluator.ts` owns values, variables, and expression evaluation;
+`src/core/input.ts` owns input validation, retries, and abortable host reads;
 `src/parser` owns syntax and snapshots; `src/cli` and `src/repl` own host/session
 behavior. `src/basic.ts` and `src/index.ts` are the library entrypoints, while
 `bin/basic` is the executable. Superseded per-command handlers and the old line

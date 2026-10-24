@@ -254,4 +254,47 @@ describe('CLI and core lifecycle', () => {
     expect(result.stderr).toBe('');
     expect(result.stdout).not.toContain('after exit');
   });
+
+  it('runs a greeting file with piped input and reports EOF without hanging', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'basic-input-'));
+    try {
+      const file = join(directory, 'greeting.bas');
+      writeFileSync(file, '10 INPUT "What is your name"; NAME$\n20 PRINT "Hello, ";NAME$;"!"');
+      expect(run([file], 'Jesse\n').stdout).toBe('What is your name? Hello, Jesse!\n');
+      const eof = run([file], '', 1);
+      expect(eof.stdout).toBe('What is your name? ');
+      expect(eof.stderr).toBe('Line 10, column 4: Input ended before a value was received\n');
+    } finally {
+      rmSync(directory, {recursive: true, force: true});
+    }
+  });
+
+  it.each(['file', 'interactive'])('cancels pending %s program input on SIGINT', async (mode) => {
+    const directory = mkdtempSync(join(tmpdir(), 'basic-input-signal-'));
+    try {
+      const file = join(directory, 'waiting.bas');
+      writeFileSync(file, '10 INPUT "Answer"; N\n20 PRINT "skipped"');
+      let entered = false;
+      let interrupted = false;
+      const result = await runWithOpenInput(
+        mode === 'file' ? [executable, file] : [executable],
+        (text, child) => {
+          if (mode === 'interactive' && !entered && text.includes('>>> ')) {
+            entered = true;
+            child.stdin.write('10 INPUT "Answer"; N\n');
+          }
+          if (!interrupted && text.includes('Answer? ')) {
+            interrupted = true;
+            child.kill('SIGINT');
+          }
+        },
+      );
+      expect(result.status).toBe(130);
+      expect(result.signal).toBeNull();
+      expect(result.stderr).toBe('');
+      expect(result.stdout).not.toContain('skipped');
+    } finally {
+      rmSync(directory, {recursive: true, force: true});
+    }
+  });
 });

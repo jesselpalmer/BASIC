@@ -7,7 +7,7 @@ import TerminalHost from './terminal_host.ts';
 
 export async function runFile(filePath: string, host: Partial<Host>, {signal}: InputOptions = {}) {
   const source = await fs.readFile(filePath, {encoding: 'utf8', signal});
-  return new Basic(host).run(source);
+  return new Basic(host).runAsync(source, {signal});
 }
 
 export async function runCli(args: string[], {host = new TerminalHost()} = {}) {

@@ -9,11 +9,11 @@ const root = resolve(import.meta.dirname, '..');
 const directory = mkdtempSync(join(tmpdir(), 'basic-package-'));
 const consumer = join(directory, 'consumer');
 
-function run(command: string, args: string[], cwd = consumer) {
+function run(command: string, args: string[], cwd = consumer, input = '') {
   const result = spawnSync(command, args, {
     cwd,
     encoding: 'utf8',
-    input: '',
+    input,
     timeout: 60000,
   });
   assert.ifError(result.error);
@@ -102,6 +102,21 @@ try {
     ]);
     assert.equal(evaluated.stdout, '');
     assert.equal(evaluated.stderr, '');
+    const input = run(process.execPath, [
+      `--input-type=${format}`,
+      '-e',
+      `${statement}
+      (async () => {
+        const prompts = [];
+        const answers = ['bad', '2'];
+        const basic = new Basic({write: text => process.stdout.write(text),
+          readLine: prompt => { prompts.push(prompt); return Promise.resolve(answers.shift()); }});
+        const result = await basic.runAsync('10 INPUT "Number"; N\\n20 PRINT N*2');
+        if (result.status !== 'halted' || prompts.join('|') !== 'Number? |Number? ') process.exit(1);
+      })().catch(error => { console.error(error); process.exitCode = 1; });`,
+    ]);
+    assert.equal(input.stdout, 'Invalid number; please enter a finite decimal.\n4\n');
+    assert.equal(input.stderr, '');
   }
 
   const typedConsumer = join(consumer, 'consumer.ts');
@@ -109,7 +124,7 @@ try {
     typedConsumer,
     `
     import {Basic, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
-            type BasicValue, type Host, type Program, type RunResult} from 'node-basic-lang';
+            type BasicValue, type Host, type Program, type RunResult, type InputOptions} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
@@ -122,6 +137,12 @@ try {
     const diagnosticCode: string | undefined = basic.state.diagnostic?.code;
     basic.run(program);
     basic.run();
+    const options: InputOptions = {signal: new AbortController().signal};
+    const asyncResult: RunResult = await basic.runAsync(program, options);
+    await basic.stepAsync(options);
+    await basic.readLineAsync('20 REM', options);
+    basic.cancel();
+    void asyncResult;
     void label; void diagnosticCode;
     const evaluator = new Evaluator(host);
     try { parseProgram('10 PRINT 1+'); } catch (error) {
@@ -182,6 +203,10 @@ try {
   if (process.platform !== 'win32') {
     assert.equal(run(executable, [file]).stdout, 'CLI works\n');
   }
+  writeFileSync(file, '10 INPUT "Name"; N$\n20 PRINT "Hello, ";N$');
+  const input = run(process.execPath, [executable, file], consumer, 'Jesse\n');
+  assert.equal(input.stdout, 'Name? Hello, Jesse\n');
+  assert.equal(input.stderr, '');
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');
