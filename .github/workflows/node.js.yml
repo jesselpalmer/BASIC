@@ -24,6 +24,8 @@ jobs:
           bun-version-file: .bun-version
       - run: bun install --frozen-lockfile
       - run: bun run check
+      - run: bun ./node_modules/@playwright/test/cli.js install --with-deps chromium --only-shell
+      - run: bun run test:browser
       - name: Upload coverage
         if: ${{ !cancelled() && hashFiles('coverage/lcov.info') != '' }}
         uses: actions/upload-artifact@v7
@@ -31,4 +33,12 @@ jobs:
           name: coverage-${{ matrix.os }}
           path: coverage/
           if-no-files-found: error
+          retention-days: 7
+      - name: Upload browser failures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-failures-${{ matrix.os }}
+          path: test-results/
+          if-no-files-found: ignore
           retention-days: 7

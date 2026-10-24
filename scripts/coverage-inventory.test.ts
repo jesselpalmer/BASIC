@@ -90,6 +90,19 @@ describe('coverage inventory enforcement', () => {
     });
   });
 
+  it('also inventories browser UI modules outside src and ignores declarations', () => {
+    fixture((root) => {
+      mkdirSync(join(root, 'playground'));
+      writeFileSync(join(root, 'playground/assets.d.ts'), 'declare module "*.bas";');
+      writeFileSync(join(root, 'playground/view.ts'), 'export const output = 1;');
+      expect(() => inspectCoverage(root, lcovReport('src/core/runtime.ts'))).toThrow(
+        'playground/view.ts',
+      );
+      const report = inspectCoverage(root, lcovReport('src/core/runtime.ts', 'playground/view.ts'));
+      expect(report.measuredRuntimeFiles).toContain('playground/view.ts');
+    });
+  });
+
   it('rejects empty/stale reports and stale entrypoint exceptions', () => {
     fixture((root) => {
       expect(() => inspectCoverage(root, '')).toThrow('no source records');

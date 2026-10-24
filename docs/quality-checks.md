@@ -11,6 +11,22 @@ CI runs this same check on Linux and macOS for pull requests to any branch,
 including stacked feature branches, and pushes to main. Commands stop on the first
 failure; each CI job has a 15-minute deadline.
 
+Both CI jobs also install Playwright's Chromium headless shell and run
+`bun run test:browser`. This builds the static playground and exercises the real
+UI: examples, INPUT, edits and replacement runs, diagnostics, keyboard controls,
+literal output, narrow layouts, and stopping both silent and printing infinite
+loops after visible output truncation. Failed runs retain screenshots and traces.
+For a local run, install the browser once:
+
+```sh
+bun ./node_modules/@playwright/test/cli.js install chromium --only-shell
+bun run test:browser
+```
+
+On Linux, add `--with-deps` to the install command if system libraries are missing.
+`BASIC_BROWSER_EXECUTABLE` may point to a locally installed compatible Chromium
+when browser downloads are unavailable. CI uses Playwright's pinned browser.
+
 | Command                 | Purpose                                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `bun run format:check`  | Check maintained files with Prettier.                                                                               |
@@ -63,13 +79,16 @@ Runtime dispatch and terminal lifecycle now have the default 100% floors; the
 unused terminal callback initializers have been removed. Do not corrupt private
 state or add dead callbacks to satisfy a metric. Review any policy change.
 
-The inventory walks `src/` independently of the modules loaded by tests. A new
+The inventory walks `src/` and `playground/` independently of the modules loaded by tests. A new
 runtime file absent from LCOV fails the check, rather than silently disappearing
 from the denominator. Type-only modules are recognized using the TypeScript AST;
-adding executable code makes them subject to coverage automatically. The sole
-subprocess-only exception is `src/cli/main.ts`, exercised through real CLI
-launches. Tests verify the inventory's rejection paths, including a newly omitted
-file, stale exceptions/floor paths, missing metrics, and coverage regressions.
+adding executable code makes them subject to coverage automatically. Declaration
+files emit no runtime code. The two process-boundary exceptions are
+`src/cli/main.ts`, exercised through real CLI launches, and `playground/main.ts`,
+exercised through the actual Chromium UI. Portable browser session, document, and
+transcript modules retain the default 100% floors. Tests verify the inventory's
+rejection paths, including a newly omitted
+file (including UI helpers), stale exceptions/floor paths, missing metrics, and coverage regressions.
 
 The `text` reporter makes failures readable; `lcov` supplies the independent
 inventory gate. See [Bun's coverage documentation](https://bun.com/docs/test/code-coverage).

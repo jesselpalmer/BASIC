@@ -41,6 +41,21 @@ coverage policy and limitations. The [architecture guide](docs/architecture.md)
 explains module ownership and invariants; the [maintainability audit](docs/maintainability-audit.md)
 records the review findings and their verification.
 
+## Browser playground
+
+From a checkout, build and serve the static playground:
+
+```sh
+bun run build:playground
+bun run serve:playground
+```
+
+Open `http://127.0.0.1:3000`. Choose an example, edit its source, and run it;
+use the input field when prompted. Stop or Escape cancels a busy loop or pending
+input. Edits apply to the next run. The interpreter runs entirely in the browser
+through the same parser and runtime as the CLI. No account or application server
+is required. See the [playground guide](docs/playground.md) for controls and tests.
+
 ## Installation
 
 Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript

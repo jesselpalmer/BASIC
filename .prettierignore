@@ -2,6 +2,8 @@ node_modules/
 coverage/
 lib/
 dist/
+test-results/
+playwright-report/
 bun.lock
 *.tgz
 **/*.bas
