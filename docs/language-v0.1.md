@@ -1,14 +1,15 @@
 # BASIC v0.1.0 language reference
 
-This is the authoritative reference for the implemented **v0.1.0 terminal MVP**.
+This is the authoritative reference for the implemented **v0.1.0 language**.
 The [README](../README.md) covers installation and quick starts;
 [terminal editing](terminal.md) documents session workflows. The release candidate
 is prepared locally; this reference does not assert registry publication.
 
 This project defines a small, line-numbered BASIC dialect for writing text
-programs. It does not claim QBasic, GW-BASIC, or another BASIC's compatibility.
-The terminal and embeddable API use the same parser and runtime. A browser host
-is outside this release.
+and graphics programs. It does not claim QBasic, GW-BASIC, or another BASIC's
+compatibility.
+The terminal, embeddable API, and browser use the same parser and runtime.
+Graphics require an optional drawing capability provided by the browser host.
 
 ## Programs and source text
 
@@ -99,21 +100,35 @@ In these forms, `expression` follows the rules above, `variable` is a name, and
 `line` is a literal valid line label. Square brackets describe optional syntax;
 they are not written in a program.
 
-| Statement        | Form and behavior                                                 |
-| ---------------- | ----------------------------------------------------------------- |
-| Assignment       | `LET variable = expression`; `LET` is required.                   |
-| Output           | `PRINT [expression [; expression]... [;]]`; details below.        |
-| Input            | `INPUT ["prompt";] variable`; one target only.                    |
-| Conditional jump | `IF expression comparison expression THEN line`.                  |
-| Jump             | `GOTO line`; computed targets are not supported.                  |
-| Loop start       | `FOR variable = expression TO expression [STEP expression]`.      |
-| Loop end         | `NEXT variable`; the variable is required.                        |
-| Comment          | `REM [any remaining text]`.                                       |
-| Clear            | `CLS`; asks the host to clear its text display.                   |
-| Completion       | `END`; finishes the run normally and returns control to its host. |
+| Statement        | Form and behavior                                                        |
+| ---------------- | ------------------------------------------------------------------------ |
+| Assignment       | `LET variable = expression`; `LET` is required.                          |
+| Output           | `PRINT [expression [; expression]... [;]]`; details below.               |
+| Input            | `INPUT ["prompt";] variable`; one target only.                           |
+| Conditional jump | `IF expression comparison expression THEN line`.                         |
+| Jump             | `GOTO line`; computed targets are not supported.                         |
+| Loop start       | `FOR variable = expression TO expression [STEP expression]`.             |
+| Loop end         | `NEXT variable`; the variable is required.                               |
+| Comment          | `REM [any remaining text]`.                                              |
+| Pen color        | `COLOR expression`; select an integer palette index from 0 through 15.   |
+| Pixel            | `PSET expression,expression`; draw one logical pixel.                    |
+| Segment          | `LINE expression,expression,expression,expression`; draw a line segment. |
+| Circle           | `CIRCLE expression,expression,expression`; draw a circle outline.        |
+| Clear            | `CLS`; asks the host to clear text and graphics.                         |
+| Completion       | `END`; finishes the run normally and returns control to its host.        |
 
 Unknown statements, extra arguments, and unconsumed tokens are syntax errors.
 `CLS` and `END` take no operands. Keywords inside strings are ordinary text.
+
+### Graphics
+
+`COLOR`, `PSET`, `LINE`, and `CIRCLE` use a fixed 320 × 200 canvas and a
+16-color palette. Numeric arguments evaluate left to right; coordinates and
+radii round to the nearest safe integer, with halves toward positive infinity.
+The complete syntax, diagnostics, palette and optional host capability are
+defined in the [graphics contract](graphics.md). Hosts without drawing support,
+including the terminal, report `GRAPHICS_UNAVAILABLE` at an executed graphics
+statement.
 
 ### PRINT
 
@@ -368,9 +383,9 @@ source. The library's legacy `readLine` methods retain immediate execution; they
 are separate from the terminal session.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
-statements, multiple statements per line, a broad string library, graphics, and
-sound are outside the terminal MVP. The [browser playground](playground.md) uses
-this same text dialect; drawing commands remain future work.
+statements, multiple statements per line, a broad string library, and sound are
+outside this dialect. The [browser playground](playground.md) supports the
+[graphics extension](graphics.md); terminal hosts support text programs.
 
 Sources: [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
 and [cleanup, MVP, and graphics roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk).

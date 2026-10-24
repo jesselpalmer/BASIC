@@ -4,6 +4,8 @@ export {parseLine, parseProgram, validateProgram} from './parser/parser.ts';
 export type {
   BasicValue,
   VariableSnapshot,
+  GraphicsCommand,
+  GraphicsStatement,
   Comparison,
   ComparisonOperator,
   Host,

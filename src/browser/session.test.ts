@@ -536,3 +536,24 @@ describe('browser session', () => {
     },
   );
 });
+
+test('routes immutable graphics commands with the view receiver and preserves callback failures', async () => {
+  const ui = view();
+  const commands: unknown[] = [];
+  ui.callbacks.draw = function (command) {
+    expect(this).toBe(ui.callbacks);
+    expect(Object.isFrozen(command)).toBe(true);
+    commands.push(command);
+  };
+  const session = new BrowserSession(ui.callbacks);
+  expect((await session.run('10 COLOR 12\n20 PSET 2,3')).status).toBe('finished');
+  expect(commands).toEqual([{kind: 'pset', x: 2, y: 3, color: 12}]);
+  const failure = new Error('Canvas upload failed');
+  ui.callbacks.draw = () => {
+    throw failure;
+  };
+  expect(await rejection(session.run('10 PSET 0,0'))).toBe(failure);
+  expect(session.state.status).toBe('error');
+  expect((await session.run('10 PRINT "recovered"')).status).toBe('finished');
+  expect(ui.output).toEqual(['recovered\n']);
+});

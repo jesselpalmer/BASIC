@@ -139,8 +139,9 @@ modules directly; it does not bundle CLI or REPL modules. See the
 ## Changing the code
 
 Keep runtime modules independent of Node/Bun APIs. Add host capabilities only
-when the language needs an external effect; future graphics should follow that
-boundary. Prefer a direct discriminated switch over a registry or visitor until
+when the language needs an external effect; graphics use the optional `Host.draw`
+boundary. `core/graphics.ts` owns pen state and numeric drawing validation;
+hosts receive immutable commands and own clipping and rendering. Prefer a direct discriminated switch over a registry or visitor until
 there is a concrete extension requirement. Exhaustiveness checks make a new AST
 kind an explicit decision at every switch that handles it.
 

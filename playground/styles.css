@@ -574,3 +574,41 @@ select {
     padding: 16px;
   }
 }
+
+.graphics-panel {
+  margin-top: 24px;
+  border: 1px solid #d6dbce;
+  border-radius: 12px;
+  background: #fffefa;
+  overflow: hidden;
+}
+.graphics-size {
+  color: #667269;
+  font: 11px/1.5 monospace;
+}
+.graphics-surface {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: #192823;
+}
+#graphics {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  image-rendering: pixelated;
+  background: #000;
+}
+#graphics-unavailable {
+  margin: 16px;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .graphics-size {
+    font-size: 9px;
+  }
+  .graphics-surface {
+    padding: 12px;
+  }
+}

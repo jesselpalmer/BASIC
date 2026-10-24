@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type * as PublicApi from '../src/index.ts';
-import type {Host} from '../src/index.ts';
+import type {GraphicsCommand, Host} from '../src/index.ts';
 
 type Api = Pick<
   typeof PublicApi,
@@ -22,6 +22,7 @@ export const libraryAcceptanceCases = [
   'greeting preserves input',
   'guessing game and fresh rerun',
   'times-table example',
+  'graphics primitives and unsupported host diagnostics',
   'stepping, reset, and instance isolation',
   'source-located syntax and runtime failures',
   'arithmetic and string failures preserve diagnostics and allow recovery',
@@ -176,6 +177,27 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     assert.deepEqual(
       output,
       Array.from({length: 10}, (_, i) => `${i + 1} x 3 = ${(i + 1) * 3}\n`),
+    );
+  });
+  await check('graphics primitives and unsupported host diagnostics', () => {
+    const commands: GraphicsCommand[] = [];
+    const {basic, output} = setup([], {draw: (command) => commands.push(command)});
+    assert.equal(basic.run(fixture('picture.bas')).status, 'halted');
+    assert.equal(commands.length, 9);
+    assert.deepEqual(commands[0], {kind: 'circle', x: 258, y: 42, radius: 22, color: 14});
+    assert.deepEqual(commands[commands.length - 1], {kind: 'pset', x: 160, y: 116, color: 15});
+    assert.deepEqual(output, []);
+    basic.run('10 PSET 1,2');
+    assert.equal(commands[commands.length - 1].color, 7);
+    assert.throws(
+      () => setup().basic.run('10 PSET 1,2'),
+      (error: unknown) => {
+        assert.ok(error instanceof api.BasicRuntimeError);
+        assert.equal(error.diagnostic.code, 'GRAPHICS_UNAVAILABLE');
+        assert.equal(error.diagnostic.label, 10);
+        assert.equal(error.diagnostic.column, 4);
+        return true;
+      },
     );
   });
   await check('stepping, reset, and instance isolation', () => {

@@ -37,6 +37,7 @@
                 <option value="greeting">Hello, you</option>
                 <option value="times-table">Times table</option>
                 <option value="guess">Guess the number</option>
+                <option value="picture">A little landscape</option>
               </select>
             </label>
           </div>
@@ -106,6 +107,21 @@
           </div>
         </section>
       </div>
+
+      <section class="graphics-panel" aria-labelledby="graphics-heading">
+        <div class="panel-heading">
+          <h2 id="graphics-heading">Graphics</h2>
+          <span class="graphics-size">320 × 200 logical pixels</span>
+        </div>
+        <div class="graphics-surface">
+          <canvas id="graphics" width="320" height="200" aria-label="BASIC graphics output">
+            Graphics output needs a browser with Canvas support.
+          </canvas>
+        </div>
+        <p id="graphics-unavailable" role="status" hidden>
+          Graphics are unavailable in this browser. Text programs still work.
+        </p>
+      </section>
 
       <details id="inspection" class="inspection-panel">
         <summary>Inspect execution</summary>

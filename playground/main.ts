@@ -1,5 +1,6 @@
 import {BrowserSession, type BrowserState} from '../src/browser/session.ts';
 import {Transcript} from '../src/browser/transcript.ts';
+import {createCanvasRenderer, GRAPHICS_WIDTH, GRAPHICS_HEIGHT} from '../src/browser/graphics.ts';
 import {
   BrowserDocument,
   type DocumentReplacement,
@@ -8,6 +9,7 @@ import {
 import greeting from '../examples/greeting.bas' with {type: 'text'};
 import timesTable from '../examples/times-table.bas' with {type: 'text'};
 import guess from '../examples/guess.bas' with {type: 'text'};
+import picture from '../examples/picture.bas' with {type: 'text'};
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -43,7 +45,19 @@ const fileInput = element<HTMLInputElement>('file-input');
 const exportButton = element<HTMLButtonElement>('export-file');
 const storageStatus = element('storage-status');
 const fileStatus = element('file-status');
-const examples: Readonly<Record<string, string>> = {greeting, 'times-table': timesTable, guess};
+const examples: Readonly<Record<string, string>> = {
+  greeting,
+  'times-table': timesTable,
+  guess,
+  picture,
+};
+const canvas = element<HTMLCanvasElement>('graphics');
+canvas.width = GRAPHICS_WIDTH;
+canvas.height = GRAPHICS_HEIGHT;
+const context = canvas.getContext('2d');
+const graphics = context ? createCanvasRenderer(context) : null;
+element('graphics-unavailable').hidden = graphics !== null;
+graphics?.flush();
 const storageKey = 'basic.playground.source.v1';
 const documentModel = new BrowserDocument(greeting, {
   // Access storage inside the capability: even reading window.localStorage can fail.
@@ -112,6 +126,7 @@ function renderTranscript(): void {
   pendingFrame = null;
   const followsOutput = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 40;
   output.textContent = transcript.text;
+  graphics?.flush();
   truncated.hidden = !transcript.truncated;
   empty.hidden = transcript.text.length > 0 || transcript.truncated;
   if (inspection.open && inspectionState) renderInspection(inspectionState);
@@ -127,7 +142,8 @@ function write(text: string): void {
 function clear(): void {
   if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
   transcript.clear();
-  renderTranscript();
+  graphics?.clear();
+  pendingFrame = requestAnimationFrame(renderTranscript);
 }
 
 const statusLabels: Record<BrowserState['status'], string> = {
@@ -208,6 +224,12 @@ function stateChanged(state: BrowserState): void {
 const session = new BrowserSession({
   write,
   clear,
+  draw: graphics
+    ? (command) => {
+        graphics.draw(command);
+        pendingFrame ??= requestAnimationFrame(renderTranscript);
+      }
+    : undefined,
   stateChanged,
   requestInput(prompt, submit) {
     submitInput = submit;

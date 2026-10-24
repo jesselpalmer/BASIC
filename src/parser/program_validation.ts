@@ -1,6 +1,7 @@
 import type {ParsedLine, Program} from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
+import {graphicsArguments} from '../core/graphics.ts';
 import {pairLoops} from '../core/loops.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
@@ -26,6 +27,23 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
     labels.add(line.label);
   }
   for (const {statement} of lines) {
+    if (
+      statement.type === 'ColorStatement' ||
+      statement.type === 'PsetStatement' ||
+      statement.type === 'LineStatement' ||
+      statement.type === 'CircleStatement'
+    ) {
+      for (const argument of graphicsArguments(statement)) {
+        if (expressionType(argument) === 'string') {
+          throw new BasicSyntaxError(
+            'TYPE_MISMATCH',
+            'Graphics arguments must be numeric',
+            argument.location.start,
+            statement.location.label,
+          );
+        }
+      }
+    }
     if (statement.type !== 'GotoStatement' && statement.type !== 'IfStatement') continue;
     if (!labels.has(statement.target.value)) {
       throw new BasicSyntaxError(

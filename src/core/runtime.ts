@@ -2,6 +2,7 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {Evaluator} from './evaluator.ts';
+import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
 import {readInput} from './input.ts';
 import {prepareProgram} from './prepared_program.ts';
@@ -26,6 +27,7 @@ const emptyProgram = prepareProgram('');
 export default class Basic {
   readonly #host: Host;
   readonly #evaluator: Evaluator;
+  readonly #graphics = new GraphicsState();
   #prepared: PreparedProgram = emptyProgram;
   #controlFlow: ControlFlow;
   #status: RunStatus = 'ready';
@@ -76,6 +78,7 @@ export default class Basic {
     this.#assertIdle();
     this.#invalidateExecution();
     this.#evaluator.reset();
+    this.#graphics.reset();
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
@@ -457,6 +460,12 @@ export default class Basic {
           this.#callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
           break;
         }
+        case 'ColorStatement':
+        case 'PsetStatement':
+        case 'LineStatement':
+        case 'CircleStatement':
+          this.#graphics.execute(statement, this.#evaluator, this.#host);
+          break;
         case 'ClsStatement':
           this.#callHost('clear', line);
           break;
