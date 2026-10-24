@@ -63,7 +63,7 @@ remain mutable and do not affect the active snapshot after preparation.
 
 ## Statements and failures
 
-Implemented statements are `LET`, `INPUT`, `IF/THEN`, `GOTO`, `PRINT`, `REM`, `CLS`, and `END`.
+Implemented statements are `LET`, `INPUT`, `IF/THEN`, `GOTO`, `FOR`/`NEXT`, `PRINT`, `REM`, `CLS`, and `END`.
 [Expression evaluation](evaluator.md) supplies typed variables, arithmetic,
 string concatenation, and `ABS`, `INT`, and `RND`. Runs and instances never share
 mutable language state. Reset does not rewind the host's random sequence.
@@ -92,7 +92,16 @@ known invalid comparison types before effects, including unreachable lines.
 `MISSING_TARGET` points at a target literal and `TYPE_MISMATCH` at a comparison
 operator. Value-dependent failures still come from the evaluator at execution.
 The runtime builds one label-to-index map per prepared snapshot and uses one
-jump method for conditional/unconditional branches, ready for loop integration.
+jump method for conditional/unconditional branches, sharing destination checks
+with loop skips and repeats.
+
+[FOR/NEXT loops](loops.md) capture finite start/end/step values on entry, support
+nested and descending loops, and use inclusive bounds. Zero-iteration loops
+skip past their matching `NEXT`. The common runtime destination check rejects
+entry into inactive loop bodies and drops frames exited by a jump, while
+preserving active parents. Loop frames clear on completion/error/cancellation
+and reset. Bounds, stepping, variable mutation, pairing, and jump rules are
+documented in the loop guide.
 
 Errors are thrown to callers after state changes to `error`. Syntax failures
 throw `BasicSyntaxError`; evaluator and host failures throw `BasicRuntimeError`.
@@ -147,7 +156,7 @@ callbacks invoked to read input or display retries.
 The REPL still executes numbered entries immediately until stored-program
 editing lands in #42. `basic.readLine(source, {line, offset}?)` is its adapter:
 it parses exactly one line and uses the same evaluator and statement executor.
-`IF` and `GOTO` require a complete prepared program and report `PROGRAM_REQUIRED`
+`IF`, `GOTO`, `FOR`, and `NEXT` require a complete prepared program and report `PROGRAM_REQUIRED`
 in this immediate adapter, even for a false condition. Use the file CLI or
 `run`/`runAsync`/`reset` to execute branching programs until #42 adds stored editing.
 Use `readLineAsync` for entries that may request input. Variables persist across
@@ -210,6 +219,7 @@ adapter removes owned input-close, error, readline, and abort listeners.
 `src/core/runtime.ts` owns statement dispatch and execution state;
 `src/core/evaluator.ts` owns values, variables, and expression evaluation;
 `src/core/comparison.ts` shares comparison type rules and pure result-type inference;
+`src/core/loops.ts` pairs lexical loop structures and defines body membership;
 `src/core/input.ts` owns input validation, retries, and abortable host reads;
 `src/parser` owns syntax and snapshots; `src/cli` and `src/repl` own host/session
 behavior. `src/basic.ts` and `src/index.ts` are the library entrypoints, while

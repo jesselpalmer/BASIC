@@ -2,12 +2,16 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {Evaluator} from './evaluator.ts';
 import {createHost} from './host.ts';
 import {abortError, readInput} from './input.ts';
+import {containsLoopBody, pairLoops} from './loops.ts';
+import type {LoopPair} from './loops.ts';
 import {parseLine, parseProgram, validateProgram} from '../parser/parser.ts';
 import type {
   Diagnostic,
+  Expression,
   Host,
   InputOptions,
   Location,
+  NodeOf,
   ParsedLine,
   Program,
   RunResult,
@@ -16,6 +20,10 @@ import type {
 } from './types.ts';
 
 const emptyProgram = validateProgram([]);
+interface LoopFrame extends LoopPair {
+  readonly limit: number;
+  readonly step: number;
+}
 
 export default class Basic {
   #host: Host;
@@ -31,6 +39,10 @@ export default class Basic {
   #generation = 0;
   #pendingInput: AbortController | null = null;
   #labelIndices = new Map<number, number>();
+  #loopPairs: LoopPair[] = [];
+  #pairsByFor = new Map<number, LoopPair>();
+  #pairsByNext = new Map<number, LoopPair>();
+  #loopFrames = new Map<number, LoopFrame>();
 
   constructor(host: Partial<Host> = {}) {
     this.#host = Object.freeze(createHost(host));
@@ -63,6 +75,7 @@ export default class Basic {
     this.#assertIdle();
     this.#invalidateInput();
     this.#evaluator.reset();
+    this.#loopFrames.clear();
     this.#index = 0;
     this.#status = 'ready';
     this.#current = null;
@@ -73,6 +86,9 @@ export default class Basic {
       if (typeof program === 'string') this.#program = parseProgram(program);
       else if (program !== undefined) this.#program = validateProgram(program.lines);
       this.#labelIndices = new Map(this.#program.lines.map((line, index) => [line.label, index]));
+      this.#loopPairs = pairLoops(this.#program.lines);
+      this.#pairsByFor = new Map(this.#loopPairs.map((pair) => [pair.forIndex, pair]));
+      this.#pairsByNext = new Map(this.#loopPairs.map((pair) => [pair.nextIndex, pair]));
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -101,7 +117,7 @@ export default class Basic {
     this.#assertIdle();
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     this.#invalidateInput();
-    this.#status = 'halted';
+    this.#halt();
     this.#diagnostic = null;
     return this.state;
   }
@@ -113,12 +129,14 @@ export default class Basic {
       throw new Error('Call reset before stepping a program after immediate input');
     const line = this.#program.lines[this.#index];
     if (!line) {
-      this.#status = 'halted';
+      this.#halt();
       return this.state;
     }
     this.#index++;
     this.#execute(line);
-    if (this.#index === this.#program.lines.length) this.#status = 'halted';
+    if (this.#index === this.#program.lines.length) {
+      this.#halt();
+    }
     return this.state;
   }
 
@@ -134,7 +152,9 @@ export default class Basic {
     if (generation !== this.#generation) throw abortError();
     this.#checkAbort(signal);
     this.#status = 'running';
-    if (this.#index === this.#program.lines.length) this.#status = 'halted';
+    if (this.#index === this.#program.lines.length) {
+      this.#halt();
+    }
     return this.state;
   }
 
@@ -184,6 +204,9 @@ export default class Basic {
       this.#usedLabels.add(line.label);
       this.#program = emptyProgram;
       this.#labelIndices.clear();
+      this.#loopPairs = [];
+      this.#pairsByFor.clear();
+      this.#pairsByNext.clear();
       this.#immediate = true;
       return line;
     } catch (error) {
@@ -216,7 +239,7 @@ export default class Basic {
 
   #checkAbort(signal?: AbortSignal): void {
     if (signal?.aborted) {
-      this.#status = 'halted';
+      this.#halt();
       throw abortError();
     }
   }
@@ -259,8 +282,9 @@ export default class Basic {
       this.#evaluator.assign(statement.target, value);
     } catch (error) {
       if (generation === this.#generation) {
-        if (error instanceof Error && error.name === 'AbortError') this.#status = 'halted';
-        else this.#recordFailure(error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          this.#halt();
+        } else this.#recordFailure(error);
       }
       throw error;
     } finally {
@@ -270,11 +294,17 @@ export default class Basic {
   }
 
   #recordFailure(error: unknown): void {
+    this.#loopFrames.clear();
     this.#status = 'error';
     this.#diagnostic =
       error instanceof BasicRuntimeError || error instanceof BasicSyntaxError
         ? Object.freeze({...error.diagnostic})
         : null;
+  }
+
+  #halt(): void {
+    this.#loopFrames.clear();
+    this.#status = 'halted';
   }
 
   #execute(line: ParsedLine): void {
@@ -285,16 +315,25 @@ export default class Basic {
     try {
       if (
         this.#immediate &&
-        (statement.type === 'IfStatement' || statement.type === 'GotoStatement')
+        (statement.type === 'IfStatement' ||
+          statement.type === 'GotoStatement' ||
+          statement.type === 'ForStatement' ||
+          statement.type === 'NextStatement')
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'IF and GOTO require a complete program; use run or runAsync',
+          'IF, GOTO, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
       }
       switch (statement.type) {
+        case 'ForStatement':
+          this.#beginLoop(statement, this.#labelIndices.get(line.label)!);
+          break;
+        case 'NextStatement':
+          this.#nextLoop(statement, this.#labelIndices.get(line.label)!);
+          break;
         case 'GotoStatement':
           this.#jump(statement.target.value, statement.target.location);
           break;
@@ -325,7 +364,7 @@ export default class Basic {
         case 'RemStatement':
           break;
         case 'EndStatement':
-          this.#status = 'halted';
+          this.#halt();
           break;
       }
     } catch (error) {
@@ -346,7 +385,93 @@ export default class Basic {
         location.label,
       );
     }
+    this.#moveTo(index, location);
+  }
+
+  #moveTo(index: number, location: Location): void {
+    for (const pair of this.#loopPairs) {
+      if (containsLoopBody(pair, index) && !this.#loopFrames.has(pair.forIndex)) {
+        throw new BasicRuntimeError(
+          'LOOP_ENTRY',
+          `Cannot enter inactive FOR loop for ${pair.variable}`,
+          location.start,
+          location.label,
+        );
+      }
+    }
+    for (const [key, frame] of this.#loopFrames) {
+      if (!containsLoopBody(frame, index)) this.#loopFrames.delete(key);
+    }
     this.#index = index;
+  }
+
+  #loopNumber(expression: Expression): number {
+    const value = this.#evaluator.evaluate(expression);
+    if (typeof value !== 'number') {
+      throw new BasicRuntimeError(
+        'TYPE_MISMATCH',
+        'Loop values must be numbers',
+        expression.location.start,
+        expression.location.label,
+      );
+    }
+    return value;
+  }
+
+  #beginLoop(statement: NodeOf<'ForStatement'>, index: number): void {
+    for (const frame of this.#loopFrames.values()) {
+      if (frame.variable === statement.variable.name) {
+        throw new BasicRuntimeError(
+          'LOOP_VARIABLE_ACTIVE',
+          `Loop variable ${frame.variable} is already active`,
+          statement.variable.location.start,
+          statement.location.label,
+        );
+      }
+    }
+    const start = this.#loopNumber(statement.start);
+    const limit = this.#loopNumber(statement.end);
+    const step = statement.step === null ? 1 : this.#loopNumber(statement.step);
+    if (step === 0) {
+      throw new BasicRuntimeError(
+        'ZERO_STEP',
+        'FOR STEP must not be zero',
+        statement.step!.location.start,
+        statement.location.label,
+      );
+    }
+    this.#evaluator.assign(statement.variable, start);
+    const pair = this.#pairsByFor.get(index)!;
+    if (step > 0 ? start > limit : start < limit)
+      this.#moveTo(pair.nextIndex + 1, statement.location);
+    else this.#loopFrames.set(index, {...pair, limit, step});
+  }
+
+  #nextLoop(statement: NodeOf<'NextStatement'>, index: number): void {
+    const pair = this.#pairsByNext.get(index)!;
+    const frame = this.#loopFrames.get(pair.forIndex);
+    if (!frame) {
+      throw new BasicRuntimeError(
+        'LOOP_NOT_ACTIVE',
+        `FOR loop for ${pair.variable} is not active`,
+        statement.location.start,
+        statement.location.label,
+      );
+    }
+    const current = this.#loopNumber(statement.variable);
+    const value = current + frame.step;
+    if (!Number.isFinite(value)) {
+      throw new BasicRuntimeError(
+        'NON_FINITE_NUMBER',
+        'Loop increment must be finite',
+        statement.variable.location.start,
+        statement.location.label,
+      );
+    }
+    this.#evaluator.assign(statement.variable, value);
+    if (frame.step > 0 ? value <= frame.limit : value >= frame.limit)
+      this.#moveTo(frame.forIndex + 1, statement.location);
+    else this.#loopFrames.delete(frame.forIndex);
   }
 
   #callHost(callback: 'write' | 'clear', line: ParsedLine, text = ''): void {
