@@ -1,6 +1,7 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {createHost} from './host.ts';
-import type {BasicValue, Expression, Host, Location, NodeOf} from './types.ts';
+import {compareValues} from './comparison.ts';
+import type {BasicValue, Comparison, Expression, Host, Location, NodeOf} from './types.ts';
 
 function fail(code: string, message: string, location: Location): never {
   throw new BasicRuntimeError(code, message, location.start, location.label);
@@ -57,6 +58,12 @@ export class Evaluator {
 
   reset(): void {
     this.variables.clear();
+  }
+
+  compare(condition: Comparison): boolean {
+    const left = this.evaluate(condition.left);
+    const right = this.evaluate(condition.right);
+    return compareValues(left, right, condition);
   }
 
   assign(target: NodeOf<'Variable'>, value: BasicValue): void {

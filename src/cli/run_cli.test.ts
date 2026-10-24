@@ -4,7 +4,7 @@ import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
 import {mkdtempSync, promises as fs, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {join, resolve} from 'node:path';
 import {runCli, runFile} from './run_cli.ts';
 import TerminalHost from './terminal_host.ts';
 
@@ -134,6 +134,19 @@ describe('CLI adapter lifecycle', () => {
     expect(await runCli([file], {host})).toBe(0);
     expect(readAll(output)).toBe(
       'Name? Age? Invalid number; please enter a finite decimal.\nAge? Jesse:42\n',
+    );
+    expect(errors.read()).toBeNull();
+  });
+
+  it('runs the guessing game with deterministic randomness and piped answers', async () => {
+    host.random = () => 0.41;
+    input.end('20\n80\n42\n');
+    expect(await runCli([resolve(import.meta.dirname, '../../examples/guess.bas')], {host})).toBe(
+      0,
+    );
+    const prompt = 'Guess a number from 1 to 100? ';
+    expect(readAll(output)).toBe(
+      `${prompt}Too low.\n${prompt}Too high.\n${prompt}Correct in 3 tries!\n`,
     );
     expect(errors.read()).toBeNull();
   });

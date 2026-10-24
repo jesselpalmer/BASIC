@@ -42,6 +42,9 @@ or provide a program counter. Those belong to the execution loop.
   so an invalid assignment preserves any previous value.
 - `reset(): void` clears all variables in this evaluator. It does not rewind or
   replace the host's random sequence. Other evaluator instances are unaffected.
+- `compare(condition: Comparison): boolean` evaluates both operands left to
+  right, then applies a numeric comparison or exact string equality/inequality.
+  Comparison results are used by `IF`; they do not add a Boolean BASIC value type.
 
 There is no implicit variable initialization or numeric/string conversion.
 `A` and `A$` are distinct variables. Empty strings and zero are valid values.

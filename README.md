@@ -110,6 +110,8 @@ this checkout without building; this change does not update the published packag
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | `LET name = expression`                    | Assign a number, or a string to a name ending in `$`.                                                         |
 | `INPUT ["prompt";] name`                   | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
+| `IF left comparison right THEN line`       | Jump when one comparison is true; otherwise continue to the next line.                                        |
+| `GOTO line`                                | Jump to an existing literal line label.                                                                       |
 | `PRINT [expression [; expression]... [;]]` | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
 | `CLS`                                      | Ask the host to clear the display.                                                                            |
 | `REM [text]`                               | Ignore the rest of the line.                                                                                  |
@@ -128,7 +130,7 @@ numbers, and reading an undefined variable is an error.
 infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
-non-finite numbers produce source-located errors. Jumps, loops, and
+non-finite numbers produce source-located errors. `FOR`/`NEXT` loops and
 editor commands are not yet implemented.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
@@ -178,6 +180,26 @@ pending request. The existing synchronous methods remain available for programs
 without input; executing `INPUT` through them reports `ASYNC_INPUT_REQUIRED`.
 The [runtime API](docs/interpreter-host.md) documents waiting, cancellation, and
 safe replacement of an active run.
+
+## Branching and a guessing game
+
+In complete programs, `IF` supports numeric `=`, `<>`, `<`, `<=`, `>`, `>=`,
+and exact, case-sensitive string `=`/`<>`. Types must match. `THEN` and `GOTO`
+take literal decimal labels from 1 through 65535; every target must exist before
+the program runs, including in unreachable statements. There is no `ELSE`,
+inline statement after `THEN`, comparison-as-value, or Boolean expression syntax.
+
+Try the [guessing game](examples/guess.bas) from a checkout:
+
+```sh
+bun start examples/guess.bas
+```
+
+`IF` and `GOTO` require a complete program passed to the file CLI or
+`Basic.run`/`runAsync`/`reset`. The current immediate-entry REPL reports
+`PROGRAM_REQUIRED`; stored-program editing follows in #42. Runs do not yet
+yield to timers or impose instruction limits on busy loops (#41). Use bounded
+`step()` calls while developing an unfinished loop.
 
 ## Migration from legacy commands
 

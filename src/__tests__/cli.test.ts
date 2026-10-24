@@ -269,6 +269,26 @@ describe('CLI and core lifecycle', () => {
     }
   });
 
+  it('executes a bounded backward branch and validates missing targets before output', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'basic-branches-'));
+    try {
+      const file = join(directory, 'branches.bas');
+      writeFileSync(
+        file,
+        '10 LET N=2\n20 PRINT N\n30 LET N=N-1\n40 IF N>0 THEN 20\n50 GOTO 70\n60 PRINT "skipped"\n70 END',
+      );
+      const result = run([file]);
+      expect(result.stdout).toBe('2\n1\n');
+      expect(result.stderr).toBe('');
+      writeFileSync(file, '10 PRINT "must not print"\n20 END\n30 GOTO 999');
+      const invalid = run([file], '', 1);
+      expect(invalid.stdout).toBe('');
+      expect(invalid.stderr).toBe('Line 30, column 9: No line label 999\n');
+    } finally {
+      rmSync(directory, {recursive: true, force: true});
+    }
+  });
+
   it.each(['file', 'interactive'])('cancels pending %s program input on SIGINT', async (mode) => {
     const directory = mkdtempSync(join(tmpdir(), 'basic-input-signal-'));
     try {

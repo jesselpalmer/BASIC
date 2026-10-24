@@ -11,12 +11,15 @@ import type {
   NodeOf,
   Expression,
   Statement,
+  ComparisonOperator,
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
+import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {tokenize} from './tokenizer.ts';
 
 const functions = new Set(['ABS', 'INT', 'RND']);
 const maxNesting = 256;
+const comparisonOperators = new Set(['=', '<>', '<', '<=', '>', '>=']);
 
 function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
@@ -40,8 +43,8 @@ export function parseProgram(source: string): Program {
   return validateProgram(new Parser(source).parse());
 }
 
-// This is the whole-program validation boundary. Future jump/loop tickets add
-// target resolution and pairing here, without tightening single-line parsing.
+// Whole-program checks stay separate from single-line editing. Loop pairing
+// will extend this boundary without rejecting incomplete forward edits.
 export function validateProgram(lines: readonly ParsedLine[]): Program {
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
@@ -57,6 +60,32 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
       );
     }
     labels.add(line.label);
+  }
+  for (const {statement} of lines) {
+    if (statement.type !== 'GotoStatement' && statement.type !== 'IfStatement') continue;
+    if (!labels.has(statement.target.value)) {
+      throw new BasicSyntaxError(
+        'MISSING_TARGET',
+        `No line label ${statement.target.value}`,
+        statement.target.location.start,
+        statement.location.label,
+      );
+    }
+    if (statement.type === 'IfStatement') {
+      const condition = statement.condition;
+      const problem = comparisonTypeError(
+        expressionType(condition.left),
+        condition.operator,
+        expressionType(condition.right),
+      );
+      if (problem)
+        throw new BasicSyntaxError(
+          'TYPE_MISMATCH',
+          problem,
+          condition.operatorLocation.start,
+          condition.location.label,
+        );
+    }
   }
   // Clone before freezing: a snapshot never freezes or retains caller-owned
   // arrays/nodes, and a failed candidate cannot modify an existing program.
@@ -227,6 +256,28 @@ class Parser {
       }
       case 'PRINT':
         return this.print(command);
+      case 'GOTO': {
+        const target = this.jumpTarget();
+        return this.node('GotoStatement', command, target, {target});
+      }
+      case 'IF': {
+        const left = this.expression();
+        const operator = this.peek();
+        if (operator.type !== 'OPERATOR' || !comparisonOperators.has(operator.value)) {
+          this.fail('EXPECTED_COMPARISON', 'Expected one comparison operator', operator);
+        }
+        this.take();
+        const right = this.expression();
+        const condition = this.node('Comparison', left, right, {
+          left,
+          right,
+          operator: operator.value as ComparisonOperator,
+          operatorLocation: this.location(operator),
+        });
+        this.expect('KEYWORD', 'THEN', 'Expected THEN followed by a literal line label');
+        const target = this.jumpTarget();
+        return this.node('IfStatement', command, target, {condition, target});
+      }
       case 'INPUT': {
         let prompt: NodeOf<'StringLiteral'> | null = null;
         if (this.at('STRING')) {
@@ -270,6 +321,20 @@ class Parser {
       }
     }
     return this.node('PrintStatement', command, last, {items, separators, trailingSemicolon});
+  }
+
+  jumpTarget(): NodeOf<'NumberLiteral'> {
+    const token = this.peek();
+    if (
+      token.type !== 'NUMBER' ||
+      !/^\d+$/.test(token.raw) ||
+      token.value < 1 ||
+      token.value > 65535
+    ) {
+      this.fail('INVALID_TARGET', 'Expected a literal line label from 1 through 65535', token);
+    }
+    this.take();
+    return this.node('NumberLiteral', token, token, {value: token.value, raw: token.raw});
   }
 
   expression(): Expression {
