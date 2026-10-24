@@ -39,11 +39,11 @@ function runWithOpenInput(
       child.kill('SIGKILL');
       reject(new Error('Child did not exit with stdin still open'));
     }, 5000);
-    child.stdout.on('data', (data) => {
+    child.stdout.on('data', (data: Buffer) => {
       stdout += data.toString();
       onOutput(stdout, child);
     });
-    child.stderr.on('data', (data) => {
+    child.stderr.on('data', (data: Buffer) => {
       stderr += data.toString();
     });
     child.on('error', (error) => {

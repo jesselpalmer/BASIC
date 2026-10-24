@@ -57,12 +57,12 @@ yet consume those snapshots.
 method receivers. It copies only the four callbacks below; constructing a host
 never invokes them.
 
-| Callback | Contract |
-| --- | --- |
-| `write(text)` | Synchronous text output. The core supplies exact newlines; the host must not add its own. The default discards output. |
-| `clear()` | Synchronous clear-display request. The default does nothing. |
+| Callback                     | Contract                                                                                                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `write(text)`                | Synchronous text output. The core supplies exact newlines; the host must not add its own. The default discards output.                                            |
+| `clear()`                    | Synchronous clear-display request. The default does nothing.                                                                                                      |
 | `readLine(prompt, {signal})` | Promise resolving to one input string without its line ending, or `null` at EOF. Reject with an `AbortError` on cancellation. The default rejects as unsupported. |
-| `random()` | Synchronous number `>= 0` and `< 1`; defaults to `Math.random`. Tests may inject a deterministic function. |
+| `random()`                   | Synchronous number `>= 0` and `< 1`; defaults to `Math.random`. Tests may inject a deterministic function.                                                        |
 
 The input and randomness interfaces are available for the future `INPUT` and
 `RND()` implementations. Existing legacy commands only consume `write` and

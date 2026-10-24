@@ -27,18 +27,18 @@ columns are 1-based, offsets are 0-based, and `end` is exclusive. Columns and
 offsets count JavaScript UTF-16 code units, so a tab counts as one source column.
 `label` is the current numeric BASIC label, or `null` on unnumbered/blank lines.
 
-| Type | Value |
-| --- | --- |
-| `LABEL` | Numeric label, with original spelling in `raw`. |
-| `KEYWORD` | Uppercase keyword or built-in function name from the v0.1 contract. |
-| `IDENTIFIER` | Uppercase ASCII name, optionally ending in `$`. |
-| `NUMBER` | Finite unsigned decimal value; `+` and `-` are separate operators. |
-| `STRING` | Decoded text: doubled quotes become one quote; other text is unchanged. |
-| `OPERATOR` | `+`, `-`, `*`, `/`, `=`, `<>`, `<`, `<=`, `>`, or `>=`. |
-| `PUNCTUATION` | `(`, `)`, `;`, or `,`. Recognition does not imply a valid statement. |
-| `COMMENT` | Everything after `REM` until the line ending, including leading spaces. |
-| `NEWLINE` | `null`; `raw` preserves LF or CRLF, and `end` starts the next line. |
-| `EOF` | `null`; zero-width position immediately after the source. |
+| Type          | Value                                                                   |
+| ------------- | ----------------------------------------------------------------------- |
+| `LABEL`       | Numeric label, with original spelling in `raw`.                         |
+| `KEYWORD`     | Uppercase keyword or built-in function name from the v0.1 contract.     |
+| `IDENTIFIER`  | Uppercase ASCII name, optionally ending in `$`.                         |
+| `NUMBER`      | Finite unsigned decimal value; `+` and `-` are separate operators.      |
+| `STRING`      | Decoded text: doubled quotes become one quote; other text is unchanged. |
+| `OPERATOR`    | `+`, `-`, `*`, `/`, `=`, `<>`, `<`, `<=`, `>`, or `>=`.                 |
+| `PUNCTUATION` | `(`, `)`, `;`, or `,`. Recognition does not imply a valid statement.    |
+| `COMMENT`     | Everything after `REM` until the line ending, including leading spaces. |
+| `NEWLINE`     | `null`; `raw` preserves LF or CRLF, and `end` starts the next line.     |
+| `EOF`         | `null`; zero-width position immediately after the source.               |
 
 Spaces and tabs outside strings/comments are skipped. Newlines remain explicit
 statement boundaries. `REM` produces a comment token even for an empty comment.

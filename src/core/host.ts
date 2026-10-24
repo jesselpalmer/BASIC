@@ -13,9 +13,9 @@ export function createHost(overrides: Partial<Host> = {}): Host {
   return {
     write: bind('write', () => {}),
     clear: bind('clear', () => {}),
-    readLine: bind('readLine', async () => {
-      throw new Error('Input is not supported by this host');
-    }),
+    readLine: bind('readLine', () =>
+      Promise.reject(new Error('Input is not supported by this host')),
+    ),
     random: bind('random', Math.random),
   };
 }

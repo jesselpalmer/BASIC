@@ -9,8 +9,12 @@ import TerminalHost from './terminal_host.ts';
 
 function readAll(stream: PassThrough): string {
   const chunks: Buffer[] = [];
-  let chunk: Buffer | null;
-  while ((chunk = stream.read()) !== null) chunks.push(chunk);
+  for (;;) {
+    const chunk: unknown = stream.read();
+    if (chunk === null) break;
+    if (!Buffer.isBuffer(chunk)) throw new Error('Expected binary stream output');
+    chunks.push(chunk);
+  }
   return Buffer.concat(chunks).toString();
 }
 

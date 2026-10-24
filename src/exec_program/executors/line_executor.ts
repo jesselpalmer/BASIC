@@ -16,7 +16,7 @@ export class LineExecutor {
     if (statement.length === 0) return 'running';
     const [label, command, ...args] = statement;
     const fail = (message: string, token = command ?? tokens.at(-1)): never => {
-      throw new BasicSyntaxError('INVALID_STATEMENT', message, token!.start, label.value as number);
+      throw new BasicSyntaxError('INVALID_STATEMENT', message, token.start, label.value as number);
     };
     if (!command) fail('Expected a statement after the line label');
     if (command.type !== 'KEYWORD') {

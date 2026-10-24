@@ -18,6 +18,10 @@ import {tokenize} from './tokenizer.ts';
 const functions = new Set(['ABS', 'INT', 'RND']);
 const maxNesting = 256;
 
+function isArray(value: unknown): value is readonly unknown[] {
+  return Array.isArray(value);
+}
+
 export function parseLine(source: string, options: SourceOptions = {}): ParsedLine | null {
   const lines = new Parser(source, options).parse();
   if (lines.length > 1) {
@@ -39,7 +43,7 @@ export function parseProgram(source: string): Program {
 // This is the whole-program validation boundary. Future jump/loop tickets add
 // target resolution and pairing here, without tightening single-line parsing.
 export function validateProgram(lines: readonly ParsedLine[]): Program {
-  if (!Array.isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
+  if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
   }
   const labels = new Set();
@@ -69,7 +73,8 @@ function copyTree<T extends readonly ParsedLine[]>(root: T): ParsedLine[] {
   while (pending.length) {
     const source = pending.pop()!;
     const target = copies.get(source)!;
-    for (const [key, value] of Object.entries(source)) {
+    const entries: [string, unknown][] = Object.entries(source);
+    for (const [key, value] of entries) {
       if (value !== null && typeof value === 'object') {
         if (!copies.has(value)) {
           copies.set(value, Array.isArray(value) ? [] : {});

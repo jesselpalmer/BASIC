@@ -66,22 +66,22 @@ lines. An unterminated string is a syntax error.
 
 ### Operators and functions
 
-| Precedence, highest first | Meaning | Associativity |
-| --- | --- | --- |
-| Parentheses and function calls | Group or evaluate a built-in | Explicit grouping |
-| Unary `+`, `-` | Numeric identity and negation | Right |
-| `*`, `/` | Numeric multiplication and division | Left |
-| `+`, `-` | Numeric addition and subtraction | Left |
+| Precedence, highest first      | Meaning                             | Associativity     |
+| ------------------------------ | ----------------------------------- | ----------------- |
+| Parentheses and function calls | Group or evaluate a built-in        | Explicit grouping |
+| Unary `+`, `-`                 | Numeric identity and negation       | Right             |
+| `*`, `/`                       | Numeric multiplication and division | Left              |
+| `+`, `-`                       | Numeric addition and subtraction    | Left              |
 
 Binary `+` also concatenates **two strings**. All other arithmetic requires two
 numbers. `"Score: " + 3` is an error; use `PRINT "Score: "; 3` instead. Division by
 zero and every non-finite numeric result are errors. No JavaScript `eval` is used.
 
-| Function | Contract |
-| --- | --- |
-| `ABS(x)` | One numeric argument; returns its absolute value. |
-| `INT(x)` | One numeric argument; floors toward negative infinity. `INT(-1.6)` is `-2`. |
-| `RND()` | No arguments; returns a number `>= 0` and `< 1`. The host supplies randomness so tests can control it. |
+| Function | Contract                                                                                               |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| `ABS(x)` | One numeric argument; returns its absolute value.                                                      |
+| `INT(x)` | One numeric argument; floors toward negative infinity. `INT(-1.6)` is `-2`.                            |
+| `RND()`  | No arguments; returns a number `>= 0` and `< 1`. The host supplies randomness so tests can control it. |
 
 Parentheses are required in all function calls. Unknown functions, wrong arity,
 and wrong argument types are errors. The runtime starts each run with fresh
@@ -98,18 +98,18 @@ In these forms, `expression` follows the rules above, `variable` is a name, and
 `line` is a literal valid line label. Square brackets describe optional syntax;
 they are not written in a program.
 
-| Statement | Form and behavior |
-| --- | --- |
-| Assignment | `LET variable = expression`; `LET` is required. |
-| Output | `PRINT [expression [; expression]... [;]]`; details below. |
-| Input | `INPUT ["prompt";] variable`; one target only. |
-| Conditional jump | `IF expression comparison expression THEN line`. |
-| Jump | `GOTO line`; computed targets are not supported. |
-| Loop start | `FOR variable = expression TO expression [STEP expression]`. |
-| Loop end | `NEXT variable`; the variable is required. |
-| Comment | `REM [any remaining text]`. |
-| Clear | `CLS`; asks the host to clear its text display. |
-| Completion | `END`; finishes the run normally and returns control to its host. |
+| Statement        | Form and behavior                                                 |
+| ---------------- | ----------------------------------------------------------------- |
+| Assignment       | `LET variable = expression`; `LET` is required.                   |
+| Output           | `PRINT [expression [; expression]... [;]]`; details below.        |
+| Input            | `INPUT ["prompt";] variable`; one target only.                    |
+| Conditional jump | `IF expression comparison expression THEN line`.                  |
+| Jump             | `GOTO line`; computed targets are not supported.                  |
+| Loop start       | `FOR variable = expression TO expression [STEP expression]`.      |
+| Loop end         | `NEXT variable`; the variable is required.                        |
+| Comment          | `REM [any remaining text]`.                                       |
+| Clear            | `CLS`; asks the host to clear its text display.                   |
+| Completion       | `END`; finishes the run normally and returns control to its host. |
 
 Unknown statements, extra arguments, and unconsumed tokens are syntax errors.
 `CLS` and `END` take no operands. Keywords inside strings are ordinary text.
@@ -212,17 +212,17 @@ Session commands are unnumbered and case-insensitive. They are available at the
 idle prompt. Numbered statements edit the program; they do not run immediately.
 Only these session commands are accepted in immediate mode for the MVP.
 
-| Input | Behavior |
-| --- | --- |
-| `10 PRINT "Hello"` | Parse the line and insert or replace label 10. |
-| `10` | Delete label 10 if present. Deleting an absent label is harmless. |
-| Blank input | Do nothing and show the prompt again. |
-| `RUN` | Validate and execute a fresh snapshot from the first numbered line. |
-| `LIST` | Display the complete stored source in numeric order. |
-| `NEW` | Confirm discarding unsaved edits, then clear source and filename. |
-| `LOAD "path.bas"` | Read and completely validate a candidate, then replace source if authorized. |
-| `SAVE ["path.bas"]` | Save the source to a supplied filename, or the current filename. |
-| `EXIT` | Confirm discarding unsaved edits, then close the terminal session. |
+| Input               | Behavior                                                                     |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `10 PRINT "Hello"`  | Parse the line and insert or replace label 10.                               |
+| `10`                | Delete label 10 if present. Deleting an absent label is harmless.            |
+| Blank input         | Do nothing and show the prompt again.                                        |
+| `RUN`               | Validate and execute a fresh snapshot from the first numbered line.          |
+| `LIST`              | Display the complete stored source in numeric order.                         |
+| `NEW`               | Confirm discarding unsaved edits, then clear source and filename.            |
+| `LOAD "path.bas"`   | Read and completely validate a candidate, then replace source if authorized. |
+| `SAVE ["path.bas"]` | Save the source to a supplied filename, or the current filename.             |
+| `EXIT`              | Confirm discarding unsaved edits, then close the terminal session.           |
 
 `SAVE` without either a supplied or current filename reports a useful error.
 Paths are quoted strings, including when they contain spaces; doubled quotes
@@ -287,18 +287,18 @@ source. When a label itself is invalid, identify the physical file line/column
 instead. Return structured diagnostics so each host can display them consistently.
 An example presentation is `Line 20, column 10: Undefined variable SCORE`.
 
-| Source or action | Expected result |
-| --- | --- |
-| `10abc PRINT "Hello"` | Invalid line label; no partial numeric parsing. |
-| Two file lines labelled `10` | Duplicate-label error before execution. |
-| `10 PRINT "unfinished` | Unterminated string with a source location. |
-| `10 LET A = "text"` | Numeric/string type error. |
-| `10 PRINT UNKNOWN` | Undefined-variable error when executed. |
-| `10 PRINT 1 / 0` | Division-by-zero error. |
-| `10 IF A < 1 THEN PRINT "x"` | Unsupported inline `THEN` syntax. |
-| `10 GOTO 999` with no label 999 | Missing target during full validation. |
-| Unpaired `FOR` in an edit | Edit accepted; `RUN`/`LOAD` reject the incomplete program. |
-| `10 FOR I = 1 TO 3 STEP 0` with matching `NEXT` | Zero-step error on execution. |
+| Source or action                                | Expected result                                            |
+| ----------------------------------------------- | ---------------------------------------------------------- |
+| `10abc PRINT "Hello"`                           | Invalid line label; no partial numeric parsing.            |
+| Two file lines labelled `10`                    | Duplicate-label error before execution.                    |
+| `10 PRINT "unfinished`                          | Unterminated string with a source location.                |
+| `10 LET A = "text"`                             | Numeric/string type error.                                 |
+| `10 PRINT UNKNOWN`                              | Undefined-variable error when executed.                    |
+| `10 PRINT 1 / 0`                                | Division-by-zero error.                                    |
+| `10 IF A < 1 THEN PRINT "x"`                    | Unsupported inline `THEN` syntax.                          |
+| `10 GOTO 999` with no label 999                 | Missing target during full validation.                     |
+| Unpaired `FOR` in an edit                       | Edit accepted; `RUN`/`LOAD` reject the incomplete program. |
+| `10 FOR I = 1 TO 3 STEP 0` with matching `NEXT` | Zero-step error on execution.                              |
 
 Syntax/runtime failure ends the current run in a usable error state. It does not
 clear stored source, terminate the interactive host, or execute later statements.
@@ -351,10 +351,10 @@ low/high feedback and success in three tries. A new run starts the count afresh.
 Legacy `ABS` and `INT` are standalone commands that print their result from a
 quoted argument. v0.1 replaces them with expression functions:
 
-| Current syntax | v0.1 syntax |
-| --- | --- |
+| Current syntax   | v0.1 syntax           |
+| ---------------- | --------------------- |
 | `10 ABS "-3.14"` | `10 PRINT ABS(-3.14)` |
-| `20 INT "-1.6"` | `20 PRINT INT(-1.6)` |
+| `20 INT "-1.6"`  | `20 PRINT INT(-1.6)`  |
 
 The old standalone forms will not be aliases in v0.1. Numbered REPL entries change
 from immediate execution to stored-program edits and blank input becomes harmless.

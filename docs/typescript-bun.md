@@ -8,10 +8,7 @@ Install Bun, then run:
 
 ```sh
 bun install --frozen-lockfile
-bun run typecheck
-bun run lint
-bun test
-bun run test:package
+bun run check
 bun start
 ```
 
@@ -36,7 +33,9 @@ Core/parser modules use portable language features and host interfaces rather
 than Bun-specific runtime APIs. Terminal and filesystem operations remain in the
 CLI host, preserving the path to a future browser and graphics host.
 
-The 202 existing behavioral tests run with `bun:test`. Mocks/spies use Bun's
+The behavioral tests run with `bun:test`. Mocks/spies use Bun's
 Jest-compatible interface. Tests drain all chunks from output streams and attach
 rejection handlers before cancellation/error triggers; they retain the same
 EOF, cancellation, SIGINT, stream failure, rerun, and listener-cleanup assertions.
+
+See [quality checks](quality-checks.md) for formatting, type-aware lint, coverage, and CI policy.
