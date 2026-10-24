@@ -36,7 +36,7 @@ it('accepts a structural CLI host and owns its session cleanup', async () => {
   const signals = process.listeners('SIGINT');
 
   expect(await runCli([], {host})).toBe(0);
-  expect(output).toEqual(['BASIC 0.0.10\n', 'Have a great day :)\n']);
+  expect(output).toEqual(['BASIC 0.1.0\n', 'Have a great day :)\n']);
   expect(host.setInterruptHandler).toHaveBeenCalledWith(expect.any(Function));
   expect(host.close).toHaveBeenCalledTimes(1);
   expect(host.writeError).not.toHaveBeenCalled();

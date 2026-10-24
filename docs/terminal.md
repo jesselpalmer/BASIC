@@ -19,7 +19,7 @@ remain immediate-entry APIs for compatibility.
 
 Commands are case-insensitive and allow surrounding whitespace. Only `LOAD` and
 `SAVE` take arguments; unexpected trailing arguments are errors. Unnumbered
-statements such as `PRINT 2+2` are not supported yet.
+statements such as `PRINT 2+2` are outside the v0.1.0 dialect.
 Labels retain the language's range of 1 through 65535. The source text of valid
 entries is retained, including string case, spacing, and comments.
 
@@ -28,6 +28,19 @@ jump targets and unmatched `FOR`/`NEXT` lines can be entered incrementally. `RUN
 performs whole-program validation before effects; errors leave source available
 for `LIST`, correction, or another `RUN`. Execution never changes the stored
 source or marks it saved. Repeated `RUN` starts with fresh variables.
+
+## File execution and diagnostics
+
+Run `basic "my program.bas"` to execute a file through the same parser/runtime as
+`RUN`, without an editor prompt or banner. Files use numeric label order. Complete
+validation happens before effects, including unreachable statements; values are
+checked when evaluated. Program output uses stdout, and source-located errors use
+stderr without JavaScript stack traces. Successful completion exits 0; file,
+syntax, runtime, and input-EOF errors exit 1. Extra arguments print usage and exit 9. Ctrl+C exits 130.
+
+See the [language reference](language-v0.1.md) for supported statements, expression
+functions, and diagnostic rules. This is a limited dialect; standalone `ABS` or
+`INT` commands must be replaced with `PRINT ABS(...)` or `PRINT INT(...)`.
 
 ## Input and interruption
 

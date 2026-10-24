@@ -2,14 +2,16 @@
 
 # BASIC
 
-BASIC interpreter
+A small line-numbered BASIC interpreter for Bun, with a terminal editor and an
+embeddable TypeScript API. The v0.1.0 release candidate implements expressions,
+variables, input, branching, loops, and stored-program editing and persistence.
 
-## Development roadmap
+The [v0.1 language reference](docs/language-v0.1.md) is the complete supported
+dialect. This is a deliberately limited text-programming language, without
+QBasic or GW-BASIC compatibility, arrays, subroutines, graphics, or sound.
+See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 
-The [v0.1 language and session contract](docs/language-v0.1.md) defines the
-planned terminal MVP, including expressions, variables, control flow, and
-stored-program editing. Those features are being implemented incrementally;
-the commands below describe the current executable.
+## Quick start
 
 Development and CI use **Bun 1.4.4** (see `.bun-version` and `package.json`).
 Install [Bun](https://bun.com/docs/installation), then from a local checkout:
@@ -41,20 +43,31 @@ records the review findings and their verification.
 
 ## Installation
 
-This checkout requires Bun and ships TypeScript source. Install it locally with:
+Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript
+source and needs no build step. Node.js alone is not a supported runtime. From
+a checkout, install the `basic` command with:
 
 ```bash
 bun install -g .
 ```
 
-The package remains named `node-basic-lang`; the public npm registry
-(`https://registry.npmjs.org/`) is the intended publication destination. No release
-has been published for this migration. Installing the existing registry release
-still retrieves the earlier JavaScript implementation. GitHub Packages is unused.
+Alternatively, prepare and install a local release archive:
+
+```bash
+bun pm pack --filename node-basic-lang-0.1.0.tgz --ignore-scripts
+bun install --global ./node-basic-lang-0.1.0.tgz
+```
+
+Ensure Bun's global executable directory is on your `PATH`. The package name is
+`node-basic-lang`; its command is `basic`. This candidate does not publish or tag
+a release. The public npm registry (`https://registry.npmjs.org/`) is the intended
+publication destination; local installation does not require registry publication.
+The existing registry release is the earlier JavaScript implementation, so
+`bun install --global node-basic-lang` does not install this unpublished candidate.
 
 ## Executing files
 
-1. Create a BASIC program using the [supported commands](#supported-commands) below. Make sure that the file ends in `.bas`.
+1. Create a text file using the [supported commands](#supported-commands) below. Use the conventional `.bas` extension.
 
 2. Run the BASIC program that you created
 
@@ -127,7 +140,27 @@ each `run(source)` starts fresh. Source is fully validated before any output,
 then executed in numeric label order. The default host discards output; provide the
 callbacks you need. See [the host API](docs/interpreter-host.md) for lifecycle,
 async input, randomness, and current limitations. These exports are available in
-this checkout without building; this change does not update the published package.
+the candidate without building.
+
+## Errors and interruption
+
+File execution writes program output to stdout and diagnostics to stderr, without
+a version banner or JavaScript stack trace. Syntax, duplicate labels, missing
+jump targets, and unmatched loops are checked before any program effects. Runtime
+errors identify the BASIC label and column, for example
+`Line 10, column 11: Cannot divide by zero`. An editor error preserves source and
+returns to the prompt.
+
+| File-mode result                          | Exit status |
+| ----------------------------------------- | ----------- |
+| Normal completion, including `END`        | `0`         |
+| File, syntax, runtime, or input-EOF error | `1`         |
+| Ctrl+C interruption                       | `130`       |
+| Extra command-line arguments              | `9`         |
+
+Ctrl+C also interrupts busy loops and pending input. The editor retains the
+program; an idle Ctrl+C discards only the unfinished entry. See
+[terminal behavior](docs/terminal.md) for confirmations and EOF recovery.
 
 ## Supported commands
 
