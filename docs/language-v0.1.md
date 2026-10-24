@@ -276,7 +276,8 @@ do not silently discard the only copy. EOF during program input follows the
 
 File mode (`basic program.bas`) uses the same parser/runtime as `RUN`, accepts
 program input, and does not open an editor prompt. Successful completion exits
-`0`; usage/file/syntax/runtime/input-EOF errors exit `1`; Ctrl+C exits `130`.
+`0`; file/syntax/runtime/input-EOF errors exit `1`; Ctrl+C exits `130`.
+Extra arguments print usage and retain the legacy status `9`.
 Program output goes to stdout and diagnostics to stderr, with no unsolicited
 file-mode banner. Only the terminal host owns process exit and terminal handles.
 

@@ -28,6 +28,34 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   const input = runProcess({cwd: consumer, args: [executable, file], input: 'Jesse\n'});
   assert.equal(input.stdout, 'Name? Hello, Jesse\n');
   assert.equal(input.stderr, '');
+  writeFileSync(
+    file,
+    [
+      '10 REM A comment may contain an unmatched " and keywords like END',
+      '20 CLS',
+      '30 INPUT "Name"; NAME$',
+      '40 INPUT "Count"; COUNT',
+      '50 LET TOTAL=0',
+      '60 FOR I=1 TO COUNT',
+      '70 LET TOTAL=TOTAL+I',
+      '80 NEXT I',
+      '90 IF TOTAL=6 THEN 120',
+      '100 PRINT "wrong total"',
+      '110 GOTO 140',
+      '120 PRINT NAME$;": ";TOTAL',
+      '130 GOTO 150',
+      '140 PRINT "must not run"',
+      '150 END',
+      '160 PRINT "after END"',
+    ].join('\n'),
+  );
+  const statements = runProcess({
+    cwd: consumer,
+    args: [executable, file],
+    input: 'Ada\n3\n',
+  });
+  assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
+  assert.equal(statements.stderr, '');
   for (const {example, answer, expected} of [
     {
       example: 'times-table.bas',
@@ -92,6 +120,14 @@ function checkFileFailures({consumer, executable, file}: CliContext): void {
   assert.equal(missing.stdout, '');
   assert.match(missing.stderr, /ENOENT/);
   assert.doesNotMatch(missing.stderr, /\n\s+at /);
+  const unreadable = runProcess({
+    cwd: consumer,
+    args: [executable, consumer],
+    expectedStatus: 1,
+  });
+  assert.equal(unreadable.stdout, '');
+  assert.match(unreadable.stderr, /EISDIR/);
+  assert.doesNotMatch(unreadable.stderr, /\n\s+at /);
   const usage = runProcess({
     cwd: consumer,
     args: [executable, 'one.bas', 'two.bas'],
