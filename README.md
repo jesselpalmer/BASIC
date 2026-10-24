@@ -35,8 +35,9 @@ an isolated global installation.
 
 Use `bun run format` to apply formatting and `bun test` for a quick test run.
 See [quality checks and coverage](docs/quality-checks.md) for the complete commands,
-measured baseline, and coverage limitations. The [testing audit](docs/testing-audit.md)
-records the behavior matrix, findings, and remaining gaps.
+coverage policy and limitations. The [architecture guide](docs/architecture.md)
+explains module ownership and invariants; the [maintainability audit](docs/maintainability-audit.md)
+records the review findings and their verification.
 
 ## Installation
 

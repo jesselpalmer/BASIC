@@ -1,41 +1,28 @@
 # TypeScript and Bun development
 
-Issue #66 moves this checkout to Bun 1.4.4 and strict TypeScript before evaluator
-work. Language behavior and the separation between the core and CLI are unchanged.
-The earlier backlog's JavaScript-only constraint is superseded by this decision.
+This repository uses strict TypeScript and Bun. `.bun-version` and
+`packageManager` pin the development and CI runtime; `bun.lock` pins dependencies.
+Bun executes the source directly, with no build step or generated runtime bundles.
 
-Install Bun, then run:
+For setup, formatting, types, lint, coverage, and installed-package verification,
+follow [quality checks](quality-checks.md). Running tests alone does not replace
+compiler or lint checks.
 
-```sh
-bun install --frozen-lockfile
-bun run check
-bun start
-```
+## Distribution and portability
 
-`.bun-version` and `packageManager` pin the development/CI runtime. `bun.lock` is
-the dependency source of truth. TypeScript 6 is used because the current
-TypeScript ESLint tooling does not yet support TypeScript 7. Both compiler and
-lint run through Bun; running tests alone does not replace type checking.
+The package is named `node-basic-lang` and requires Bun. ESM imports and CommonJS
+require are both supported on Bun; this is not a plain Node compatibility claim.
+Public types are exported from the package root. Package acceptance installs the
+exact local tarball in isolated consumers and verifies both module formats,
+external type resolution, and local/global executable installation. It does not
+publish a package.
 
-All source, tests, and package-check scripts are included in the strict compiler
-check. Public types describe host callbacks, source positions, diagnostics,
-discriminated tokens/AST nodes, immutable program snapshots, and execution status.
-No language evaluator or new BASIC commands are introduced here.
+Core and parser modules use standard language features and injected host
+capabilities. Terminal, signal, and filesystem operations belong to the CLI;
+Bun-specific process APIs belong to development tools. Keep these boundaries so a
+future browser or graphics host can reuse the interpreter. See
+[architecture](architecture.md) for module responsibilities and lifecycle rules.
 
-The package ships TypeScript source and requires Bun. Its name remains
-`node-basic-lang`, but this checkout no longer targets plain Node execution.
-Both ESM imports and CommonJS require work in Bun. Public types are exported from
-the package root; no build step or generated bundles are needed. The packed
-consumer check verifies imports, parser behavior, type consumption, executable
-installation, and the executable's Bun shebang. No package is published.
-
-Core/parser modules use portable language features and host interfaces rather
-than Bun-specific runtime APIs. Terminal and filesystem operations remain in the
-CLI host, preserving the path to a future browser and graphics host.
-
-The behavioral tests run with `bun:test`. Mocks/spies use Bun's
-Jest-compatible interface. Tests drain all chunks from output streams and attach
-rejection handlers before cancellation/error triggers; they retain the same
-EOF, cancellation, SIGINT, stream failure, rerun, and listener-cleanup assertions.
-
-See [quality checks](quality-checks.md) for formatting, type-aware lint, coverage, and CI policy.
+The test runner is `bun:test`; its mocks and spies use Bun's Jest-compatible
+interface. Use observable request/output events to coordinate async tests, bound
+all execution, and assert cleanup of resources owned by the code under test.
