@@ -16,4 +16,5 @@ export type {
   ParsedLine,
   Program,
 } from './core/types.ts';
-export {BasicSyntaxError} from './core/diagnostic.ts';
+export {BasicSyntaxError, BasicRuntimeError} from './core/diagnostic.ts';
+export {Evaluator} from './core/evaluator.ts';

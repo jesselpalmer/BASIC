@@ -24,13 +24,13 @@ bun start game.bas
 
 Source and tests use strict TypeScript. Bun runs the source directly; no build
 step is required. `bin/basic` starts the CLI while `src/index.ts` exports the
-interpreter, parser, and public types without opening a terminal. The core and
+interpreter, parser, evaluator, and public types without opening a terminal. The core and
 parser contain no Bun-specific runtime APIs, allowing future browser hosts.
 
 CI checks the frozen lockfile and runs the same `bun run check` command: formatting,
 strict types, typed lint, the behavioral suite with coverage, and a packed
 installation in a temporary Bun consumer. The package check verifies quiet
-ES module/CommonJS imports, parser exports, and the installed executable.
+ES module/CommonJS imports, parser/evaluator exports, and the installed executable.
 
 Use `bun run format` to apply formatting and `bun test` for a quick test run.
 See [quality checks and coverage](docs/quality-checks.md) for the complete commands,
@@ -122,9 +122,11 @@ of being partially interpreted or silently ignored.
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
 label, with syntax trees for expressions, `LET`, `PRINT`, `REM`, `CLS`, and `END`.
 It is available separately through `parseLine`, `parseProgram`, and
-`validateProgram`. It does not execute the new syntax. The CLI and `Basic` still
-use the legacy execution path above; expression evaluation, execution of parsed
-programs, and stored editing follow in later tickets.
+`validateProgram`. The separate [evaluator API](docs/evaluator.md) adds typed
+variables, arithmetic, string concatenation, and `ABS`, `INT`, and `RND` function
+calls over parsed expressions. The CLI and `Basic` still use the legacy
+execution path above; execution of parsed programs and stored editing follow
+in later tickets.
 
 ## Sample file
 

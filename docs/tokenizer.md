@@ -78,8 +78,9 @@ Duplicate labels are compared numerically.
 The separate [parser API](parser.md) consumes these tokens to build syntax trees
 and immutable programs sorted by label. The existing CLI and `Basic` still use
 the small legacy adapter; `END` stops scanning/execution of subsequent file lines
-there. Expression evaluation, execution of parsed programs, and stored editing
-follow in the runtime/editor tickets.
+there. The separate [evaluator API](evaluator.md) evaluates parsed expressions;
+execution of parsed programs and stored editing follow in the runtime/editor
+tickets.
 
 `bun test` covers token values/boundaries, exact positions, malformed inputs,
 state isolation, interpreter integration, and CLI diagnostics/recovery.

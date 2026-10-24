@@ -3,8 +3,9 @@
 The package exports `parseLine`, `parseProgram`, and `validateProgram`. They
 consume source/parsed lines and return immutable data without executing BASIC,
 reading files, opening a terminal, evaluating JavaScript, or retaining program
-state between calls. The CLI and `Basic.run()` still use the legacy executor;
-the evaluator and new runtime follow in #36 and #37.
+state between calls. The [evaluator API](evaluator.md) evaluates expression nodes
+separately. The CLI and `Basic.run()` still use the legacy executor; the new
+execution loop follows in #37.
 
 ```js
 import {parseLine, parseProgram, validateProgram} from 'node-basic-lang';
