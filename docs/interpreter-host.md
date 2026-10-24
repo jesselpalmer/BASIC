@@ -152,24 +152,23 @@ with no BASIC diagnostic. Calls to reset/run/step/readLine from within a host
 callback are rejected before they can alter the current execution, including
 callbacks invoked to read input or display retries.
 
-## Transitional immediate entries
+## Immediate library entries and stored terminal source
 
-The REPL still executes numbered entries immediately until stored-program
-editing lands in #42. `basic.readLine(source, {line, offset}?)` is its adapter:
-it parses exactly one line and uses the same evaluator and statement executor.
-`IF`, `GOTO`, `FOR`, and `NEXT` require a complete prepared program and report `PROGRAM_REQUIRED`
-in this immediate adapter, even for a false condition. Use the file CLI or
-`run`/`runAsync`/`reset` to execute branching programs until #42 adds stored editing.
-Use `readLineAsync` for entries that may request input. Variables persist across
-entries, entries run in arrival order, and duplicate
-numeric labels fail. Blank fragments do nothing. `END` or an error blocks later
-entries until reset. The REPL resets automatically in those cases.
+The terminal stores numbered source and executes full snapshots with `RUN`.
+See the [terminal session guide](terminal.md). The existing
+`basic.readLine(source, {line, offset}?)` and `readLineAsync` methods remain
+available as legacy library adapters: they parse one numbered line, execute it
+immediately, and share variables across entries. They do not edit terminal source.
 
-The first immediate entry replaces any prepared program with an empty snapshot.
+`IF`, `GOTO`, `FOR`, and `NEXT` require a complete prepared program and report
+`PROGRAM_REQUIRED` in this adapter. Use `run`/`runAsync`/`reset` for control flow.
+Immediate entries run in arrival order; duplicate numeric labels fail. Blank
+fragments do nothing, and `END` or an error blocks later entries until reset.
+
+The first immediate entry replaces a prepared program with an empty snapshot.
 Do not mix immediate entries with an active stepped program: reset first. To
-switch from immediate entries to stepping, reset with a program. No unnumbered
-`RUN`, `LIST`, `EXIT`, or stored-line editing is implemented yet. A blank line or
-EOF still closes the current REPL; Ctrl+C closes a waiting terminal with code 130.
+switch back to stepping, reset with a program. Unnumbered immediate expressions
+and statements are not part of the current terminal commands.
 
 ## Host callbacks
 
@@ -202,8 +201,11 @@ isolated variables and state.
 drain naturally. Successful completion returns 0; file/syntax/runtime errors 1;
 Ctrl+C 130; excess arguments retain the earlier usage code 9. Program output
 goes to stdout and errors to stderr. EOF during program input reports its BASIC
-location and exits 1 in either file or interactive mode. Ctrl+C during input
-exits 130. The library never selects process exit codes.
+location and exits 1 in file mode. Interactive failures return to the editor;
+EOF with dirty stored source then emits a complete recovery copy and exits 1.
+File-mode Ctrl+C exits 130; interactive Ctrl+C cancels only the active
+entry/confirmation/run and keeps the editor usable. The library never selects
+process exit codes.
 
 `TerminalHost` opens readline lazily. Piped lines queue in order, including the
 final unterminated line at normal EOF. It permits one pending input request;
@@ -224,8 +226,9 @@ adapter removes owned input-close, error, readline, and abort listeners.
 `src/core/comparison.ts` shares comparison type rules and pure result-type inference;
 `src/core/loops.ts` pairs lexical loop structures and defines body membership;
 `src/core/input.ts` owns input validation, retries, and abortable host reads;
-`src/parser` owns syntax and snapshots; `src/cli` and `src/repl` own host/session
-behavior. `src/basic.ts` and `src/index.ts` are the library entrypoints, while
+`src/parser` owns syntax and snapshots; `src/cli` owns terminal/argument adapters;
+`src/repl/program.ts` owns editable source and `src/repl/repl.ts` owns session
+commands, confirmations, and fresh run snapshots. `src/basic.ts` and `src/index.ts` are the library entrypoints, while
 `bin/basic` is the executable. Superseded per-command handlers and the old line
 validator/executor were removed when their callers migrated.
 

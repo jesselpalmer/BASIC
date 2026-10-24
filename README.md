@@ -75,19 +75,29 @@ You can use the REPL just by running the following command in the terminal:
 basic
 ```
 
-Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
+Numbered entries edit stored source; they execute only when you enter `RUN`.
+Re-enter a label to replace that line, or enter its label alone to delete it.
+`LIST` prints source in numeric order. Forward jumps and incomplete loops can be
+entered incrementally; `RUN` validates the complete snapshot before any effects.
 
-Numbered entries still execute immediately in entry order and retain variables
-until `END` or an error. This differs from files, which validate completely and
-execute in numeric label order. Stored-program editing is a later feature.
+```text
+10 PRINT "Hello"
+LIST
+RUN
+EXIT
+```
 
-`END` finishes the current run and returns to the prompt. You can then enter
-another program, reusing its line numbers. For now, a blank line or EOF closes
-the session; stored-program editing and `EXIT` are planned for v0.1.
+`NEW` clears the program, and `EXIT` closes the session. Both ask before
+discarding unsaved work; only `y` or `yes` confirms. A blank entry does nothing.
+EOF with unsaved source prints a warning and the complete source to stderr,
+then exits with code 1 so you can recover your program. `LOAD`/`SAVE` follow in #43.
 
-Errors are reported to stderr. A file error stops execution with a nonzero exit
-code; an interactive command error resets the current run and leaves the prompt
-usable. Ctrl+C closes a waiting terminal with exit code 130.
+Every `RUN` starts fresh variables and control flow while retaining source.
+Errors and Ctrl+C return to a usable prompt. At an idle prompt, Ctrl+C discards
+only the unfinished entry. During BASIC `INPUT`, text belongs to the running
+program, even when the answer is `RUN` or `EXIT`. File-mode Ctrl+C exits 130.
+See the [terminal session guide](docs/terminal.md) for editing, confirmation,
+EOF recovery, and interrupt behavior.
 
 ## Embedding the interpreter
 
@@ -134,11 +144,12 @@ numbers, and reading an undefined variable is an error.
 infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
-non-finite numbers produce source-located errors. Stored editor commands are
-not yet implemented.
+non-finite numbers produce source-located errors. The terminal also implements
+`RUN`, `LIST`, `NEW`, and `EXIT`; these are session commands rather than BASIC
+program statements.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
-label, with syntax trees for expressions, `LET`, `PRINT`, `REM`, `CLS`, and `END`.
+label, with syntax trees for supported statements and expressions.
 It is available separately through `parseLine`, `parseProgram`, and
 `validateProgram`. The separate [evaluator API](docs/evaluator.md) adds typed
 variables, arithmetic, string concatenation, and `ABS`, `INT`, and `RND` function
@@ -176,7 +187,8 @@ The host displays `What is your name? ` (or `? ` without a prompt). String
 answers preserve whitespace and require no quotes. Numeric answers must be
 complete finite signed decimals, with surrounding spaces/tabs allowed; invalid
 answers receive a retry message. EOF during input fails with a source location;
-Ctrl+C cancels the request and exits the current CLI session with code 130.
+Ctrl+C cancels the run and returns to the interactive editor. In file mode it
+exits with code 130.
 
 For library programs with `INPUT`, use `await basic.runAsync(source, {signal})`.
 `stepAsync` and `readLineAsync` are also available, and `basic.cancel()` stops a
@@ -200,8 +212,9 @@ bun start examples/guess.bas
 ```
 
 `IF` and `GOTO` require a complete program passed to the file CLI or
-`Basic.run`/`runAsync`/`reset`. The current immediate-entry REPL reports
-`PROGRAM_REQUIRED`; stored-program editing follows in #42. Async runs now yield
+`Basic.run`/`runAsync`/`reset`, or entered in the terminal and executed with `RUN`.
+The legacy library `readLine` adapter still reports `PROGRAM_REQUIRED` for these
+commands. Async runs now yield
 in short batches, so Ctrl+C can interrupt busy file programs. Library callers can
 set a per-run instruction limit and inject a scheduler; see
 [responsive execution](docs/execution.md). Synchronous `run()` remains blocking;

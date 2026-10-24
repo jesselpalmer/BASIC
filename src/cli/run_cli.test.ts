@@ -32,8 +32,11 @@ it('routes TTY Ctrl+C through the owned interrupt handler', async () => {
   const signals = process.listeners('SIGINT');
   try {
     const result = runCli([], {host});
+    input.write('10 PRINT "discarded partial"');
+    input.write('\u001b[D\u001b[D\u001b[D');
     input.write('\u0003');
-    expect(await result).toBe(130);
+    input.end('EXIT\n');
+    expect(await result).toBe(0);
     expect(errors.read()).toBeNull();
     expect(process.listeners('SIGINT')).toEqual(signals);
     expect(input.listenerCount('keypress')).toBe(0);
@@ -97,6 +100,17 @@ describe('CLI adapter lifecycle', () => {
     expect(errors.read()).toBeNull();
   });
 
+  it('routes process SIGINT to a pending file program and returns 130', async () => {
+    const file = join(directory, 'waiting.bas');
+    writeFileSync(file, '10 INPUT "Answer"; N');
+    const prompted = once(output, 'data');
+    const result = runCli([file], {host});
+    await prompted;
+    process.emit('SIGINT');
+    expect(await result).toBe(130);
+    expect(errors.read()).toBeNull();
+  });
+
   it('keeps simultaneous file runs isolated', async () => {
     const one = join(directory, 'one.bas');
     const two = join(directory, 'two.bas');
@@ -116,6 +130,16 @@ describe('CLI adapter lifecycle', () => {
   it('reports invalid arguments without starting a terminal', async () => {
     expect(await runCli(['one', 'two'], {host})).toBe(9);
     expect(readAll(errors)).toContain('Usage:');
+  });
+
+  it('discards a partial piped entry on process SIGINT before the next command', async () => {
+    const result = runCli([], {host});
+    input.write('10 PRINT "must never be stored"');
+    process.emit('SIGINT');
+    input.end('EXIT\n');
+    expect(await result).toBe(0);
+    expect(readAll(errors)).toBe('');
+    expect(readAll(output)).not.toContain('must never be stored');
   });
 
   it('handles EOF while waiting at the prompt', async () => {
@@ -139,9 +163,17 @@ describe('CLI adapter lifecycle', () => {
   it('allows another run after END and an error', async () => {
     const result = runCli([], {host});
     input.end(
-      ['10 PRINT "one"', '20 END', '10 PRINT INT("bad")', '10 PRINT "two"', '20 END', ''].join(
-        '\n',
-      ),
+      [
+        '10 PRINT "one"',
+        '20 END',
+        'RUN',
+        '10 PRINT INT("bad")',
+        'RUN',
+        '10 PRINT "two"',
+        'RUN',
+        'EXIT',
+        'yes',
+      ].join('\n') + '\n',
     );
     expect(await result).toBe(0);
     const text = readAll(output);
@@ -186,13 +218,16 @@ describe('CLI adapter lifecycle', () => {
     input.end(
       [
         '10 INPUT N$',
-        'RUN',
         '20 PRINT N$',
         '30 INPUT A',
-        'bad',
-        '.5',
         '40 PRINT A',
         '50 END',
+        'RUN',
+        'RUN',
+        'bad',
+        '.5',
+        'EXIT',
+        'yes',
         '',
       ].join('\n'),
     );
@@ -210,10 +245,71 @@ describe('CLI adapter lifecycle', () => {
       const file = join(directory, 'eof.bas');
       writeFileSync(file, '10 INPUT N\n20 PRINT "skipped"');
       const result = runCli(mode === 'file' ? [file] : [], {host});
-      input.end(mode === 'file' ? '' : '10 INPUT N\n');
+      input.end(mode === 'file' ? '' : '10 INPUT N\nRUN\n');
       expect(await result).toBe(1);
-      expect(readAll(errors)).toBe('Line 10, column 4: Input ended before a value was received\n');
+      expect(readAll(errors)).toBe(
+        'Line 10, column 4: Input ended before a value was received\n' +
+          (mode === 'file'
+            ? ''
+            : 'Unsaved program at EOF; copy the source below before closing:\n10 INPUT N\n'),
+      );
       expect(readAll(output)).not.toContain('skipped');
     },
   );
+});
+
+it('raw TTY Ctrl+C stops a computing program, retains its source, and permits another RUN', async () => {
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode() {
+      return input;
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const errors = new PassThrough();
+  const host = new TerminalHost({input, output, errorOutput: errors});
+  const signals = process.listeners('SIGINT');
+  let text = '';
+  let phase = 0;
+  let cancelTimer: ReturnType<typeof setTimeout> | undefined;
+  output.on('data', (chunk: Buffer) => {
+    text += chunk.toString();
+    if (phase === 0 && text.includes('>>> ')) {
+      phase = 1;
+      queueMicrotask(() => {
+        // A finite loop bounds a failed test even if yielding regresses.
+        input.write(
+          '10 PRINT "COMPUTING"\n20 FOR I=1 TO 1024\n30 REM spin\n40 NEXT I\n50 PRINT "MISSED_CANCEL"\nRUN\n',
+        );
+      });
+    } else if (phase === 1 && text.includes('COMPUTING\n')) {
+      phase = 2;
+      // The macrotask must run while BASIC is still computing.
+      cancelTimer = setTimeout(() => input.write('\u0003'), 0);
+    } else if (phase === 2 && text.slice(text.indexOf('COMPUTING\n')).includes('>>> ')) {
+      phase = 3;
+      queueMicrotask(() => {
+        input.end('LIST\n20\n30\n40\n50\n10 PRINT "AFTER_CANCEL"\nRUN\nEXIT\nyes\n');
+      });
+    }
+  });
+  try {
+    expect(await runCli([], {host})).toBe(0);
+    expect(phase).toBe(3);
+    expect(text).toContain(
+      '10 PRINT "COMPUTING"\n20 FOR I=1 TO 1024\n30 REM spin\n40 NEXT I\n50 PRINT "MISSED_CANCEL"\n',
+    );
+    expect(text).not.toContain('MISSED_CANCEL\n');
+    expect(text).toContain('AFTER_CANCEL\n');
+    expect(errors.read()).toBeNull();
+    expect(process.listeners('SIGINT')).toEqual(signals);
+    expect(input.listenerCount('keypress')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+  } finally {
+    clearTimeout(cancelTimer);
+    host.close();
+    input.destroy();
+    output.destroy();
+    errors.destroy();
+  }
 });
