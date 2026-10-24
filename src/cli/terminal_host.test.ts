@@ -1,4 +1,4 @@
-import {once} from 'node:events';
+import {getEventListeners, once} from 'node:events';
 import {describe, it, expect, beforeEach, afterEach} from 'bun:test';
 import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
@@ -162,6 +162,17 @@ describe('TerminalHost input lifecycle', () => {
     expect(input.listenerCount('error')).toBe(0);
   });
 
+  it('discards complete queued lines when explicitly closed', async () => {
+    const first = host.readLine();
+    input.write('first\nqueued\n');
+    expect(await first).toBe('first');
+    host.close();
+    expect(await host.readLine()).toBeNull();
+    expect(input.destroyed).toBe(false);
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+  });
+
   it('rejects cancellation and allows a fresh request', async () => {
     const controller = new AbortController();
     const result = host.readLine('', {signal: controller.signal});
@@ -171,6 +182,18 @@ describe('TerminalHost input lifecycle', () => {
     const next = host.readLine();
     input.write('new request\n');
     expect(await next).toBe('new request');
+  });
+
+  it('queues lines arriving after a cancelled request for the next reader', async () => {
+    const controller = new AbortController();
+    const rejection = host
+      .readLine('', {signal: controller.signal})
+      .catch((error: unknown) => error);
+    controller.abort();
+    expect(await rejection).toMatchObject({name: 'AbortError'});
+    input.end('retained\n');
+    expect(await host.readLine()).toBe('retained');
+    expect(await host.readLine()).toBeNull();
   });
 
   it('does not open input for an already cancelled request', async () => {
@@ -189,6 +212,109 @@ describe('TerminalHost input lifecycle', () => {
     expect(failure).toMatchObject({message: 'Only one input request may be pending'});
     input.write('first\n');
     expect(await first).toBe('first');
+  });
+
+  it('reserves a read before writing its prompt and rejects nested reads', async () => {
+    let nested!: Promise<unknown>;
+    output.once('data', () => {
+      nested = host.readLine('Nested? ').catch((error: unknown) => error);
+    });
+    const first = host.readLine('First? ');
+    input.write('first answer\n');
+    expect(await first).toBe('first answer');
+    expect(await nested).toMatchObject({message: 'Only one input request may be pending'});
+  }, 1000);
+
+  it('propagates an input error raised while writing the prompt', async () => {
+    const failure = new Error('input failed during prompt');
+    output.once('data', () => input.emit('error', failure));
+    expect(await host.readLine('Prompt? ').catch((error: unknown) => error)).toBe(failure);
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('preserves a queued line when prompt output cancels its reader', async () => {
+    const first = host.readLine();
+    input.write('first\nqueued\n');
+    expect(await first).toBe('first');
+    const controller = new AbortController();
+    output.once('data', () => controller.abort());
+    const cancelled = host
+      .readLine('Prompt? ', {signal: controller.signal})
+      .catch((error: unknown) => error);
+    expect(await cancelled).toMatchObject({name: 'AbortError'});
+    expect(getEventListeners(controller.signal, 'abort')).toEqual([]);
+    expect(await host.readLine()).toBe('queued');
+  }, 1000);
+
+  it('rejects a prompt failure even when its callback has already supplied a line', async () => {
+    const failure = new Error('prompt failed after supplying input');
+    host.write = () => {
+      input.write('must not be delivered\n');
+      throw failure;
+    };
+    expect(await host.readLine('Prompt? ').catch((error: unknown) => error)).toBe(failure);
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+  });
+
+  it('drains lines supplied before a prompt callback closes the input stream', async () => {
+    output.once('data', () => {
+      input.write('first\nsecond\n');
+      input.emit('close');
+    });
+    expect(await host.readLine('Prompt? ')).toBe('first');
+    expect(await host.readLine()).toBe('second');
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('does not let an aborted prompt callback close a replacement read when it throws', async () => {
+    const controller = new AbortController();
+    let replacement!: Promise<string | null>;
+    host.write = (prompt) => {
+      if (prompt === 'Old? ') {
+        controller.abort();
+        replacement = host.readLine('New? ');
+        throw new Error('old prompt failed after replacement');
+      }
+      return true;
+    };
+    const cancelled = host
+      .readLine('Old? ', {signal: controller.signal})
+      .catch((error: unknown) => error);
+    expect(await cancelled).toMatchObject({name: 'AbortError'});
+    input.end('replacement answer\n');
+    expect(await replacement).toBe('replacement answer');
+    expect(getEventListeners(controller.signal, 'abort')).toEqual([]);
+  }, 1000);
+
+  it('settles a read closed by its prompt callback without reopening input', async () => {
+    host.write = () => {
+      host.close();
+      return true;
+    };
+    expect(await host.readLine('Prompt? ')).toBeNull();
+    expect(await host.readLine()).toBeNull();
+    expect(input.destroyed).toBe(false);
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('preserves complete lines when a prompt callback replaces readline', async () => {
+    const first = host.readLine();
+    input.write('first\nqueued\npartial');
+    expect(await first).toBe('first');
+    output.once('data', () => host.discardEntry());
+    expect(await host.readLine('Next? ')).toBe('queued');
+    const fresh = host.readLine();
+    input.end('fresh\n');
+    expect(await fresh).toBe('fresh');
+    expect(await host.readLine()).toBeNull();
   });
 
   it('removes the abort listener after input settles', async () => {
@@ -235,3 +361,74 @@ describe('TerminalHost input lifecycle', () => {
     expect(input.listenerCount('error')).toBe(0);
   });
 });
+
+it('releases a TTY interface if its stream closes the host during initialization', async () => {
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode(enabled: boolean) {
+      if (enabled) host.close();
+      return input;
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const host = new TerminalHost({input, output});
+  try {
+    expect(await host.readLine('Prompt? ')).toBeNull();
+    expect(input.listenerCount('keypress')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+    expect(input.destroyed).toBe(false);
+    expect(await host.readLine()).toBeNull();
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+  }
+}, 1000);
+
+it('finishes TTY initialization before starting a replacement read and its prompt', async () => {
+  const controller = new AbortController();
+  let replacement!: Promise<string | null>;
+  let replaced = false;
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode(enabled: boolean) {
+      if (enabled && !replaced) {
+        replaced = true;
+        controller.abort();
+        replacement = host.readLine('New? ');
+      }
+      return input;
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const host = new TerminalHost({input, output});
+  let text = '';
+  let answered = false;
+  output.on('data', (chunk: Buffer) => {
+    text += chunk.toString();
+    if (!answered && text.includes('New? ')) {
+      answered = true;
+      input.write('replacement answer\n');
+    }
+  });
+  try {
+    const cancelled = host
+      .readLine('Old? ', {signal: controller.signal})
+      .catch((error: unknown) => error);
+    expect(await cancelled).toMatchObject({name: 'AbortError'});
+    expect(await replacement).toBe('replacement answer');
+    expect(input.listenerCount('keypress')).toBe(1);
+    const next = host.readLine();
+    input.end('next answer\n');
+    expect(await next).toBe('next answer');
+    host.close();
+    expect(input.listenerCount('keypress')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+  }
+}, 1000);

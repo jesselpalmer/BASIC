@@ -1,9 +1,10 @@
 import {expect, it} from 'bun:test';
+import {getEventListeners} from 'node:events';
 import Repl from './repl.ts';
 import {createHost} from '../core/host.ts';
 import type {InputOptions} from '../core/types.ts';
 
-function session(entries: (string | null)[]) {
+function session(entries: readonly (string | null)[]) {
   const output: string[] = [];
   const errors: string[] = [];
   const prompts: string[] = [];
@@ -172,99 +173,116 @@ it('reports runtime/input failures and preserves editable source for EOF recover
 });
 
 function waitable() {
-  const {repl: _repl, host, ...captured} = session([]);
-  void _repl;
-  const requests: {
+  const {host, ...captured} = session([]);
+  type Request = {
     prompt: string;
     signal: AbortSignal;
     resolve: (line: string | null) => void;
     reject: (error: Error) => void;
-  }[] = [];
+  };
+  const requests: Request[] = [];
+  const queued: Request[] = [];
+  const waiting: ((request: Request) => void)[] = [];
   host.readLine = (prompt = '', {signal}: InputOptions = {}) =>
     new Promise<string | null>((resolve, reject) => {
       if (!signal) throw new Error('Expected cancellation signal');
       const onAbort = () => {
         const error = new Error('cancelled');
         error.name = 'AbortError';
-        reject(error);
+        request.reject(error);
+      };
+      const request: Request = {
+        prompt,
+        signal,
+        resolve(line) {
+          signal.removeEventListener('abort', onAbort);
+          resolve(line);
+        },
+        reject(error) {
+          signal.removeEventListener('abort', onAbort);
+          reject(error);
+        },
       };
       signal.addEventListener('abort', onAbort, {once: true});
-      requests.push({prompt, signal, resolve, reject});
+      if (signal.aborted) onAbort();
+      requests.push(request);
+      const ready = waiting.shift();
+      if (ready) ready(request);
+      else queued.push(request);
     });
-  const repl = new Repl(host);
-  const tick = async () => {
-    for (let i = 0; i < 20; i++) await Promise.resolve();
-  };
-  return {repl, requests, tick, host, ...captured};
+  function nextRequest(): Promise<Request> {
+    const request = queued.shift();
+    return request ? Promise.resolve(request) : new Promise((resolve) => waiting.push(resolve));
+  }
+  return {requests, nextRequest, host, ...captured};
 }
 
 it('cancels only the idle entry and confirmation, then accepts a fresh command', async () => {
-  const {repl, requests, output, errors, tick} = waitable();
+  const {repl, nextRequest, output, errors} = waitable();
   repl.interrupt();
   const result = repl.start();
+  const entry = await nextRequest();
+  expect(entry.prompt).toBe('>>> ');
   repl.interrupt();
-  await tick();
-  expect(requests[0].signal.aborted).toBe(true);
-  requests[1].resolve('10 END');
-  await tick();
-  requests[2].resolve('EXIT');
-  await tick();
-  expect(requests[3].prompt).toBe('Discard unsaved changes and exit? [y/N] ');
+  expect(entry.signal.aborted).toBe(true);
+  (await nextRequest()).resolve('10 END');
+  (await nextRequest()).resolve('EXIT');
+  const confirmation = await nextRequest();
+  expect(confirmation.prompt).toBe('Discard unsaved changes and exit? [y/N] ');
   repl.interrupt();
-  await tick();
-  requests[4].resolve('LIST');
-  await tick();
-  requests[5].resolve('EXIT');
-  await tick();
-  requests[6].resolve('yes');
+  expect(confirmation.signal.aborted).toBe(true);
+  (await nextRequest()).resolve('LIST');
+  (await nextRequest()).resolve('EXIT');
+  (await nextRequest()).resolve('yes');
   expect(await result).toBe(0);
   expect(output).toContain('10 END\n');
   expect(errors).toEqual([]);
 });
 
 it('cancels pending program INPUT, keeps source, and supports a subsequent RUN', async () => {
-  const {repl, requests, output, errors, tick} = waitable();
+  const {repl, nextRequest, output, errors} = waitable();
   const result = repl.start();
-  requests[0].resolve('10 INPUT N$');
-  await tick();
-  requests[1].resolve('20 PRINT N$');
-  await tick();
-  requests[2].resolve('RUN');
-  await tick();
-  expect(requests[3].prompt).toBe('? ');
+  (await nextRequest()).resolve('10 INPUT N$');
+  (await nextRequest()).resolve('20 PRINT N$');
+  (await nextRequest()).resolve('RUN');
+  const input = await nextRequest();
+  expect(input.prompt).toBe('? ');
   repl.interrupt();
-  await tick();
-  requests[4].resolve('RUN');
-  await tick();
-  requests[5].resolve('fresh');
-  await tick();
-  requests[6].resolve('EXIT');
-  await tick();
-  requests[7].resolve('yes');
+  expect(input.signal.aborted).toBe(true);
+  (await nextRequest()).resolve('RUN');
+  (await nextRequest()).resolve('fresh');
+  (await nextRequest()).resolve('EXIT');
+  (await nextRequest()).resolve('yes');
   expect(await result).toBe(0);
   expect(output).toContain('fresh\n');
   expect(errors).toEqual([]);
 });
 
 it('propagates terminal read failures rather than retrying a failed host forever', async () => {
-  const {repl, requests, tick} = waitable();
-  const result = repl.start();
+  const controller = new AbortController();
+  const unrelated = () => {};
+  controller.signal.addEventListener('abort', unrelated);
+  const {repl, requests, nextRequest} = waitable();
+  const result = repl.start({signal: controller.signal});
   const rejection = result.catch((error: unknown) => error);
-  requests[0].reject(new Error('broken input'));
-  await tick();
+  (await nextRequest()).reject(new Error('broken input'));
   expect(await rejection).toMatchObject({message: 'broken input'});
   expect(requests).toHaveLength(1);
+  expect(getEventListeners(controller.signal, 'abort')).toEqual([unrelated]);
 });
 
 it('external cancellation aborts the session and detaches the external signal listener', async () => {
   const controller = new AbortController();
-  const {repl, requests, tick} = waitable();
+  const unrelated = () => {};
+  controller.signal.addEventListener('abort', unrelated);
+  const {repl, nextRequest} = waitable();
   const result = repl.start({signal: controller.signal});
   const rejection = result.catch((error: unknown) => error);
+  const request = await nextRequest();
   controller.abort();
-  await tick();
-  expect(requests[0].signal.aborted).toBe(true);
+  expect(request.signal.aborted).toBe(true);
   expect(await rejection).toMatchObject({name: 'AbortError'});
+  expect(getEventListeners(controller.signal, 'abort')).toEqual([unrelated]);
   const already = new AbortController();
   already.abort();
   expect(await repl.start({signal: already.signal}).catch((error: unknown) => error)).toMatchObject(
@@ -272,6 +290,42 @@ it('external cancellation aborts the session and detaches the external signal li
       name: 'AbortError',
     },
   );
+  expect(getEventListeners(already.signal, 'abort')).toEqual([]);
+});
+
+it.each([
+  {ending: 'EXIT', entries: ['EXIT'], status: 0},
+  {ending: 'clean EOF', entries: [], status: 0},
+  {ending: 'dirty EOF', entries: ['10 END'], status: 1},
+])('detaches its external signal listener after $ending', async ({entries, status}) => {
+  const controller = new AbortController();
+  const unrelated = () => {};
+  controller.signal.addEventListener('abort', unrelated);
+  const {repl} = session(entries);
+  expect(await repl.start({signal: controller.signal})).toBe(status);
+  expect(getEventListeners(controller.signal, 'abort')).toEqual([unrelated]);
+});
+
+it('does not let a completed session signal interrupt a later session', async () => {
+  const previous = new AbortController();
+  const current = new AbortController();
+  const {repl, nextRequest, errors} = waitable();
+  const first = repl.start({signal: previous.signal});
+  (await nextRequest()).resolve('EXIT');
+  expect(await first).toBe(0);
+
+  const second = repl.start({signal: current.signal});
+  try {
+    const entry = await nextRequest();
+    previous.abort();
+    expect(entry.signal.aborted).toBe(false);
+    entry.resolve('EXIT');
+    expect(await second).toBe(0);
+    expect(errors).toEqual([]);
+  } finally {
+    current.abort();
+    await second.catch(() => {});
+  }
 });
 
 it('discards an already-resolved entry when interrupted before it is consumed', async () => {
@@ -285,15 +339,14 @@ it('discards an already-resolved entry when interrupted before it is consumed', 
 
 it('external cancellation ends a dirty confirmation without interpreting later input', async () => {
   const controller = new AbortController();
-  const {repl, requests, tick} = waitable();
+  const {repl, nextRequest} = waitable();
   const result = repl.start({signal: controller.signal});
   const rejection = result.catch((error: unknown) => error);
-  requests[0].resolve('10 END');
-  await tick();
-  requests[1].resolve('EXIT');
-  await tick();
+  (await nextRequest()).resolve('10 END');
+  (await nextRequest()).resolve('EXIT');
+  const confirmation = await nextRequest();
+  expect(confirmation.prompt).toBe('Discard unsaved changes and exit? [y/N] ');
   controller.abort();
-  await tick();
-  expect(requests[2].signal.aborted).toBe(true);
+  expect(confirmation.signal.aborted).toBe(true);
   expect(await rejection).toMatchObject({name: 'AbortError'});
 });

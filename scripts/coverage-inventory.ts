@@ -21,8 +21,6 @@ const policy: CoveragePolicy = {
     // Validated targets and destination checks make two defensive guards unreachable.
     // Their 12 lines moved from runtime.ts; the smaller module changes the percentage.
     'src/core/control_flow.ts': {lines: 0.87, functions: 1},
-    // Terminal callbacks still have no-op initializers, addressed by the next PR.
-    'src/cli/terminal_host.ts': {lines: 1, functions: 0.75},
   },
 };
 
