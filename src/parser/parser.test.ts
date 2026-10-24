@@ -1,7 +1,7 @@
 import type {Expression, SourceOptions, ParsedLine} from '../core/types.ts';
 import {describe, it, expect} from 'bun:test';
 import {parseLine as parseNullableLine, parseProgram, validateProgram} from '../index.ts';
-import {BasicSyntaxError} from '../core/diagnostic.ts';
+import {BasicSyntaxError} from '../index.ts';
 
 function parseLine(source: string, options?: SourceOptions): ParsedLine {
   const result = parseNullableLine(source, options);
@@ -293,11 +293,32 @@ describe('program snapshots', () => {
   });
 
   it('deeply freezes snapshots without changing candidates', () => {
-    const candidate = [parseLine('20 END'), parseLine('10 PRINT 1+2;')];
+    const candidate = [
+      structuredClone(parseLine('20 END')),
+      structuredClone(parseLine('10 PRINT 1+2;')),
+    ];
     const program = validateProgram(candidate);
     expect(candidate.map((line) => line.label)).toEqual([20, 10]);
     expect(Object.isFrozen(candidate)).toBe(false);
     expect(program.lines[0]).not.toBe(candidate[1]);
+    const mutableItem = narrow(candidate[1].statement, 'PrintStatement').items[0];
+    const mutableLeft = narrow(mutableItem, 'BinaryExpression').left;
+    const mutablePosition = narrow(candidate[1].statement, 'PrintStatement').separators[0].start;
+    expect(Object.isFrozen(candidate[1])).toBe(false);
+    expect(Object.isFrozen(mutableLeft)).toBe(false);
+    expect(Object.isFrozen(mutablePosition)).toBe(false);
+    Object.assign(mutableLeft, {value: 99});
+    Object.assign(mutablePosition, {column: 99});
+    expect(shape(mutableItem)).toEqual(['+', 99, 2]);
+    expect(mutablePosition.column).toBe(99);
+    expect(shape(narrow(program.lines[0].statement, 'PrintStatement').items[0])).toEqual([
+      '+',
+      1,
+      2,
+    ]);
+    expect(narrow(program.lines[0].statement, 'PrintStatement').separators[0].start.column).toBe(
+      13,
+    );
     candidate[1] = parseLine('10 PRINT 99');
     expect(shape(narrow(program.lines[0].statement, 'PrintStatement').items[0])).toEqual([
       '+',
@@ -348,6 +369,17 @@ describe('program snapshots', () => {
     }
     expect(operators).toBe(2999);
     expect(narrow(node, 'NumberLiteral').value).toBe(1);
+  });
+
+  it.each([
+    ['groups', '(', ')'],
+    ['unary signs', '-', ''],
+    ['calls', 'ABS(', ')'],
+  ])('accepts 256 nested %s and rejects 257', (_name, open, close) => {
+    expect(() => parseProgram(`10 PRINT ${open.repeat(256)}1${close.repeat(256)}`)).not.toThrow();
+    expect(
+      diagnostic(() => parseProgram(`10 PRINT ${open.repeat(257)}1${close.repeat(257)}`)),
+    ).toMatchObject({code: 'EXPRESSION_TOO_DEEP', label: 10, line: 1});
   });
 
   it.each([

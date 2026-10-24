@@ -34,7 +34,8 @@ const nextProgram = validateProgram(candidate);
   Pass an array of parsed `Line` nodes, excluding blank-edit `null` results. It
   currently checks duplicate labels, copies the candidate, sorts the copy, and
   freezes the complete snapshot. It does not reorder/freeze the caller's array
-  or retain mutable references to its nodes.
+  or retain mutable references to its nodes. This API expects parser-produced
+  nodes; it is not a schema validator for untrusted or deserialized AST objects.
 
 Only `LET`, `PRINT`, `REM`, `CLS`, and `END` statements are supported by this
 parser. `INPUT`, jumps, and loops still fail explicitly; their feature tickets
@@ -112,3 +113,17 @@ multiple statements supplied to `parseLine`.
 invalid/trailing syntax, duplicate labels, snapshots, and failure preservation.
 `bun run test:package` verifies the public parser exports in installed ESM and
 CommonJS consumers alongside the existing CLI/library checks.
+
+`BasicSyntaxError` is exported from the public package entry. Consumers can
+narrow caught errors without importing private source paths:
+
+```ts
+import {parseProgram, BasicSyntaxError} from 'node-basic-lang';
+
+try {
+  parseProgram('10 PRINT 1+');
+} catch (error) {
+  if (!(error instanceof BasicSyntaxError)) throw error;
+  console.error(error.diagnostic.code, error.diagnostic.label);
+}
+```
