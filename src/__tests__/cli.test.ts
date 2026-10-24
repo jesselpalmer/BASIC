@@ -90,28 +90,38 @@ describe('CLI and core lifecycle', () => {
     expect(run([file], '', 1).stdout).toBe(stdout);
   });
 
-  it('reports REPL duplicates and keeps the prompt usable', () => {
+  it('replaces numbered entries instead of executing them while editing', () => {
     const {stdout, stderr} = run(
       [],
       [
         '10 PRINT "FIRST UNIQUE OUTPUT"',
-        '10 PRINT "DUPLICATE MUST NOT EXECUTE"',
+        '10 PRINT "replacement"',
         '20 PRINT INT(-1.6)',
+        'RUN',
+        'EXIT',
+        'yes',
         '',
       ].join('\n'),
     );
-    expect(stdout).toContain('FIRST UNIQUE OUTPUT');
-    expect(stderr).toContain('Line 10, column 1: Duplicate line label 10');
-    expect(stdout).not.toContain('DUPLICATE MUST NOT EXECUTE');
-    expect(stdout).toContain('-2');
+    expect(stdout).not.toContain('FIRST UNIQUE OUTPUT');
+    expect(stdout).toContain('replacement\n');
+    expect(stdout).toContain('-2\n');
+    expect(stderr).toBe('');
   });
 
-  it('executes tokenized input and recovers after a lexical error', () => {
+  it('rejects a lexical edit without losing the previous program', () => {
     const {stdout, stderr} = run(
       [],
-      ['\t10\tprint "Hello ""World"""', '20 print "unfinished', '10 print "recovered"', ''].join(
-        '\n',
-      ),
+      [
+        '\t10\tprint "Hello ""World"""',
+        '20 print "unfinished',
+        'RUN',
+        '10 print "recovered"',
+        'RUN',
+        'EXIT',
+        'yes',
+        '',
+      ].join('\n'),
     );
     expect(stdout).toContain('Hello "World"\n');
     expect(stdout).toContain('recovered\n');
@@ -148,7 +158,16 @@ describe('CLI and core lifecycle', () => {
   it('continues the interactive session after END', () => {
     const {stdout, stderr} = run(
       [],
-      ['10 PRINT "first run"', '20 END', '10 PRINT "second run"', '20 END', ''].join('\n'),
+      [
+        '10 PRINT "first run"',
+        '20 END',
+        'RUN',
+        '10 PRINT "second run"',
+        'RUN',
+        'EXIT',
+        'yes',
+        '',
+      ].join('\n'),
     );
     expect(stderr).toBe('');
     expect(stdout).toContain('first run\n');
@@ -175,12 +194,23 @@ describe('CLI and core lifecycle', () => {
     }
   });
 
-  it('retains typed variables across immediate entries and clears them after END', () => {
+  it('starts fresh variables on RUN and preserves source after runtime errors', () => {
     const {stdout, stderr} = run(
       [],
-      ['10 LET A = 5', '20 PRINT A*2', '30 END', '10 PRINT A', '10 PRINT "recovered"', ''].join(
-        '\n',
-      ),
+      [
+        '10 LET A = 5',
+        '20 PRINT A*2',
+        '30 END',
+        'RUN',
+        '10 PRINT A',
+        'RUN',
+        '10 PRINT "recovered"',
+        '20',
+        'RUN',
+        'EXIT',
+        'yes',
+        '',
+      ].join('\n'),
     );
     expect(stdout).toContain('10\n');
     expect(stdout).toContain('recovered\n');
@@ -235,24 +265,28 @@ describe('CLI and core lifecycle', () => {
     expect(result.stderr).not.toContain(' at ');
   });
 
-  it('closes a waiting terminal cleanly on SIGINT', async () => {
+  it('cancels an idle entry on SIGINT and accepts EXIT afterward', async () => {
     let interrupted = false;
     const result = await runWithOpenInput([executable], (text, child) => {
       if (!interrupted && text.includes('>>> ')) {
         interrupted = true;
         child.kill('SIGINT');
+      } else if (interrupted && (text.match(/>>> /g)?.length ?? 0) >= 2) {
+        child.stdin.end('EXIT\n');
       }
     });
-    expect(result.status).toBe(130);
+    expect(result.status).toBe(0);
     expect(result.signal).toBeNull();
     expect(result.stderr).toBe('');
   });
 
-  it('exits cleanly on EOF or a blank line', () => {
+  it('ignores a blank entry and recovers dirty source on EOF', () => {
     expect(run([]).stderr).toBe('');
-    const result = run([], '\n10 PRINT "after exit"\n');
-    expect(result.stderr).toBe('');
-    expect(result.stdout).not.toContain('after exit');
+    const result = run([], '\n10 PRINT "after blank"\nRUN\n', 1);
+    expect(result.stdout).toContain('after blank\n');
+    expect(result.stderr).toBe(
+      'Unsaved program at EOF; copy the source below before closing:\n10 PRINT "after blank"\n',
+    );
   });
 
   it('runs a greeting file with piped input and reports EOF without hanging', () => {
@@ -310,15 +344,21 @@ describe('CLI and core lifecycle', () => {
         (text, child) => {
           if (mode === 'interactive' && !entered && text.includes('>>> ')) {
             entered = true;
-            child.stdin.write('10 INPUT "Answer"; N\n');
+            child.stdin.write('10 INPUT "Answer"; N\nRUN\n');
           }
           if (!interrupted && text.includes('Answer? ')) {
             interrupted = true;
             child.kill('SIGINT');
+          } else if (
+            mode === 'interactive' &&
+            interrupted &&
+            (text.match(/>>> /g)?.length ?? 0) >= 3
+          ) {
+            child.stdin.end('EXIT\nyes\n');
           }
         },
       );
-      expect(result.status).toBe(130);
+      expect(result.status).toBe(mode === 'file' ? 130 : 0);
       expect(result.signal).toBeNull();
       expect(result.stderr).toBe('');
       expect(result.stdout).not.toContain('skipped');
@@ -327,3 +367,25 @@ describe('CLI and core lifecycle', () => {
     }
   });
 });
+
+it('process SIGINT stops interactive computation without losing the editable source', async () => {
+  let phase = 0;
+  const result = await runWithOpenInput([executable], (text, child) => {
+    if (phase === 0 && text.includes('>>> ')) {
+      phase = 1;
+      child.stdin.write('10 PRINT "COMPUTING"\n20 GOTO 20\nRUN\n');
+    } else if (phase === 1 && text.includes('COMPUTING\n')) {
+      phase = 2;
+      child.kill('SIGINT');
+    } else if (phase === 2 && text.slice(text.indexOf('COMPUTING\n')).includes('>>> ')) {
+      phase = 3;
+      child.stdin.end('LIST\n20 END\n10 PRINT "AFTER_CANCEL"\nRUN\nEXIT\nyes\n');
+    }
+  });
+  expect(phase).toBe(3);
+  expect(result.status).toBe(0);
+  expect(result.signal).toBeNull();
+  expect(result.stderr).toBe('');
+  expect(result.stdout).toContain('10 PRINT "COMPUTING"\n20 GOTO 20\n');
+  expect(result.stdout).toContain('AFTER_CANCEL\n');
+}, 10000);

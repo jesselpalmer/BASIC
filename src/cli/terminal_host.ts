@@ -65,6 +65,23 @@ export default class TerminalHost implements Host {
     this.random = Math.random;
   }
 
+  discardEntry(): void {
+    if (!this._interface) return;
+    if (this._input?.isTTY && this._output?.isTTY) {
+      // readline exposes the editable line/cursor; reset both so a partial
+      // cancelled entry cannot prefix the next command.
+      Object.assign(this._interface, {line: '', cursor: 0});
+    } else {
+      // Non-TTY readline keeps its unfinished chunk outside the editable TTY
+      // line. Replace only that interface, retaining queued complete lines and
+      // ownership of the live input stream.
+      this._detach();
+      this._interface.close();
+      this._interface = null;
+      this._open();
+    }
+  }
+
   setInterruptHandler(handler: () => void) {
     this._onInterrupt = handler;
   }

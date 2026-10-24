@@ -39,6 +39,25 @@ describe('TerminalHost input lifecycle', () => {
     output.destroy();
   });
 
+  it('discards a non-TTY partial entry without losing complete queued lines', async () => {
+    host.discardEntry();
+    expect(input.listenerCount('data')).toBe(0);
+    const first = host.readLine();
+    input.write('one\ntwo\npartial');
+    expect(await first).toBe('one');
+    host.discardEntry();
+    expect(input.destroyed).toBe(false);
+    expect(await host.readLine()).toBe('two');
+    const fresh = host.readLine();
+    input.end('fresh\n');
+    expect(await fresh).toBe('fresh');
+    expect(await host.readLine()).toBeNull();
+    host.discardEntry();
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
   it('does not attach input listeners until a request starts', () => {
     expect(input.listenerCount('data')).toBe(0);
     expect(input.listenerCount('end')).toBe(0);
