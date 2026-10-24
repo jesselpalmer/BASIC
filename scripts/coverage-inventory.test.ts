@@ -4,6 +4,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {coverageInventory} from './coverage-inventory.ts';
 
+function inspectCoverage(root: string, lcov: string) {
+  return coverageInventory(root, lcov, {
+    subprocessOnly: ['src/cli/main.ts'],
+    floors: {'src/core/runtime.ts': {lines: 0.96, functions: 1}},
+  });
+}
+
 function lcovReport(...paths: string[]): string {
   return paths.map((path) => `SF:${path}\nFNF:1\nFNH:1\nLF:1\nLH:1\nend_of_record\n`).join('');
 }
@@ -23,6 +30,7 @@ function fixture(check: (root: string) => void) {
     'import type {Value} from "./types"; export type {Value};',
   );
   writeFileSync(join(root, 'src/core/runtime.ts'), 'export function run() { return 1; }');
+  writeFileSync(join(root, 'src/core/runtime.spec.ts'), 'throw new Error("test fixture");');
   writeFileSync(join(root, 'src/core/runtime.test.ts'), 'throw new Error("test fixture");');
   writeFileSync(join(root, 'src/__tests__/helper.ts'), 'throw new Error("test helper");');
   try {
@@ -35,18 +43,18 @@ function fixture(check: (root: string) => void) {
 describe('coverage inventory enforcement', () => {
   it('rejects absent metrics and regressions below per-module floors', () => {
     fixture((root) => {
-      expect(() => coverageInventory(root, 'SF:src/core/runtime.ts\n')).toThrow(
+      expect(() => inspectCoverage(root, 'SF:src/core/runtime.ts\n')).toThrow(
         'Incomplete coverage metrics',
       );
       expect(() =>
-        coverageInventory(root, lcovReport('src/core/runtime.ts').replace('LH:1', 'LH:0')),
+        inspectCoverage(root, lcovReport('src/core/runtime.ts').replace('LH:1', 'LH:0')),
       ).toThrow('Line coverage below');
       expect(() =>
-        coverageInventory(root, lcovReport('src/core/runtime.ts').replace('FNH:1', 'FNH:0')),
+        inspectCoverage(root, lcovReport('src/core/runtime.ts').replace('FNH:1', 'FNH:0')),
       ).toThrow('Function coverage below');
       writeFileSync(join(root, 'src/core/new.ts'), 'export const n = 1;');
       expect(() =>
-        coverageInventory(
+        inspectCoverage(
           root,
           lcovReport('src/core/runtime.ts', 'src/core/new.ts').replace(
             'SF:src/core/new.ts\nFNF:1\nFNH:1\nLF:1\nLH:1',
@@ -58,7 +66,7 @@ describe('coverage inventory enforcement', () => {
   });
   it('requires runtime files while recognizing type-only modules and subprocess entrypoints', () => {
     fixture((root) => {
-      const report = coverageInventory(root, lcovReport('src/core/runtime.ts'));
+      const report = inspectCoverage(root, lcovReport('src/core/runtime.ts'));
       expect(report.runtimeFiles).toEqual(['src/cli/main.ts', 'src/core/runtime.ts']);
       expect(report.typeOnlyFiles).toEqual(['src/core/types.ts', 'src/core/types2.ts']);
       expect(report.subprocessOnlyFiles).toEqual(['src/cli/main.ts']);
@@ -68,9 +76,7 @@ describe('coverage inventory enforcement', () => {
   it('fails when a newly added runtime file is silently omitted', () => {
     fixture((root) => {
       writeFileSync(join(root, 'src/core/untested.ts'), 'export const missing = 1;');
-      expect(() => coverageInventory(root, lcovReport('src/core/runtime.ts'))).toThrow(
-        'untested.ts',
-      );
+      expect(() => inspectCoverage(root, lcovReport('src/core/runtime.ts'))).toThrow('untested.ts');
     });
   });
 
@@ -80,26 +86,35 @@ describe('coverage inventory enforcement', () => {
         join(root, 'src/core/types.ts'),
         'export type Count = number; export const n = 1;',
       );
-      expect(() => coverageInventory(root, lcovReport('src/core/runtime.ts'))).toThrow('types.ts');
+      expect(() => inspectCoverage(root, lcovReport('src/core/runtime.ts'))).toThrow('types.ts');
     });
   });
 
   it('rejects empty/stale reports and stale entrypoint exceptions', () => {
     fixture((root) => {
-      expect(() => coverageInventory(root, '')).toThrow('no source records');
+      expect(() => inspectCoverage(root, '')).toThrow('no source records');
       expect(() =>
-        coverageInventory(root, lcovReport('src/core/runtime.ts', 'src/deleted.ts')),
+        inspectCoverage(root, lcovReport('src/core/runtime.ts', 'src/deleted.ts')),
       ).toThrow('deleted.ts');
       writeFileSync(join(root, 'src/cli/main.ts'), 'export type NoRuntime = number;');
-      expect(() => coverageInventory(root, lcovReport('src/core/runtime.ts'))).toThrow(
+      expect(() => inspectCoverage(root, lcovReport('src/core/runtime.ts'))).toThrow(
         'Stale subprocess',
+      );
+    });
+  });
+
+  it('rejects a coverage floor whose module no longer contains runtime code', () => {
+    fixture((root) => {
+      writeFileSync(join(root, 'src/core/runtime.ts'), 'export type NoRuntime = number;');
+      expect(() => inspectCoverage(root, lcovReport('src/core/runtime.ts'))).toThrow(
+        'Stale coverage floor: src/core/runtime.ts',
       );
     });
   });
 
   it('accepts absolute LCOV paths and measured entrypoints without duplicating records', () => {
     fixture((root) => {
-      const report = coverageInventory(
+      const report = inspectCoverage(
         root,
         lcovReport(join(root, 'src/core/runtime.ts'), 'src/core/runtime.ts', 'src/cli/main.ts'),
       );

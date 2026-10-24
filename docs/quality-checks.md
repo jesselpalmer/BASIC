@@ -8,7 +8,8 @@ bun run check
 ```
 
 CI runs this same check on Linux and macOS for pull requests to any branch,
-including stacked feature branches, and pushes to main. Commands stop on the first failure.
+including stacked feature branches, and pushes to main. Commands stop on the first
+failure; each CI job has a 15-minute deadline.
 
 | Command                 | Purpose                                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -30,7 +31,9 @@ TypeScript under `src/` and `scripts/` uses typescript-eslint's
 `recommendedTypeChecked` rules and Project Service against `tsconfig.json`.
 JavaScript configuration and the extensionless CLI wrapper use ordinary rules.
 Typed checks include floating/misused promises, unsafe operations on `any`,
-non-Error rejection reasons, and unnecessary assertions. Fix findings instead
+non-Error rejection reasons, unnecessary assertions, and exhaustive discriminated
+switches. Compiler checks also reject unused locals/parameters, implicit returns,
+switch fallthrough, unreachable code, and unused labels. Fix findings instead
 of disabling file rules or using `any`.
 
 One terminal-host test intentionally throws a string to simulate an untyped
@@ -39,25 +42,26 @@ code has no typed-rule overrides.
 
 ## Coverage enforcement
 
-The [testing audit](testing-audit.md) records the behavior matrix and limitations.
-The audit change passes 575 tests, with **99.80% executable lines and 98.44%
-functions across the 16 measured product modules** on Bun 1.4.4. These numbers
-exclude test infrastructure and do not include subprocess entrypoint coverage.
+The [testing audit](testing-audit.md) records the historical behavior matrix and
+limitations. Use the current report for measurements rather than a historical
+test count. Subprocess entrypoint coverage is not merged into the source report.
 
-Bun's native per-file floor is 95% lines and 75% functions. The additional
-`scripts/check-coverage.ts` gate is stricter:
+`scripts/coverage-inventory.ts` owns the coverage policy used by
+`scripts/check-coverage.ts`; Bun emits metrics without a second threshold policy.
 
 | Measured product module                        | Minimum lines | Minimum functions |
 | ---------------------------------------------- | ------------: | ----------------: |
 | Default, including newly added runtime modules |          100% |              100% |
-| `src/core/runtime.ts`                          |           96% |              100% |
+| `src/core/control_flow.ts`                     |           87% |              100% |
 | `src/cli/terminal_host.ts`                     |          100% |               75% |
 
-The runtime's two uncovered defensive guards cannot be reached through a valid
-parsed program: target validation rejects missing labels, and control-flow
-validation rejects entering inactive loop bodies. Terminal-host callback fields
-have no-op initializers replaced before use. Do not bypass private state or
-invoke unused callbacks just to raise a percentage. Review any floor change.
+The control-flow exception covers the same two defensive guards previously in
+`runtime.ts`: a missing validated jump target and an inactive NEXT frame. Their
+12 executable lines are unreachable through a valid prepared program. Moving
+them into a smaller module changes its percentage, not the untested behavior.
+Runtime dispatch now has the default 100% floors. Terminal callback fields still
+have no-op initializers replaced before use. Do not corrupt private state or
+invoke unused callbacks just to raise a percentage. Review any policy change.
 
 The inventory walks `src/` independently of the modules loaded by tests. A new
 runtime file absent from LCOV fails the check, rather than silently disappearing
@@ -65,10 +69,10 @@ from the denominator. Type-only modules are recognized using the TypeScript AST;
 adding executable code makes them subject to coverage automatically. The sole
 subprocess-only exception is `src/cli/main.ts`, exercised through real CLI
 launches. Tests verify the inventory's rejection paths, including a newly omitted
-file, stale exceptions, missing metrics, and coverage regressions.
+file, stale exceptions/floor paths, missing metrics, and coverage regressions.
 
-Both `text` and `lcov` reporters stay enabled: Bun 1.4.4's thresholds require the
-text reporter. See [Bun's coverage documentation](https://bun.com/docs/test/code-coverage).
+The `text` reporter makes failures readable; `lcov` supplies the independent
+inventory gate. See [Bun's coverage documentation](https://bun.com/docs/test/code-coverage).
 Only `scripts/**` is excluded as test infrastructure; no product runtime module
 is excluded by a coverage pattern. Tests use Bun's test-file exclusion.
 
