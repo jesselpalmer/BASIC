@@ -7,6 +7,8 @@ export type {
   ComparisonOperator,
   Host,
   InputOptions,
+  ExecutionScheduler,
+  RunOptions,
   RunStatus,
   RunResult,
   Position,

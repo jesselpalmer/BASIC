@@ -199,7 +199,7 @@ try {
     `
     import {Basic, parseLine, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
             type BasicValue, type Host, type Program, type RunResult, type InputOptions,
-            type Comparison, type ComparisonOperator} from 'node-basic-lang';
+            type Comparison, type ComparisonOperator, type RunOptions, type ExecutionScheduler} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
@@ -213,7 +213,9 @@ try {
     basic.run(program);
     basic.run();
     const options: InputOptions = {signal: new AbortController().signal};
-    const asyncResult: RunResult = await basic.runAsync(program, options);
+    const scheduler: ExecutionScheduler = async signal => { void signal.aborted; };
+    const runOptions: RunOptions = {...options, instructionLimit: 10, yieldEvery: 2, scheduler};
+    const asyncResult: RunResult = await basic.runAsync(program, runOptions);
     await basic.stepAsync(options);
     await basic.readLineAsync('20 REM', options);
     basic.cancel();
@@ -352,9 +354,17 @@ try {
     assert.equal(failure.stderr, stderr);
   }
   if (process.platform !== 'win32') {
-    // Interrupt only pending INPUT; busy-loop interruption is not implemented.
     const cancelled = await runWithOpenInput([executable, file], 'Answer? ');
     assert.deepEqual(cancelled, {status: 130, signal: null, stdout: 'Answer? ', stderr: ''});
+    for (const loop of ['20 GOTO 20', '20 FOR I=1 TO 1000000000\n30 NEXT I']) {
+      writeFileSync(file, `10 PRINT "started"\n${loop}\n40 PRINT "must not finish"`);
+      assert.deepEqual(await runWithOpenInput([executable, file], 'started\n'), {
+        status: 130,
+        signal: null,
+        stdout: 'started\n',
+        stderr: '',
+      });
+    }
   }
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
