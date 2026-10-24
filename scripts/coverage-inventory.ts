@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readdirSync, readFileSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import {join, relative, resolve, sep} from 'node:path';
 import ts from 'typescript';
 
@@ -16,7 +16,7 @@ interface CoveragePolicy {
 // This is the single policy for product coverage. Entrypoints are exercised in
 // child processes, whose coverage is not merged into the unit-test report.
 const policy: CoveragePolicy = {
-  subprocessOnly: ['src/cli/main.ts'],
+  subprocessOnly: ['src/cli/main.ts', 'playground/main.ts'],
   floors: {
     // Validated targets and destination checks make two defensive guards unreachable.
     // Their 12 lines moved from runtime.ts; the smaller module changes the percentage.
@@ -33,7 +33,7 @@ function sourceFiles(directory: string): string[] {
     if (entry.name === '__tests__') return [];
     const path = join(directory, entry.name);
     if (entry.isDirectory()) return sourceFiles(path);
-    return entry.name.endsWith('.ts') && !/\.(test|spec)\.ts$/.test(entry.name) ? [path] : [];
+    return entry.name.endsWith('.ts') && !/\.(test|spec|d)\.ts$/.test(entry.name) ? [path] : [];
   });
 }
 
@@ -52,7 +52,11 @@ function typeOnly(path: string): boolean {
 function inventorySource(root: string) {
   const runtimeFiles: string[] = [];
   const typeOnlyFiles: string[] = [];
-  for (const path of sourceFiles(join(root, 'src')).sort()) {
+  const files = ['src', 'playground'].flatMap((directory) => {
+    const path = join(root, directory);
+    return existsSync(path) ? sourceFiles(path) : [];
+  });
+  for (const path of files.sort()) {
     (typeOnly(path) ? typeOnlyFiles : runtimeFiles).push(relativePath(root, path));
   }
   return {runtimeFiles, typeOnlyFiles};
@@ -94,7 +98,9 @@ function validateInventory(
   );
   assert.deepEqual(missing, [], `Runtime files absent from coverage: ${missing.join(', ')}`);
   const source = new Set([...runtimeFiles, ...typeOnlyFiles]);
-  const stale = measuredFiles.filter((path) => path.startsWith('src/') && !source.has(path));
+  const stale = measuredFiles.filter(
+    (path) => /^(src|playground)\//.test(path) && !source.has(path),
+  );
   assert.deepEqual(stale, [], `Coverage references missing source files: ${stale.join(', ')}`);
 }
 

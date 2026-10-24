@@ -11,8 +11,10 @@ compiler or lint checks.
 ## Distribution and portability
 
 The v0.1.0 candidate is named `node-basic-lang` and requires Bun >=1.4.4.
-Development and Linux/macOS CI use exactly Bun 1.4.4. Node.js alone and browser
-hosts are not supported distribution targets in this release. ESM imports and CommonJS
+Development and Linux/macOS CI use exactly Bun 1.4.4. Node.js alone is not a
+supported package runtime. The checkout also builds a static browser playground
+using the same portable core; see [the playground guide](playground.md).
+ESM imports and CommonJS
 require are both supported on Bun; this is not a plain Node compatibility claim.
 Public types are exported from the package root. Package acceptance installs the
 exact local tarball in isolated consumers and verifies both module formats,

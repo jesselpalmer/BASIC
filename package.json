@@ -8,6 +8,9 @@
     "lint": "bun ./node_modules/eslint/bin/eslint.js .",
     "lint:fix": "bun ./node_modules/eslint/bin/eslint.js . --fix",
     "start": "bun ./bin/basic",
+    "build:playground": "bun ./scripts/build-playground.ts",
+    "serve:playground": "bun ./scripts/serve-playground.ts",
+    "test:browser": "bun run build:playground && bun ./node_modules/@playwright/test/cli.js test --config ./scripts/browser/playwright.config.ts",
     "test": "bun test",
     "test:order": "bun test --randomize --seed 20261024",
     "test:package": "bun ./scripts/test-package.ts",
@@ -37,6 +40,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.62.1",
     "@types/bun": "^1.4.4",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",

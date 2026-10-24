@@ -6,6 +6,8 @@ node_modules
 coverage/
 lib/
 dist/
+test-results/
+playwright-report/
 
 # Mac OS files
 .DS_Store

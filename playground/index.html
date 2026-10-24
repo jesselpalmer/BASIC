@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f4ef" />
+    <title>BASIC Playground</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <main class="playground">
+      <header class="page-header">
+        <a class="wordmark" href="./" aria-label="BASIC playground home">BASIC<span>.</span></a>
+        <span class="edition">A small language. A place to play.</span>
+      </header>
+
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">WRITE · RUN · EXPLORE</p>
+          <h1 id="page-title">Start with a line.<br />See where it goes.</h1>
+        </div>
+        <p class="intro-description">
+          A little line-numbered BASIC, right in your browser. Pick an example, change a few lines,
+          and make it yours.
+        </p>
+      </section>
+
+      <div class="workspace">
+        <section class="editor-panel" aria-labelledby="editor-heading">
+          <div class="panel-heading">
+            <h2 id="editor-heading"><span class="step">01</span> Your program</h2>
+            <label class="example-control" for="example">
+              <span class="sr-only">Example program</span>
+              <select id="example">
+                <option value="" disabled>Custom program</option>
+                <option value="greeting">Hello, you</option>
+                <option value="times-table">Times table</option>
+                <option value="guess">Guess the number</option>
+              </select>
+            </label>
+          </div>
+          <label class="sr-only" for="source">BASIC source code</label>
+          <textarea
+            id="source"
+            aria-describedby="editor-help"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            autocorrect="off"
+            wrap="off"
+          ></textarea>
+          <div class="editor-footer">
+            <p id="editor-help">Line numbers first. Curiosity next.</p>
+            <span class="shortcut" aria-hidden="true">Ctrl / ⌘ + Enter to run</span>
+          </div>
+        </section>
+
+        <section class="console-panel" aria-labelledby="console-heading">
+          <div class="panel-heading console-heading">
+            <h2 id="console-heading"><span class="step">02</span> The result</h2>
+            <span id="status" class="status" data-status="idle" role="status">Ready</span>
+          </div>
+          <div id="console-scroll" class="console-scroll" tabindex="0" aria-label="Program output">
+            <p id="console-empty" class="console-empty">Your next idea starts with Run.</p>
+            <p id="console-truncated" class="console-truncated" hidden>
+              Earlier output removed. Showing the latest 50,000 characters.
+            </p>
+            <pre id="console-output" aria-label="Console transcript"></pre>
+          </div>
+          <p id="diagnostic" class="diagnostic" role="alert" hidden></p>
+          <form id="input-form" class="input-form" hidden>
+            <label id="input-prompt" for="input-value">Program input</label>
+            <div class="input-row">
+              <input id="input-value" type="text" autocomplete="off" spellcheck="false" />
+              <button class="send-button" type="submit">
+                Send <span aria-hidden="true">↵</span>
+              </button>
+            </div>
+          </form>
+          <div class="run-controls">
+            <button id="run" class="run-button" type="button">
+              <span aria-hidden="true">▶</span> Run program
+            </button>
+            <button id="stop" class="stop-button" type="button" disabled>
+              <span aria-hidden="true">■</span> Stop
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="page-footer">
+        <p>
+          Try <code>PRINT</code>, <code>INPUT</code>, <code>FOR…NEXT</code>, or a little
+          <code>GOTO</code>.
+        </p>
+        <p>
+          Runs locally in your browser. <span class="footer-dot" aria-hidden="true">·</span> Escape
+          to stop.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
