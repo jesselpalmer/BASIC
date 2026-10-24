@@ -117,6 +117,23 @@ connects these capabilities to file execution and process signals. It accepts a 
 terminal object's internal buffers or lifecycle fields. `cli/main.ts` and
 `bin/basic` are the process entrypoints. Importing the public library is quiet.
 
+## Browser ownership
+
+`src/browser/session.ts` adapts the shared runtime to a view with immutable run
+states and request-bound input callbacks. It owns cancellation and replacement
+boundaries without importing the DOM or terminal adapters. Each run takes a
+source snapshot and a fresh runtime. View callbacks render or observe; they
+cannot recursively start or stop execution.
+
+`src/browser/document.ts` owns exact editable source, local storage outcomes,
+and replacement generations. Running state never becomes the editable document.
+`src/browser/transcript.ts` bounds retained output independently of rendering.
+`playground/main.ts` owns DOM events, localStorage/File/Blob boundaries, focus,
+and one pending animation frame. The static Bun build imports these portable
+modules directly; it does not bundle CLI or REPL modules. See the
+[browser host](browser-host.md), [source preservation](browser-files.md), and
+[playground verification](playground.md#browser-milestone-verification) guides.
+
 ## Changing the code
 
 Keep runtime modules independent of Node/Bun APIs. Add host capabilities only
