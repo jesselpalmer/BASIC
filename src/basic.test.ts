@@ -89,7 +89,7 @@ describe('Basic host boundary', () => {
 
   it('has a quiet default host and explicit unsupported input', async () => {
     const host = createHost();
-    expect(() => new Basic().run('10 PRINT "discarded"')).not.toThrow();
+    expect(() => new Basic().run('10 CLS\n20 PRINT "discarded"')).not.toThrow();
     const failure: unknown = await host.readLine().catch((error: unknown) => error);
     expect(failure).toMatchObject({message: 'Input is not supported by this host'});
     expect(() => {

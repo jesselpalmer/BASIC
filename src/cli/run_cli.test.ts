@@ -19,6 +19,36 @@ function readAll(stream: PassThrough): string {
   return Buffer.concat(chunks).toString();
 }
 
+it('routes TTY Ctrl+C through the owned interrupt handler', async () => {
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode() {
+      return input;
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const errors = new PassThrough();
+  const host = new TerminalHost({input, output, errorOutput: errors});
+  const signals = process.listeners('SIGINT');
+  try {
+    const result = runCli([], {host});
+    input.write('\u0003');
+    expect(await result).toBe(130);
+    expect(errors.read()).toBeNull();
+    expect(process.listeners('SIGINT')).toEqual(signals);
+    expect(input.listenerCount('keypress')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+    // node:readline intentionally leaves shared keypress decoding on a TTY
+    // after close; only adapter/interface-owned listeners must be removed.
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+    errors.destroy();
+  }
+});
+
 describe('CLI adapter lifecycle', () => {
   let directory: string;
   let input: PassThrough;

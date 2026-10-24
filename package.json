@@ -9,11 +9,12 @@
     "lint:fix": "bun ./node_modules/eslint/bin/eslint.js . --fix",
     "start": "bun ./bin/basic",
     "test": "bun test",
+    "test:order": "bun test --randomize --seed 20261024",
     "test:package": "bun ./scripts/test-package.ts",
     "format": "bun ./node_modules/prettier/bin/prettier.cjs --write . bin/basic",
     "format:check": "bun ./node_modules/prettier/bin/prettier.cjs --check . bin/basic",
-    "test:coverage": "bun test --coverage",
-    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test:coverage && bun run test:package"
+    "test:coverage": "bun test --coverage && bun ./scripts/check-coverage.ts",
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test:coverage && bun run test:order && bun run test:package"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {

@@ -2,5 +2,6 @@
 coverageReporter = ["text", "lcov"]
 coverageDir = "coverage"
 coverageSkipTestFiles = true
+coveragePathIgnorePatterns = ["scripts/**"] # Test harness/tooling is not product code.
 # Floors apply per loaded source file, not just the overall average.
-coverageThreshold = { lines = 0.95, functions = 0.65 }
+coverageThreshold = { lines = 0.95, functions = 0.75 }
