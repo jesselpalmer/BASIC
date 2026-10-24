@@ -1,5 +1,8 @@
 # Expression evaluation
 
+The [language and session contract](language-v0.1.md) defines expression syntax
+and value rules. This guide describes the standalone evaluator API.
+
 The package exports `Evaluator` and `BasicRuntimeError`. Evaluation uses the
 immutable expression nodes from the [parser API](parser.md), with no terminal,
 filesystem, DOM, or Bun runtime dependency. Each evaluator owns its variables.

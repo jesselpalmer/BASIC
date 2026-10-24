@@ -4,25 +4,49 @@ The interpreter separates source preparation, execution, and host effects.
 Modules own state with a shared lifetime; a module boundary is useful when it
 protects an invariant, not simply when it reduces a line count.
 
+## Public entrypoints and language reference
+
+The [language and session contract](language-v0.1.md) is the authoritative syntax
+reference. The API guides explain how hosts prepare and execute that language.
+
+| Entry                           | Contract                                                                                                                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package root, `src/index.ts`    | Named exports: `Basic`, `createHost`, `parseLine`, `parseProgram`, `validateProgram`, `Evaluator`, both BASIC error classes, and public value/host/execution/syntax types. Imports have no host effects. |
+| `src/basic.ts`                  | Internal compatibility re-export of the same `core/runtime.ts` class, used by the CLI and REPL. It is not a separate interpreter or a package subpath export.                                            |
+| `bin/basic` → `src/cli/main.ts` | Executable entrypoint; forwards arguments to `runCli` and translates its result into process exit status.                                                                                                |
+
+Consumers import from `node-basic-lang`; `package.json` exposes only that package
+root. Tokenization, prepared indexes, control flow, REPL state, and CLI adapters
+are implementation modules, not additional public package entrypoints. See the
+[runtime guide](interpreter-host.md) for host callbacks and execution methods.
+
 ## Source and execution
 
-| Owner                                 | Responsibility                                                                                        |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                        |
-| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                          |
-| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                  |
-| `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                |
-| `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions. |
-| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.      |
-| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.         |
-| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                              |
-| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules and scheduling policy, with operation-specific error normalization.           |
+| Owner                                 | Responsibility                                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                      |
+| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry. |
+| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                        |
+| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                |
+| `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                              |
+| `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.               |
+| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                    |
+| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                       |
+| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                            |
+| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules and scheduling policy, with operation-specific error normalization.                         |
 
 Parsing a line permits incomplete forward targets and loop pairs for editing.
 Validating a complete program checks every statement before effects, including
 unreachable source. Source locations remain physical positions even though the
 snapshot executes in numeric label order. Copying, freezing, type inference, and
 evaluation of long flat expressions remain iterative to avoid stack exhaustion.
+
+`parseLine`, `parseProgram`, and `validateProgram` are complementary boundaries,
+not competing parsers. Stored edits use `parseLine`; complete source uses
+`parseProgram`, which calls `validateProgram`. Preparing a caller-supplied
+`Program` also calls `validateProgram` to obtain an independent snapshot. The
+legacy `Basic.readLine` methods use `parseLine` and the runtime's statement
+dispatch; they preserve immediate library behavior without a second executor.
 
 Prepared indexes and mutable execution state have different lifetimes. Replace
 the prepared program atomically after validation. Reset execution state on every
