@@ -66,7 +66,14 @@ scheduler's late resolution/rejection or an old input reply cannot resume,
 write output into, or change the replacement run. Signal listeners owned by the
 runtime are removed on success, failure, and cancellation.
 
-`run()`, `step()`, and the existing immediate-entry APIs retain their behavior.
+An outstanding `runAsync()` owns instruction advancement, including scheduler
+waits. Calling `step()`, `stepAsync()`, or either immediate-entry method while
+that run can still advance instructions rejects without changing it. After
+`halted` or `error`, those methods retain their no-op behavior. Await the run
+before starting separate execution, or explicitly reset/cancel/replace it.
+`cancel()` also rejects an outstanding run whose final statement has already
+halted the language; it is inert after the operation has settled.
+
 Synchronous `run()` cannot yield to timers/signals and has no instruction-limit
 option. Use `runAsync()` for untrusted or possibly infinite programs, with an
 instruction budget when termination is required. This is cooperative scheduling,

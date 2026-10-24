@@ -1,18 +1,17 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
+import {abortError, isAbortError} from './cancellation.ts';
+import {ControlFlow} from './control_flow.ts';
 import {Evaluator} from './evaluator.ts';
 import {createHost} from './host.ts';
-import {abortError, readInput} from './input.ts';
-import {containsLoopBody, pairLoops} from './loops.ts';
-import type {LoopPair} from './loops.ts';
+import {readInput} from './input.ts';
+import {prepareProgram} from './prepared_program.ts';
+import type {PreparedProgram} from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
-import {parseLine, parseProgram, validateProgram} from '../parser/parser.ts';
+import {parseLine} from '../parser/parser.ts';
 import type {
   Diagnostic,
-  Expression,
   Host,
   InputOptions,
-  Location,
-  NodeOf,
   ParsedLine,
   Program,
   RunResult,
@@ -21,35 +20,29 @@ import type {
   SourceOptions,
 } from './types.ts';
 
-const emptyProgram = validateProgram([]);
-interface LoopFrame extends LoopPair {
-  readonly limit: number;
-  readonly step: number;
-}
+const emptyProgram = prepareProgram('');
 
 export default class Basic {
-  #host: Host;
-  #evaluator: Evaluator;
-  #program: Program = emptyProgram;
-  #index = 0;
+  readonly #host: Host;
+  readonly #evaluator: Evaluator;
+  #prepared: PreparedProgram = emptyProgram;
+  #controlFlow: ControlFlow;
   #status: RunStatus = 'ready';
   #current: ParsedLine | null = null;
   #diagnostic: Readonly<Diagnostic> | null = null;
   #executing = false;
   #immediate = false;
   #usedLabels = new Set<number>();
+  // Reset/cancel change this token before old suspended work can touch new state.
   #generation = 0;
   #pendingInput: AbortController | null = null;
-  #pendingRun: AbortController | null = null;
-  #labelIndices = new Map<number, number>();
-  #loopPairs: LoopPair[] = [];
-  #pairsByFor = new Map<number, LoopPair>();
-  #pairsByNext = new Map<number, LoopPair>();
-  #loopFrames = new Map<number, LoopFrame>();
+  // An async driver owns stepping until its promise settles, including yields.
+  #activeRun: AbortController | null = null;
 
   constructor(host: Partial<Host> = {}) {
     this.#host = Object.freeze(createHost(host));
     this.#evaluator = new Evaluator(this.#host);
+    this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
   }
 
   get host(): Readonly<Host> {
@@ -67,7 +60,7 @@ export default class Basic {
       currentLocation: this.#current?.statement.location ?? null,
       nextLocation:
         active && !this.#immediate
-          ? (this.#program.lines[this.#index]?.statement.location ?? null)
+          ? (this.#controlFlow.nextLine?.statement.location ?? null)
           : null,
       diagnostic: this.#diagnostic,
     });
@@ -78,20 +71,15 @@ export default class Basic {
     this.#assertIdle();
     this.#invalidateExecution();
     this.#evaluator.reset();
-    this.#loopFrames.clear();
-    this.#index = 0;
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
     this.#immediate = false;
     this.#usedLabels.clear();
     try {
-      if (typeof program === 'string') this.#program = parseProgram(program);
-      else if (program !== undefined) this.#program = validateProgram(program.lines);
-      this.#labelIndices = new Map(this.#program.lines.map((line, index) => [line.label, index]));
-      this.#loopPairs = pairLoops(this.#program.lines);
-      this.#pairsByFor = new Map(this.#loopPairs.map((pair) => [pair.forIndex, pair]));
-      this.#pairsByNext = new Map(this.#loopPairs.map((pair) => [pair.nextIndex, pair]));
+      // A failed candidate leaves both the previous snapshot and its tables intact.
+      if (program !== undefined) this.#prepared = prepareProgram(program);
+      this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -122,12 +110,12 @@ export default class Basic {
     const onAbort = () => controller.abort();
     signal?.addEventListener('abort', onAbort, {once: true});
     if (signal?.aborted) controller.abort();
-    this.#pendingRun = controller;
+    this.#activeRun = controller;
     let executed = 0;
     try {
       this.#checkAbort(controller.signal);
       while (this.#status === 'ready' || this.#status === 'running') {
-        const line = this.#program.lines[this.#index];
+        const line = this.#controlFlow.nextLine;
         if (line && executed === instructionLimit) {
           this.#current = line;
           throw new BasicRuntimeError(
@@ -137,7 +125,7 @@ export default class Basic {
             line.label,
           );
         }
-        await this.stepAsync({signal: controller.signal});
+        await this.#stepAsync(controller.signal);
         if (generation !== this.#generation) throw abortError();
         this.#checkAbort(controller.signal);
         executed++;
@@ -150,7 +138,7 @@ export default class Basic {
             await yieldExecution(scheduler, controller.signal);
           } catch (cause) {
             if (generation !== this.#generation || controller.signal.aborted) throw abortError();
-            const next = this.#program.lines[this.#index];
+            const next = this.#controlFlow.nextLine!;
             this.#current = next;
             throw new BasicRuntimeError(
               'SCHEDULER_FAILED',
@@ -167,19 +155,20 @@ export default class Basic {
       return this.state;
     } catch (error) {
       if (generation === this.#generation) {
-        if (error instanceof Error && error.name === 'AbortError') this.#halt();
+        if (isAbortError(error)) this.#halt();
         else this.#recordFailure(error);
       }
       throw error;
     } finally {
       signal?.removeEventListener('abort', onAbort);
-      if (this.#pendingRun === controller) this.#pendingRun = null;
+      if (this.#activeRun === controller) this.#activeRun = null;
     }
   }
 
   cancel(): RunResult {
     this.#assertIdle();
-    if (this.#status === 'halted' || this.#status === 'error') return this.state;
+    if (this.#status === 'error' || (this.#status === 'halted' && !this.#activeRun))
+      return this.state;
     this.#invalidateExecution();
     this.#halt();
     this.#diagnostic = null;
@@ -188,17 +177,20 @@ export default class Basic {
 
   step(): RunResult {
     this.#assertAvailable();
+    return this.#step();
+  }
+
+  #step(): RunResult {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     if (this.#immediate)
       throw new Error('Call reset before stepping a program after immediate input');
-    const line = this.#program.lines[this.#index];
+    const line = this.#controlFlow.takeLine();
     if (!line) {
       this.#halt();
       return this.state;
     }
-    this.#index++;
     this.#execute(line);
-    if (this.#index === this.#program.lines.length) {
+    if (!this.#controlFlow.nextLine) {
       this.#halt();
     }
     return this.state;
@@ -206,23 +198,27 @@ export default class Basic {
 
   async stepAsync({signal}: InputOptions = {}): Promise<RunResult> {
     this.#assertAvailable();
+    return this.#stepAsync(signal);
+  }
+
+  async #stepAsync(signal?: AbortSignal): Promise<RunResult> {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     this.#checkAbort(signal);
-    const line = this.#program.lines[this.#index];
-    if (this.#immediate || line?.statement.type !== 'InputStatement') return this.step();
+    const line = this.#controlFlow.nextLine;
+    if (this.#immediate || line?.statement.type !== 'InputStatement') return this.#step();
     const generation = this.#generation;
-    this.#index++;
+    this.#controlFlow.takeLine();
     await this.#executeInput(line, signal);
     if (generation !== this.#generation) throw abortError();
     this.#checkAbort(signal);
     this.#status = 'running';
-    if (this.#index === this.#program.lines.length) {
+    if (!this.#controlFlow.nextLine) {
       this.#halt();
     }
     return this.state;
   }
 
-  /** Transitional numbered-entry adapter until the stored editor replaces it. */
+  /** Legacy immediate execution for library callers, separate from terminal editing. */
   readLine(source: string, options: SourceOptions = {}): RunResult {
     const line = this.#prepareImmediate(source, options);
     if (line) this.#execute(line);
@@ -266,11 +262,8 @@ export default class Basic {
         );
       }
       this.#usedLabels.add(line.label);
-      this.#program = emptyProgram;
-      this.#labelIndices.clear();
-      this.#loopPairs = [];
-      this.#pairsByFor.clear();
-      this.#pairsByNext.clear();
+      this.#prepared = emptyProgram;
+      this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
       this.#immediate = true;
       return line;
     } catch (error) {
@@ -287,14 +280,18 @@ export default class Basic {
     this.#assertIdle();
     if (this.#status === 'waiting')
       throw new Error('Input is already pending; cancel or reset first');
+    if (this.#activeRun && this.#status !== 'halted' && this.#status !== 'error')
+      throw new Error('An async run is active; cancel or reset before stepping or immediate input');
   }
 
   #invalidateExecution(): void {
     this.#generation++;
     const pending = this.#pendingInput;
-    const run = this.#pendingRun;
+    const run = this.#activeRun;
+    // Release ownership before abort listeners run synchronously. Those callbacks
+    // receive the same reentrancy protection as callbacks during a statement.
     this.#pendingInput = null;
-    this.#pendingRun = null;
+    this.#activeRun = null;
     this.#executing = true;
     try {
       pending?.abort();
@@ -349,7 +346,7 @@ export default class Basic {
       this.#evaluator.assign(statement.target, value);
     } catch (error) {
       if (generation === this.#generation) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (isAbortError(error)) {
           this.#halt();
         } else this.#recordFailure(error);
       }
@@ -361,7 +358,7 @@ export default class Basic {
   }
 
   #recordFailure(error: unknown): void {
-    this.#loopFrames.clear();
+    this.#controlFlow.clearLoops();
     this.#status = 'error';
     this.#diagnostic =
       error instanceof BasicRuntimeError || error instanceof BasicSyntaxError
@@ -370,7 +367,7 @@ export default class Basic {
   }
 
   #halt(): void {
-    this.#loopFrames.clear();
+    this.#controlFlow.clearLoops();
     this.#status = 'halted';
   }
 
@@ -396,17 +393,17 @@ export default class Basic {
       }
       switch (statement.type) {
         case 'ForStatement':
-          this.#beginLoop(statement, this.#labelIndices.get(line.label)!);
+          this.#controlFlow.beginLoop(statement);
           break;
         case 'NextStatement':
-          this.#nextLoop(statement, this.#labelIndices.get(line.label)!);
+          this.#controlFlow.nextLoop(statement);
           break;
         case 'GotoStatement':
-          this.#jump(statement.target.value, statement.target.location);
+          this.#controlFlow.jump(statement.target.value, statement.target.location);
           break;
         case 'IfStatement':
           if (this.#evaluator.compare(statement.condition))
-            this.#jump(statement.target.value, statement.target.location);
+            this.#controlFlow.jump(statement.target.value, statement.target.location);
           break;
         case 'InputStatement':
           throw new BasicRuntimeError(
@@ -440,105 +437,6 @@ export default class Basic {
     } finally {
       this.#executing = false;
     }
-  }
-
-  #jump(label: number, location: Location): void {
-    const index = this.#labelIndices.get(label);
-    if (index === undefined) {
-      throw new BasicRuntimeError(
-        'MISSING_TARGET',
-        `No line label ${label}`,
-        location.start,
-        location.label,
-      );
-    }
-    this.#moveTo(index, location);
-  }
-
-  #moveTo(index: number, location: Location): void {
-    for (const pair of this.#loopPairs) {
-      if (containsLoopBody(pair, index) && !this.#loopFrames.has(pair.forIndex)) {
-        throw new BasicRuntimeError(
-          'LOOP_ENTRY',
-          `Cannot enter inactive FOR loop for ${pair.variable}`,
-          location.start,
-          location.label,
-        );
-      }
-    }
-    for (const [key, frame] of this.#loopFrames) {
-      if (!containsLoopBody(frame, index)) this.#loopFrames.delete(key);
-    }
-    this.#index = index;
-  }
-
-  #loopNumber(expression: Expression): number {
-    const value = this.#evaluator.evaluate(expression);
-    if (typeof value !== 'number') {
-      throw new BasicRuntimeError(
-        'TYPE_MISMATCH',
-        'Loop values must be numbers',
-        expression.location.start,
-        expression.location.label,
-      );
-    }
-    return value;
-  }
-
-  #beginLoop(statement: NodeOf<'ForStatement'>, index: number): void {
-    for (const frame of this.#loopFrames.values()) {
-      if (frame.variable === statement.variable.name) {
-        throw new BasicRuntimeError(
-          'LOOP_VARIABLE_ACTIVE',
-          `Loop variable ${frame.variable} is already active`,
-          statement.variable.location.start,
-          statement.location.label,
-        );
-      }
-    }
-    const start = this.#loopNumber(statement.start);
-    const limit = this.#loopNumber(statement.end);
-    const step = statement.step === null ? 1 : this.#loopNumber(statement.step);
-    if (step === 0) {
-      throw new BasicRuntimeError(
-        'ZERO_STEP',
-        'FOR STEP must not be zero',
-        statement.step!.location.start,
-        statement.location.label,
-      );
-    }
-    this.#evaluator.assign(statement.variable, start);
-    const pair = this.#pairsByFor.get(index)!;
-    if (step > 0 ? start > limit : start < limit)
-      this.#moveTo(pair.nextIndex + 1, statement.location);
-    else this.#loopFrames.set(index, {...pair, limit, step});
-  }
-
-  #nextLoop(statement: NodeOf<'NextStatement'>, index: number): void {
-    const pair = this.#pairsByNext.get(index)!;
-    const frame = this.#loopFrames.get(pair.forIndex);
-    if (!frame) {
-      throw new BasicRuntimeError(
-        'LOOP_NOT_ACTIVE',
-        `FOR loop for ${pair.variable} is not active`,
-        statement.location.start,
-        statement.location.label,
-      );
-    }
-    const current = this.#loopNumber(statement.variable);
-    const value = current + frame.step;
-    if (!Number.isFinite(value)) {
-      throw new BasicRuntimeError(
-        'NON_FINITE_NUMBER',
-        'Loop increment must be finite',
-        statement.variable.location.start,
-        statement.location.label,
-      );
-    }
-    this.#evaluator.assign(statement.variable, value);
-    if (frame.step > 0 ? value <= frame.limit : value >= frame.limit)
-      this.#moveTo(frame.forIndex + 1, statement.location);
-    else this.#loopFrames.delete(frame.forIndex);
   }
 
   #callHost(callback: 'write' | 'clear', line: ParsedLine, text = ''): void {

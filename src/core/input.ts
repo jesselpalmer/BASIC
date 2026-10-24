@@ -1,43 +1,6 @@
 import {BasicRuntimeError} from './diagnostic.ts';
+import {abortable, abortError, isAbortError} from './cancellation.ts';
 import type {BasicValue, Host, NodeOf} from './types.ts';
-
-export function abortError(): Error {
-  const error = new Error('Input cancelled');
-  error.name = 'AbortError';
-  return error;
-}
-
-// Settle cancellation independently of a host that might ignore its signal.
-// Both promise handlers stay attached, so late rejections are consumed safely.
-function abortableRead(
-  read: () => Promise<string | null>,
-  signal: AbortSignal,
-): Promise<string | null> {
-  return new Promise((resolve, reject) => {
-    const cleanup = () => signal.removeEventListener('abort', onAbort);
-    const onAbort = () => {
-      cleanup();
-      reject(abortError());
-    };
-    const failed = (cause: unknown) => {
-      cleanup();
-      reject(cause instanceof Error ? cause : new Error('Input source failed', {cause}));
-    };
-    signal.addEventListener('abort', onAbort, {once: true});
-    if (signal.aborted) {
-      onAbort();
-      return;
-    }
-    try {
-      void Promise.resolve(read()).then((value) => {
-        cleanup();
-        resolve(value);
-      }, failed);
-    } catch (cause) {
-      failed(cause);
-    }
-  });
-}
 
 export async function readInput(
   host: Pick<Host, 'readLine' | 'write'>,
@@ -48,10 +11,9 @@ export async function readInput(
   for (;;) {
     let text: string | null;
     try {
-      text = await abortableRead(() => host.readLine(prompt, {signal}), signal);
+      text = await abortable(() => host.readLine(prompt, {signal}), signal, 'Input source failed');
     } catch (cause) {
-      if (signal.aborted || (cause instanceof Error && cause.name === 'AbortError'))
-        throw abortError();
+      if (signal.aborted || isAbortError(cause)) throw abortError();
       throw new BasicRuntimeError(
         'INPUT_FAILED',
         'Host input failed',

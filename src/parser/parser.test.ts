@@ -276,19 +276,6 @@ describe('program snapshots', () => {
     });
   });
 
-  it('does not replace a stored program when a candidate fails', () => {
-    let stored = parseProgram('10 PRINT "saved"\n20 END');
-    const original = stored;
-    expect(() => {
-      stored = parseProgram('30 PRINT 1+');
-    }).toThrow(BasicSyntaxError);
-    expect(stored).toBe(original);
-    expect(
-      narrow(narrow(stored.lines[0].statement, 'PrintStatement').items[0], 'StringLiteral').value,
-    ).toBe('saved');
-    expect(parseProgram('10 PRINT "next"').lines[0].label).toBe(10);
-  });
-
   it('deeply freezes snapshots without changing candidates', () => {
     const candidate = [
       structuredClone(parseLine('20 END')),
