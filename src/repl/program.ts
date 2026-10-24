@@ -1,9 +1,12 @@
+import type {Program} from '../core/types.ts';
 import {parseLine} from '../parser/parser.ts';
 import {tokenize} from '../parser/tokenizer.ts';
 
 /** Editable source is independent of a running interpreter snapshot. */
 export default class StoredProgram {
   #lines = new Map<number, string>();
+  #baseline = '';
+  #filename: string | null = null;
 
   get source(): string {
     return [...this.#lines.entries()]
@@ -13,8 +16,21 @@ export default class StoredProgram {
   }
 
   get dirty(): boolean {
-    // Until LOAD/SAVE is added, the only clean baseline is an empty program.
-    return this.#lines.size > 0;
+    return this.source !== this.#baseline;
+  }
+
+  get filename(): string | null {
+    return this.#filename;
+  }
+
+  replace(program: Program, filename: string): void {
+    this.#lines = new Map(program.lines.map((line) => [line.label, line.source]));
+    this.saved(filename);
+  }
+
+  saved(filename: string): void {
+    this.#baseline = this.source;
+    this.#filename = filename;
   }
 
   edit(source: string): void {
@@ -29,5 +45,7 @@ export default class StoredProgram {
 
   clear(): void {
     this.#lines.clear();
+    this.#baseline = '';
+    this.#filename = null;
   }
 }

@@ -308,8 +308,8 @@ clear stored source, terminate the interactive host, or execute later statements
 
 These programs define the target MVP and become executable fixtures as the
 language tickets land. All three now execute through the current file/runtime
-path and the stored editor. File persistence and its acceptance checks remain
-planned work.
+path and the stored editor. `LOAD` and `SAVE` support complete-program round
+trips through the terminal session; `SAVE` also preserves incomplete edits.
 
 ### Greeting
 

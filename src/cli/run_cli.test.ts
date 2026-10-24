@@ -8,6 +8,7 @@ import {join, resolve} from 'node:path';
 import {createHost} from '../core/host.ts';
 import {runCli, runFile} from './run_cli.ts';
 import TerminalHost from './terminal_host.ts';
+import NodeProgramFiles from './program_files.ts';
 
 function readAll(stream: PassThrough): string {
   const chunks: Buffer[] = [];
@@ -101,6 +102,57 @@ describe('CLI adapter lifecycle', () => {
     output.destroy();
     errors.destroy();
     rmSync(directory, {recursive: true, force: true});
+  });
+
+  it('persists quoted filenames across a fresh terminal session with the real filesystem', async () => {
+    const file = join(directory, 'MiXeD "quoted" program.bas');
+    const quoted = file.replaceAll('"', '""');
+    const first = runCli([], {host});
+    input.end(`20 END\n10 PRINT "round trip"\nSAVE "${quoted}"\nEXIT\n`);
+    expect(await first).toBe(0);
+    expect(await fs.readFile(file, 'utf8')).toBe('10 PRINT "round trip"\n20 END');
+    expect(readAll(errors)).toBe('');
+    const secondInput = new PassThrough();
+    const secondOutput = new PassThrough();
+    const secondErrors = new PassThrough();
+    const secondHost = new TerminalHost({
+      input: secondInput,
+      output: secondOutput,
+      errorOutput: secondErrors,
+    });
+    try {
+      const second = runCli([], {host: secondHost});
+      secondInput.end(`LOAD "${quoted}"\nLIST\nRUN\nEXIT\n`);
+      expect(await second).toBe(0);
+      expect(readAll(secondOutput)).toContain('10 PRINT "round trip"\n20 END\n');
+      expect(readAll(secondErrors)).toBe('');
+      expect(await fs.readdir(directory)).toEqual(['MiXeD "quoted" program.bas']);
+    } finally {
+      secondHost.close();
+      secondInput.destroy();
+      secondOutput.destroy();
+      secondErrors.destroy();
+    }
+  });
+
+  it('preserves a competing destination and session filename when a new-file save loses a race', async () => {
+    const original = join(directory, 'original.bas');
+    const racing = join(directory, 'racing.bas');
+    writeFileSync(original, '10 END');
+    const files = new NodeProgramFiles();
+    const prepareSave = files.prepareSave.bind(files);
+    files.prepareSave = async (path, source, options) => {
+      const write = await prepareSave(path, source, options);
+      if (path === racing) writeFileSync(racing, 'competing program');
+      return write;
+    };
+    const result = runCli([], {host, files});
+    input.end(`LOAD "${original}"\n20 REM unsaved\nSAVE "${racing}"\nSAVE\nyes\nEXIT\n`);
+    expect(await result).toBe(0);
+    expect(readAll(errors)).toContain('EEXIST');
+    expect(await fs.readFile(racing, 'utf8')).toBe('competing program');
+    expect(await fs.readFile(original, 'utf8')).toBe('10 END\n20 REM unsaved');
+    expect((await fs.readdir(directory)).sort()).toEqual(['original.bas', 'racing.bas']);
   });
 
   it('runs a file without opening terminal input', async () => {

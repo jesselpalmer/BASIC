@@ -91,7 +91,19 @@ EXIT
 `NEW` clears the program, and `EXIT` closes the session. Both ask before
 discarding unsaved work; only `y` or `yes` confirms. A blank entry does nothing.
 EOF with unsaved source prints a warning and the complete source to stderr,
-then exits with code 1 so you can recover your program. `LOAD`/`SAVE` follow in #43.
+then exits with code 1 so you can recover your program.
+
+`SAVE "my program.bas"` writes source without running it; `SAVE` reuses the current
+filename. Existing destinations always require overwrite confirmation.
+`LOAD "my program.bas"` validates a complete candidate, then asks before
+discarding unsaved edits and replacing source. Failed or cancelled operations preserve
+the current program and filename. Paths use doubled quotes for a literal quote.
+
+Saving accepts incomplete edits, but loading requires resolved jump targets and
+paired loops. New files are installed without clobbering a competing writer;
+approved overwrites replace the destination atomically. Temporary files are
+cleaned on failure, and post-install cleanup failures are reported as warnings.
+See the [terminal guide](docs/terminal.md) for persistence and interruption rules.
 
 Every `RUN` starts fresh variables and control flow while retaining source.
 Errors and Ctrl+C return to a usable prompt. At an idle prompt, Ctrl+C discards
@@ -146,8 +158,8 @@ infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
 non-finite numbers produce source-located errors. The terminal also implements
-`RUN`, `LIST`, `NEW`, and `EXIT`; these are session commands rather than BASIC
-program statements.
+`RUN`, `LIST`, `NEW`, `LOAD`, `SAVE`, and `EXIT`; these are session commands rather
+than BASIC program statements.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
 label, with syntax trees for supported statements and expressions.

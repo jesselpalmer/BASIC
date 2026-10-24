@@ -50,9 +50,12 @@ is explicit. The execution budget counts statements, not INPUT retries or yields
 
 ## Terminal and stored source
 
-`repl/program.ts` owns editable source and dirty state. `repl/repl.ts` owns session
-commands, confirmation, and cancellation of the current operation. Its stored source survives run
-failure and cancellation; it creates a fresh validated execution snapshot for
+`repl/program.ts` owns editable source, the saved baseline, current filename, and
+derived dirty state. `repl/persistence.ts` owns candidate validation and staged
+file operations through the narrow `ProgramFiles` capability;
+`repl/file_command.ts` parses quoted filenames independently of BASIC statements.
+`repl/repl.ts` owns session commands, confirmation, and cancellation of the current
+operation. Its stored source survives run failure and cancellation; it creates a fresh validated execution snapshot for
 `RUN`. Session commands are not BASIC statements.
 
 `cli/terminal_host.ts` owns readline, queued complete input, and its listeners.
@@ -61,8 +64,26 @@ on explicit close. Cancelling a read settles that request; discarding an
 unfinished entry preserves later complete input. Closing the host releases its
 listeners without destroying caller-owned streams.
 
-`cli/run_cli.ts` connects these capabilities to file execution and process
-signals. It accepts a structural host contract; callers need not expose a concrete
+Reads and existence checks use the shared abort race so even an injected file
+provider that ignores its signal cannot trap the editor. Late values and failures
+cannot change session state. Preparation is awaited to retain ownership of its
+staged resource; providers must honor cancellation and close and remove partial
+writes before rejecting.
+
+`cli/program_files.ts` implements file effects independently of the terminal.
+It writes an exclusive temporary in the destination directory, closes it, and
+checks cancellation before exposing a staged write. Installation is synchronous:
+rename for an explicitly approved overwrite, or an exclusive hard link for a new
+destination, followed by removal of the temporary name. The link prevents an
+unapproved overwrite if another writer creates a destination during preparation.
+No await or cancellation check separates installation from the editor's saved
+baseline update. A failure before installation discards the temporary and
+preserves session state. A temporary-removal failure after successful installation
+is a warning, not a failed save. These operations do not promise power-loss
+recovery or locking against concurrent changes to an approved overwrite target.
+
+`cli/run_cli.ts` supplies the real filesystem capability at the CLI boundary and
+connects these capabilities to file execution and process signals. It accepts a structural host contract; callers need not expose a concrete
 terminal object's internal buffers or lifecycle fields. `cli/main.ts` and
 `bin/basic` are the process entrypoints. Importing the public library is quiet.
 

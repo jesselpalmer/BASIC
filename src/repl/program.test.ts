@@ -1,5 +1,6 @@
 import {expect, it} from 'bun:test';
 import StoredProgram from './program.ts';
+import {parseProgram} from '../parser/parser.ts';
 
 it('stores, replaces, deletes, sorts, and clears source independently of snapshots', () => {
   const source = new StoredProgram();
@@ -37,5 +38,31 @@ it('rejects invalid replacement syntax and labels without changing prior source 
     expect(source.dirty).toBe(true);
   }
   source.edit('65535');
+  expect(source.dirty).toBe(false);
+});
+
+it('tracks the current filename and saved baseline through edits, loads, and NEW', () => {
+  const source = new StoredProgram();
+  expect(source.filename).toBeNull();
+  source.edit('10 END');
+  source.saved('First File.bas');
+  expect(source.filename).toBe('First File.bas');
+  expect(source.dirty).toBe(false);
+  source.edit('10 END');
+  source.edit('20');
+  expect(source.dirty).toBe(false);
+  source.edit('20 PRINT "changed"');
+  expect(source.dirty).toBe(true);
+  source.edit('20');
+  expect(source.dirty).toBe(false);
+  source.edit('10');
+  expect(source.dirty).toBe(true);
+  source.replace(parseProgram('20 END\r\n10 PRINT "loaded"\r\n'), 'Loaded File.bas');
+  expect(source.source).toBe('10 PRINT "loaded"\n20 END');
+  expect(source.filename).toBe('Loaded File.bas');
+  expect(source.dirty).toBe(false);
+  source.clear();
+  expect(source.source).toBe('');
+  expect(source.filename).toBeNull();
   expect(source.dirty).toBe(false);
 });

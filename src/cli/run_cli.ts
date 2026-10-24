@@ -6,6 +6,8 @@ import Repl from '../repl/repl.ts';
 import type {ReplHost} from '../repl/repl.ts';
 import constants from '../shared/constants.ts';
 import TerminalHost from './terminal_host.ts';
+import NodeProgramFiles from './program_files.ts';
+import type {ProgramFiles} from '../repl/program_files.ts';
 
 /** The CLI owns interrupt routing and disposal; the REPL only needs program I/O. */
 export interface CliHost extends ReplHost {
@@ -16,6 +18,7 @@ export interface CliHost extends ReplHost {
 
 interface CliOptions {
   host?: CliHost;
+  files?: ProgramFiles;
 }
 
 export async function runFile(
@@ -29,10 +32,10 @@ export async function runFile(
 
 export async function runCli(
   args: readonly string[],
-  {host = new TerminalHost()}: CliOptions = {},
+  {host = new TerminalHost(), files = new NodeProgramFiles()}: CliOptions = {},
 ): Promise<number> {
   const controller = new AbortController();
-  const repl = args.length === 0 ? new Repl(host) : null;
+  const repl = args.length === 0 ? new Repl(host, files) : null;
   const onInterrupt = () => {
     host.discardEntry();
     if (repl) repl.interrupt();
