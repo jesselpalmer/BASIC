@@ -306,7 +306,8 @@ clear stored source, terminate the interactive host, or execute later statements
 ## Acceptance programs
 
 These programs define the target MVP and become executable fixtures as the
-language tickets land. They still require upcoming input and control-flow work.
+language tickets land. The greeting works now; the times table and guessing game
+still require upcoming control-flow work.
 
 ### Greeting
 

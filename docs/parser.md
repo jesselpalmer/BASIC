@@ -38,8 +38,8 @@ const nextProgram = validateProgram(candidate);
   or retain mutable references to its nodes. This API expects parser-produced
   nodes; it is not a schema validator for untrusted or deserialized AST objects.
 
-Only `LET`, `PRINT`, `REM`, `CLS`, and `END` statements are supported by this
-parser. `INPUT`, jumps, and loops still fail explicitly; their feature tickets
+Only `LET`, `INPUT`, `PRINT`, `REM`, `CLS`, and `END` statements are supported by this
+parser. Jumps and loops still fail explicitly; their feature tickets
 add their own grammar. Forward-target resolution and loop pairing will be added
 to `validateProgram`, keeping `parseLine` usable for incomplete edits. They are
 not performed, or claimed to be supported, by this initial parser.
@@ -62,13 +62,14 @@ Every line, statement, and expression has a `location` containing `label`,
 1-based physical lines/columns, 0-based UTF-16 offsets, exclusive ends, and tabs
 counting as one source column. Line/statement spans exclude trailing whitespace.
 
-| Statement type   | Additional fields                                                                   |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is required.                          |
-| `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`. |
-| `RemStatement`   | `text`, including all whitespace/text after `REM`.                                  |
-| `ClsStatement`   | None. No arguments permitted.                                                       |
-| `EndStatement`   | None. No arguments permitted.                                                       |
+| Statement type   | Additional fields                                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is required.                                                                             |
+| `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
+| `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`.                                                    |
+| `RemStatement`   | `text`, including all whitespace/text after `REM`.                                                                                     |
+| `ClsStatement`   | None. No arguments permitted.                                                                                                          |
+| `EndStatement`   | None. No arguments permitted.                                                                                                          |
 
 Blank `PRINT` has no items/separators and `trailingSemicolon: false`. Semicolon
 locations include a trailing semicolon when present. Empty items, leading

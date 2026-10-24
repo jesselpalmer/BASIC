@@ -109,6 +109,7 @@ this checkout without building; this change does not update the published packag
 | Statement                                  | Behavior                                                                                                      |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | `LET name = expression`                    | Assign a number, or a string to a name ending in `$`.                                                         |
+| `INPUT ["prompt";] name`                   | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
 | `PRINT [expression [; expression]... [;]]` | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
 | `CLS`                                      | Ask the host to clear the display.                                                                            |
 | `REM [text]`                               | Ignore the rest of the line.                                                                                  |
@@ -127,7 +128,7 @@ numbers, and reading an undefined variable is an error.
 infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
-non-finite numbers produce source-located errors. `INPUT`, jumps, loops, and
+non-finite numbers produce source-located errors. Jumps, loops, and
 editor commands are not yet implemented.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
@@ -153,6 +154,30 @@ status, current/next source locations, and diagnostics. See the
 70 PRINT INT(1.6180)
 80 END
 ```
+
+## Interactive programs
+
+Files and REPL entries can now request input:
+
+```bas
+10 INPUT "What is your name"; NAME$
+20 PRINT "Hello, "; NAME$; "!"
+30 INPUT "Age"; AGE
+40 PRINT "Next year: "; AGE + 1
+```
+
+The host displays `What is your name? ` (or `? ` without a prompt). String
+answers preserve whitespace and require no quotes. Numeric answers must be
+complete finite signed decimals, with surrounding spaces/tabs allowed; invalid
+answers receive a retry message. EOF during input fails with a source location;
+Ctrl+C cancels the request and exits the current CLI session with code 130.
+
+For library programs with `INPUT`, use `await basic.runAsync(source, {signal})`.
+`stepAsync` and `readLineAsync` are also available, and `basic.cancel()` stops a
+pending request. The existing synchronous methods remain available for programs
+without input; executing `INPUT` through them reports `ASYNC_INPUT_REQUIRED`.
+The [runtime API](docs/interpreter-host.md) documents waiting, cancellation, and
+safe replacement of an active run.
 
 ## Migration from legacy commands
 

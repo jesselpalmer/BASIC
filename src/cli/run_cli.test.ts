@@ -126,4 +126,51 @@ describe('CLI adapter lifecycle', () => {
     expect(await result).toBe(1);
     expect(readAll(errors)).toContain('input failed');
   });
+
+  it('runs file input, retries numeric values, and closes all terminal listeners', async () => {
+    const file = join(directory, 'input.bas');
+    writeFileSync(file, '10 INPUT "Name"; N$\n20 INPUT "Age"; A\n30 PRINT N$;":";A');
+    input.end('Jesse\n12oops\n42\n');
+    expect(await runCli([file], {host})).toBe(0);
+    expect(readAll(output)).toBe(
+      'Name? Age? Invalid number; please enter a finite decimal.\nAge? Jesse:42\n',
+    );
+    expect(errors.read()).toBeNull();
+  });
+
+  it('consumes input answers before reading another editor entry', async () => {
+    const result = runCli([], {host});
+    input.end(
+      [
+        '10 INPUT N$',
+        'RUN',
+        '20 PRINT N$',
+        '30 INPUT A',
+        'bad',
+        '.5',
+        '40 PRINT A',
+        '50 END',
+        '',
+      ].join('\n'),
+    );
+    expect(await result).toBe(0);
+    const text = readAll(output);
+    expect(text).toContain('RUN\n');
+    expect(text).toContain('Invalid number; please enter a finite decimal.\n');
+    expect(text).toContain('0.5\n');
+    expect(errors.read()).toBeNull();
+  });
+
+  it.each(['file', 'interactive'])(
+    'treats EOF during %s input as a located failure',
+    async (mode) => {
+      const file = join(directory, 'eof.bas');
+      writeFileSync(file, '10 INPUT N\n20 PRINT "skipped"');
+      const result = runCli(mode === 'file' ? [file] : [], {host});
+      input.end(mode === 'file' ? '' : '10 INPUT N\n');
+      expect(await result).toBe(1);
+      expect(readAll(errors)).toBe('Line 10, column 4: Input ended before a value was received\n');
+      expect(readAll(output)).not.toContain('skipped');
+    },
+  );
 });

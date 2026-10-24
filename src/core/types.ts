@@ -22,7 +22,7 @@ export interface Host {
   readLine(prompt?: string, options?: InputOptions): Promise<string | null>;
   random(): number;
 }
-export type RunStatus = 'ready' | 'running' | 'halted' | 'error';
+export type RunStatus = 'ready' | 'running' | 'waiting' | 'halted' | 'error';
 export interface RunResult {
   readonly status: RunStatus;
   readonly currentLocation: Location | null;
@@ -78,6 +78,10 @@ export interface NodeFields {
     readonly arguments: readonly Expression[];
   };
   LetStatement: {readonly target: NodeOf<'Variable'>; readonly expression: Expression};
+  InputStatement: {
+    readonly prompt: NodeOf<'StringLiteral'> | null;
+    readonly target: NodeOf<'Variable'>;
+  };
   PrintStatement: {
     readonly items: readonly Expression[];
     readonly separators: readonly Location[];
@@ -113,9 +117,21 @@ export type Expression = {
   | 'CallExpression'];
 export type Statement = {
   [
-    K in 'LetStatement' | 'PrintStatement' | 'RemStatement' | 'ClsStatement' | 'EndStatement'
+    K in
+      | 'LetStatement'
+      | 'InputStatement'
+      | 'PrintStatement'
+      | 'RemStatement'
+      | 'ClsStatement'
+      | 'EndStatement'
   ]: NodeOf<K>;
-}['LetStatement' | 'PrintStatement' | 'RemStatement' | 'ClsStatement' | 'EndStatement'];
+}[
+  | 'LetStatement'
+  | 'InputStatement'
+  | 'PrintStatement'
+  | 'RemStatement'
+  | 'ClsStatement'
+  | 'EndStatement'];
 export type ParsedLine = NodeOf<'Line'>;
 export interface Program {
   readonly type: 'Program';
