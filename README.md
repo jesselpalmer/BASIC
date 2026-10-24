@@ -75,6 +75,10 @@ basic
 
 Make sure that you enter a unique line number for each command, just like you would a normal file. See [supported commands](#supported-commands) below for a list of commands you can use.
 
+Numbered entries still execute immediately in entry order and retain variables
+until `END` or an error. This differs from files, which validate completely and
+execute in numeric label order. Stored-program editing is a later feature.
+
 `END` finishes the current run and returns to the prompt. You can then enter
 another program, reusing its line numbers. For now, a blank line or EOF closes
 the session; stored-program editing and `EXIT` are planned for v0.1.
@@ -94,39 +98,48 @@ basic.run('10 PRINT "Hello"\n20 END');
 CommonJS callers on Bun can also use
 `const {Basic} = require('node-basic-lang');`.
 Imports and construction are quiet. `END` returns normally to the caller, and
-each `run(source)` starts fresh. The default host discards output; provide the
+each `run(source)` starts fresh. Source is fully validated before any output,
+then executed in numeric label order. The default host discards output; provide the
 callbacks you need. See [the host API](docs/interpreter-host.md) for lifecycle,
 async input, randomness, and current limitations. These exports are available in
 this checkout without building; this change does not update the published package.
 
 ## Supported commands
 
-`ABS` - Prints out the absolute value of a number.  
-`CLS` - Clears the console.  
-`INT` - Prints out an integer by rounding any decimal number down.  
-`PRINT` - Prints lines to the console.  
-`REM` - Comments for the user. The interpreter ignores these lines.  
-`END` - Completes the current BASIC run and returns to its host.
+| Statement                                  | Behavior                                                                                                      |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `LET name = expression`                    | Assign a number, or a string to a name ending in `$`.                                                         |
+| `PRINT [expression [; expression]... [;]]` | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
+| `CLS`                                      | Ask the host to clear the display.                                                                            |
+| `REM [text]`                               | Ignore the rest of the line.                                                                                  |
+| `END`                                      | Complete the run and return to the host. End of program also completes normally.                              |
 
 Labels must be decimal integers from 1 through 65535, followed by a space or
 tab. Leading zeros are allowed: `010` and `10` identify the same line. Leading
 spaces/tabs, lowercase commands, and LF/CRLF files are supported.
 
-`PRINT`, `ABS`, and `INT` currently take exactly one quoted string. Double a quote
+Expressions support numbers, strings, case-insensitive variables, parentheses,
+unary signs, and `+`, `-`, `*`, `/` with ordinary arithmetic precedence. `+` also
+concatenates two strings. There is no automatic conversion between strings and
+numbers, and reading an undefined variable is an error.
+
+`ABS(x)` returns a number's absolute value, `INT(x)` floors toward negative
+infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
-remain literal. `REM` ignores everything after the keyword, including unmatched
-quotes. `CLS` and `END` take no arguments. Malformed labels, unterminated strings,
-unexpected characters, and trailing operands now produce located errors instead
-of being partially interpreted or silently ignored.
+remain literal. Malformed syntax, incompatible values, division by zero, and
+non-finite numbers produce source-located errors. `INPUT`, jumps, loops, and
+editor commands are not yet implemented.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
 label, with syntax trees for expressions, `LET`, `PRINT`, `REM`, `CLS`, and `END`.
 It is available separately through `parseLine`, `parseProgram`, and
 `validateProgram`. The separate [evaluator API](docs/evaluator.md) adds typed
 variables, arithmetic, string concatenation, and `ABS`, `INT`, and `RND` function
-calls over parsed expressions. The CLI and `Basic` still use the legacy
-execution path above; execution of parsed programs and stored editing follow
-in later tickets.
+calls over parsed expressions. `Basic` and the CLI use this same parser/evaluator
+and statement runtime. `basic.reset(sourceOrProgram)` prepares a fresh snapshot
+without executing; `basic.step()` executes one statement and returns immutable
+status, current/next source locations, and diagnostics. See the
+[runtime API](docs/interpreter-host.md) for stepping and reruns.
 
 ## Sample file
 
@@ -136,12 +149,15 @@ in later tickets.
 30 PRINT "HELLO WORLD"
 40 PRINT "HELLO WORLD 2X"
 50 PRINT "HELLO WORLD 3X"
-60 ABS "-3.14"
-70 INT "1.6180"
+60 PRINT ABS(-3.14)
+70 PRINT INT(1.6180)
 80 END
 ```
 
-Legacy `ABS` and `INT` arguments must be complete finite signed decimals,
-including forms such as `"-.5"` and `"1."`. Trailing junk, hexadecimal/binary,
-exponent spellings, empty arguments, and non-finite values are rejected. ABS
-no longer accepts only the numeric prefix of a malformed quoted argument.
+## Migration from legacy commands
+
+Standalone `10 ABS "-3.14"` and `20 INT "-1.6"` are no longer supported. Use
+`10 PRINT ABS(-3.14)` and `20 PRINT INT(-1.6)` instead. Files now run in numeric
+label order and validate all syntax and duplicate labels before any effects,
+including source after `END`. Runtime expressions after `END` are not evaluated.
+`run()` and `step()` return the richer immutable state documented above.

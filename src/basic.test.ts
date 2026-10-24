@@ -19,7 +19,7 @@ describe('Basic host boundary', () => {
 
   it('routes output and clear through the injected host', () => {
     const host = {write: jest.fn(), clear: jest.fn()};
-    new Basic(host).run('10 CLS\n20 PRINT "hello"\n30 ABS "-3.14"');
+    new Basic(host).run('10 CLS\n20 PRINT "hello"\n30 PRINT ABS(-3.14)');
     expect(host.clear).toHaveBeenCalledTimes(1);
     expect(host.write.mock.calls).toEqual([['hello\n'], ['3.14\n']]);
   });
@@ -69,7 +69,13 @@ describe('Basic host boundary', () => {
       throw failure;
     });
     const program = new Basic(host);
-    expect(() => program.run('10 CLS\n20 PRINT "first"\n30 PRINT "skipped"')).toThrow(failure);
+    let caught;
+    try {
+      program.run('10 CLS\n20 PRINT "first"\n30 PRINT "skipped"');
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toMatchObject({cause: failure, diagnostic: {code: 'HOST_ERROR'}});
     expect(program.status).toBe('error');
     expect(output).toEqual([]);
     program.readLine('40 PRINT "also skipped"');

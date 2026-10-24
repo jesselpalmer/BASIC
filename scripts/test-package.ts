@@ -56,9 +56,13 @@ try {
       '-e',
       `${statement}
        const basic = new Basic({write: text => process.stdout.write(text)});
-       basic.run('10 PRINT "package works"');`,
+       basic.run('30 END\\n20 PRINT "package "; A\\n10 LET A = INT(2.9)*3');
+       basic.reset(parseProgram('10 PRINT "step"'));
+       const result = basic.step();
+       if (result.status !== 'halted' || result.currentLocation.label !== 10 ||
+           result.nextLocation !== null || !Object.isFrozen(result)) process.exit(1);`,
     ]);
-    assert.equal(executed.stdout, 'package works\n');
+    assert.equal(executed.stdout, 'package 6\nstep\n');
     assert.equal(executed.stderr, '');
     const parsed = run(process.execPath, [
       `--input-type=${format}`,
@@ -105,13 +109,20 @@ try {
     typedConsumer,
     `
     import {Basic, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
-            type BasicValue, type Host, type Program} from 'node-basic-lang';
+            type BasicValue, type Host, type Program, type RunResult} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
     };
     const program: Program = parseProgram('10 PRINT 1');
-    new Basic(host);
+    const basic = new Basic(host);
+    basic.reset(program);
+    const result: RunResult = basic.step();
+    const label: number | null = result.currentLocation?.label ?? null;
+    const diagnosticCode: string | undefined = basic.state.diagnostic?.code;
+    basic.run(program);
+    basic.run();
+    void label; void diagnosticCode;
     const evaluator = new Evaluator(host);
     try { parseProgram('10 PRINT 1+'); } catch (error) {
       if (!(error instanceof BasicSyntaxError)) throw error;
@@ -161,7 +172,10 @@ try {
   const executable =
     process.platform === 'win32' ? join(consumer, 'node_modules/node-basic-lang/bin/basic') : shim;
   const file = join(consumer, 'sample.bas');
-  writeFileSync(file, '10 PRINT "CLI works"\n20 END\n30 PRINT "unreachable"');
+  writeFileSync(
+    file,
+    '30 END\n20 PRINT "CLI "; NAME$\n10 LET NAME$ = "works"\n40 PRINT "unreachable"',
+  );
   const executed = run(process.execPath, [executable, file]);
   assert.equal(executed.stdout, 'CLI works\n');
   assert.equal(executed.stderr, '');

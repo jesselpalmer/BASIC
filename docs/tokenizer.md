@@ -9,12 +9,12 @@ The default input is numbered BASIC source. Blank lines are accepted. The
 tokenizer enforces complete decimal labels in the range 1–65535 and requires a
 space/tab between a label and its statement. Leading zeros retain their original
 text but produce the same numeric identity. A bare label is lexically valid;
-the current executor rejects it as a missing statement. The future editor will
+the parser rejects it as a missing statement. The future editor will
 interpret it as deletion.
 
 Options are `numbered` (default `true`), `line` (starting physical line, default
-`1`), and `offset` (starting source offset, default `0`). The existing executor
-uses `line` and `offset` when scanning individual physical lines. Setting
+`1`), and `offset` (starting source offset, default `0`). The transitional
+`Basic.readLine` adapter accepts `line` and `offset` for source fragments. Setting
 `numbered: false` permits tokenization of future unnumbered editor commands; it
 does not implement or execute those commands. A supplied fragment begins at
 column 1.
@@ -66,21 +66,16 @@ Source line 2, column 3: Invalid line label "10abc"; expected 1 through 65535
 Invalid labels have `label: null`, so the error identifies the physical source
 line. Unterminated strings point at their opening quote. Lexer codes are
 `INVALID_LABEL`, `INVALID_NUMBER`, `UNTERMINATED_STRING`, and
-`UNEXPECTED_CHARACTER`. The existing line validator/executor also use
+`UNEXPECTED_CHARACTER`. The parser and runtime also use
 `DUPLICATE_LABEL` and `INVALID_STATEMENT` with the same diagnostic shape.
 
-Both the CLI and `Basic` now use tokens for the existing commands, replacing
-space/quote splitting. They accept lowercase commands, flexible spaces/tabs,
-and doubled quotes. They require exactly one quoted argument for legacy
-`PRINT`/`ABS`/`INT`, no arguments for `CLS`/`END`, and reject trailing operands.
-Duplicate labels are compared numerically.
-
-The separate [parser API](parser.md) consumes these tokens to build syntax trees
-and immutable programs sorted by label. The existing CLI and `Basic` still use
-the small legacy adapter; `END` stops scanning/execution of subsequent file lines
-there. The separate [evaluator API](evaluator.md) evaluates parsed expressions;
-execution of parsed programs and stored editing follow in the runtime/editor
-tickets.
+The [parser API](parser.md) consumes these tokens to build syntax trees and
+immutable programs sorted by label. The CLI and `Basic` execute these programs
+through the shared [runtime](interpreter-host.md) and [evaluator](evaluator.md).
+Files validate completely before any output, including source after `END`.
+Keywords are case-insensitive, spaces/tabs and doubled quotes are accepted, and
+duplicate labels are compared numerically. The immediate-entry adapter also
+uses the same parser and statement executor; no legacy command fallback remains.
 
 `bun test` covers token values/boundaries, exact positions, malformed inputs,
 state isolation, interpreter integration, and CLI diagnostics/recovery.

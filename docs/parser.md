@@ -4,8 +4,8 @@ The package exports `parseLine`, `parseProgram`, and `validateProgram`. They
 consume source/parsed lines and return immutable data without executing BASIC,
 reading files, opening a terminal, evaluating JavaScript, or retaining program
 state between calls. The [evaluator API](evaluator.md) evaluates expression nodes
-separately. The CLI and `Basic.run()` still use the legacy executor; the new
-execution loop follows in #37.
+separately. The CLI and `Basic.run()` use these same parser/evaluator APIs through
+the [statement runtime](interpreter-host.md).
 
 ```js
 import {parseLine, parseProgram, validateProgram} from 'node-basic-lang';
@@ -44,9 +44,9 @@ add their own grammar. Forward-target resolution and loop pairing will be added
 to `validateProgram`, keeping `parseLine` usable for incomplete edits. They are
 not performed, or claimed to be supported, by this initial parser.
 
-Hosts read files once and pass the resulting string to `parseProgram`; the
-parser has no filesystem access. The existing file adapter retains its single
-read. A host should replace its stored program only after a parse/validation
+The file host reads a file once and passes its source to `Basic.run()`, which
+uses `parseProgram`; the parser has no filesystem access. A host should replace
+its stored program only after a parse/validation
 call succeeds. All APIs are stateless: a failed candidate leaves the previous
 snapshot untouched and subsequent parses start fresh.
 

@@ -87,11 +87,13 @@ coverage-ignore pattern; tests and dependencies use Bun's standard exclusions.
 - The TTY clear-display branch in `terminal_host.ts` is uncovered by the in-process
   stream tests. Its callbacks and the SIGINT callback in `run_cli.ts` also account
   for lower function percentages.
-- Default host no-op callbacks, the legacy executor's final unsupported-keyword
-  branch, and the parser's invalid-array API guard remain visible gaps.
+- Some default host no-op callbacks remain visible function-coverage gaps.
 - Type-only definitions have no executable coverage. The unused legacy command
-  dictionary and empty line-number-rule module were removed following the review;
-  do not retain or import dead modules just to raise coverage.
+  dictionary and empty line-number-rule module were removed following the review.
+  The runtime migration also removed the superseded line validator, executor,
+  standalone command handlers, and their obsolete unit tests. Their applicable
+  behavior is covered through the parser/evaluator/runtime and CLI suites; do
+  not retain or import dead modules just to raise coverage.
 
 Use reports to identify meaningful missing behavior checks. Do not exclude hard
 paths or add tests that merely repeat implementation details to meet a number.
