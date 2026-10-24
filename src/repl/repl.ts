@@ -4,11 +4,15 @@ import constants from '../shared/constants.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
 import StoredProgram from './program.ts';
 
+export interface ReplHost extends Host {
+  writeError(text: string): void;
+}
+
 export default class Repl {
   #operation: AbortController | null = null;
   #source = new StoredProgram();
 
-  constructor(private host: Host & {writeError(text: string): void}) {}
+  constructor(private host: ReplHost) {}
 
   interrupt(): void {
     this.#operation?.abort();
