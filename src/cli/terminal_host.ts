@@ -1,11 +1,11 @@
 import {abortError} from '../core/cancellation.ts';
 import {createInterface, cursorTo, clearScreenDown} from 'node:readline';
 import type {Interface} from 'node:readline';
-import type {Readable, Writable} from 'node:stream';
+import ReadlineInput from './readline_input.ts';
+import type {TerminalInput} from './readline_input.ts';
+import ReadlineOutput from './readline_output.ts';
+import type {TerminalOutput} from './readline_output.ts';
 import type {Host, InputOptions} from '../core/types.ts';
-
-type TerminalOutput = Writable & {isTTY?: boolean};
-type TerminalInput = Readable & {isTTY?: boolean};
 
 interface TerminalStreams {
   input?: TerminalInput;
@@ -30,6 +30,8 @@ export default class TerminalHost implements Host {
   #pendingRead: PendingRead | null = null;
   #failure: Error | null = null;
   #readline: Interface | null = null;
+  #readlineInput: ReadlineInput | null = null;
+  #readlineOutput: ReadlineOutput | null = null;
   #openingInput = false;
   #interruptHandler: (() => void) | null = null;
 
@@ -162,9 +164,16 @@ export default class TerminalHost implements Host {
         this.#ended = true;
         return;
       }
+      const input = new ReadlineInput(this.#input, this.#onError);
+      this.#readlineInput = input;
+      input.on('close', this.#onClose);
+      input.attach();
+      const output = new ReadlineOutput(this.#output);
+      this.#readlineOutput = output;
+      output.attach();
       this.#readline = createInterface({
-        input: this.#input,
-        output: this.#output,
+        input,
+        output,
         terminal: Boolean(this.#input.isTTY && this.#output.isTTY),
         crlfDelay: Infinity,
       });
@@ -178,10 +187,12 @@ export default class TerminalHost implements Host {
       this.#readline.on('close', this.#onClose);
       this.#readline.on('error', this.#onError);
       this.#readline.on('SIGINT', this.#onSigint);
-      this.#input.on('error', this.#onError);
-      this.#input.on('close', this.#onClose);
+      input.activate();
     } finally {
       this.#openingInput = false;
+      // Failed constructors provide no interface to close. The private adapters
+      // still own every registration on the caller's streams.
+      if (!this.#readline || this.#closed) this.#releaseReadline();
     }
   }
 
@@ -196,15 +207,30 @@ export default class TerminalHost implements Host {
 
   #releaseReadline(): void {
     const readline = this.#readline;
-    if (!readline) return;
     this.#readline = null;
-    this.#input?.removeListener('error', this.#onError);
-    this.#input?.removeListener('close', this.#onClose);
-    readline.removeListener('line', this.#onLine);
-    readline.removeListener('close', this.#onClose);
-    readline.removeListener('error', this.#onError);
-    readline.removeListener('SIGINT', this.#onSigint);
-    // Detach first: closing a replaced interface must not mark live input ended.
-    readline.close();
+    // Construction may invoke a source hook that closes the host. Finish that
+    // stack first so raw-mode restoration runs after the hook returns.
+    if (!readline && this.#openingInput) return;
+    const input = this.#readlineInput;
+    const output = this.#readlineOutput;
+    this.#readlineInput = null;
+    this.#readlineOutput = null;
+    input?.removeListener('close', this.#onClose);
+    if (readline) {
+      readline.removeListener('line', this.#onLine);
+      readline.removeListener('close', this.#onClose);
+      readline.removeListener('error', this.#onError);
+      readline.removeListener('SIGINT', this.#onSigint);
+      // Detach first: closing a replaced interface must not mark live input ended.
+      try {
+        readline.close();
+      } finally {
+        input?.release();
+        output?.release();
+      }
+    } else {
+      input?.release();
+      output?.release();
+    }
   }
 }

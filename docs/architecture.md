@@ -62,7 +62,13 @@ operation. Its stored source survives run failure and cancellation; it creates a
 It opens input lazily, preserves queued complete lines after EOF, and clears them
 on explicit close. Cancelling a read settles that request; discarding an
 unfinished entry preserves later complete input. Closing the host releases its
-listeners without destroying caller-owned streams.
+listeners without destroying caller-owned streams. Private `cli/readline_input.ts`
+and `cli/readline_output.ts` adapters own fixed registrations on caller streams.
+Readline only sees these adapters, so a constructor that fails before returning
+an interface cannot leave its callbacks attached to caller input or output.
+Input starts flowing after both readline and the host have attached their
+handlers. Restoring the caller's original raw mode is best effort when a
+disconnected TTY also rejects cleanup.
 
 Reads and existence checks use the shared abort race so even an injected file
 provider that ignores its signal cannot trap the editor. Late values and failures

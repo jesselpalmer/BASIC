@@ -3,6 +3,7 @@ import {describe, it, expect, beforeEach, afterEach} from 'bun:test';
 import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
 import TerminalHost from './terminal_host.ts';
+import ReadlineInput from './readline_input.ts';
 
 describe('TerminalHost input lifecycle', () => {
   it('emits cursor reset and display erase only for a TTY output', () => {
@@ -363,10 +364,12 @@ describe('TerminalHost input lifecycle', () => {
 });
 
 it('releases a TTY interface if its stream closes the host during initialization', async () => {
+  let rawMode = false;
   const input = Object.assign(new PassThrough(), {
     isTTY: true,
     setRawMode(enabled: boolean) {
       if (enabled) host.close();
+      rawMode = enabled;
       return input;
     },
   });
@@ -374,6 +377,7 @@ it('releases a TTY interface if its stream closes the host during initialization
   const host = new TerminalHost({input, output});
   try {
     expect(await host.readLine('Prompt? ')).toBeNull();
+    expect(rawMode).toBe(false);
     expect(input.listenerCount('keypress')).toBe(0);
     expect(input.listenerCount('error')).toBe(0);
     expect(input.listenerCount('close')).toBe(0);
@@ -418,7 +422,8 @@ it('finishes TTY initialization before starting a replacement read and its promp
       .catch((error: unknown) => error);
     expect(await cancelled).toMatchObject({name: 'AbortError'});
     expect(await replacement).toBe('replacement answer');
-    expect(input.listenerCount('keypress')).toBe(1);
+    expect(input.listenerCount('keypress')).toBe(0);
+    expect(input.listenerCount('data')).toBe(1);
     const next = host.readLine();
     input.end('next answer\n');
     expect(await next).toBe('next answer');
@@ -432,3 +437,205 @@ it('finishes TTY initialization before starting a replacement read and its promp
     output.destroy();
   }
 }, 1000);
+
+for (const failureMode of ['throw', 'emit'] as const) {
+  it(`releases only owned input callbacks when raw-mode setup fails by ${failureMode}`, async () => {
+    const failure = new Error('raw mode failed');
+    const rawModes: boolean[] = [];
+    const input = Object.assign(new PassThrough(), {
+      isTTY: true,
+      setRawMode(enabled: boolean) {
+        rawModes.push(enabled);
+        if (enabled) {
+          if (failureMode === 'throw') throw failure;
+          input.emit('error', failure);
+        }
+        return input;
+      },
+    });
+    const output = Object.assign(new PassThrough(), {isTTY: true});
+    const external = {
+      data: jest.fn(),
+      end: jest.fn(),
+      error: jest.fn(),
+      close: jest.fn(),
+      keypress: jest.fn(),
+    };
+    for (const event of ['data', 'end', 'error', 'close', 'keypress'] as const) {
+      input.on(event, external[event]);
+    }
+    const resize = jest.fn();
+    output.on('resize', resize);
+    const host = new TerminalHost({input, output});
+    const controller = new AbortController();
+    try {
+      const result = await host
+        .readLine('Prompt? ', {signal: controller.signal})
+        .catch((error: unknown) => error);
+      expect(result).toBe(failure);
+      host.close();
+      host.close();
+      expect(getEventListeners(controller.signal, 'abort')).toEqual([]);
+      expect(rawModes).toEqual([true, false]);
+      expect(input.destroyed).toBe(false);
+      expect(output.destroyed).toBe(false);
+      for (const event of ['data', 'end', 'error', 'close', 'keypress'] as const) {
+        expect(input.listeners(event)).toEqual([external[event]]);
+      }
+      expect(output.listeners('resize')).toEqual([resize]);
+      input.emit('error', failure);
+      expect(external.error).toHaveBeenCalledTimes(failureMode === 'emit' ? 2 : 1);
+    } finally {
+      host.close();
+      input.destroy();
+      output.destroy();
+    }
+  }, 1000);
+}
+
+it('preserves a raw-mode setup failure when the disconnected stream also rejects restoration', async () => {
+  const failure = new Error('raw mode failed');
+  const rawModes: boolean[] = [];
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode(enabled: boolean) {
+      rawModes.push(enabled);
+      throw enabled ? failure : new Error('restoration failed');
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const host = new TerminalHost({input, output});
+  try {
+    expect(await host.readLine().catch((error: unknown) => error)).toBe(failure);
+    expect(rawModes).toEqual([true, false]);
+    for (const event of ['data', 'end', 'error', 'close', 'keypress']) {
+      expect(input.listenerCount(event)).toBe(0);
+    }
+    expect(input.destroyed).toBe(false);
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+  }
+}, 1000);
+
+it('waits for line handlers before allowing a source resume callback to supply input', async () => {
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const host = new TerminalHost({input, output});
+  const resume = input.resume.bind(input);
+  let supplied = false;
+  input.resume = () => {
+    if (!supplied) {
+      supplied = true;
+      input.emit('data', Buffer.from('during resume\n'));
+    }
+    return resume();
+  };
+  try {
+    expect(await host.readLine()).toBe('during resume');
+    host.close();
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.destroyed).toBe(false);
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+  }
+}, 1000);
+
+it('releases owned input and output callbacks when activating input flow throws', async () => {
+  const failure = new Error('source resume failed');
+  const rawModes: boolean[] = [];
+  const input = Object.assign(new PassThrough(), {
+    isTTY: true,
+    setRawMode(enabled: boolean) {
+      rawModes.push(enabled);
+      return input;
+    },
+  });
+  const output = Object.assign(new PassThrough(), {isTTY: true});
+  const externalResize = jest.fn();
+  output.on('resize', externalResize);
+  input.resume = () => {
+    // Exercise failure only after a resize forwarder has been acquired.
+    expect(output.listenerCount('resize')).toBe(2);
+    throw failure;
+  };
+  const host = new TerminalHost({input, output});
+  try {
+    expect(await host.readLine().catch((error: unknown) => error)).toBe(failure);
+    host.close();
+    expect(rawModes).toEqual([true, false]);
+    expect(output.listeners('resize')).toEqual([externalResize]);
+    for (const event of ['data', 'end', 'error', 'close', 'keypress']) {
+      expect(input.listenerCount(event)).toBe(0);
+    }
+    expect(input.destroyed).toBe(false);
+    expect(output.destroyed).toBe(false);
+  } finally {
+    host.close();
+    input.destroy();
+    output.destroy();
+  }
+}, 1000);
+
+for (const failureMode of ['none', 'throw', 'emit'] as const) {
+  it(`preserves a caller's pre-existing raw mode when setup outcome is ${failureMode}`, async () => {
+    const failure = new Error('raw setup failed');
+    const rawModes: boolean[] = [];
+    const input = Object.assign(new PassThrough(), {
+      isTTY: true,
+      isRaw: true,
+      setRawMode(enabled: boolean) {
+        rawModes.push(enabled);
+        input.isRaw = enabled;
+        if (rawModes.length === 1 && failureMode !== 'none') {
+          // Even a partially failed setup must restore the caller's prior mode.
+          input.isRaw = false;
+          if (failureMode === 'throw') throw failure;
+          input.emit('error', failure);
+        }
+        return input;
+      },
+    });
+    const output = Object.assign(new PassThrough(), {isTTY: true});
+    const host = new TerminalHost({input, output});
+    try {
+      const result = host.readLine().catch((error: unknown) => error);
+      if (failureMode === 'none') host.close();
+      expect(await result).toBe(failureMode === 'none' ? null : failure);
+      host.close();
+      expect(input.isRaw).toBe(true);
+      expect(rawModes).toEqual(failureMode === 'throw' ? [true, true] : [true, false, true]);
+      for (const event of ['data', 'end', 'error', 'close', 'keypress']) {
+        expect(input.listenerCount(event)).toBe(0);
+      }
+    } finally {
+      host.close();
+      input.destroy();
+      output.destroy();
+    }
+  }, 1000);
+}
+
+it('exposes live raw-mode state through the private input stream', () => {
+  const source = Object.assign(new PassThrough(), {
+    isRaw: false,
+    setRawMode(enabled: boolean) {
+      source.isRaw = enabled;
+      return source;
+    },
+  });
+  const input = new ReadlineInput(source, () => {});
+  try {
+    expect(input.isRaw).toBe(false);
+    input.setRawMode(true);
+    expect(input.isRaw).toBe(true);
+    input.release();
+    expect(input.isRaw).toBe(false);
+  } finally {
+    input.release();
+    source.destroy();
+  }
+});
