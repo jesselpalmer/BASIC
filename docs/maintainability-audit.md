@@ -41,20 +41,22 @@ capabilities, and package completion sentinel were worth preserving. There was
 no evidence for a new testing framework, dead-code dependency, or generic
 interpreter framework. Cohesive modules were not split merely to meet a line count.
 
-## Remaining runtime boundary
+## Readline construction boundary
 
-[Issue #92](https://github.com/jesselpalmer/BASIC/issues/92) tracks a pre-existing
-readline construction failure: a disconnected TTY can fail raw-mode setup after
-readline has attached listeners but before it returns a handle or registers its
-cleanup. The review reproduced this with a real PTY and a small synthetic stream.
-The read rejects, but readline's listeners remain. Removing arbitrary listeners
-would violate caller ownership, so this needs a runtime fix or a separately
-reviewed adapter. The issue includes a reproduction and completion criteria.
+The initial review left [issue #92](https://github.com/jesselpalmer/BASIC/issues/92)
+open: a disconnected TTY could fail raw-mode setup after readline attached
+listeners but before it returned an interface or registered cleanup. The review
+reproduced it with a real PTY and a synthetic stream. At that baseline the
+integrated refactor passed 677 tests, but those checks did not cover this failure.
 
-The integrated refactor passes `bun run check`: 677 tests, coverage inventory,
-seeded order, formatting, strict types/lint, and packed ESM/CommonJS consumers,
-negative public type contracts, local/global CLI installation, and session
-recovery. These checks do not erase the known construction-failure limitation.
+The follow-up isolates readline input and output behind privately owned stream
+adapters. They release exact forwarding callbacks on constructor failure, preserve
+caller listeners and streams, and restore the previous raw mode when possible.
+Input activation waits until readline and host listeners are ready, preventing
+synchronous startup data from disappearing. Regression tests cover native PTY
+disconnection, input/output listener ownership, resize forwarding, constructor
+reentry, startup input, and raw-mode restoration. No arbitrary caller listeners
+are removed. See [quality checks](quality-checks.md) for PTY test prerequisites.
 
 ## Ongoing standard
 

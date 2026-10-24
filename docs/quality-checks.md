@@ -102,10 +102,13 @@ A coverage percentage cannot establish all possible inputs or branches. Real
 subprocess checks, package checks, independent expected results, and reviewed
 edge cases remain necessary even at 100% measured lines/functions.
 
-A known readline constructor-failure cleanup boundary is tracked in
-[issue #92](https://github.com/jesselpalmer/BASIC/issues/92). It is not covered by
-the successful-construction listener-cleanup assertions; see the
-[maintainability review](maintainability-audit.md#remaining-runtime-boundary).
+The readline construction-failure regression uses a real disconnected POSIX
+terminal. Its small PTY controller uses Python 3's standard library, with explicit
+readiness and process deadlines. Local runs skip that case if Python 3 is absent
+or on Windows; Linux/macOS CI requires Python and exercises it. The interpreter
+and package consumers have no Python dependency. Synthetic ownership tests run
+with Bun alone. See [issue #92](https://github.com/jesselpalmer/BASIC/issues/92)
+and the [review record](maintainability-audit.md#readline-construction-boundary).
 
 ## Commit history
 
