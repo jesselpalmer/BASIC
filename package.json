@@ -2,17 +2,18 @@
   "name": "node-basic-lang",
   "version": "0.0.10",
   "description": "BASIC interpreter",
-  "main": "./src/index.js",
+  "main": "./src/index.ts",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "start": "node ./bin/basic",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-    "test:package": "node ./scripts/test-package.js"
+    "typecheck": "bun ./node_modules/typescript/bin/tsc --noEmit",
+    "lint": "bun ./node_modules/eslint/bin/eslint.js .",
+    "lint:fix": "bun ./node_modules/eslint/bin/eslint.js . --fix",
+    "start": "bun ./bin/basic",
+    "test": "bun test",
+    "test:package": "bun ./scripts/test-package.ts"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {
-    "node": "24.x"
+    "bun": ">=1.4.4"
   },
   "keywords": [
     "BASIC",
@@ -31,13 +32,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@jest/globals": "^30.5.2",
+    "@types/bun": "^1.4.4",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
-    "jest": "^30.5.2"
-  },
-  "jest": {
-    "transform": {}
+    "typescript": "^6.0.0",
+    "typescript-eslint": "^8.72.0"
   },
   "private": false,
   "publishConfig": {
@@ -48,12 +47,14 @@
     "url": "https://github.com/sponsors/jesselpalmer"
   },
   "type": "module",
-  "exports": "./src/index.js",
+  "exports": "./src/index.ts",
   "files": [
     "bin/",
     "src/",
-    "!src/**/*.test.js",
+    "!src/**/*.test.ts",
     "!src/**/__tests__/",
     "docs/"
-  ]
+  ],
+  "types": "./src/index.ts",
+  "packageManager": "bun@1.4.4"
 }

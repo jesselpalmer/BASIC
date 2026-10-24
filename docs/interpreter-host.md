@@ -1,9 +1,9 @@
 # Interpreter and terminal lifecycle
 
 The interpreter can now be imported and constructed without printing, opening
-stdin/readline, or exiting Node. The package entry exports `Basic`, `createHost`,
+stdin/readline, or exiting the host process. The package entry exports `Basic`, `createHost`,
 and the separate [parser API](parser.md); the executable has its own entrypoint.
-On Node.js 24.x the source runs directly as ES modules, with no build step or
+On Bun 1.4.4 the source runs directly as TypeScript ES modules, with no build step or
 runtime dependencies.
 
 This API still executes the **legacy** statements documented in the README.
@@ -23,9 +23,9 @@ basic.run('10 PRINT "second"');
 // output is ['first\n', 'second\n']
 ```
 
-CommonJS callers on Node 24 can use
+CommonJS callers on Bun can use
 `const {Basic} = require('node-basic-lang');`. Both forms resolve the same
-`src/index.js` public entry. Internal source paths are not package exports.
+`src/index.ts` public entry. Internal source paths are not package exports.
 
 - `new Basic(host = {})` constructs a quiet interpreter in `ready` state.
 - `run(source)` resets state, executes nonblank source lines in their existing
@@ -70,11 +70,11 @@ The input and randomness interfaces are available for the future `INPUT` and
 
 ## Terminal adapter
 
-`src/cli/run_cli.js` owns CLI argument routing and the filesystem adapter.
+`src/cli/run_cli.ts` owns CLI argument routing and the filesystem adapter.
 `runFile(path, host, {signal})` reads a file once and executes it in a fresh core
 instance. Concurrent file loads therefore do not share line-number history.
 `runCli(args)` owns a terminal host for one invocation and closes it in `finally`.
-`src/cli/main.js` is the explicit executable entrypoint; it applies the returned
+`src/cli/main.ts` is the explicit executable entrypoint; it applies the returned
 exit code through `process.exitCode` so output can drain naturally.
 
 `TerminalHost` creates readline lazily, when the first input request starts.
@@ -108,12 +108,12 @@ terminal input and file reads.
 
 ## Verification
 
-`npm test` runs without `--forceExit`. Coverage includes quiet imports and
+`bun test` runs without `--forceExit`. Coverage includes quiet imports and
 construction with stdin held open, normal and error completion, repeated and
 independent runs, `END` followed by another interactive program, natural file
 exit with stdin held open, EOF, SIGINT, input cancellation, piped lines, stream
-errors, and removal of input/abort/signal listeners. `npm run lint` checks the
-source, tests, executable, and development scripts. `npm run test:package`
+errors, and removal of input/abort/signal listeners. `bun run lint` checks the
+source, tests, executable, and development scripts. `bun run test:package`
 installs a local tarball in a temporary consumer and verifies quiet ESM and
 CommonJS imports, interpreter output, the installed CLI, and its metadata-derived
 banner. No package is published by these checks.

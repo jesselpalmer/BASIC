@@ -1,6 +1,6 @@
 # Tokenization and source diagnostics
 
-`src/parser/tokenizer.js` provides the internal, host-independent
+`src/parser/tokenizer.ts` provides the internal, host-independent
 `tokenize(source, options = {})` function. It performs no execution, filesystem
 access, or JavaScript evaluation. Every call owns its state; tokenizing a failed
 or successful input cannot affect another call.
@@ -81,5 +81,5 @@ the small legacy adapter; `END` stops scanning/execution of subsequent file line
 there. Expression evaluation, execution of parsed programs, and stored editing
 follow in the runtime/editor tickets.
 
-`npm test` covers token values/boundaries, exact positions, malformed inputs,
+`bun test` covers token values/boundaries, exact positions, malformed inputs,
 state isolation, interpreter integration, and CLI diagnostics/recovery.
