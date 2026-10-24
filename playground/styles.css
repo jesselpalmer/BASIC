@@ -169,6 +169,37 @@ select {
 #source:focus-visible {
   outline-offset: -3px;
 }
+.document-controls {
+  padding: 12px 22px;
+  border-top: 1px solid #e5e7de;
+}
+.file-controls {
+  display: flex;
+  gap: 8px;
+}
+.file-button {
+  padding: 8px 12px;
+  color: #475044;
+  background: #f2f4ec;
+  border: 1px solid #d9dfd1;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.file-button:hover {
+  background: #e8eddf;
+}
+.storage-status,
+.file-status {
+  margin: 8px 0 0;
+  color: #5e685f;
+  font-size: 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.storage-status[data-error='true'],
+.file-status[data-error='true'] {
+  color: #963c2c;
+}
 .editor-footer {
   display: flex;
   align-items: center;
@@ -398,6 +429,7 @@ select {
     width: 250px;
   }
   .panel-heading,
+  .document-controls,
   .editor-footer {
     padding-left: 16px;
     padding-right: 16px;
