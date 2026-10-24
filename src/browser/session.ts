@@ -1,14 +1,21 @@
 import Basic from '../core/runtime.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
-import type {Diagnostic, ExecutionScheduler} from '../core/types.ts';
+import {defaultScheduler} from '../core/scheduling.ts';
+import type {Diagnostic, ExecutionScheduler, Location, VariableSnapshot} from '../core/types.ts';
 
-export type BrowserStatus = 'idle' | 'running' | 'waiting' | 'stopped' | 'finished' | 'error';
+export type BrowserStatus =
+  'idle' | 'running' | 'waiting' | 'paused' | 'stopped' | 'finished' | 'error';
 
 export interface BrowserState {
   readonly status: BrowserStatus;
+  /** True while execution is gated, including a single step awaiting INPUT. */
+  readonly isPaused: boolean;
   /** The exact source snapshot used by this run, independent of editor changes. */
   readonly source: string;
   readonly diagnostic: Readonly<Diagnostic> | null;
+  readonly currentLocation: Location | null;
+  readonly nextLocation: Location | null;
+  readonly variables: readonly VariableSnapshot[];
 }
 
 export interface BrowserView {
@@ -25,10 +32,19 @@ export interface BrowserSessionOptions {
   yieldEvery?: number;
 }
 
+export interface BrowserRunOptions {
+  /** Prepare and inspect the first statement before executing it. */
+  paused?: boolean;
+}
+
 interface Execution {
   basic: Basic;
   state: BrowserState;
   callbackFailure: {error: unknown} | null;
+  paused: boolean;
+  stepPending: boolean;
+  stepActive: boolean;
+  release: (() => void) | null;
 }
 
 interface PendingInput {
@@ -39,7 +55,15 @@ interface PendingInput {
 export class BrowserSession {
   readonly #view: BrowserView;
   readonly #options: BrowserSessionOptions;
-  #state: BrowserState = Object.freeze({status: 'idle', source: '', diagnostic: null});
+  #state: BrowserState = Object.freeze({
+    status: 'idle',
+    isPaused: false,
+    source: '',
+    diagnostic: null,
+    currentLocation: null,
+    nextLocation: null,
+    variables: Object.freeze([]),
+  });
   #execution: Execution | null = null;
   #pending: PendingInput | null = null;
   #callbackDepth = 0;
@@ -53,8 +77,18 @@ export class BrowserSession {
     return this.#state;
   }
 
-  async run(source: string): Promise<BrowserState> {
+  async run(source: string, options: BrowserRunOptions = {}): Promise<BrowserState> {
     this.#assertOutsideCallback();
+    const {yieldEvery = 256, scheduler = defaultScheduler} = this.#options;
+    let optionError: TypeError | null = null;
+    if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
+      optionError = new TypeError('yieldEvery must be a positive safe integer');
+    else if (typeof scheduler !== 'function')
+      optionError = new TypeError('scheduler must be a function');
+    if (optionError) {
+      if (!this.#execution) this.#state = Object.freeze({...this.#state, status: 'error', source});
+      throw optionError;
+    }
     this.stop();
     const execution: Execution = {
       basic: new Basic({
@@ -63,16 +97,32 @@ export class BrowserSession {
         readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
         random: this.#options.random,
       }),
-      state: Object.freeze({status: 'running', source, diagnostic: null}),
+      state: Object.freeze({
+        status: 'running',
+        isPaused: false,
+        source,
+        diagnostic: null,
+        currentLocation: null,
+        nextLocation: null,
+        variables: Object.freeze([]),
+      }),
       callbackFailure: null,
+      paused: options.paused ?? false,
+      stepPending: false,
+      stepActive: false,
+      release: null,
     };
     this.#execution = execution;
     try {
       this.#publish(execution, 'running');
       this.#callView(execution, () => this.#view.clear());
       await execution.basic.runAsync(source, {
-        scheduler: this.#options.scheduler,
-        yieldEvery: this.#options.yieldEvery,
+        scheduler: (signal) => {
+          this.#publish(execution, execution.paused ? 'paused' : 'running');
+          return scheduler(signal);
+        },
+        yieldEvery,
+        beforeStatement: () => this.#checkpoint(execution),
       });
       if (this.#execution !== execution || execution.state.status === 'stopped')
         return execution.state;
@@ -98,11 +148,83 @@ export class BrowserSession {
   stop(): BrowserState {
     this.#assertOutsideCallback();
     const execution = this.#execution;
-    if (execution && (this.#state.status === 'running' || this.#state.status === 'waiting')) {
+    if (
+      execution &&
+      (this.#state.status === 'running' ||
+        this.#state.status === 'waiting' ||
+        this.#state.status === 'paused')
+    ) {
       execution.basic.cancel();
       this.#publish(execution, 'stopped');
     }
     return this.#state;
+  }
+
+  /** Pause at the next statement boundary without cancelling input or loop state. */
+  pause(): BrowserState {
+    this.#assertOutsideCallback();
+    const execution = this.#execution;
+    if (execution && (this.#state.status === 'running' || this.#state.status === 'waiting')) {
+      execution.paused = true;
+      execution.stepPending = false;
+      execution.stepActive = false;
+      this.#publishControl(execution, this.#pending ? 'waiting' : 'paused');
+    }
+    return this.#state;
+  }
+
+  resume(): BrowserState {
+    this.#assertOutsideCallback();
+    const execution = this.#execution;
+    if (
+      execution &&
+      this.#state.isPaused &&
+      this.#state.status !== 'finished' &&
+      this.#state.status !== 'stopped' &&
+      this.#state.status !== 'error'
+    ) {
+      execution.paused = false;
+      execution.stepPending = false;
+      this.#publishControl(execution, this.#pending ? 'waiting' : 'running');
+      execution.release?.();
+    }
+    return this.#state;
+  }
+
+  /** Execute one statement; INPUT completes only after a valid answer arrives. */
+  step(): BrowserState {
+    this.#assertOutsideCallback();
+    const execution = this.#execution;
+    if (execution && this.#state.status === 'paused') {
+      execution.stepPending = execution.basic.status !== 'waiting';
+      execution.stepActive = true;
+      this.#publishControl(execution, this.#pending ? 'waiting' : 'running');
+      execution.release?.();
+    }
+    return this.#state;
+  }
+
+  #checkpoint(execution: Execution): void | Promise<void> {
+    if (
+      this.#execution !== execution ||
+      execution.state.status === 'stopped' ||
+      execution.callbackFailure
+    )
+      return;
+    execution.stepActive = false;
+    if (!execution.paused) return;
+    if (execution.stepPending) {
+      execution.stepPending = false;
+      execution.stepActive = true;
+      return;
+    }
+    this.#publish(execution, 'paused');
+    return new Promise<void>((resolve) => {
+      execution.release = () => {
+        execution.release = null;
+        resolve();
+      };
+    }).then(() => this.#checkpoint(execution));
   }
 
   /** Submit to the currently displayed request; prefer the bound callback for DOM events. */
@@ -130,7 +252,10 @@ export class BrowserSession {
         if (this.#pending !== pending || this.#execution !== execution) return false;
         cleanup();
         try {
-          this.#publish(execution, 'running');
+          this.#publish(
+            execution,
+            execution.paused && !execution.stepActive ? 'paused' : 'running',
+          );
           resolveInput(text);
         } catch (error) {
           rejectInput(error);
@@ -154,6 +279,15 @@ export class BrowserSession {
     return input;
   }
 
+  #publishControl(execution: Execution, status: BrowserStatus): void {
+    try {
+      this.#publish(execution, status);
+    } catch (error) {
+      execution.basic.cancel();
+      throw error;
+    }
+  }
+
   #publish(
     execution: Execution,
     status: BrowserStatus,
@@ -169,7 +303,17 @@ export class BrowserSession {
     status: BrowserStatus,
     diagnostic: Readonly<Diagnostic> | null = null,
   ): void {
-    execution.state = Object.freeze({status, source: execution.state.source, diagnostic});
+    const state = execution.basic.state;
+    execution.state = Object.freeze({
+      status,
+      isPaused:
+        execution.paused && (status === 'paused' || status === 'running' || status === 'waiting'),
+      source: execution.state.source,
+      diagnostic,
+      currentLocation: state.currentLocation,
+      nextLocation: state.nextLocation,
+      variables: execution.basic.variables,
+    });
     if (this.#execution === execution) this.#state = execution.state;
   }
 
@@ -186,6 +330,7 @@ export class BrowserSession {
   }
 
   #assertOutsideCallback(): void {
-    if (this.#callbackDepth) throw new Error('Cannot run or stop during a browser view callback');
+    if (this.#callbackDepth)
+      throw new Error('Cannot control execution during a browser view callback');
   }
 }

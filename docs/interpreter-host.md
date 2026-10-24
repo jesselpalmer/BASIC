@@ -43,7 +43,7 @@ The package exports the parser, evaluator, errors, and public types separately.
 - `status` is read-only. `state`, and the return values of reset/run/step, are
   immutable `RunResult` snapshots. Later execution does not change old results.
 
-`runAsync(sourceOrProgram?, {signal, instructionLimit, yieldEvery, scheduler}?)`,
+`runAsync(sourceOrProgram?, {signal, instructionLimit, yieldEvery, scheduler, beforeStatement}?)`,
 `stepAsync({signal}?)`, and
 `readLineAsync(source, {line, offset, signal}?)` return promises and support
 `INPUT`. Their non-input behavior matches the synchronous methods. The existing
@@ -226,6 +226,11 @@ Already-ended or destroyed input returns EOF before opening readline. Recorded
 stream errors reject reads. Abrupt closure settles pending input, preserves
 queued complete lines before EOF, and discards an incomplete fragment. The
 adapter removes owned input-close, error, readline, and abort listeners.
+
+`Basic.variables` exposes copied, frozen variable entries for inspection. An optional
+`beforeStatement(signal)` gate can suspend `runAsync` before each actual statement
+without releasing async ownership. See the [debugger boundary](browser-debugger.md#shared-runtime-boundary)
+for cancellation, failures, and immutable snapshot semantics.
 
 ## Organization and verification
 

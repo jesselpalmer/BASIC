@@ -1,7 +1,7 @@
 import {describe, expect, test} from 'bun:test';
 import {readFile} from 'node:fs/promises';
 import {BrowserSession} from './index.ts';
-import type {BrowserState, BrowserView} from './session.ts';
+import type {BrowserSessionOptions, BrowserState, BrowserView} from './session.ts';
 
 function view() {
   const output: string[] = [];
@@ -41,6 +41,191 @@ async function rejection(promise: Promise<BrowserState>): Promise<unknown> {
 }
 
 describe('browser session', () => {
+  test('steps exactly one statement through labels, branches, loops and END', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const source =
+      '90 END\n10 LET N = 0\n20 FOR I = 1 TO 2\n30 LET N = N + I\n40 NEXT I\n50 IF N = 3 THEN 70\n60 LET N = 99\n70 GOTO 90';
+    const finished = session.run(source, {paused: true});
+    expect(session.state).toMatchObject({
+      status: 'paused',
+      isPaused: true,
+      currentLocation: null,
+      nextLocation: {label: 10},
+      variables: [],
+    });
+    const initial = session.state;
+    const attempts = [10, 20, 30, 40, 30, 40, 50, 70];
+    const next = [20, 30, 40, 30, 40, 50, 70, 90];
+    for (let index = 0; index < attempts.length; index++) {
+      expect(session.step().status).toBe('running');
+      await until(() => session.state.status === 'paused');
+      expect(session.state.currentLocation?.label).toBe(attempts[index]);
+      expect(session.state.nextLocation?.label).toBe(next[index]);
+    }
+    expect(session.state.variables).toEqual([
+      {name: 'N', value: 3},
+      {name: 'I', value: 3},
+    ]);
+    expect(Object.isFrozen(session.state.variables)).toBe(true);
+    expect(Object.isFrozen(session.state.variables[0])).toBe(true);
+    expect(initial.variables).toEqual([]);
+    expect(initial.nextLocation?.start.line).toBe(2);
+    expect(session.state.source).toBe(source);
+    session.step();
+    expect((await finished).status).toBe('finished');
+    expect(session.state.isPaused).toBe(false);
+    expect(session.state.nextLocation).toBeNull();
+    const terminal = session.state;
+    expect(session.pause()).toBe(terminal);
+    expect(session.resume()).toBe(terminal);
+    expect(session.step()).toBe(terminal);
+  });
+
+  test('a stepped INPUT waits through retry and pauses before the following statement', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const finished = session.run('10 INPUT N\n20 PRINT N', {paused: true});
+    session.step();
+    await until(() => session.state.status === 'waiting');
+    expect(session.state).toMatchObject({
+      isPaused: true,
+      currentLocation: {label: 10},
+      nextLocation: null,
+      variables: [],
+    });
+    expect(session.step().status).toBe('waiting');
+    ui.requests[0].submit('invalid');
+    await until(() => ui.requests.length === 2);
+    expect(session.state.status).toBe('waiting');
+    expect(session.state.variables).toEqual([]);
+    ui.requests[1].submit('12');
+    await until(() => session.state.status === 'paused');
+    expect(session.state).toMatchObject({
+      currentLocation: {label: 10},
+      nextLocation: {label: 20},
+      variables: [{name: 'N', value: 12}],
+    });
+    expect(ui.output).toEqual(['Invalid number; please enter a finite decimal.\n']);
+    session.resume();
+    expect((await finished).status).toBe('finished');
+    expect(ui.output.at(-1)).toBe('12\n');
+  });
+
+  test('pause preserves an outstanding INPUT and can continue it or step its completion', async () => {
+    for (const command of ['resume', 'step', 'submit'] as const) {
+      const ui = view();
+      const session = new BrowserSession(ui.callbacks);
+      const finished = session.run('10 INPUT NAME$\n20 PRINT NAME$');
+      const submit = ui.requests[0].submit;
+      expect(session.pause()).toMatchObject({status: 'waiting', isPaused: true});
+      expect(session.state.currentLocation?.label).toBe(10);
+      if (command !== 'submit') session[command]();
+      expect(submit(' Ada ')).toBe(true);
+      if (command !== 'resume') {
+        await until(
+          () => session.state.status === 'paused' && session.state.variables.length === 1,
+        );
+        expect(ui.output).toEqual([]);
+        expect(session.state.variables).toEqual([{name: 'NAME$', value: ' Ada '}]);
+        session.resume();
+      }
+      expect((await finished).status).toBe('finished');
+      expect(ui.output).toEqual([' Ada \n']);
+      expect(submit('stale')).toBe(false);
+    }
+  });
+
+  test('Continue releases a stepped INPUT without adding a second step', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const finished = session.run('10 INPUT N\n20 PRINT N', {paused: true});
+    session.step();
+    await until(() => session.state.status === 'waiting');
+    expect(session.resume()).toMatchObject({status: 'waiting', isPaused: false});
+    ui.requests[0].submit('4');
+    expect((await finished).status).toBe('finished');
+    expect(ui.output).toEqual(['4\n']);
+  });
+
+  test('Pause survives a scheduler await; Step and Continue preserve busy loop variables', async () => {
+    const ui = view();
+    const releases: (() => void)[] = [];
+    const session = new BrowserSession(ui.callbacks, {
+      yieldEvery: 1,
+      scheduler: () => new Promise<void>((resolve) => releases.push(resolve)),
+    });
+    const finished = session.run('10 LET N = 0\n20 LET N = N + 1\n30 IF N < 2 THEN 20\n40 PRINT N');
+    await until(() => releases.length === 1);
+    const paused = session.pause();
+    expect(paused.variables).toEqual([{name: 'N', value: 0}]);
+    session.step();
+    releases[0]();
+    await until(() => releases.length === 2);
+    expect(session.state.variables).toEqual([{name: 'N', value: 1}]);
+    releases[1]();
+    await until(() => session.state.status === 'paused');
+    expect(session.state.nextLocation?.label).toBe(30);
+    expect(paused.variables).toEqual([{name: 'N', value: 0}]);
+    session.resume();
+    for (let index = 2; index < 5; index++) {
+      await until(() => releases.length > index);
+      releases[index]();
+    }
+    expect((await finished).status).toBe('finished');
+    expect(ui.output).toEqual(['2\n']);
+  });
+
+  test('latest pause wins before a released gate resumes; stopped gates cannot affect replacement', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const old = session.run('10 LET N = 1\n20 PRINT N', {paused: true});
+    session.resume();
+    session.pause();
+    await until(() => session.state.status === 'paused');
+    await Promise.resolve();
+    expect(session.state.variables).toEqual([]);
+    session.step();
+    session.stop();
+    const next = session.run('10 END', {paused: true});
+    expect((await old).status).toBe('stopped');
+    expect(session.state.variables).toEqual([]);
+    expect(session.state.currentLocation).toBeNull();
+    session.stop();
+    expect((await next).status).toBe('stopped');
+  });
+
+  test('normal execution publishes snapshots at batch boundaries without per-statement view work', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks, {
+      yieldEvery: 2,
+      scheduler: () => Promise.resolve(),
+    });
+    await session.run('10 LET N = 1\n20 LET N = 2\n30 LET N = 3\n40 END');
+    expect(ui.states.map(({status}) => status)).toEqual(['running', 'running', 'finished']);
+    expect(ui.states[1]).toMatchObject({
+      variables: [{name: 'N', value: 2}],
+      nextLocation: {label: 30},
+    });
+  });
+
+  test('idle debug commands are harmless and command view errors cancel their run', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    expect(session.pause()).toBe(session.state);
+    expect(session.resume()).toBe(session.state);
+    expect(session.step()).toBe(session.state);
+    const finished = session.run('10 INPUT N');
+    const error = new Error('cannot render pause');
+    ui.callbacks.stateChanged = () => {
+      throw error;
+    };
+    expect(() => session.pause()).toThrow(error);
+    expect(await rejection(finished)).toBe(error);
+    expect(session.state.status).toBe('error');
+    expect(ui.requests[0].submit('late')).toBe(false);
+  });
+
   test('browser entry bundles only shared core/parser and browser host capabilities', async () => {
     const result = await Bun.build({
       entrypoints: [new URL('./index.ts', import.meta.url).pathname],
@@ -64,7 +249,15 @@ describe('browser session', () => {
   test('idle observation, immutable source snapshots, fresh variables and terminal stop', async () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);
-    expect(session.state).toEqual({status: 'idle', source: '', diagnostic: null});
+    expect(session.state).toEqual({
+      status: 'idle',
+      isPaused: false,
+      source: '',
+      diagnostic: null,
+      currentLocation: null,
+      nextLocation: null,
+      variables: [],
+    });
     expect(session.stop()).toBe(session.state);
     expect(session.submitInput('unused')).toBe(false);
     let source = '10 LET N = 7\n20 PRINT N';
@@ -253,6 +446,21 @@ describe('browser session', () => {
       message: 'yieldEvery must be a positive safe integer',
     });
     expect(invalid.state.status).toBe('error');
+    const invalidScheduler = new BrowserSession(ui.callbacks, {
+      scheduler: null,
+    } as unknown as BrowserSessionOptions);
+    expect(await rejection(invalidScheduler.run('10 END'))).toMatchObject({
+      message: 'scheduler must be a function',
+    });
+    expect(invalidScheduler.state.status).toBe('error');
+  });
+
+  test('invalid JavaScript caller input rejects without inventing a BASIC diagnostic', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    expect(await rejection(session.run(null as unknown as string))).toBeInstanceOf(TypeError);
+    expect(session.state).toMatchObject({status: 'error', diagnostic: null});
+    expect((await session.run('10 END')).status).toBe('finished');
   });
 
   test.each(['write', 'clear', 'requestInput', 'stateChanged'] as const)(
@@ -304,6 +512,9 @@ describe('browser session', () => {
       const session = new BrowserSession(ui.callbacks);
       ui.callbacks[name] = () => {
         expect(() => session.stop()).toThrow('browser view callback');
+        expect(() => session.pause()).toThrow('browser view callback');
+        expect(() => session.step()).toThrow('browser view callback');
+        expect(() => session.resume()).toThrow('browser view callback');
         failures.push(
           session.run('10 PRINT "leaked"').then(
             () => {

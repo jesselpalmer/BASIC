@@ -100,9 +100,40 @@
             <button id="stop" class="stop-button" type="button" disabled>
               <span aria-hidden="true">■</span> Stop
             </button>
+            <button id="pause" class="debug-button" type="button" disabled>Pause</button>
+            <button id="continue" class="debug-button" type="button" disabled>Continue</button>
+            <button id="step" class="debug-button" type="button">Step</button>
           </div>
         </section>
       </div>
+
+      <details id="inspection" class="inspection-panel">
+        <summary>Inspect execution</summary>
+        <p id="next-line" class="inspection-status" role="status">
+          Run or Step a program to inspect it.
+        </p>
+        <div class="inspection-grid">
+          <div>
+            <h2>Running source</h2>
+            <p class="inspection-help">This snapshot stays fixed while you edit the next run.</p>
+            <pre id="execution-source" tabindex="0" aria-label="Running program snapshot"></pre>
+          </div>
+          <div>
+            <h2>Variables</h2>
+            <p id="variables-empty" class="inspection-help">No variables yet.</p>
+            <table id="variables" aria-label="Read-only program variables" hidden>
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Value</th>
+                </tr>
+              </thead>
+              <tbody id="variable-rows"></tbody>
+            </table>
+            <p id="variables-limit" class="inspection-help" hidden></p>
+          </div>
+        </div>
+      </details>
 
       <footer class="page-footer">
         <p>

@@ -27,6 +27,27 @@ function failure(action: () => unknown): BasicRuntimeError {
 }
 
 describe('expression evaluation', () => {
+  it('copies and freezes variable snapshots without exposing evaluator storage', () => {
+    const evaluator = new Evaluator();
+    expect(evaluator.snapshotVariables()).toEqual([]);
+    evaluator.assign(target('score'), 7);
+    evaluator.assign(target('name$'), ' Ada ');
+    const snapshot = evaluator.snapshotVariables();
+    expect(snapshot).toEqual([
+      {name: 'SCORE', value: 7},
+      {name: 'NAME$', value: ' Ada '},
+    ]);
+    expect(Object.isFrozen(snapshot)).toBe(true);
+    expect(Object.isFrozen(snapshot[0])).toBe(true);
+    expect(() => Object.assign(snapshot[0], {value: 99})).toThrow(TypeError);
+    expect(() => (snapshot as unknown[]).push({name: 'INJECTED', value: 1})).toThrow(TypeError);
+    evaluator.assign(target('score'), 8);
+    expect(evaluator.evaluate(expression('SCORE'))).toBe(8);
+    evaluator.reset();
+    expect(evaluator.snapshotVariables()).toEqual([]);
+    expect(snapshot[0]).toEqual({name: 'SCORE', value: 7});
+  });
+
   it.each<[string, BasicValue]>([
     ['42', 42],
     ['01.50', 1.5],

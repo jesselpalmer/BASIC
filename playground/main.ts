@@ -19,6 +19,16 @@ const source = element<HTMLTextAreaElement>('source');
 const example = element<HTMLSelectElement>('example');
 const run = element<HTMLButtonElement>('run');
 const stop = element<HTMLButtonElement>('stop');
+const pause = element<HTMLButtonElement>('pause');
+const resume = element<HTMLButtonElement>('continue');
+const step = element<HTMLButtonElement>('step');
+const inspection = element<HTMLDetailsElement>('inspection');
+const nextLine = element('next-line');
+const executionSource = element('execution-source');
+const variables = element<HTMLTableElement>('variables');
+const variableRows = element('variable-rows');
+const variablesEmpty = element('variables-empty');
+const variablesLimit = element('variables-limit');
 const status = element('status');
 const output = element('console-output');
 const scroll = element('console-scroll');
@@ -44,6 +54,7 @@ const transcript = new Transcript();
 let pendingFrame: number | null = null;
 let submitInput: ((text: string) => boolean) | null = null;
 let runRequest = 0;
+let inspectionState: BrowserState | null = null;
 
 function renderDocumentStatus(): void {
   example.value = Object.keys(examples).find((key) => examples[key] === documentModel.source) ?? '';
@@ -103,6 +114,7 @@ function renderTranscript(): void {
   output.textContent = transcript.text;
   truncated.hidden = !transcript.truncated;
   empty.hidden = transcript.text.length > 0 || transcript.truncated;
+  if (inspection.open && inspectionState) renderInspection(inspectionState);
   if (followsOutput) scroll.scrollTop = scroll.scrollHeight;
 }
 
@@ -122,15 +134,57 @@ const statusLabels: Record<BrowserState['status'], string> = {
   idle: 'Ready',
   running: 'Running',
   waiting: 'Waiting for input',
+  paused: 'Paused',
   stopped: 'Stopped',
   finished: 'Finished',
   error: 'Error',
 };
 
+function renderInspection(state: BrowserState): void {
+  const location =
+    state.nextLocation ?? (state.status === 'waiting' ? state.currentLocation : null);
+  nextLine.textContent = location
+    ? `${state.status === 'waiting' ? 'Waiting at' : 'Next:'} BASIC line ${location.label} (source line ${location.start.line})`
+    : state.status === 'idle'
+      ? 'Run or Step a program to inspect it.'
+      : 'No next statement.';
+  executionSource.replaceChildren();
+  if (location) {
+    const start = state.source.lastIndexOf('\n', location.start.offset - 1) + 1;
+    const newline = state.source.indexOf('\n', location.start.offset);
+    const end = newline === -1 ? state.source.length : newline;
+    const mark = document.createElement('mark');
+    mark.textContent = state.source.slice(start, end);
+    executionSource.append(state.source.slice(0, start), mark, state.source.slice(end));
+  } else executionSource.textContent = state.source;
+  variableRows.replaceChildren();
+  for (const variable of state.variables.slice(0, 200)) {
+    const row = document.createElement('tr');
+    const name = document.createElement('td');
+    name.textContent = variable.name;
+    const value = document.createElement('td');
+    value.textContent =
+      typeof variable.value === 'string' ? JSON.stringify(variable.value) : String(variable.value);
+    row.append(name, value);
+    variableRows.append(row);
+  }
+  variables.hidden = state.variables.length === 0;
+  variablesEmpty.hidden = state.variables.length !== 0;
+  variablesLimit.hidden = state.variables.length <= 200;
+  variablesLimit.textContent = `Showing the first 200 of ${state.variables.length} variables.`;
+}
+
 function stateChanged(state: BrowserState): void {
-  status.textContent = statusLabels[state.status];
+  inspectionState = state;
+  if (status.textContent !== statusLabels[state.status])
+    status.textContent = statusLabels[state.status];
   status.dataset.status = state.status;
-  stop.disabled = state.status !== 'running' && state.status !== 'waiting';
+  const active =
+    state.status === 'running' || state.status === 'waiting' || state.status === 'paused';
+  stop.disabled = !active;
+  pause.disabled = !active || state.isPaused;
+  resume.disabled = !state.isPaused;
+  step.disabled = active && state.status !== 'paused';
   if (state.status !== 'waiting') {
     submitInput = null;
     const wasFocused = inputForm.contains(document.activeElement);
@@ -145,6 +199,9 @@ function stateChanged(state: BrowserState): void {
   if (state.status !== 'running' && pendingFrame !== null) {
     cancelAnimationFrame(pendingFrame);
     renderTranscript();
+  } else if (inspection.open) {
+    if (state.status === 'running') pendingFrame ??= requestAnimationFrame(renderTranscript);
+    else renderInspection(state);
   }
 }
 
@@ -161,9 +218,9 @@ const session = new BrowserSession({
   },
 });
 
-function runProgram(): void {
+function runProgram(paused = false): void {
   const request = ++runRequest;
-  void session.run(documentModel.source).catch((error: unknown) => {
+  void session.run(documentModel.source, {paused}).catch((error: unknown) => {
     if (request !== runRequest) return;
     diagnostic.textContent = `Playground error: ${error instanceof Error ? error.message : String(error)}`;
     diagnostic.hidden = false;
@@ -227,8 +284,21 @@ exportButton.addEventListener('click', () => {
     }
   }
 });
-run.addEventListener('click', runProgram);
+run.addEventListener('click', () => runProgram());
 stop.addEventListener('click', () => session.stop());
+pause.addEventListener('click', () => {
+  inspection.open = true;
+  session.pause();
+});
+resume.addEventListener('click', () => session.resume());
+step.addEventListener('click', () => {
+  inspection.open = true;
+  if (session.state.status !== 'paused') runProgram(true);
+  if (session.state.status === 'paused') session.step();
+});
+inspection.addEventListener('toggle', () => {
+  if (inspection.open) renderInspection(session.state);
+});
 inputForm.addEventListener('submit', (event) => {
   event.preventDefault();
   // Capture this request's closure; a late submission can never answer a replacement run.

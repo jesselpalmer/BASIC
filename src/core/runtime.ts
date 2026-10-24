@@ -1,5 +1,5 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
-import {abortError, isAbortError} from './cancellation.ts';
+import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {Evaluator} from './evaluator.ts';
 import {createHost} from './host.ts';
@@ -18,6 +18,7 @@ import type {
   RunOptions,
   RunStatus,
   SourceOptions,
+  VariableSnapshot,
 } from './types.ts';
 
 const emptyProgram = prepareProgram('');
@@ -51,6 +52,10 @@ export default class Basic {
 
   get status(): RunStatus {
     return this.#status;
+  }
+
+  get variables(): readonly VariableSnapshot[] {
+    return this.#evaluator.snapshotVariables();
   }
 
   get state(): RunResult {
@@ -95,7 +100,13 @@ export default class Basic {
   }
 
   async runAsync(program?: string | Program, options: RunOptions = {}): Promise<RunResult> {
-    const {signal, instructionLimit, yieldEvery = 256, scheduler = defaultScheduler} = options;
+    const {
+      signal,
+      instructionLimit,
+      yieldEvery = 256,
+      scheduler = defaultScheduler,
+      beforeStatement,
+    } = options;
     if (
       instructionLimit !== undefined &&
       (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
@@ -104,6 +115,8 @@ export default class Basic {
     if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
       throw new TypeError('yieldEvery must be a positive safe integer');
     if (typeof scheduler !== 'function') throw new TypeError('scheduler must be a function');
+    if (beforeStatement !== undefined && typeof beforeStatement !== 'function')
+      throw new TypeError('beforeStatement must be a function');
     this.reset(program);
     const generation = this.#generation;
     const controller = new AbortController();
@@ -124,6 +137,28 @@ export default class Basic {
             line.statement.location.start,
             line.label,
           );
+        }
+        if (beforeStatement && line) {
+          try {
+            const gate = beforeStatement(controller.signal);
+            if (gate) {
+              // Consume even a gate returned by a callback that synchronously cancels this run.
+              void gate.catch(() => {});
+              await abortable(() => gate, controller.signal, 'Statement gate failed');
+            }
+          } catch (cause) {
+            if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+            this.#current = line;
+            throw new BasicRuntimeError(
+              'STATEMENT_GATE_FAILED',
+              'Statement gate failed',
+              line.statement.location.start,
+              line.label,
+              {cause},
+            );
+          }
+          if (generation !== this.#generation) throw abortError();
+          this.#checkAbort(controller.signal);
         }
         await this.#stepAsync(controller.signal);
         if (generation !== this.#generation) throw abortError();

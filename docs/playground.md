@@ -24,6 +24,14 @@ Choose **Stop** or press Escape to stop a running or waiting program. Source sta
 editable after completion, cancellation, and errors. Diagnostics show physical
 source line and column, and the BASIC line number when available.
 
+Use **Step** to start a fresh program one statement at a time. **Pause** stops at
+the next statement boundary; **Continue** resumes the same run. A stepped INPUT
+still needs a valid answer before it completes. The **Inspect execution** panel
+highlights the next BASIC line in the fixed running source and shows read-only
+variable values. It displays up to 200 variables with a visible limit notice;
+the runtime's snapshot API retains the complete set. See the
+[debugger guide](browser-debugger.md) for control and inspection semantics.
+
 The console retains the latest 50,000 characters and marks removed output.
 Program output is plain text, including markup characters. Rendering uses one
 text node and at most one pending animation frame, so rapid output cannot create
