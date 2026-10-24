@@ -35,3 +35,34 @@ both output and the truncation indication.
 coverage. `playground/main.ts` owns browser event wiring and rendering; real
 browser checks exercise that DOM entrypoint. The browser host owns execution,
 state transitions, and stale-safe input request closures independently of the DOM.
+
+## Browser milestone verification
+
+The same three maintained examples have independent expected results in the
+browser, CLI, and public library checks. The guessing game uses injected
+`RND() = 0.41` in tests; an ordinary run uses browser randomness. The UI echoes
+answers in its transcript, while piped CLI input is not echoed, so these hosts
+present input differently without changing the language's values or output.
+
+| Contract                                    | Evidence                                                                                                                                                                                                                           |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Example and rerun parity                    | `scripts/browser/playground.e2e.ts`, `src/__tests__/examples.test.ts`, and `scripts/library-acceptance.ts` assert greetings, table rows, low/high feedback, and reset guess counts against explicit expected results.              |
+| Actual controls, snapshots, and diagnostics | Browser tests edit during INPUT, replace a waiting run, assert BASIC error locations, recover, and exercise keyboard/focus controls.                                                                                               |
+| Preservation and terminal round trips       | `scripts/browser/documents.e2e.ts` checks local restore, protected replacement, invalid/failed/stale imports, blocked/quota storage, exact CRLF/Unicode downloads, and execution of a downloaded file through the real CLI.        |
+| Responsiveness under unbounded execution    | Browser tests stop GOTO-only and infinite PRINT loops after visible truncation, check the 50,000-character ceiling, and run a recovery program. The transcript retains one bounded buffer and the UI schedules at most one render. |
+| Portable static distribution                | The browser-target build bundles the shared core and actual examples. `src/browser/session.test.ts` checks the dependency graph for Node/Bun APIs. The generated files need only a static HTTP server.                             |
+
+Run the complete local gates with the pinned Bun version:
+
+```sh
+bun install --frozen-lockfile
+bun run check
+bun ./node_modules/@playwright/test/cli.js install chromium --only-shell
+bun run test:browser
+```
+
+Linux/macOS CI starts from a checkout and frozen install, then runs both gates.
+Browser tests use observable UI readiness and deadlines, not fixed sleeps, with
+no retries masking failures. Traces and screenshots are retained on failure.
+See [quality checks](quality-checks.md) for browser installation and coverage
+boundaries. This milestone does not configure public hosting or add graphics.

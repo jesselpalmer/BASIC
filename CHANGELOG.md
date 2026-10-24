@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Add a static browser playground using the existing parser and runtime, with
+  editable source, actual examples, INPUT, Run/Stop, diagnostics, and bounded
+  output rendering.
+- Preserve local drafts and support protected import and exact `.bas` export.
+  Storage and read failures leave editable work available.
+- Verify the real browser UI on Linux/macOS with Chromium, including infinite
+  loop cancellation, stale input/import isolation, and browser-to-terminal file
+  round trips. The playground builds from a checkout; public hosting is not
+  configured.
+
 ## 0.1.0 — release candidate
 
 This candidate prepares the terminal MVP. No registry publication or release tag

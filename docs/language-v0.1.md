@@ -369,8 +369,8 @@ are separate from the terminal session.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, graphics, and
-sound are outside the terminal MVP. Browser hosts and drawing commands are not
-included in v0.1.0.
+sound are outside the terminal MVP. The [browser playground](playground.md) uses
+this same text dialect; drawing commands remain future work.
 
 Sources: [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
 and [cleanup, MVP, and graphics roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk).
