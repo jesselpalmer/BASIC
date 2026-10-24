@@ -1,6 +1,5 @@
-import type {ChildProcessWithoutNullStreams} from 'node:child_process';
 import {describe, it, expect} from 'bun:test';
-import {spawn, spawnSync} from 'node:child_process';
+import {runProcess, runWithOpenInput} from '../../scripts/subprocess.ts';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
@@ -10,52 +9,7 @@ const root = resolve(import.meta.dirname, '../..');
 const executable = join(root, 'bin/basic');
 
 function run(args: string[], input = '', status = 0) {
-  const result = spawnSync(process.execPath, [executable, ...args], {
-    encoding: 'utf8',
-    input,
-    timeout: 5000,
-  });
-  expect(result.error).toBeUndefined();
-  expect(result.signal).toBeNull();
-  expect(result.status).toBe(status);
-  return result;
-}
-
-// Leave stdin open: a leaked readline interface would prevent child exit.
-function runWithOpenInput(
-  args: string[],
-  onOutput: (text: string, child: ChildProcessWithoutNullStreams) => void = () => {},
-) {
-  return new Promise<{
-    status: number | null;
-    signal: string | null;
-    stdout: string;
-    stderr: string;
-  }>((resolve, reject) => {
-    const child = spawn(process.execPath, args, {cwd: root});
-    let stdout = '';
-    let stderr = '';
-    const timeout = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error('Child did not exit with stdin still open'));
-    }, 5000);
-    child.stdout.on('data', (data: Buffer) => {
-      stdout += data.toString();
-      onOutput(stdout, child);
-    });
-    child.stderr.on('data', (data: Buffer) => {
-      stderr += data.toString();
-    });
-    child.on('error', (error) => {
-      clearTimeout(timeout);
-      reject(error);
-    });
-    child.on('close', (status, signal) => {
-      clearTimeout(timeout);
-      child.stdin.destroy();
-      resolve({status, signal, stdout, stderr});
-    });
-  });
+  return runProcess({args: [executable, ...args], cwd: root, input, expectedStatus: status});
 }
 
 describe('CLI and core lifecycle', () => {
@@ -228,7 +182,7 @@ describe('CLI and core lifecycle', () => {
       ],
     ],
   ])('imports with %s and constructs interpreters quietly', async (_format, args) => {
-    const result = await runWithOpenInput(args);
+    const result = await runWithOpenInput({cwd: root, args});
     expect(result).toEqual({
       status: 0,
       signal: null,
@@ -242,7 +196,7 @@ describe('CLI and core lifecycle', () => {
     try {
       const file = join(directory, 'program.bas');
       writeFileSync(file, '10 PRINT "done"');
-      expect(await runWithOpenInput([executable, file])).toEqual({
+      expect(await runWithOpenInput({cwd: root, args: [executable, file]})).toEqual({
         status: 0,
         signal: null,
         stdout: 'done\n',
@@ -254,10 +208,10 @@ describe('CLI and core lifecycle', () => {
   });
 
   it('reports missing files without an unhandled exception', async () => {
-    const result = await runWithOpenInput([
-      executable,
-      join(import.meta.dirname, 'fixtures/missing.bas'),
-    ]);
+    const result = await runWithOpenInput({
+      cwd: root,
+      args: [executable, join(import.meta.dirname, 'fixtures/missing.bas')],
+    });
     expect(result.status).toBe(1);
     expect(result.signal).toBeNull();
     expect(result.stdout).toBe('');
@@ -267,13 +221,17 @@ describe('CLI and core lifecycle', () => {
 
   it('cancels an idle entry on SIGINT and accepts EXIT afterward', async () => {
     let interrupted = false;
-    const result = await runWithOpenInput([executable], (text, child) => {
-      if (!interrupted && text.includes('>>> ')) {
-        interrupted = true;
-        child.kill('SIGINT');
-      } else if (interrupted && (text.match(/>>> /g)?.length ?? 0) >= 2) {
-        child.stdin.end('EXIT\n');
-      }
+    const result = await runWithOpenInput({
+      cwd: root,
+      args: [executable],
+      onOutput: (text, child) => {
+        if (!interrupted && text.includes('>>> ')) {
+          interrupted = true;
+          child.kill('SIGINT');
+        } else if (interrupted && (text.match(/>>> /g)?.length ?? 0) >= 2) {
+          child.stdin.end('EXIT\n');
+        }
+      },
     });
     expect(result.status).toBe(0);
     expect(result.signal).toBeNull();
@@ -339,9 +297,10 @@ describe('CLI and core lifecycle', () => {
       writeFileSync(file, '10 INPUT "Answer"; N\n20 PRINT "skipped"');
       let entered = false;
       let interrupted = false;
-      const result = await runWithOpenInput(
-        mode === 'file' ? [executable, file] : [executable],
-        (text, child) => {
+      const result = await runWithOpenInput({
+        cwd: root,
+        args: mode === 'file' ? [executable, file] : [executable],
+        onOutput: (text, child) => {
           if (mode === 'interactive' && !entered && text.includes('>>> ')) {
             entered = true;
             child.stdin.write('10 INPUT "Answer"; N\nRUN\n');
@@ -357,7 +316,7 @@ describe('CLI and core lifecycle', () => {
             child.stdin.end('EXIT\nyes\n');
           }
         },
-      );
+      });
       expect(result.status).toBe(mode === 'file' ? 130 : 0);
       expect(result.signal).toBeNull();
       expect(result.stderr).toBe('');
@@ -370,17 +329,21 @@ describe('CLI and core lifecycle', () => {
 
 it('process SIGINT stops interactive computation without losing the editable source', async () => {
   let phase = 0;
-  const result = await runWithOpenInput([executable], (text, child) => {
-    if (phase === 0 && text.includes('>>> ')) {
-      phase = 1;
-      child.stdin.write('10 PRINT "COMPUTING"\n20 GOTO 20\nRUN\n');
-    } else if (phase === 1 && text.includes('COMPUTING\n')) {
-      phase = 2;
-      child.kill('SIGINT');
-    } else if (phase === 2 && text.slice(text.indexOf('COMPUTING\n')).includes('>>> ')) {
-      phase = 3;
-      child.stdin.end('LIST\n20 END\n10 PRINT "AFTER_CANCEL"\nRUN\nEXIT\nyes\n');
-    }
+  const result = await runWithOpenInput({
+    cwd: root,
+    args: [executable],
+    onOutput: (text, child) => {
+      if (phase === 0 && text.includes('>>> ')) {
+        phase = 1;
+        child.stdin.write('10 PRINT "COMPUTING"\n20 GOTO 20\nRUN\n');
+      } else if (phase === 1 && text.includes('COMPUTING\n')) {
+        phase = 2;
+        child.kill('SIGINT');
+      } else if (phase === 2 && text.slice(text.indexOf('COMPUTING\n')).includes('>>> ')) {
+        phase = 3;
+        child.stdin.end('LIST\n20 END\n10 PRINT "AFTER_CANCEL"\nRUN\nEXIT\nyes\n');
+      }
+    },
   });
   expect(phase).toBe(3);
   expect(result.status).toBe(0);

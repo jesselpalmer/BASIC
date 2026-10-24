@@ -11,8 +11,9 @@ Complete programs support numeric loops:
 
 This prints 1, 2, 3, and then 4, each on its own line. `FOR` and `NEXT` also work
 through the reusable runtime's synchronous and asynchronous stepping/running
-APIs. They require a complete program; the transitional immediate-entry REPL
-reports `PROGRAM_REQUIRED`, as it does for `IF` and `GOTO`.
+APIs and the stored editor's `RUN` command. They require a complete program; the
+legacy library `readLine` adapter reports `PROGRAM_REQUIRED`, as it does for
+`IF` and `GOTO`.
 
 ## Values and repetition
 
@@ -42,8 +43,8 @@ the next `NEXT` uses the changed value. Non-finite increments are errors.
 Whole-program validation pairs loops by lexical nesting in numeric line order,
 independently of file order. Every `FOR` needs a matching named `NEXT`; missing,
 extra, or mismatched partners fail before effects, even after `END`. Single-line
-`parseLine` accepts syntactically valid, unpaired `FOR`/`NEXT` statements for
-future stored editing.
+`parseLine` accepts syntactically valid, unpaired `FOR`/`NEXT` statements so the
+stored editor can retain incomplete source until `RUN`.
 Reusing an already active loop variable is a runtime error; an unreachable
 nested header does not create a frame or trigger that error.
 
@@ -77,5 +78,6 @@ bun start examples/times-table.bas
 ```
 
 Enter 3 to print the table from `1 x 3 = 3` through `10 x 3 = 30`.
-Fair yielding, busy-loop interruption, and instruction limits are still #41.
-While developing unfinished loops, use a bounded number of `step()` calls.
+Async runs yield between batches and accept instruction limits; see
+[responsive execution](execution.md). While developing unfinished loops, use
+`runAsync` with a budget or a bounded number of `step()` calls.
