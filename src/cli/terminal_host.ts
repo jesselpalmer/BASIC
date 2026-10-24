@@ -69,10 +69,19 @@ export default class TerminalHost implements Host {
     this._onInterrupt = handler;
   }
 
-  _open() {
-    if (this._interface || this._closed) return;
+  _open(): Error | null {
+    if (this._interface || this._closed) return this._failure;
     this._input = this._input || process.stdin;
     this._output = this._output || process.stdout;
+    if (this._input.errored) {
+      this._failure = this._input.errored;
+      this.close();
+      return this._failure;
+    }
+    if (this._input.readableEnded || this._input.destroyed) {
+      this._ended = true;
+      return null;
+    }
     this._onLine = (line) => {
       if (this._pending) this._settle(null, line);
       else this._lines.push(line);
@@ -81,6 +90,7 @@ export default class TerminalHost implements Host {
       this._ended = true;
       this._settle(null, null);
       this._detach();
+      this._interface?.close();
     };
     this._onError = (error) => {
       this._failure = error;
@@ -98,6 +108,8 @@ export default class TerminalHost implements Host {
     this._interface.on('error', this._onError);
     this._interface.on('SIGINT', this._onSigint);
     this._input.on('error', this._onError);
+    this._input.on('close', this._onClose);
+    return this._failure;
   }
 
   _settle(error: Error | null, value: string | null = null) {
@@ -117,7 +129,8 @@ export default class TerminalHost implements Host {
     if (this._failure) return Promise.reject(this._failure);
     if (this._closed) return Promise.resolve(null);
     try {
-      this._open();
+      const failure = this._open();
+      if (failure) return Promise.reject(failure);
       this.write(prompt);
     } catch (error) {
       this.close();
@@ -141,6 +154,7 @@ export default class TerminalHost implements Host {
   _detach() {
     if (!this._interface) return;
     this._input?.removeListener('error', this._onError);
+    this._input?.removeListener('close', this._onClose);
     this._interface.removeListener('line', this._onLine);
     this._interface.removeListener('close', this._onClose);
     this._interface.removeListener('error', this._onError);

@@ -1,3 +1,4 @@
+import {once} from 'node:events';
 import {describe, it, expect, beforeEach, afterEach} from 'bun:test';
 import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
@@ -37,6 +38,81 @@ describe('TerminalHost input lifecycle', () => {
     expect(input.listenerCount('data')).toBe(0);
     expect(input.listenerCount('end')).toBe(0);
     expect(input.listenerCount('error')).toBe(0);
+  });
+
+  it('returns EOF when input ended before the first lazy read', async () => {
+    input.resume();
+    const ended = once(input, 'end');
+    input.end();
+    await ended;
+    expect(await host.readLine()).toBeNull();
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('returns EOF when input was already destroyed', async () => {
+    const closed = once(input, 'close');
+    input.destroy();
+    await closed;
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('propagates an error recorded before lazy initialization', async () => {
+    const failure = new Error('earlier failure');
+    const errored = once(input, 'error');
+    input.destroy(failure);
+    await errored;
+    expect(await host.readLine().catch((error: unknown) => error)).toBe(failure);
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+  });
+
+  it('settles a pending read on input close and removes abort listeners', async () => {
+    const controller = new AbortController();
+    const remove = jest.spyOn(controller.signal, 'removeEventListener');
+    const externalClose = jest.fn();
+    input.on('close', externalClose);
+    const pending = host.readLine('', {signal: controller.signal});
+    input.destroy();
+    expect(await pending).toBeNull();
+    expect(await host.readLine()).toBeNull();
+    expect(externalClose).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenCalledWith('abort', expect.any(Function));
+    expect(input.listenerCount('data')).toBe(0);
+    expect(input.listenerCount('end')).toBe(0);
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(1);
+    input.removeListener('close', externalClose);
+    controller.abort();
+    host.close();
+    host.close();
+  });
+
+  it('drains queued complete lines before EOF after abrupt close', async () => {
+    const first = host.readLine();
+    input.write('one\ntwo\nthree\npartial');
+    expect(await first).toBe('one');
+    const closed = once(input, 'close');
+    input.destroy();
+    await closed;
+    expect(await host.readLine()).toBe('two');
+    expect(await host.readLine()).toBe('three');
+    expect(await host.readLine()).toBeNull();
+    expect(input.listenerCount('error')).toBe(0);
+    expect(input.listenerCount('close')).toBe(0);
+  });
+
+  it('does not destroy caller input on host close', async () => {
+    const pending = host.readLine();
+    host.close();
+    expect(await pending).toBeNull();
+    expect(input.destroyed).toBe(false);
+    expect(input.listenerCount('close')).toBe(0);
   });
 
   it('settles pending input and closes idempotently', async () => {

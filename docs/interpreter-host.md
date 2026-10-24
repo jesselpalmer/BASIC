@@ -117,3 +117,10 @@ source, tests, executable, and development scripts. `bun run test:package`
 installs a local tarball in a temporary consumer and verifies quiet ESM and
 CommonJS imports, interpreter output, the installed CLI, and its metadata-derived
 banner. No package is published by these checks.
+
+Input that already ended or was destroyed before the first read returns EOF
+without opening readline. A recorded stream error still rejects the read.
+Abrupt input closure settles a pending read and preserves queued complete lines
+before EOF; an incomplete fragment is discarded on abrupt closure. Normal EOF
+continues to deliver the final line without a newline. The adapter removes its
+owned input-close listener as well as its error/readline/abort listeners.

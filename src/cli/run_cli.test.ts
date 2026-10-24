@@ -1,3 +1,4 @@
+import {once} from 'node:events';
 import {describe, it, expect, beforeEach, afterEach} from 'bun:test';
 import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
@@ -92,6 +93,17 @@ describe('CLI adapter lifecycle', () => {
     input.end();
     expect(await result).toBe(0);
     expect(readAll(output)).toContain('Have a great day');
+  });
+
+  it('completes when injected input already reached EOF', async () => {
+    input.resume();
+    const ended = once(input, 'end');
+    input.end();
+    await ended;
+    expect(await runCli([], {host})).toBe(0);
+    expect(readAll(output)).toContain('Have a great day');
+    expect(errors.read()).toBeNull();
+    expect(input.listenerCount('close')).toBe(0);
   });
 
   it('allows another run after END and an error', async () => {
