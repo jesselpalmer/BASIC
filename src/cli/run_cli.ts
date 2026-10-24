@@ -12,7 +12,12 @@ export async function runFile(filePath: string, host: Partial<Host>, {signal}: I
 
 export async function runCli(args: string[], {host = new TerminalHost()} = {}) {
   const controller = new AbortController();
-  const onInterrupt = () => controller.abort();
+  const repl = args.length === 0 ? new Repl(host) : null;
+  const onInterrupt = () => {
+    host.discardEntry();
+    if (repl) repl.interrupt();
+    else controller.abort();
+  };
   process.on('SIGINT', onInterrupt);
   try {
     host.setInterruptHandler(onInterrupt);
@@ -23,7 +28,7 @@ export async function runCli(args: string[], {host = new TerminalHost()} = {}) {
     if (args.length === 1) {
       await runFile(args[0], host, {signal: controller.signal});
     } else {
-      await new Repl(host).start({signal: controller.signal});
+      return await repl!.start({signal: controller.signal});
     }
     return constants.ExitCodes.NORMAL;
   } catch (error) {

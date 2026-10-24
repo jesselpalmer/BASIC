@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import type {ChildProcessWithoutNullStreams} from 'node:child_process';
 import {spawn, spawnSync} from 'node:child_process';
 import {
   copyFileSync,
@@ -45,7 +46,11 @@ function bun(args: string[], cwd = consumer) {
 }
 
 // Keep stdin open to expose accidental terminal setup or leaked input handles.
-function runWithOpenInput(args: string[], interruptAt?: string) {
+function runWithOpenInput(
+  args: string[],
+  interruptAt?: string,
+  onOutput?: (stdout: string, child: ChildProcessWithoutNullStreams) => void,
+) {
   return new Promise<{
     status: number | null;
     signal: string | null;
@@ -66,6 +71,7 @@ function runWithOpenInput(args: string[], interruptAt?: string) {
         interrupted = true;
         child.kill('SIGINT');
       }
+      onOutput?.(stdout, child);
     });
     child.stderr.on('data', (data: Buffer) => {
       stderr += data.toString();
@@ -370,6 +376,105 @@ try {
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');
 
+  const listedSource = '10 GOTO 30\n30 INPUT "Name"; N$\n40 PRINT "Hello, ";N$\n';
+  const editor = run(
+    process.execPath,
+    [executable],
+    consumer,
+    [
+      '30 INPUT "Name"; N$',
+      '40 PRINT "Hello, ";N$',
+      '10 GOTO 30',
+      '20 PRINT "deleted"',
+      '20',
+      'LIST',
+      'RUN',
+      'EXIT', // Program INPUT owns this text; it must not close the editor.
+      'RUN',
+      'Ada',
+      'NEW',
+      'no',
+      'LIST',
+      'EXIT',
+      'yes',
+      '',
+    ].join('\n'),
+  );
+  assert.equal(editor.stderr, '');
+  assert.equal(editor.stdout.split(listedSource).length - 1, 2);
+  assert.ok(editor.stdout.includes('Hello, EXIT\n'));
+  assert.ok(editor.stdout.includes('Hello, Ada\n'));
+  assert.ok(!editor.stdout.includes('deleted'));
+
+  const recover = run(
+    process.execPath,
+    [executable],
+    consumer,
+    '30 PRINT "last"\n10 PRINT "first"\nRUN\n',
+    1,
+  );
+  assert.equal(
+    recover.stderr,
+    'Unsaved program at EOF; copy the source below before closing:\n10 PRINT "first"\n30 PRINT "last"\n',
+  );
+  assert.ok(recover.stdout.includes('first\nlast\n'));
+
+  const invalidEdit = run(
+    process.execPath,
+    [executable],
+    consumer,
+    '10 PRINT "kept"\n10 PRINT "unfinished\nRUN\nEXIT\nyes\n',
+  );
+  assert.equal(invalidEdit.stderr, 'Line 10, column 10: Unterminated string\n');
+  assert.ok(invalidEdit.stdout.includes('kept\n'));
+  const repaired = run(
+    process.execPath,
+    [executable],
+    consumer,
+    '10 GOTO 30\nRUN\n30 PRINT "fixed"\nRUN\nEXIT\nyes\n',
+  );
+  assert.equal(repaired.stderr, 'Line 10, column 9: No line label 30\n');
+  assert.ok(repaired.stdout.includes('fixed\n'));
+  const cleared = run(
+    process.execPath,
+    [executable],
+    consumer,
+    '10 PRINT "discarded"\nNEW\nyes\nRUN\nLIST\nEXIT\n',
+  );
+  assert.equal(cleared.stderr, '');
+  assert.ok(!cleared.stdout.includes('discarded'));
+  if (process.platform !== 'win32') {
+    for (const [source, marker] of [
+      ['10 PRINT "started"\n20 GOTO 20', 'started\n'],
+      ['10 INPUT "Answer"; N$\n20 PRINT N$', 'Answer? '],
+    ]) {
+      let phase = 0;
+      let promptsAtInterrupt = 0;
+      const interrupted = await runWithOpenInput([executable], undefined, (stdout, child) => {
+        const prompts = stdout.split('>>> ').length - 1;
+        if (phase === 0 && prompts > 0) {
+          phase = 1;
+          child.stdin.write(source + '\nRUN\n');
+        }
+        if (phase === 1 && stdout.includes(marker)) {
+          phase = 2;
+          promptsAtInterrupt = prompts;
+          child.kill('SIGINT');
+        }
+        if (phase === 2 && prompts > promptsAtInterrupt) {
+          phase = 3;
+          child.stdin.write('LIST\nNEW\nyes\n10 PRINT "recovered"\nRUN\nEXIT\nyes\n');
+        }
+      });
+      assert.equal(phase, 3, 'Interrupted editor never returned to its prompt');
+      assert.equal(interrupted.status, 0);
+      assert.equal(interrupted.signal, null);
+      assert.equal(interrupted.stderr, '');
+      assert.ok(interrupted.stdout.includes(source + '\n'));
+      assert.ok(interrupted.stdout.includes('recovered\n'));
+    }
+  }
+
   // Exercise global command discovery in an unrelated directory without touching
   // the developer's real global installation or resolving the local .bin link.
   if (process.platform !== 'win32') {
@@ -405,7 +510,7 @@ try {
     assert.equal(globalError.stderr, 'Line 10, column 11: Cannot divide by zero\n');
   }
   console.log(
-    `Packed package: ${libraryAcceptanceCases.length} shared library cases in ESM/CommonJS, types, CLI output/errors/EOF/SIGINT, open-stdin lifecycle, and POSIX global install passed.`,
+    `Packed package: ${libraryAcceptanceCases.length} shared library cases in ESM/CommonJS, types, CLI output/errors/EOF/SIGINT, open-stdin lifecycle, editor commands/recovery/interruption, and POSIX global install passed.`,
   );
 } finally {
   rmSync(directory, {recursive: true, force: true});
