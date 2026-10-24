@@ -381,7 +381,10 @@ try {
       0,
       env,
     );
-    assert.ok(realpathSync(join(globalBin, 'basic')).startsWith(globalDirectory + '/'));
+    assert.equal(
+      realpathSync(join(globalBin, 'basic')),
+      realpathSync(join(globalDirectory, 'node_modules/node-basic-lang/bin/basic')),
+    );
     writeFileSync(file, '10 INPUT "Name"; N$\n20 PRINT "Hello, ";N$');
     const globalInput = run('basic', [file], unrelated, 'Ada\n', 0, env);
     assert.equal(globalInput.stdout, 'Name? Hello, Ada\n');
