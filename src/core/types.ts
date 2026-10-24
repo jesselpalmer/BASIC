@@ -24,7 +24,10 @@ export interface Host {
 }
 export type RunStatus = 'ready' | 'running' | 'halted' | 'error';
 export interface RunResult {
-  status: RunStatus;
+  readonly status: RunStatus;
+  readonly currentLocation: Location | null;
+  readonly nextLocation: Location | null;
+  readonly diagnostic: Readonly<Diagnostic> | null;
 }
 export interface Diagnostic extends Position {
   code: string;

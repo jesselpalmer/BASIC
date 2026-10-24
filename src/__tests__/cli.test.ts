@@ -84,8 +84,7 @@ describe('CLI and core lifecycle', () => {
   it('reports duplicate file lines and exits without executing them', () => {
     const file = join(import.meta.dirname, 'fixtures/duplicate-lines.bas');
     const {stdout, stderr} = run([file], '', 1);
-    expect(stdout).toContain('FIRST UNIQUE OUTPUT\n');
-    expect(stdout).toContain('SECOND UNIQUE OUTPUT\n');
+    expect(stdout).toBe('');
     expect(stderr).toContain('Line 10, column 1: Duplicate line label 10');
     expect(stdout).not.toContain('DUPLICATE MUST NOT EXECUTE');
     expect(run([file], '', 1).stdout).toBe(stdout);
@@ -97,7 +96,7 @@ describe('CLI and core lifecycle', () => {
       [
         '10 PRINT "FIRST UNIQUE OUTPUT"',
         '10 PRINT "DUPLICATE MUST NOT EXECUTE"',
-        '20 INT "-1.6"',
+        '20 PRINT INT(-1.6)',
         '',
       ].join('\n'),
     );
@@ -133,14 +132,14 @@ describe('CLI and core lifecycle', () => {
     }
   });
 
-  it('reports malformed ABS file arguments without output or later execution', () => {
+  it('reports invalid ABS argument types without output or later execution', () => {
     const directory = mkdtempSync(join(tmpdir(), 'basic-abs-'));
     try {
       const file = join(directory, 'invalid.bas');
-      writeFileSync(file, '10 ABS "12oops"\n20 PRINT "skipped"');
+      writeFileSync(file, '10 PRINT ABS("12oops")\n20 PRINT "skipped"');
       const {stdout, stderr} = run([file], '', 1);
       expect(stdout).toBe('');
-      expect(stderr).toBe('Invalid number\n');
+      expect(stderr).toBe('Line 10, column 10: Expected a number\n');
     } finally {
       rmSync(directory, {recursive: true, force: true});
     }
@@ -154,6 +153,38 @@ describe('CLI and core lifecycle', () => {
     expect(stderr).toBe('');
     expect(stdout).toContain('first run\n');
     expect(stdout).toContain('second run\n');
+  });
+
+  it('runs typed expressions in numeric order through the installed CLI entry', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'basic-expressions-'));
+    try {
+      const file = join(directory, 'program.bas');
+      writeFileSync(
+        file,
+        '40 END\n20 LET SCORE = SCORE*2\n30 PRINT "Score: ";SCORE;" ";ABS(-3.14);" ";INT(-1.6)\n10 LET SCORE = 5',
+      );
+      const {stdout, stderr} = run([file]);
+      expect(stdout).toBe('Score: 10 3.14 -2\n');
+      expect(stderr).toBe('');
+      writeFileSync(file, '10 PRINT "must not execute"\n20 END\n30 PRINT "unfinished');
+      const invalid = run([file], '', 1);
+      expect(invalid.stdout).toBe('');
+      expect(invalid.stderr).toBe('Line 30, column 10: Unterminated string\n');
+    } finally {
+      rmSync(directory, {recursive: true, force: true});
+    }
+  });
+
+  it('retains typed variables across immediate entries and clears them after END', () => {
+    const {stdout, stderr} = run(
+      [],
+      ['10 LET A = 5', '20 PRINT A*2', '30 END', '10 PRINT A', '10 PRINT "recovered"', ''].join(
+        '\n',
+      ),
+    );
+    expect(stdout).toContain('10\n');
+    expect(stdout).toContain('recovered\n');
+    expect(stderr).toBe('Line 10, column 10: Undefined variable A\n');
   });
 
   it.each([

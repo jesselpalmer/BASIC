@@ -1,129 +1,158 @@
-# Interpreter and terminal lifecycle
+# Interpreter, stepping, and terminal lifecycle
 
-The interpreter can now be imported and constructed without printing, opening
-stdin/readline, or exiting the host process. The package entry exports `Basic`, `createHost`,
-and the separate [parser](parser.md) and [evaluator](evaluator.md) APIs; the executable
-has its own entrypoint.
-On Bun 1.4.4 the source runs directly as TypeScript ES modules, with no build step or
-runtime dependencies.
+`Basic` is the reusable statement runtime. Imports and construction are quiet:
+no terminal, filesystem, process exit, or Bun-specific API is used by the core.
+The CLI and library execute through the same parser, evaluator, and statement
+implementation. There is no legacy command fallback.
 
-This API still executes the **legacy** statements documented in the README.
-It is a foundation for the parser/runtime work, not the completed
-[v0.1 language](language-v0.1.md). There are no stored-program editor commands,
-variables, expression functions, or BASIC `INPUT` in `Basic` yet. Variables and
-expression functions are available through the separate evaluator API.
+## Running and stepping
 
-## Core API
+```ts
+import {Basic, parseProgram} from 'node-basic-lang';
 
-```js
-import {Basic} from 'node-basic-lang';
-const output = [];
+const output: string[] = [];
 const basic = new Basic({write: (text) => output.push(text)});
+const program = parseProgram('30 END\n20 PRINT "Score: "; SCORE\n10 LET SCORE = 5');
 
-basic.run('10 PRINT "first"\n20 END\n30 PRINT "not reached"');
-basic.run('10 PRINT "second"');
-// output is ['first\n', 'second\n']
+basic.reset(program); // Ready; no statements have executed.
+basic.step(); // LET; running, nextLocation.label === 20.
+basic.step(); // PRINT; output is ['Score: 5\n'].
+const result = basic.step(); // END; halted, nextLocation === null.
+basic.run(); // Starts the loaded program again with fresh variables.
 ```
 
-CommonJS callers on Bun can use
-`const {Basic} = require('node-basic-lang');`. Both forms resolve the same
-`src/index.ts` public entry. Internal source paths are not package exports.
+CommonJS consumers on Bun can use `const {Basic} = require('node-basic-lang')`.
+The package exports the parser, evaluator, errors, and public types separately.
 
-- `new Basic(host = {})` constructs a quiet interpreter in `ready` state.
-- `run(source)` resets state, executes nonblank source lines in their existing
-  physical order, and returns `{status: 'halted'}` after `END` or end of source.
-  The separate parser already provides ordered, syntax-checked snapshots;
-  switching this execution loop to those snapshots belongs to #37.
-- `readLine(line)` executes one legacy numbered statement and returns
-  `{status: 'running'}` or `{status: 'halted'}`. It keeps validation history across
-  calls. After completion or failure, further calls do not execute until reset.
-- `reset()` clears validation/completion state and returns to `ready`.
-- Invalid lines, commands, and numeric command arguments throw an `Error` and
-  leave `status` equal to `error`. Host callback errors propagate the same way.
-  A new `run()` or explicit `reset()` allows recovery. Lexical, duplicate-label,
-  and legacy statement-syntax failures provide a structured `error.diagnostic`
-  as described in [the tokenizer API](tokenizer.md). Runtime/host failures still
-  use their existing errors.
+- `new Basic(host = {})` creates an empty runtime in `ready` state.
+- `reset(sourceOrProgram?)` clears variables, current location, diagnostics, and
+  control-flow state, then prepares a program without executing it. Source is
+  parsed and fully validated; a `Program` candidate is copied, validated, sorted,
+  and frozen. Omission retains the loaded snapshot and rewinds it.
+- `run(sourceOrProgram?)` resets as above and executes from the first numeric
+  label until `END`, end of program, or failure. It never resumes a partially
+  stepped run. Omission reruns the loaded snapshot with fresh variables.
+- `step()` executes one statement of the prepared program. The last statement
+  halts immediately; no extra step is needed. An empty program halts without
+  host effects. Calls after `halted` or `error` return the existing state without
+  executing anything. Reset explicitly to execute again.
+- `status` is read-only. `state`, and the return values of reset/run/step, are
+  immutable `RunResult` snapshots. Later execution does not change old results.
 
-Each interpreter has its own state. The core neither reads files nor owns
-terminal resources. Only the host decides how to display errors or close itself.
-File execution passes original physical line numbers and offsets to the
-tokenizer, including blank lines and CRLF endings. Errors are still discovered
-as each legacy line executes. `parseProgram(source)` validates all syntax and
-duplicates before returning a snapshot, but the legacy execution loop does not
-yet consume those snapshots.
+Each result contains:
+
+| Field             | Meaning                                                                    |
+| ----------------- | -------------------------------------------------------------------------- |
+| `status`          | `ready`, `running`, `halted`, or `error`.                                  |
+| `currentLocation` | Last attempted parsed statement, including a failed one; initially null.   |
+| `nextLocation`    | Next statement to execute; null on completion, error, or an empty program. |
+| `diagnostic`      | Frozen structured BASIC diagnostic on failure, otherwise null.             |
+
+Locations include the BASIC label and original physical positions, following
+[the parser convention](parser.md). They span statements, with more precise
+operator/name/target locations in diagnostics. Program arrays, variable maps,
+and mutable execution internals are not exposed. Caller-owned candidate trees
+remain mutable and do not affect the active snapshot after preparation.
+
+## Statements and failures
+
+Implemented statements are `LET`, `PRINT`, `REM`, `CLS`, and `END`.
+[Expression evaluation](evaluator.md) supplies typed variables, arithmetic,
+string concatenation, and `ABS`, `INT`, and `RND`. Runs and instances never share
+mutable language state. Reset does not rewind the host's random sequence.
+
+`PRINT` evaluates items left to right, joins displayed values without added
+spaces, and appends one newline unless a trailing semicolon suppresses it.
+Blank `PRINT` emits a newline; numbers use JavaScript's finite string
+representation, including displaying negative zero as `0`. All items evaluate
+before one host write, so a failing item prevents output from that statement.
+Earlier statements and consumed random calls are not rolled back.
+
+`CLS` only delegates to the host; it preserves variables and normal fallthrough.
+`REM` is inert. `END` halts without evaluating subsequent statements. Complete
+source validation happens before any effects, including syntax after `END`.
+Undefined variables and other execution-dependent checks remain runtime errors.
+
+Errors are thrown to callers after state changes to `error`. Syntax failures
+throw `BasicSyntaxError`; evaluator and host failures throw `BasicRuntimeError`.
+Both provide `{code, message, label, line, column, offset}` diagnostics.
+Host write/clear failures use `HOST_ERROR`, point at the statement, and retain
+the original thrown value as `error.cause`. The runtime's diagnostic is copied,
+so changing a caught error cannot change its saved state.
+
+An invalid replacement retains the previous loaded snapshot, but clears
+variables and leaves the runtime in `error`, with no executable next location.
+Only explicit reset/run can restart it. Parser APIs expect parsed trees, not
+untrusted/deserialized AST schemas; invalid API arguments may throw a TypeError
+with no BASIC diagnostic. Calls to reset/run/step/readLine from within a host
+callback are rejected before they can alter the current execution.
+
+## Transitional immediate entries
+
+The REPL still executes numbered entries immediately until stored-program
+editing lands in #42. `basic.readLine(source, {line, offset}?)` is its adapter:
+it parses exactly one line and uses the same evaluator and statement executor.
+Variables persist across entries, entries run in arrival order, and duplicate
+numeric labels fail. Blank fragments do nothing. `END` or an error blocks later
+entries until reset. The REPL resets automatically in those cases.
+
+The first immediate entry replaces any prepared program with an empty snapshot.
+Do not mix immediate entries with an active stepped program: reset first. To
+switch from immediate entries to stepping, reset with a program. No unnumbered
+`RUN`, `LIST`, `EXIT`, or stored-line editing is implemented yet. A blank line or
+EOF still closes the current REPL; Ctrl+C closes a waiting terminal with code 130.
 
 ## Host callbacks
 
-`createHost(overrides)` fills missing callbacks with quiet defaults and preserves
-method receivers. It copies only the four callbacks below; constructing a host
-never invokes them.
+`createHost(overrides)` fills missing callbacks and preserves method receivers.
+It copies only these callbacks and invokes none during construction. `Basic.host`
+is a frozen callback object; caller-owned host instances remain mutable.
 
-| Callback                     | Contract                                                                                                                                                          |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `write(text)`                | Synchronous text output. The core supplies exact newlines; the host must not add its own. The default discards output.                                            |
-| `clear()`                    | Synchronous clear-display request. The default does nothing.                                                                                                      |
-| `readLine(prompt, {signal})` | Promise resolving to one input string without its line ending, or `null` at EOF. Reject with an `AbortError` on cancellation. The default rejects as unsupported. |
-| `random()`                   | Synchronous number `>= 0` and `< 1`; defaults to `Math.random`. Tests may inject a deterministic function.                                                        |
+| Callback                     | Contract                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `write(text)`                | Synchronous exact text output, including newlines. Default discards output.                                                                      |
+| `clear()`                    | Synchronous clear-display request. Default does nothing.                                                                                         |
+| `readLine(prompt, {signal})` | Promise resolving to a complete line without its ending, or null at EOF. Reject with AbortError on cancellation; default rejects as unsupported. |
+| `random()`                   | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
 
-The input interface is available for future `INPUT` support. The separate
-evaluator consumes `random` for `RND()`. Existing legacy commands only consume
-`write` and `clear`. Async host callback results are not supported for those
-two operations.
+Input callbacks currently serve the terminal prompt. BASIC `INPUT` follows in
+#38. Async write/clear results are unsupported. The run loop is synchronous;
+yielding, busy-loop interruption, and instruction limits follow in #41.
 
-## Terminal adapter
+## Terminal and file adapters
 
-`src/cli/run_cli.ts` owns CLI argument routing and the filesystem adapter.
-`runFile(path, host, {signal})` reads a file once and executes it in a fresh core
-instance. Concurrent file loads therefore do not share line-number history.
-`runCli(args)` owns a terminal host for one invocation and closes it in `finally`.
-`src/cli/main.ts` is the explicit executable entrypoint; it applies the returned
-exit code through `process.exitCode` so output can drain naturally.
+`src/cli/run_cli.ts` owns argument routing and filesystem access. `runFile` reads
+once and passes source to a fresh `Basic.run()`. It opens no terminal input for
+the current statements. Concurrent file runs have isolated variables and state.
+`runCli` owns SIGINT handling and closes its terminal host in `finally`.
+`src/cli/main.ts` applies the returned code via `process.exitCode`, letting output
+drain naturally. Successful completion returns 0; file/syntax/runtime errors 1;
+Ctrl+C 130; excess arguments retain the earlier usage code 9. Program output
+goes to stdout and errors to stderr. The library never selects process exit codes.
 
-`TerminalHost` creates readline lazily, when the first input request starts.
-It handles prompts, stdout/stderr, TTY clearing, EOF, and cancellation. Piped input
-lines remain available in order, including lines received before another input
-request and a final line without a newline. It permits one pending input request;
-a second simultaneous request rejects without replacing the first.
+`TerminalHost` opens readline lazily. Piped lines queue in order, including the
+final unterminated line at normal EOF. It permits one pending input request;
+a second rejects without replacing it. Cancellation rejects that request and
+removes its abort listener, allowing a new request. Late callbacks do not resume
+a cancelled request. `close()` is idempotent, settles input, clears buffers,
+closes readline, and removes owned listeners without destroying caller streams.
 
-Cancellation rejects the pending request and removes its abort listener. A fresh
-request can then receive input; a cancelled request cannot resume later. `close()`
-is idempotent, settles pending input, clears buffered lines, closes readline, and
-removes listeners owned by the adapter. Further requests return EOF. Input-stream
-errors reject pending reads and close the adapter. Injected streams remain owned
-by the caller; the adapter does not destroy them.
+Already-ended or destroyed input returns EOF before opening readline. Recorded
+stream errors reject reads. Abrupt closure settles pending input, preserves
+queued complete lines before EOF, and discards an incomplete fragment. The
+adapter removes owned input-close, error, readline, and abort listeners.
 
-The current interactive session still executes numbered entries immediately.
-`END` or a command error resets that run and returns to the prompt, allowing line
-numbers to be reused. A blank line or EOF closes the session. Ctrl+C while waiting
-closes it with code `130`; the planned stored editor will later preserve source
-and cancel only the run/current entry instead.
+## Organization and verification
 
-File mode opens no terminal input for the current commands. `END` skips remaining
-lines without exiting the surrounding Node process. A file/command error is sent
-to stderr and returns code `1`; extra CLI arguments retain the legacy code `9`.
-Successful file or interactive completion returns `0`. The library never chooses
-process exit codes. The CLI removes its SIGINT listener on every completion path.
+`src/core/runtime.ts` owns statement dispatch and execution state;
+`src/core/evaluator.ts` owns values, variables, and expression evaluation;
+`src/parser` owns syntax and snapshots; `src/cli` and `src/repl` own host/session
+behavior. `src/basic.ts` and `src/index.ts` are the library entrypoints, while
+`bin/basic` is the executable. Superseded per-command handlers and the old line
+validator/executor were removed when their callers migrated.
 
-The run loop is still synchronous. Yielding execution and interruption of busy
-BASIC loops belong to #41; this refactor only handles cancellation of waiting
-terminal input and file reads.
-
-## Verification
-
-`bun test` runs without `--forceExit`. Coverage includes quiet imports and
-construction with stdin held open, normal and error completion, repeated and
-independent runs, `END` followed by another interactive program, natural file
-exit with stdin held open, EOF, SIGINT, input cancellation, piped lines, stream
-errors, and removal of input/abort/signal listeners. `bun run lint` checks the
-source, tests, executable, and development scripts. `bun run test:package`
-installs a local tarball in a temporary consumer and verifies quiet ESM and
-CommonJS imports, interpreter output, the installed CLI, and its metadata-derived
-banner. No package is published by these checks.
-
-Input that already ended or was destroyed before the first read returns EOF
-without opening readline. A recorded stream error still rejects the read.
-Abrupt input closure settles a pending read and preserves queued complete lines
-before EOF; an incomplete fragment is discarded on abrupt closure. Normal EOF
-continues to deliver the final line without a newline. The adapter removes its
-owned input-close listener as well as its error/readline/abort listeners.
+`bun run check` verifies formatting, strict types, typed lint, behavioral tests
+with coverage, and the installed package. Tests exercise ordered execution,
+stepping, frozen state, isolation/reset/recovery, host errors/reentrancy, full
+preflight, CLI output/errors, EOF/cancellation/SIGINT, listener cleanup, and
+quiet ESM/CommonJS imports with stdin held open. Nothing is published by checks.

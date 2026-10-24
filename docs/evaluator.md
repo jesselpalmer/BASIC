@@ -3,8 +3,8 @@
 The package exports `Evaluator` and `BasicRuntimeError`. Evaluation uses the
 immutable expression nodes from the [parser API](parser.md), with no terminal,
 filesystem, DOM, or Bun runtime dependency. Each evaluator owns its variables.
-The CLI and `Basic.run()` still use the legacy executor; #37 connects parsed
-programs to the new execution loop.
+The CLI and `Basic.run()` use this evaluator through the
+[statement runtime](interpreter-host.md).
 
 ```ts
 import {Evaluator, parseLine} from 'node-basic-lang';
@@ -72,7 +72,7 @@ Numbers otherwise follow JavaScript's IEEE 754 arithmetic.
 Arity is checked before evaluating any arguments, so `ABS(RND(), RND())` fails
 without consuming randomness. A failed evaluation leaves variables usable for
 subsequent evaluations; it does not roll back random calls already made. The
-execution loop will decide when a statement error ends a run.
+execution loop stops a run when a statement fails.
 
 ## Errors and locations
 

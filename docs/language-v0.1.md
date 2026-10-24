@@ -1,7 +1,7 @@
 # BASIC v0.1 language and session contract
 
 This is the **target contract for the terminal MVP**, not a list of features
-already implemented. The current executable still uses the legacy commands in
+already implemented. The current executable supports the statements in
 [the README](../README.md#supported-commands). The implementation work is tracked
 in [issues #30–#47](https://github.com/jesselpalmer/BASIC/issues).
 
@@ -306,7 +306,7 @@ clear stored source, terminate the interactive host, or execute later statements
 ## Acceptance programs
 
 These programs define the target MVP and become executable fixtures as the
-language tickets land. They are **not** supported by the legacy executable yet.
+language tickets land. They still require upcoming input and control-flow work.
 
 ### Greeting
 
@@ -348,19 +348,19 @@ low/high feedback and success in three tries. A new run starts the count afresh.
 
 ## Migration from the current dialect
 
-Legacy `ABS` and `INT` are standalone commands that print their result from a
-quoted argument. v0.1 replaces them with expression functions:
+The earlier `ABS` and `INT` standalone commands printed their result from a
+quoted argument. The current runtime replaces them with expression functions:
 
-| Current syntax   | v0.1 syntax           |
+| Earlier syntax   | Current syntax        |
 | ---------------- | --------------------- |
 | `10 ABS "-3.14"` | `10 PRINT ABS(-3.14)` |
 | `20 INT "-1.6"`  | `20 PRINT INT(-1.6)`  |
 
-The old standalone forms will not be aliases in v0.1. Numbered REPL entries change
-from immediate execution to stored-program edits and blank input becomes harmless.
-The lifecycle refactor has already changed `END` to finish a run instead of
-exiting the application. README and release notes must call out the remaining
-changes when the implementation switches behavior.
+The old standalone forms are no longer aliases. Files now validate all syntax
+before execution and run in numeric label order; `END` finishes a run instead of
+exiting the application. Numbered REPL entries still execute immediately. The
+stored editor will later change them to edits and make blank input harmless.
+README and release notes must call out those remaining changes when they land.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, graphics, and

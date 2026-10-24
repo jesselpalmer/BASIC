@@ -109,13 +109,15 @@ describe('CLI adapter lifecycle', () => {
   it('allows another run after END and an error', async () => {
     const result = runCli([], {host});
     input.end(
-      ['10 PRINT "one"', '20 END', '10 INT "bad"', '10 PRINT "two"', '20 END', ''].join('\n'),
+      ['10 PRINT "one"', '20 END', '10 PRINT INT("bad")', '10 PRINT "two"', '20 END', ''].join(
+        '\n',
+      ),
     );
     expect(await result).toBe(0);
     const text = readAll(output);
     expect(text).toContain('one\n');
     expect(text).toContain('two\n');
-    expect(readAll(errors)).toContain('Invalid number');
+    expect(readAll(errors)).toContain('Line 10, column 10: Expected a number');
   });
 
   it('reports an input stream failure and releases its listeners', async () => {

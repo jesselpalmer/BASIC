@@ -1,1 +1,1 @@
-export {default} from './exec_program/exec_program.ts';
+export {default} from './core/runtime.ts';
