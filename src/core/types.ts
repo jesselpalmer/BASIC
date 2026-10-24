@@ -44,7 +44,10 @@ export type RunStatus = 'ready' | 'running' | 'waiting' | 'halted' | 'error';
 /** Immutable observation of execution; locations retain the original physical source positions. */
 export interface RunResult {
   readonly status: RunStatus;
-  /** Most recently entered statement, or null before execution. */
+  /**
+   * Most recently attempted statement, or the statement blocked by an instruction
+   * limit or scheduler failure. Initially null.
+   */
   readonly currentLocation: Location | null;
   /** Next statement when ready/running; null while waiting, halted, or in error. */
   readonly nextLocation: Location | null;
