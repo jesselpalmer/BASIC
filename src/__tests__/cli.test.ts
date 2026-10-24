@@ -133,6 +133,19 @@ describe('CLI and core lifecycle', () => {
     }
   });
 
+  it('reports malformed ABS file arguments without output or later execution', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'basic-abs-'));
+    try {
+      const file = join(directory, 'invalid.bas');
+      writeFileSync(file, '10 ABS "12oops"\n20 PRINT "skipped"');
+      const {stdout, stderr} = run([file], '', 1);
+      expect(stdout).toBe('');
+      expect(stderr).toBe('Invalid number\n');
+    } finally {
+      rmSync(directory, {recursive: true, force: true});
+    }
+  });
+
   it('continues the interactive session after END', () => {
     const {stdout, stderr} = run(
       [],

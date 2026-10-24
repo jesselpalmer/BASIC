@@ -51,6 +51,22 @@ describe('ExecProgram lifecycle', () => {
     expect(write.mock.calls).toEqual([['recovered\n'], ['rerun\n']]);
   });
 
+  it.each(['ABS', 'INT'])('stops on malformed %s input and recovers', (command) => {
+    expect(() => program.run(`10 ${command} "12oops"\n20 PRINT "skipped"`)).toThrow(
+      'Invalid number',
+    );
+    expect(write).not.toHaveBeenCalled();
+    expect(program.status).toBe('error');
+    program.readLine('30 PRINT "also skipped"');
+    expect(write).not.toHaveBeenCalled();
+    program.reset();
+    program.readLine(`10 ${command} "-1.6"`);
+    expect(write).toHaveBeenLastCalledWith(command === 'ABS' ? '1.6\n' : '-2\n');
+    program.run('10 PRINT "new run"');
+    expect(write).toHaveBeenLastCalledWith('new run\n');
+    expect(program.status).toBe('halted');
+  });
+
   it('finishes an empty program without host interaction', () => {
     expect(program.run('\n \r\n')).toEqual({status: 'halted'});
     expect(write).not.toHaveBeenCalled();

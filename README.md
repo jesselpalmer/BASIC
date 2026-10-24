@@ -138,3 +138,8 @@ programs, and stored editing follow in later tickets.
 70 INT "1.6180"
 80 END
 ```
+
+Legacy `ABS` and `INT` arguments must be complete finite signed decimals,
+including forms such as `"-.5"` and `"1."`. Trailing junk, hexadecimal/binary,
+exponent spellings, empty arguments, and non-finite values are rejected. ABS
+no longer accepts only the numeric prefix of a malformed quoted argument.
