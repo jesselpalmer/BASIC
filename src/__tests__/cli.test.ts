@@ -289,6 +289,15 @@ describe('CLI and core lifecycle', () => {
     }
   });
 
+  it('executes the times-table example through the file CLI', () => {
+    const result = run([join(root, 'examples/times-table.bas')], '3\n');
+    expect(result.stdout).toBe(
+      'Which times table? ' +
+        Array.from({length: 10}, (_, i) => `${i + 1} x 3 = ${(i + 1) * 3}\n`).join(''),
+    );
+    expect(result.stderr).toBe('');
+  });
+
   it.each(['file', 'interactive'])('cancels pending %s program input on SIGINT', async (mode) => {
     const directory = mkdtempSync(join(tmpdir(), 'basic-input-signal-'));
     try {

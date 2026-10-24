@@ -34,16 +34,18 @@ const nextProgram = validateProgram(candidate);
 - `validateProgram(lines)` is the separate whole-program validation boundary.
   Pass an array of parsed `Line` nodes, excluding blank-edit `null` results. It
   checks duplicate labels, resolves every literal jump target, checks statically
-  known comparison type mismatches, copies the candidate, sorts the copy, and
-  freezes the complete snapshot. It does not reorder/freeze the caller's array
+  known comparison type mismatches, copies and sorts the candidate, pairs loops,
+  and freezes the complete snapshot. It does not reorder/freeze the caller's array
   or retain mutable references to its nodes. This API expects parser-produced
   nodes; it is not a schema validator for untrusted or deserialized AST objects.
 
-The parser supports `LET`, `INPUT`, `IF/THEN`, `GOTO`, `PRINT`, `REM`, `CLS`, and
-`END`. `FOR`/`NEXT` remains a future feature. `parseLine` accepts unresolved
+The parser supports `LET`, `INPUT`, `IF/THEN`, `GOTO`, `FOR`/`NEXT`, `PRINT`, `REM`, `CLS`, and
+`END`. `parseLine` accepts unresolved
 forward targets and leaves semantic comparison type checking to whole-program
-validation, so editors can retain incomplete candidates. Loop pairing will
-extend `validateProgram` in its own ticket.
+validation, so editors can retain incomplete candidates. It also accepts an
+unpaired `FOR` or `NEXT`. Full validation pairs nested loops by numeric program
+order and rejects missing, extra, or mismatched named partners, including in
+unreachable source. See [loop semantics](loops.md).
 
 The file host reads a file once and passes its source to `Basic.runAsync()`, which
 uses `parseProgram`; the parser has no filesystem access. A host should replace
@@ -69,6 +71,8 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 | `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
 | `IfStatement`    | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                             |
 | `GotoStatement`  | `target` (`NumberLiteral`).                                                                                                            |
+| `ForStatement`   | Numeric `variable` (`Variable`), `start`/`end` expressions, and `step` (expression or null for default 1).                             |
+| `NextStatement`  | Numeric `variable` (`Variable`); it is required.                                                                                       |
 | `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`.                                                    |
 | `RemStatement`   | `text`, including all whitespace/text after `REM`.                                                                                     |
 | `ClsStatement`   | None. No arguments permitted.                                                                                                          |
@@ -125,6 +129,7 @@ Parser-specific codes are `EXPECTED_STATEMENT`, `EXPECTED_TOKEN`,
 `UNKNOWN_FUNCTION`, `EXPECTED_COMPARISON`, `INVALID_TARGET`, and
 `EXPRESSION_TOO_DEEP`. Whole-program validation adds `MISSING_TARGET` and
 `TYPE_MISMATCH` for comparison types. Lexer diagnostics pass through;
+loop validation adds `MISSING_NEXT`, `UNMATCHED_NEXT`, and `MISMATCHED_NEXT`.
 `DUPLICATE_LABEL` is a program-validation failure and `INVALID_STATEMENT` reports
 multiple statements supplied to `parseLine`.
 

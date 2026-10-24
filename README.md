@@ -106,16 +106,18 @@ this checkout without building; this change does not update the published packag
 
 ## Supported commands
 
-| Statement                                  | Behavior                                                                                                      |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `LET name = expression`                    | Assign a number, or a string to a name ending in `$`.                                                         |
-| `INPUT ["prompt";] name`                   | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
-| `IF left comparison right THEN line`       | Jump when one comparison is true; otherwise continue to the next line.                                        |
-| `GOTO line`                                | Jump to an existing literal line label.                                                                       |
-| `PRINT [expression [; expression]... [;]]` | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
-| `CLS`                                      | Ask the host to clear the display.                                                                            |
-| `REM [text]`                               | Ignore the rest of the line.                                                                                  |
-| `END`                                      | Complete the run and return to the host. End of program also completes normally.                              |
+| Statement                                       | Behavior                                                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `LET name = expression`                         | Assign a number, or a string to a name ending in `$`.                                                         |
+| `INPUT ["prompt";] name`                        | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
+| `IF left comparison right THEN line`            | Jump when one comparison is true; otherwise continue to the next line.                                        |
+| `GOTO line`                                     | Jump to an existing literal line label.                                                                       |
+| `FOR variable = start TO end [STEP expression]` | Enter an inclusive numeric loop; the default step is 1.                                                       |
+| `NEXT variable`                                 | Increment the matching loop variable and repeat or finish the loop.                                           |
+| `PRINT [expression [; expression]... [;]]`      | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
+| `CLS`                                           | Ask the host to clear the display.                                                                            |
+| `REM [text]`                                    | Ignore the rest of the line.                                                                                  |
+| `END`                                           | Complete the run and return to the host. End of program also completes normally.                              |
 
 Labels must be decimal integers from 1 through 65535, followed by a space or
 tab. Leading zeros are allowed: `010` and `10` identify the same line. Leading
@@ -130,8 +132,8 @@ numbers, and reading an undefined variable is an error.
 infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
-non-finite numbers produce source-located errors. `FOR`/`NEXT` loops and
-editor commands are not yet implemented.
+non-finite numbers produce source-located errors. Stored editor commands are
+not yet implemented.
 
 The [parser API](docs/parser.md) builds immutable programs sorted by numeric
 label, with syntax trees for expressions, `LET`, `PRINT`, `REM`, `CLS`, and `END`.
@@ -200,6 +202,11 @@ bun start examples/guess.bas
 `PROGRAM_REQUIRED`; stored-program editing follows in #42. Runs do not yet
 yield to timers or impose instruction limits on busy loops (#41). Use bounded
 `step()` calls while developing an unfinished loop.
+
+Numeric `FOR`/`NEXT` loops support nesting, descending steps, and zero iterations.
+Bounds and step evaluate once per entry; jumps preserve only the loop frames
+that contain their destination. See [loop semantics](docs/loops.md) and run
+`bun start examples/times-table.bas` for an interactive example.
 
 ## Migration from legacy commands
 

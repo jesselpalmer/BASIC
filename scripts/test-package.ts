@@ -35,6 +35,7 @@ try {
   const installed = join(consumer, 'node_modules/node-basic-lang');
   assert.ok(existsSync(join(installed, 'src/index.ts')));
   assert.ok(existsSync(join(installed, 'examples/guess.bas')));
+  assert.ok(existsSync(join(installed, 'examples/times-table.bas')));
   const files = readdirSync(installed, {recursive: true}).map(String);
   assert.ok(!files.some((file) => file.endsWith('.test.ts') || file.includes('__tests__')));
 
@@ -62,9 +63,10 @@ try {
        basic.reset(parseProgram('10 PRINT "step"'));
        const result = basic.step();
        if (result.status !== 'halted' || result.currentLocation.label !== 10 ||
-           result.nextLocation !== null || !Object.isFrozen(result)) process.exit(1);`,
+           result.nextLocation !== null || !Object.isFrozen(result)) process.exit(1);
+       basic.run('10 FOR I=1 TO 2\\n20 PRINT I;\\n30 NEXT I\\n40 PRINT I');`,
     ]);
-    assert.equal(executed.stdout, 'package 6\nstep\n');
+    assert.equal(executed.stdout, 'package 6\nstep\n123\n');
     assert.equal(executed.stderr, '');
     const parsed = run(process.execPath, [
       `--input-type=${format}`,
@@ -150,6 +152,13 @@ try {
     void asyncResult;
     void label; void diagnosticCode;
     const evaluator = new Evaluator(host);
+    const loops = parseProgram('10 FOR I=1 TO 2\\n20 NEXT I');
+    const header = loops.lines[0].statement;
+    if (header.type === 'ForStatement') {
+      const name: string = header.variable.name;
+      const defaultStep: boolean = header.step === null;
+      void name; void defaultStep;
+    }
     const branch = parseLine('10 IF 1 < 2 THEN 20');
     if (branch?.statement.type === 'IfStatement') {
       const condition: Comparison = branch.statement.condition;
@@ -219,6 +228,18 @@ try {
   const input = run(process.execPath, [executable, file], consumer, 'Jesse\n');
   assert.equal(input.stdout, 'Name? Hello, Jesse\n');
   assert.equal(input.stderr, '');
+  const table = run(
+    process.execPath,
+    [executable, join(installed, 'examples/times-table.bas')],
+    consumer,
+    '2\n',
+  );
+  assert.equal(
+    table.stdout,
+    'Which times table? ' +
+      Array.from({length: 10}, (_, i) => `${i + 1} x 2 = ${(i + 1) * 2}\n`).join(''),
+  );
+  assert.equal(table.stderr, '');
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');

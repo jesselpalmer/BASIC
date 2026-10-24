@@ -203,7 +203,6 @@ describe('statement parsing', () => {
     ['10 "PRINT" "x"', 'UNSUPPORTED_STATEMENT', 4],
     ['10 A = 1', 'UNSUPPORTED_STATEMENT', 4],
     ['10 ABS "1"', 'UNSUPPORTED_STATEMENT', 4],
-    ['10 FOR I = 1 TO 5', 'UNSUPPORTED_STATEMENT', 4],
   ])('rejects invalid or not-yet-supported syntax: %s', (source, code, column) => {
     expect(diagnostic(() => parseLine(source))).toMatchObject({
       code,

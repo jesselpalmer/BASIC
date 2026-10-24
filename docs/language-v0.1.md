@@ -306,8 +306,8 @@ clear stored source, terminate the interactive host, or execute later statements
 ## Acceptance programs
 
 These programs define the target MVP and become executable fixtures as the
-language tickets land. The greeting and guessing game work now; the times table
-still requires `FOR`/`NEXT` support.
+language tickets land. All three now execute through the current file/runtime
+path; complete stored-editor and persistence acceptance remains future work.
 
 ### Greeting
 

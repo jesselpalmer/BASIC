@@ -15,6 +15,7 @@ import type {
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
+import {pairLoops} from '../core/loops.ts';
 import {tokenize} from './tokenizer.ts';
 
 const functions = new Set(['ABS', 'INT', 'RND']);
@@ -43,8 +44,8 @@ export function parseProgram(source: string): Program {
   return validateProgram(new Parser(source).parse());
 }
 
-// Whole-program checks stay separate from single-line editing. Loop pairing
-// will extend this boundary without rejecting incomplete forward edits.
+// Whole-program checks stay separate from single-line editing so incomplete
+// forward targets and loops can remain in an editor candidate.
 export function validateProgram(lines: readonly ParsedLine[]): Program {
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
@@ -90,6 +91,7 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
   // Clone before freezing: a snapshot never freezes or retains caller-owned
   // arrays/nodes, and a failed candidate cannot modify an existing program.
   const snapshot = copyTree(lines).sort((a, b) => a.label - b.label);
+  pairLoops(snapshot);
   return freezeTree({type: 'Program', lines: snapshot});
 }
 
@@ -256,6 +258,23 @@ class Parser {
       }
       case 'PRINT':
         return this.print(command);
+      case 'FOR': {
+        const variable = this.loopVariable();
+        this.expect('OPERATOR', '=', 'Expected = after the loop variable');
+        const start = this.expression();
+        this.expect('KEYWORD', 'TO', 'Expected TO after the loop start');
+        const end = this.expression();
+        let step: Expression | null = null;
+        if (this.at('KEYWORD', 'STEP')) {
+          this.take();
+          step = this.expression();
+        }
+        return this.node('ForStatement', command, step ?? end, {variable, start, end, step});
+      }
+      case 'NEXT': {
+        const variable = this.loopVariable();
+        return this.node('NextStatement', command, variable, {variable});
+      }
       case 'GOTO': {
         const target = this.jumpTarget();
         return this.node('GotoStatement', command, target, {target});
@@ -335,6 +354,13 @@ class Parser {
     }
     this.take();
     return this.node('NumberLiteral', token, token, {value: token.value, raw: token.raw});
+  }
+
+  loopVariable(): NodeOf<'Variable'> {
+    const name = this.expect('IDENTIFIER', undefined, 'Expected a numeric loop variable');
+    if (name.value.endsWith('$'))
+      this.fail('TYPE_MISMATCH', 'Loop variables must be numeric', name);
+    return this.node('Variable', name, name, {name: name.value});
   }
 
   expression(): Expression {

@@ -86,6 +86,13 @@ export interface NodeFields {
   };
   IfStatement: {readonly condition: Comparison; readonly target: NodeOf<'NumberLiteral'>};
   GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
+  ForStatement: {
+    readonly variable: NodeOf<'Variable'>;
+    readonly start: Expression;
+    readonly end: Expression;
+    readonly step: Expression | null;
+  };
+  NextStatement: {readonly variable: NodeOf<'Variable'>};
   LetStatement: {readonly target: NodeOf<'Variable'>; readonly expression: Expression};
   InputStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
@@ -132,6 +139,8 @@ export type Statement = {
       | 'InputStatement'
       | 'IfStatement'
       | 'GotoStatement'
+      | 'ForStatement'
+      | 'NextStatement'
       | 'PrintStatement'
       | 'RemStatement'
       | 'ClsStatement'
@@ -142,6 +151,8 @@ export type Statement = {
   | 'InputStatement'
   | 'IfStatement'
   | 'GotoStatement'
+  | 'ForStatement'
+  | 'NextStatement'
   | 'PrintStatement'
   | 'RemStatement'
   | 'ClsStatement'
