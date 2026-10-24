@@ -36,15 +36,16 @@ switches. Compiler checks also reject unused locals/parameters, implicit returns
 switch fallthrough, unreachable code, and unused labels. Fix findings instead
 of disabling file rules or using `any`.
 
-One terminal-host test intentionally throws a string to simulate an untyped
-callback; its single-line `only-throw-error` exception explains why. Production
-code has no typed-rule overrides.
+Local test exceptions explain the boundary being exercised: one terminal-host
+test throws a string to simulate an untyped callback, and the CommonJS consumer
+uses an actual require import. Production code has no typed-rule overrides.
 
 ## Coverage enforcement
 
-The [testing audit](testing-audit.md) records the historical behavior matrix and
-limitations. Use the current report for measurements rather than a historical
-test count. Subprocess entrypoint coverage is not merged into the source report.
+The historical [testing audit](testing-audit.md) and subsequent
+[maintainability review](maintainability-audit.md) record findings and evidence.
+Use the current report for measurements rather than a historical test count.
+Subprocess entrypoint coverage is not merged into the source report.
 
 `scripts/coverage-inventory.ts` owns the coverage policy used by
 `scripts/check-coverage.ts`; Bun emits metrics without a second threshold policy.
@@ -89,10 +90,19 @@ loop regression test so a broken interpreter fails instead of hanging.
 
 Keep shared public acceptance cases in `scripts/library-acceptance.ts`. They run
 against source and both installed module formats, using the actual example files.
-The installed harness must import runtime code only from the installed package.
+Ordinary, checked consumer fixtures live in `scripts/package/fixtures/`; the
+package runner only packs, installs, runs named checks, and cleans up. Its copied
+harness must import product runtime code only from the installed package. Public
+type fixtures contain both positive examples and expected compile failures.
+Use `scripts/subprocess.ts` for deadlines, output readiness, and child cleanup.
 Keep a completion sentinel and failing default exit status around async consumer
 checks: a process can exit with an unresolved Promise and no active handles.
 
 A coverage percentage cannot establish all possible inputs or branches. Real
 subprocess checks, package checks, independent expected results, and reviewed
 edge cases remain necessary even at 100% measured lines/functions.
+
+A known readline constructor-failure cleanup boundary is tracked in
+[issue #92](https://github.com/jesselpalmer/BASIC/issues/92). It is not covered by
+the successful-construction listener-cleanup assertions; see the
+[maintainability review](maintainability-audit.md#remaining-runtime-boundary).
