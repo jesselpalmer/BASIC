@@ -39,7 +39,8 @@ The package exports the parser, evaluator, errors, and public types separately.
 - `status` is read-only. `state`, and the return values of reset/run/step, are
   immutable `RunResult` snapshots. Later execution does not change old results.
 
-`runAsync(sourceOrProgram?, {signal}?)`, `stepAsync({signal}?)`, and
+`runAsync(sourceOrProgram?, {signal, instructionLimit, yieldEvery, scheduler}?)`,
+`stepAsync({signal}?)`, and
 `readLineAsync(source, {line, offset, signal}?)` return promises and support
 `INPUT`. Their non-input behavior matches the synchronous methods. The existing
 synchronous methods stay synchronous; reaching `INPUT` through them throws
@@ -127,7 +128,7 @@ only that statement; `runAsync` continues automatically. Another step or
 immediate entry while waiting rejects without replacing the pending request.
 The REPL awaits program input before asking for another editor entry.
 
-`cancel()` aborts pending input, halts execution, and returns an immutable state.
+`cancel()` aborts pending input or a scheduled batch, halts execution, and returns an immutable state.
 The outstanding async operation rejects with `AbortError`. A supplied AbortSignal
 has the same effect. Reset or a new run also aborts the previous request and
 invalidates its continuation. The core settles cancellation even if the host
@@ -184,9 +185,11 @@ is a frozen callback object; caller-owned host instances remain mutable.
 | `random()`                   | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
 
 Input callbacks serve both the terminal prompt and BASIC `INPUT`. Async
-write/clear results are unsupported. Async execution awaits input, but does not
-yet promise yielding to timers during busy programs; fair batches, busy-loop
-interruption, and instruction limits follow in #41.
+write/clear results are unsupported. `runAsync` also yields to host tasks every
+256 statements by default. Its `RunOptions` accepts an instruction limit, batch
+size, and injectable `ExecutionScheduler`; these are run options rather than
+required host callbacks. See [responsive execution](execution.md) for limits,
+scheduler cancellation, and diagnostics. Synchronous execution remains blocking.
 
 ## Terminal and file adapters
 

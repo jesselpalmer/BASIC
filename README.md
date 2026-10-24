@@ -180,7 +180,7 @@ Ctrl+C cancels the request and exits the current CLI session with code 130.
 
 For library programs with `INPUT`, use `await basic.runAsync(source, {signal})`.
 `stepAsync` and `readLineAsync` are also available, and `basic.cancel()` stops a
-pending request. The existing synchronous methods remain available for programs
+pending input or a yielding run. The existing synchronous methods remain available for programs
 without input; executing `INPUT` through them reports `ASYNC_INPUT_REQUIRED`.
 The [runtime API](docs/interpreter-host.md) documents waiting, cancellation, and
 safe replacement of an active run.
@@ -201,9 +201,11 @@ bun start examples/guess.bas
 
 `IF` and `GOTO` require a complete program passed to the file CLI or
 `Basic.run`/`runAsync`/`reset`. The current immediate-entry REPL reports
-`PROGRAM_REQUIRED`; stored-program editing follows in #42. Runs do not yet
-yield to timers or impose instruction limits on busy loops (#41). Use bounded
-`step()` calls while developing an unfinished loop.
+`PROGRAM_REQUIRED`; stored-program editing follows in #42. Async runs now yield
+in short batches, so Ctrl+C can interrupt busy file programs. Library callers can
+set a per-run instruction limit and inject a scheduler; see
+[responsive execution](docs/execution.md). Synchronous `run()` remains blocking;
+use bounded `step()` calls or `runAsync` while developing an unfinished loop.
 
 Numeric `FOR`/`NEXT` loops support nesting, descending steps, and zero iterations.
 Bounds and step evaluate once per entry; jumps preserve only the loop frames
