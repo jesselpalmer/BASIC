@@ -1,29 +1,86 @@
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
-import {existsSync, readdirSync, mkdtempSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
+import {spawn, spawnSync} from 'node:child_process';
+import {
+  copyFileSync,
+  existsSync,
+  readdirSync,
+  realpathSync,
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join, resolve} from 'node:path';
+import {delimiter, dirname, join, resolve} from 'node:path';
 import metadata from '../package.json' with {type: 'json'};
+import {libraryAcceptanceCases} from './library-acceptance.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const directory = mkdtempSync(join(tmpdir(), 'basic-package-'));
 const consumer = join(directory, 'consumer');
 
-function run(command: string, args: string[], cwd = consumer, input = '') {
+function run(
+  command: string,
+  args: string[],
+  cwd = consumer,
+  input = '',
+  status = 0,
+  env = process.env,
+) {
   const result = spawnSync(command, args, {
     cwd,
     encoding: 'utf8',
     input,
     timeout: 60000,
+    env,
   });
   assert.ifError(result.error);
   assert.equal(result.signal, null);
-  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(result.status, status, result.stderr || result.stdout);
   return result;
 }
 
 function bun(args: string[], cwd = consumer) {
   return run(process.execPath, args, cwd);
+}
+
+// Keep stdin open to expose accidental terminal setup or leaked input handles.
+function runWithOpenInput(args: string[], interruptAt?: string) {
+  return new Promise<{
+    status: number | null;
+    signal: string | null;
+    stdout: string;
+    stderr: string;
+  }>((resolve, reject) => {
+    const child = spawn(process.execPath, args, {cwd: consumer});
+    let stdout = '';
+    let stderr = '';
+    let interrupted = false;
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('Installed consumer did not finish with stdin open'));
+    }, 5000);
+    child.stdout.on('data', (data: Buffer) => {
+      stdout += data.toString();
+      if (interruptAt && !interrupted && stdout.includes(interruptAt)) {
+        interrupted = true;
+        child.kill('SIGINT');
+      }
+    });
+    child.stderr.on('data', (data: Buffer) => {
+      stderr += data.toString();
+    });
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      child.stdin.destroy();
+      reject(error);
+    });
+    child.on('close', (status, signal) => {
+      clearTimeout(timeout);
+      child.stdin.destroy();
+      resolve({status, signal, stdout, stderr});
+    });
+  });
 }
 
 try {
@@ -34,10 +91,16 @@ try {
   bun(['install', '--ignore-scripts', archive]);
   const installed = join(consumer, 'node_modules/node-basic-lang');
   assert.ok(existsSync(join(installed, 'src/index.ts')));
+  assert.ok(existsSync(join(installed, 'examples/greeting.bas')));
   assert.ok(existsSync(join(installed, 'examples/guess.bas')));
   assert.ok(existsSync(join(installed, 'examples/times-table.bas')));
   const files = readdirSync(installed, {recursive: true}).map(String);
   assert.ok(!files.some((file) => file.endsWith('.test.ts') || file.includes('__tests__')));
+  // Copy only the test harness; it has no runtime import from the checkout.
+  copyFileSync(
+    join(root, 'scripts/library-acceptance.ts'),
+    join(consumer, 'library-acceptance.ts'),
+  );
 
   // Resolve the public package name outside this checkout, in both formats.
   const exports =
@@ -46,13 +109,12 @@ try {
     ['module', `import {${exports}} from "node-basic-lang";`],
     ['commonjs', `const {${exports}} = require("node-basic-lang");`],
   ]) {
-    const quiet = run(process.execPath, [
+    const quiet = await runWithOpenInput([
       `--input-type=${format}`,
       '-e',
       `${statement} new Basic(); createHost(); new Evaluator();`,
     ]);
-    assert.equal(quiet.stdout, '');
-    assert.equal(quiet.stderr, '');
+    assert.deepEqual(quiet, {status: 0, signal: null, stdout: '', stderr: ''});
     const executed = run(process.execPath, [
       `--input-type=${format}`,
       '-e',
@@ -108,21 +170,27 @@ try {
     ]);
     assert.equal(evaluated.stdout, '');
     assert.equal(evaluated.stderr, '');
-    const input = run(process.execPath, [
+    const apiImport =
+      format === 'module'
+        ? 'import * as api from "node-basic-lang";'
+        : 'const api = require("node-basic-lang");';
+    const acceptance = run(process.execPath, [
       `--input-type=${format}`,
       '-e',
-      `${statement}
-      (async () => {
-        const prompts = [];
-        const answers = ['bad', '2'];
-        const basic = new Basic({write: text => process.stdout.write(text),
-          readLine: prompt => { prompts.push(prompt); return Promise.resolve(answers.shift()); }});
-        const result = await basic.runAsync('10 INPUT "Number"; N\\n20 PRINT N*2');
-        if (result.status !== 'halted' || prompts.join('|') !== 'Number? |Number? ') process.exit(1);
-      })().catch(error => { console.error(error); process.exitCode = 1; });`,
+      `${apiImport}
+       process.exitCode = 1;
+       (async () => {
+         const {runLibraryAcceptance} = await import('./library-acceptance.ts');
+         const completed = await runLibraryAcceptance(api, ${JSON.stringify(join(installed, 'examples'))});
+         process.stdout.write('LIBRARY_ACCEPTANCE_COMPLETE ' + JSON.stringify(completed) + '\\n');
+         process.exitCode = 0;
+       })().catch(error => { console.error(error); process.exitCode = 1; });`,
     ]);
-    assert.equal(input.stdout, 'Invalid number; please enter a finite decimal.\n4\n');
-    assert.equal(input.stderr, '');
+    assert.equal(
+      acceptance.stdout,
+      `LIBRARY_ACCEPTANCE_COMPLETE ${JSON.stringify(libraryAcceptanceCases)}\n`,
+    );
+    assert.equal(acceptance.stderr, '');
   }
 
   const typedConsumer = join(consumer, 'consumer.ts');
@@ -222,8 +290,16 @@ try {
   assert.equal(executed.stdout, 'CLI works\n');
   assert.equal(executed.stderr, '');
   if (process.platform !== 'win32') {
-    assert.equal(run(executable, [file]).stdout, 'CLI works\n');
+    const direct = run(executable, [file]);
+    assert.equal(direct.stdout, 'CLI works\n');
+    assert.equal(direct.stderr, '');
   }
+  assert.deepEqual(await runWithOpenInput([executable, file]), {
+    status: 0,
+    signal: null,
+    stdout: 'CLI works\n',
+    stderr: '',
+  });
   writeFileSync(file, '10 INPUT "Name"; N$\n20 PRINT "Hello, ";N$');
   const input = run(process.execPath, [executable, file], consumer, 'Jesse\n');
   assert.equal(input.stdout, 'Name? Hello, Jesse\n');
@@ -240,10 +316,87 @@ try {
       Array.from({length: 10}, (_, i) => `${i + 1} x 2 = ${(i + 1) * 2}\n`).join(''),
   );
   assert.equal(table.stderr, '');
+  const greeting = run(
+    process.execPath,
+    [executable, join(installed, 'examples/greeting.bas')],
+    consumer,
+    '  Ada LoveLace  \n',
+  );
+  assert.equal(greeting.stdout, 'What is your name? Hello,   Ada LoveLace  !\n');
+  assert.equal(greeting.stderr, '');
+
+  const missing = run(
+    process.execPath,
+    [executable, join(consumer, 'missing.bas')],
+    consumer,
+    '',
+    1,
+  );
+  assert.equal(missing.stdout, '');
+  assert.match(missing.stderr, /ENOENT/);
+  assert.doesNotMatch(missing.stderr, /\n\s+at /);
+  const usage = run(process.execPath, [executable, 'one.bas', 'two.bas'], consumer, '', 9);
+  assert.equal(usage.stdout, '');
+  assert.match(usage.stderr, /Usage:/);
+  for (const [source, stderr] of [
+    ['10 PRINT "must not run"\n20 PRINT "unfinished', 'Line 20, column 10: Unterminated string\n'],
+    ['10 PRINT 1/0\n20 PRINT "skipped"', 'Line 10, column 11: Cannot divide by zero\n'],
+    [
+      '10 INPUT "Answer"; N\n20 PRINT "skipped"',
+      'Line 10, column 4: Input ended before a value was received\n',
+    ],
+  ]) {
+    writeFileSync(file, source);
+    const failure = run(process.execPath, [executable, file], consumer, '', 1);
+    assert.equal(failure.stdout, source.startsWith('10 INPUT') ? 'Answer? ' : '');
+    assert.equal(failure.stderr, stderr);
+  }
+  if (process.platform !== 'win32') {
+    // Interrupt only pending INPUT; busy-loop interruption is not implemented.
+    const cancelled = await runWithOpenInput([executable, file], 'Answer? ');
+    assert.deepEqual(cancelled, {status: 130, signal: null, stdout: 'Answer? ', stderr: ''});
+  }
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');
-  console.log('Packed package: imports, parser, evaluator, basic, and banner passed.');
+
+  // Exercise global command discovery in an unrelated directory without touching
+  // the developer's real global installation or resolving the local .bin link.
+  if (process.platform !== 'win32') {
+    const globalDirectory = join(directory, 'global');
+    const globalBin = join(directory, 'global-bin');
+    const unrelated = join(directory, 'unrelated');
+    mkdirSync(unrelated);
+    const env = {
+      ...process.env,
+      BUN_INSTALL_GLOBAL_DIR: globalDirectory,
+      BUN_INSTALL_BIN: globalBin,
+      PATH: [globalBin, dirname(process.execPath), process.env.PATH ?? ''].join(delimiter),
+    };
+    run(
+      process.execPath,
+      ['install', '--global', '--ignore-scripts', archive],
+      unrelated,
+      '',
+      0,
+      env,
+    );
+    assert.equal(
+      realpathSync(join(globalBin, 'basic')),
+      realpathSync(join(globalDirectory, 'node_modules/node-basic-lang/bin/basic')),
+    );
+    writeFileSync(file, '10 INPUT "Name"; N$\n20 PRINT "Hello, ";N$');
+    const globalInput = run('basic', [file], unrelated, 'Ada\n', 0, env);
+    assert.equal(globalInput.stdout, 'Name? Hello, Ada\n');
+    assert.equal(globalInput.stderr, '');
+    writeFileSync(file, '10 PRINT 1/0');
+    const globalError = run('basic', [file], unrelated, '', 1, env);
+    assert.equal(globalError.stdout, '');
+    assert.equal(globalError.stderr, 'Line 10, column 11: Cannot divide by zero\n');
+  }
+  console.log(
+    `Packed package: ${libraryAcceptanceCases.length} shared library cases in ESM/CommonJS, types, CLI output/errors/EOF/SIGINT, open-stdin lifecycle, and POSIX global install passed.`,
+  );
 } finally {
   rmSync(directory, {recursive: true, force: true});
 }

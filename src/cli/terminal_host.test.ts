@@ -5,6 +5,24 @@ import {PassThrough} from 'node:stream';
 import TerminalHost from './terminal_host.ts';
 
 describe('TerminalHost input lifecycle', () => {
+  it('emits cursor reset and display erase only for a TTY output', () => {
+    const stream = Object.assign(new PassThrough(), {isTTY: true});
+    const tty = new TerminalHost({output: stream});
+    tty.clear();
+    const chunks: Buffer[] = [];
+    for (;;) {
+      const chunk: unknown = stream.read();
+      if (chunk === null) break;
+      if (!Buffer.isBuffer(chunk)) throw new Error('Expected binary output');
+      chunks.push(chunk);
+    }
+    expect(Buffer.concat(chunks).toString()).toBe('\u001b[1;1H\u001b[0J');
+    stream.isTTY = false;
+    tty.clear();
+    expect(stream.read()).toBeNull();
+    tty.close();
+    stream.destroy();
+  });
   let input: PassThrough;
   let output: PassThrough;
   let host: TerminalHost;

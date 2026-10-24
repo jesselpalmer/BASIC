@@ -155,7 +155,7 @@ describe('CLI and core lifecycle', () => {
     expect(stdout).toContain('second run\n');
   });
 
-  it('runs typed expressions in numeric order through the installed CLI entry', () => {
+  it('runs typed expressions in numeric order through the checkout CLI entry', () => {
     const directory = mkdtempSync(join(tmpdir(), 'basic-expressions-'));
     try {
       const file = join(directory, 'program.bas');

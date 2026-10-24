@@ -28,13 +28,15 @@ interpreter, parser, evaluator, and public types without opening a terminal. The
 parser contain no Bun-specific runtime APIs, allowing future browser hosts.
 
 CI checks the frozen lockfile and runs the same `bun run check` command: formatting,
-strict types, typed lint, the behavioral suite with coverage, and a packed
-installation in a temporary Bun consumer. The package check verifies quiet
-ES module/CommonJS imports, parser/evaluator exports, and the installed executable.
+strict types, typed lint, coverage, shuffled test order, and packed installations
+in temporary Bun consumers on Linux and macOS. The package check exercises shared
+library scenarios through ESM/CommonJS, public types, the local executable, and
+an isolated global installation.
 
 Use `bun run format` to apply formatting and `bun test` for a quick test run.
 See [quality checks and coverage](docs/quality-checks.md) for the complete commands,
-measured baseline, and coverage limitations.
+measured baseline, and coverage limitations. The [testing audit](docs/testing-audit.md)
+records the behavior matrix, findings, and remaining gaps.
 
 ## Installation
 

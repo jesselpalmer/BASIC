@@ -7,93 +7,88 @@ bun install --frozen-lockfile
 bun run check
 ```
 
-`check` runs the following commands in order, stopping with a nonzero exit code
-on the first failure. CI runs this same command after a frozen-lockfile install.
-The complete behavioral suite runs once, with coverage enabled.
+CI runs this same check on Linux and macOS. Commands stop on the first failure.
 
-| Command                 | Purpose                                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------- |
-| `bun run format:check`  | Check maintained files against the committed Prettier configuration.                                |
-| `bun run typecheck`     | Strict TypeScript checking of source, tests, and package-check scripts.                             |
-| `bun run lint`          | ESLint with recommended type-aware TypeScript rules.                                                |
-| `bun run test:coverage` | Execute behavioral tests, print coverage, write LCOV, and enforce thresholds.                       |
-| `bun run test:package`  | Install a packed tarball in a temporary consumer and verify imports, public types, parser, and CLI. |
+| Command                 | Purpose                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `bun run format:check`  | Check maintained files with Prettier.                                                                               |
+| `bun run typecheck`     | Strict TypeScript checking of source, tests, and scripts.                                                           |
+| `bun run lint`          | Recommended type-aware TypeScript rules and ordinary JavaScript rules.                                              |
+| `bun run test:coverage` | Behavioral tests, text/LCOV coverage, source inventory, and per-module floors.                                      |
+| `bun run test:order`    | Repeat tests in reproducible shuffled order, seed `20261024`.                                                       |
+| `bun run test:package`  | Pack and install outside the checkout; test library consumers, types, local CLI, and isolated POSIX global install. |
 
-For individual tasks, `bun run format` applies formatting, `bun run lint:fix`
-applies safe lint fixes, and `bun test` runs the tests without coverage collection.
-Lint fixes do not replace reviewing the change. Generated output, dependencies,
-archives, the generated Bun lockfile, and BASIC fixtures are ignored by Prettier.
-Prettier owns formatting; ESLint owns code correctness rather than line length.
+`bun run format` applies formatting; `bun run lint:fix` applies safe lint fixes.
+Review those fixes. `bun test` is the quick behavioral run without coverage.
+Generated output, dependencies, archives, the Bun lockfile, and BASIC fixtures
+are ignored by Prettier. Prettier owns formatting; ESLint owns code correctness.
 
 ## Type-aware lint policy
 
-TypeScript files under `src/` and `scripts/` use typescript-eslint's
+TypeScript under `src/` and `scripts/` uses typescript-eslint's
 `recommendedTypeChecked` rules and Project Service against `tsconfig.json`.
-JavaScript configuration and the extensionless CLI wrapper use ordinary ESLint
-rules. This avoids pretending those files have TypeScript project information.
+JavaScript configuration and the extensionless CLI wrapper use ordinary rules.
+Typed checks include floating/misused promises, unsafe operations on `any`,
+non-Error rejection reasons, and unnecessary assertions. Fix findings instead
+of disabling file rules or using `any`.
 
-Typed lint checks include floating/misused promises, unsafe operations on `any`,
-non-Error promise rejection reasons, and unnecessary assertions. Fix findings
-rather than converting them to `any` or disabling a file's rules.
+One terminal-host test intentionally throws a string to simulate an untyped
+callback; its single-line `only-throw-error` exception explains why. Production
+code has no typed-rule overrides.
 
-The terminal host normalizes a non-Error thrown by a prompt/output callback into
-an `Error`, preserving its message and cleaning up its listeners. The CLI's
-last-resort error handler also safely handles unknown rejection values. These
-boundary fixes do not change BASIC syntax or normal execution behavior.
+## Coverage enforcement
 
-There is one narrowly scoped lint exception: the terminal-host regression test
-intentionally throws a string to simulate an untyped third-party callback. Its
-single-line `only-throw-error` exception is documented at the fixture. Production
-code has no typed-rule overrides. Promise rejection tests await the real promise
-and inspect the rejection rather than awaiting Bun's synchronous matcher result.
+The [testing audit](testing-audit.md) records the behavior matrix and limitations.
+The audit change passes 575 tests, with **99.80% executable lines and 98.44%
+functions across the 16 measured product modules** on Bun 1.4.4. These numbers
+exclude test infrastructure and do not include subprocess entrypoint coverage.
 
-## Coverage baseline and floors
+Bun's native per-file floor is 95% lines and 75% functions. The additional
+`scripts/check-coverage.ts` gate is stricter:
 
-Measured with Bun 1.4.4 using the original 202 cases before these changes:
+| Measured product module                        | Minimum lines | Minimum functions |
+| ---------------------------------------------- | ------------: | ----------------: |
+| Default, including newly added runtime modules |          100% |              100% |
+| `src/core/runtime.ts`                          |           96% |              100% |
+| `src/cli/terminal_host.ts`                     |          100% |               75% |
 
-| Scope                           | Functions | Executable lines |
-| ------------------------------- | --------: | ---------------: |
-| All loaded source modules       |    95.44% |           99.57% |
-| Lowest individual loaded module |    66.67% |           95.74% |
-| Parser                          |      100% |           99.58% |
-| Tokenizer                       |      100% |             100% |
+The runtime's two uncovered defensive guards cannot be reached through a valid
+parsed program: target validation rejects missing labels, and control-flow
+validation rejects entering inactive loop bodies. Terminal-host callback fields
+have no-op initializers replaced before use. Do not bypass private state or
+invoke unused callbacks just to raise a percentage. Review any floor change.
 
-After the typed-lint fixes and the additional callback-failure regression case,
-all 203 tests pass and the rounded percentages above remain unchanged.
+The inventory walks `src/` independently of the modules loaded by tests. A new
+runtime file absent from LCOV fails the check, rather than silently disappearing
+from the denominator. Type-only modules are recognized using the TypeScript AST;
+adding executable code makes them subject to coverage automatically. The sole
+subprocess-only exception is `src/cli/main.ts`, exercised through real CLI
+launches. Tests verify the inventory's rejection paths, including a newly omitted
+file, stale exceptions, missing metrics, and coverage regressions.
 
-`bunfig.toml` sets **95% lines and 65% functions per reported file**. These floors
-sit just below the lowest observed modules, so they establish a practical
-starting guard without manufacturing tests for empty callbacks or hiding CLI
-code. They apply to every loaded source file, not just the overall average.
-Review threshold changes explicitly as the runtime grows; important new behavior
-and failure paths still need tests regardless of the resulting percentage.
+Both `text` and `lcov` reporters stay enabled: Bun 1.4.4's thresholds require the
+text reporter. See [Bun's coverage documentation](https://bun.com/docs/test/code-coverage).
+Only `scripts/**` is excluded as test infrastructure; no product runtime module
+is excluded by a coverage pattern. Tests use Bun's test-file exclusion.
 
-Both `text` and `lcov` reporters remain enabled. The text reporter is important:
-Bun 1.4.4 does not enforce thresholds when only LCOV output is selected. Reports
-appear in the check's console output and `coverage/lcov.info`. CI uploads the LCOV
-file as the `coverage` artifact for seven days, including when a later check
-fails. Generated reports are ignored by git and excluded from package contents.
+Reports are written to `coverage/lcov.info` and `coverage/inventory.json`.
+CI retains `coverage-ubuntu-latest` and `coverage-macos-latest` artifacts for
+seven days, including reports produced before a later check fails. Generated
+reports are ignored by git and excluded from the package.
 
-## Scope and gaps
+## Maintaining the suite
 
-Bun measures modules loaded in the test process. The aggregate is **not a
-whole-repository coverage claim**. No production file is excluded with a custom
-coverage-ignore pattern; tests and dependencies use Bun's standard exclusions.
+Add negative cases and lifecycle assertions with each language feature. Check
+observable output, diagnostics, public state, exit codes, and resource cleanup.
+Use injected randomness/input rather than timing-dependent answers. Bound any
+loop regression test so a broken interpreter fails instead of hanging.
 
-- CLI subprocess tests verify executable startup, EOF, SIGINT, error recovery,
-  natural completion with open stdin, and imports. Their child-process coverage
-  is not merged into the parent report. The CLI entry wrapper is therefore absent
-  from that report, and a passing percentage cannot replace those tests.
-- The TTY clear-display branch in `terminal_host.ts` is uncovered by the in-process
-  stream tests. Its callbacks and the SIGINT callback in `run_cli.ts` also account
-  for lower function percentages.
-- Some default host no-op callbacks remain visible function-coverage gaps.
-- Type-only definitions have no executable coverage. The unused legacy command
-  dictionary and empty line-number-rule module were removed following the review.
-  The runtime migration also removed the superseded line validator, executor,
-  standalone command handlers, and their obsolete unit tests. Their applicable
-  behavior is covered through the parser/evaluator/runtime and CLI suites; do
-  not retain or import dead modules just to raise coverage.
+Keep shared public acceptance cases in `scripts/library-acceptance.ts`. They run
+against source and both installed module formats, using the actual example files.
+The installed harness must import runtime code only from the installed package.
+Keep a completion sentinel and failing default exit status around async consumer
+checks: a process can exit with an unresolved Promise and no active handles.
 
-Use reports to identify meaningful missing behavior checks. Do not exclude hard
-paths or add tests that merely repeat implementation details to meet a number.
+A coverage percentage cannot establish all possible inputs or branches. Real
+subprocess checks, package checks, independent expected results, and reviewed
+edge cases remain necessary even at 100% measured lines/functions.
