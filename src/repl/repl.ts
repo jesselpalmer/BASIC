@@ -3,6 +3,9 @@ import Basic from '../basic.ts';
 import constants from '../shared/constants.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
 import StoredProgram from './program.ts';
+import {parseFileCommand} from './file_command.ts';
+import ProgramPersistence from './persistence.ts';
+import type {ProgramFiles} from './program_files.ts';
 
 export interface ReplHost extends Host {
   writeError(text: string): void;
@@ -12,7 +15,14 @@ export default class Repl {
   #operation: AbortController | null = null;
   #source = new StoredProgram();
 
-  constructor(private host: ReplHost) {}
+  #persistence: ProgramPersistence | null;
+
+  constructor(
+    private host: ReplHost,
+    files?: ProgramFiles,
+  ) {
+    this.#persistence = files ? new ProgramPersistence(this.#source, files) : null;
+  }
 
   interrupt(): void {
     this.#operation?.abort();
@@ -22,16 +32,18 @@ export default class Repl {
     const controller = new AbortController();
     this.#operation = controller;
     try {
-      const result = await action(controller.signal);
-      if (controller.signal.aborted) throw abortError();
-      return result;
+      return await action(controller.signal);
     } finally {
       this.#operation = null;
     }
   }
 
   #read(prompt: string): Promise<string | null> {
-    return this.#withSignal((signal) => this.host.readLine(prompt, {signal}));
+    return this.#withSignal(async (signal) => {
+      const line = await this.host.readLine(prompt, {signal});
+      signal.throwIfAborted();
+      return line;
+    });
   }
 
   #finish(eof: boolean): number {
@@ -67,7 +79,23 @@ export default class Repl {
         const command = line.trim().toUpperCase();
         if (command === '') continue;
         try {
-          if (command === 'RUN') {
+          const fileCommand = parseFileCommand(line);
+          if (fileCommand) {
+            if (!this.#persistence) throw new Error('Program files are unavailable in this host');
+            const persistence = this.#persistence;
+            const warning = await this.#withSignal((signal) =>
+              persistence.execute(
+                fileCommand,
+                async (prompt, signal) => {
+                  const answer = await this.host.readLine(prompt, {signal});
+                  signal.throwIfAborted();
+                  return answer !== null && /^(?:y|yes)$/i.test(answer.trim());
+                },
+                signal,
+              ),
+            );
+            if (warning) this.host.writeError(`${warning}\n`);
+          } else if (command === 'RUN') {
             const snapshot = this.#source.source;
             await this.#withSignal((signal) => program.runAsync(snapshot, {signal}));
           } else if (command === 'LIST') {
@@ -86,7 +114,9 @@ export default class Repl {
           } else if (/^[ \t]*\d/.test(line)) {
             this.#source.edit(line);
           } else {
-            this.host.writeError('Unknown session command. Use RUN, LIST, NEW, or EXIT.\n');
+            this.host.writeError(
+              'Unknown session command. Use RUN, LIST, NEW, LOAD, SAVE, or EXIT.\n',
+            );
           }
         } catch (error) {
           if (isAbortError(error)) {

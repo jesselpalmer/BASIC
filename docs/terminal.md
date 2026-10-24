@@ -5,18 +5,21 @@ prints the version and a `>>> ` prompt. Numbered entries edit source; they do no
 execute until `RUN`. The library's `Basic.readLine` and `readLineAsync` methods
 remain immediate-entry APIs for compatibility.
 
-| Entry              | Behavior                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------ |
-| `10 PRINT "Hello"` | Insert or replace line 10 after validating that single statement.                                |
-| `10`               | Delete line 10. Deleting a missing line is harmless.                                             |
-| `LIST`             | Print complete stored source in numeric label order.                                             |
-| `RUN`              | Validate the complete source snapshot, then execute with fresh variables and control-flow state. |
-| `NEW`              | Clear stored source and execution state, confirming first if source is unsaved.                  |
-| `EXIT`             | Leave the terminal, confirming first if source is unsaved.                                       |
-| Blank input        | Leave the program unchanged and show another prompt.                                             |
+| Entry               | Behavior                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| `10 PRINT "Hello"`  | Insert or replace line 10 after validating that single statement.                                   |
+| `10`                | Delete line 10. Deleting a missing line is harmless.                                                |
+| `LIST`              | Print complete stored source in numeric label order.                                                |
+| `RUN`               | Validate the complete source snapshot, then execute with fresh variables and control-flow state.    |
+| `LOAD "path.bas"`   | Read and fully validate a candidate, then replace stored source after confirming any unsaved edits. |
+| `SAVE ["path.bas"]` | Save to a quoted path, or the current filename; confirm before overwriting an existing destination. |
+| `NEW`               | Clear stored source and execution state, confirming first if source is unsaved.                     |
+| `EXIT`              | Leave the terminal, confirming first if source is unsaved.                                          |
+| Blank input         | Leave the program unchanged and show another prompt.                                                |
 
-Commands are case-insensitive and allow surrounding whitespace. Commands do not
-take arguments. Unnumbered statements such as `PRINT 2+2` are not supported yet.
+Commands are case-insensitive and allow surrounding whitespace. Only `LOAD` and
+`SAVE` take arguments; unexpected trailing arguments are errors. Unnumbered
+statements such as `PRINT 2+2` are not supported yet.
 Labels retain the language's range of 1 through 65535. The source text of valid
 entries is retained, including string case, spacing, and comments.
 
@@ -40,16 +43,18 @@ separate: an interrupted `basic file.bas` exits with status 130.
 
 ## Protecting unsaved source
 
-Before clearing or exiting with source present, the prompts are:
+Before clearing, loading, or exiting with unsaved source, the prompts are:
 
 - `Discard unsaved changes and start a new program? [y/N] `
 - `Discard unsaved changes and exit? [y/N] `
+- `Discard unsaved changes and load a program? [y/N] `
 
 Only `y` or `yes` confirms, ignoring case and surrounding whitespace. Blank or
-other answers cancel without changing source. A program is clean when empty;
-adding or replacing lines is unsaved, and deleting all lines restores the empty
-baseline. LOAD/SAVE will be added separately; until then, listing and copying the
-source is the way to retain work outside the terminal.
+other answers cancel without changing source, filename, or saved baseline. EOF
+or Ctrl+C during confirmation cancels the operation. A successful `LOAD`, `SAVE`,
+or `NEW` establishes a clean baseline; source edits mark it unsaved. Repeating an
+unchanged edit or restoring the baseline does not require another save. Running
+a program never changes its saved state.
 
 Clean EOF exits normally. EOF with unsaved source, including EOF during a discard
 confirmation, writes this warning followed by **all** stored source in numeric
@@ -63,6 +68,45 @@ EOF during program INPUT first reports its located `INPUT_ENDED` diagnostic,
 then returns to the editor. If no input remains, the same complete-source
 recovery happens. Explicitly confirming `EXIT` discards the unsaved session and
 exits normally. All ordinary exits print `Have a great day :)`.
+
+## Loading and saving
+
+Paths must be quoted, even when they have no spaces. Filename case, spaces, and
+backslashes remain literal. Double a quote within a path to represent one quote:
+
+```text
+SAVE "My Program.bas"
+LOAD "My Program.bas"
+SAVE "A ""quoted"" filename.bas"
+```
+
+`SAVE` without an argument uses the filename from the last successful load or
+save. It reports an error if there is no current filename. `NEW` clears that
+filename. Saving to another path updates it only after the save succeeds.
+Every existing destination requires confirmation, including the current file
+and dangling symlinks. Only `y` or `yes` authorizes replacement.
+
+`LOAD` checks the entire file before asking to discard edits: syntax, duplicate
+labels, jump targets, and loop pairing, including unreachable source. No
+candidate statements execute during loading. Blank files are valid empty
+programs. An unreadable or invalid candidate preserves your source, filename,
+and unsaved state without asking to discard anything.
+
+`SAVE` retains source spelling and whitespace in numeric label order. It also
+accepts incomplete edits, such as a forward jump without its target or an
+unmatched `FOR`. Complete these before loading the saved file: saving does not
+claim that the program can run.
+
+The terminal writes a temporary file in the destination directory before
+installing the completed file. Failed writes, failed installation, and
+cancellation before installation preserve the prior destination and session
+state and remove the temporary. If a competing writer creates a previously
+absent destination, saving fails rather than overwriting it without consent.
+Installation and the matching saved-state update form one short synchronous
+commit; an interrupt after that point does not undo a successful save. If the
+filesystem refuses to remove a temporary after successful installation, a
+warning identifies that file; the destination and saved state remain successful.
+Saving replaces a destination symlink itself, rather than writing its target.
 
 ## Example
 

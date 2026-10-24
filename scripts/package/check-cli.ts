@@ -3,6 +3,7 @@ import {existsSync, mkdirSync, realpathSync, writeFileSync} from 'node:fs';
 import {delimiter, dirname, join} from 'node:path';
 import metadata from '../../package.json' with {type: 'json'};
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
+import {checkPersistenceSessions} from './check-persistence.ts';
 
 interface CliContext {
   consumer: string;
@@ -282,6 +283,7 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   checkEditorSession(context);
   checkEditorRecovery(context);
   await checkEditorInterrupts(context);
+  await checkPersistenceSessions(executable);
 }
 
 export function checkGlobalCli(directory: string, archive: string): void {

@@ -2,9 +2,10 @@ import {expect, it} from 'bun:test';
 import {getEventListeners} from 'node:events';
 import Repl from './repl.ts';
 import {createHost} from '../core/host.ts';
+import type {ProgramFiles} from './program_files.ts';
 import type {InputOptions} from '../core/types.ts';
 
-function session(entries: readonly (string | null)[]) {
+function session(entries: readonly (string | null)[], files?: ProgramFiles) {
   const output: string[] = [];
   const errors: string[] = [];
   const prompts: string[] = [];
@@ -17,7 +18,7 @@ function session(entries: readonly (string | null)[]) {
       return Promise.resolve(remaining.shift() ?? null);
     },
   };
-  return {repl: new Repl(host), host, output, errors, prompts, remaining};
+  return {repl: new Repl(host, files), host, output, errors, prompts, remaining};
 }
 
 it('edits incrementally, lists numeric order, and runs fresh snapshots repeatedly', async () => {
@@ -84,8 +85,8 @@ it('blank input and failed edits preserve source, and RUN validates before effec
     'Line 10, column 9: No line label 20\n',
     'Line 20, column 4: FOR has no matching NEXT\n',
     'Line 20, column 10: Unterminated string\n',
-    'Unknown session command. Use RUN, LIST, NEW, or EXIT.\n',
-    'Unknown session command. Use RUN, LIST, NEW, or EXIT.\n',
+    'Unknown session command. Use RUN, LIST, NEW, LOAD, SAVE, or EXIT.\n',
+    'Unknown session command. Use RUN, LIST, NEW, LOAD, SAVE, or EXIT.\n',
   ]);
 });
 
@@ -172,8 +173,8 @@ it('reports runtime/input failures and preserves editable source for EOF recover
   ]);
 });
 
-function waitable() {
-  const {host, ...captured} = session([]);
+function waitable(files?: ProgramFiles) {
+  const {host, ...captured} = session([], files);
   type Request = {
     prompt: string;
     signal: AbortSignal;
@@ -349,4 +350,154 @@ it('external cancellation ends a dirty confirmation without interpreting later i
   controller.abort();
   expect(confirmation.signal.aborted).toBe(true);
   expect(await rejection).toMatchObject({name: 'AbortError'});
+});
+
+function memoryFiles(initial: Readonly<Record<string, string>> = {}) {
+  const contents = new Map(Object.entries(initial));
+  const writes: string[] = [];
+  const files: ProgramFiles = {
+    read: (path) => Promise.resolve(contents.get(path) ?? ''),
+    exists: (path) => Promise.resolve(contents.has(path)),
+    prepareSave: (path, source) =>
+      Promise.resolve({
+        commit() {
+          writes.push(path);
+          contents.set(path, source);
+        },
+        discard: () => Promise.resolve(),
+      }),
+  };
+  return {files, contents, writes};
+}
+
+it('loads and saves quoted paths with spaces, literal quotes, and original case across sessions', async () => {
+  const {files, contents, writes} = memoryFiles();
+  const first = session(
+    [
+      '20 END',
+      '10 PRINT "round trip"',
+      'sAvE "My ""Quoted"" Program.bas"',
+      '10 PRINT "cancelled"',
+      'SAVE',
+      'no',
+      '10 PRINT "round trip"',
+      'EXIT',
+    ],
+    files,
+  );
+  expect(await first.repl.start()).toBe(0);
+  expect(first.errors).toEqual([]);
+  expect(writes).toEqual(['My "Quoted" Program.bas']);
+  expect(contents.get('My "Quoted" Program.bas')).toBe('10 PRINT "round trip"\n20 END');
+  expect(first.prompts).toContain('Overwrite "My \\"Quoted\\" Program.bas"? [y/N] ');
+
+  const second = session(
+    [
+      'load "My ""Quoted"" Program.bas"',
+      'LIST',
+      'RUN',
+      '20 REM changed',
+      'SAVE',
+      ' YES ',
+      'NEW',
+      'SAVE',
+      'EXIT',
+    ],
+    files,
+  );
+  expect(await second.repl.start()).toBe(0);
+  expect(second.output).toContain('10 PRINT "round trip"\n20 END\n');
+  expect(second.output).toContain('round trip\n');
+  expect(second.errors).toEqual(['SAVE requires a quoted filename before the first save\n']);
+  expect(second.prompts.filter((prompt) => prompt.startsWith('Discard'))).toEqual([]);
+  expect(contents.get('My "Quoted" Program.bas')).toBe('10 PRINT "round trip"\n20 REM changed');
+});
+
+it('reports unavailable file capabilities and malformed paths without changing source', async () => {
+  const s = session([
+    '10 END',
+    'SAVE "file.bas"',
+    'LOAD "file.bas"',
+    'SAVE file.bas',
+    'LIST',
+    'EXIT',
+    'yes',
+  ]);
+  expect(await s.repl.start()).toBe(0);
+  expect(s.output).toContain('10 END\n');
+  expect(s.errors).toEqual([
+    'Program files are unavailable in this host\n',
+    'Program files are unavailable in this host\n',
+    'SAVE requires a nonempty quoted filename, with no trailing arguments\n',
+  ]);
+});
+
+it.each(['LOAD', 'SAVE'])(
+  'EOF cancels %s confirmation and preserves dirty source for recovery',
+  async (kind) => {
+    const {files, contents, writes} = memoryFiles({'target.bas': '30 END'});
+    const s = session(['10 PRINT "retained"', `${kind} "target.bas"`], files);
+    expect(await s.repl.start()).toBe(1);
+    expect(s.errors).toEqual([
+      'Unsaved program at EOF; copy the source below before closing:\n10 PRINT "retained"\n',
+    ]);
+    expect(contents.get('target.bas')).toBe('30 END');
+    expect(writes).toEqual([]);
+  },
+);
+
+it.each(['LOAD', 'SAVE'])(
+  'Ctrl+C cancels %s confirmation and permits a new command',
+  async (kind) => {
+    const {files, contents, writes} = memoryFiles({'target.bas': '30 END'});
+    const s = waitable(files);
+    const result = s.repl.start();
+    (await s.nextRequest()).resolve('10 PRINT "retained"');
+    (await s.nextRequest()).resolve(`${kind} "target.bas"`);
+    const confirmation = await s.nextRequest();
+    expect(confirmation.prompt).not.toBe('>>> ');
+    s.repl.interrupt();
+    (await s.nextRequest()).resolve('LIST');
+    (await s.nextRequest()).resolve('EXIT');
+    (await s.nextRequest()).resolve('yes');
+    expect(await result).toBe(0);
+    expect(s.errors).toEqual([]);
+    expect(s.output).toContain('10 PRINT "retained"\n');
+    expect(contents.get('target.bas')).toBe('30 END');
+    expect(writes).toEqual([]);
+  },
+);
+
+it('reports a postcommit cleanup warning while retaining a successful clean save', async () => {
+  const {files, contents} = memoryFiles();
+  files.prepareSave = (path, source) =>
+    Promise.resolve({
+      commit() {
+        contents.set(path, source);
+        return 'Saved file.bas, but could not remove temporary file';
+      },
+      discard: () => Promise.resolve(),
+    });
+  const s = session(['10 END', 'SAVE "file.bas"', 'EXIT'], files);
+  expect(await s.repl.start()).toBe(0);
+  expect(contents.get('file.bas')).toBe('10 END');
+  expect(s.errors).toEqual(['Saved file.bas, but could not remove temporary file\n']);
+  expect(s.prompts.filter((prompt) => prompt.startsWith('Discard'))).toEqual([]);
+});
+
+it('does not report cancellation after a save has crossed its commit boundary', async () => {
+  const {files, contents} = memoryFiles();
+  const s = session(['10 END', 'SAVE "file.bas"', 'EXIT'], files);
+  files.prepareSave = (path, source) =>
+    Promise.resolve({
+      commit() {
+        contents.set(path, source);
+        s.repl.interrupt();
+      },
+      discard: () => Promise.resolve(),
+    });
+  expect(await s.repl.start()).toBe(0);
+  expect(contents.get('file.bas')).toBe('10 END');
+  expect(s.errors).toEqual([]);
+  expect(s.output).toEqual(['BASIC 0.0.10\n', 'Have a great day :)\n']);
 });
