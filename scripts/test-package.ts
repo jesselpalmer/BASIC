@@ -38,7 +38,7 @@ try {
   assert.ok(!files.some((file) => file.endsWith('.test.ts') || file.includes('__tests__')));
 
   // Resolve the public package name outside this checkout, in both formats.
-  const exports = 'Basic, createHost, parseLine, parseProgram, validateProgram';
+  const exports = 'Basic, createHost, parseLine, parseProgram, validateProgram, BasicSyntaxError';
   for (const [format, statement] of [
     ['module', `import {${exports}} from "node-basic-lang";`],
     ['commonjs', `const {${exports}} = require("node-basic-lang");`],
@@ -69,7 +69,12 @@ try {
        if (program.lines[0].label !== 10 ||
            program.lines[0].statement.expression.right.operator !== '*' ||
            !edited.lines[0].statement.trailingSemicolon ||
-           !Object.isFrozen(edited.lines[0].statement.items)) process.exit(1);`,
+           !Object.isFrozen(edited.lines[0].statement.items)) process.exit(1);
+       let failure;
+       try { parseProgram('10 PRINT 1+'); } catch (error) { failure = error; }
+       if (!(failure instanceof BasicSyntaxError) ||
+           failure.diagnostic.code !== 'EXPECTED_EXPRESSION' ||
+           failure.diagnostic.label !== 10) process.exit(1);`,
     ]);
     assert.equal(parsed.stdout, '');
     assert.equal(parsed.stderr, '');
@@ -79,13 +84,18 @@ try {
   writeFileSync(
     typedConsumer,
     `
-    import {Basic, parseProgram, type Host, type Program} from 'node-basic-lang';
+    import {Basic, parseProgram, BasicSyntaxError, type Host, type Program} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
     };
     const program: Program = parseProgram('10 PRINT 1');
     new Basic(host);
+    try { parseProgram('10 PRINT 1+'); } catch (error) {
+      if (!(error instanceof BasicSyntaxError)) throw error;
+      const code: string = error.diagnostic.code;
+      void code;
+    }
     for (const line of program.lines) {
       if (line.statement.type === 'PrintStatement') {
         const expressions = line.statement.items;

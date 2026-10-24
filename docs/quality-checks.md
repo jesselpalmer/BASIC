@@ -90,8 +90,8 @@ coverage-ignore pattern; tests and dependencies use Bun's standard exclusions.
 - Default host no-op callbacks, the legacy executor's final unsupported-keyword
   branch, and the parser's invalid-array API guard remain visible gaps.
 - Type-only definitions have no executable coverage. The unused legacy command
-  dictionary and empty line-number-rule module are not imported by tests and do
-  not appear in the report. Do not import dead modules just to raise coverage.
+  dictionary and empty line-number-rule module were removed following the review;
+  do not retain or import dead modules just to raise coverage.
 
 Use reports to identify meaningful missing behavior checks. Do not exclude hard
 paths or add tests that merely repeat implementation details to meet a number.

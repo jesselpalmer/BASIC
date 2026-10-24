@@ -27,6 +27,9 @@ describe('Basic host boundary', () => {
   it('preserves host method receivers for input and randomness', async () => {
     class Host {
       value: string;
+      sample = 0.41;
+      output: string[] = [];
+      clears = 0;
       constructor() {
         this.value = 'answer';
       }
@@ -34,13 +37,48 @@ describe('Basic host boundary', () => {
         return Promise.resolve(this.value);
       }
       random() {
-        return 0.41;
+        return this.sample;
+      }
+      write(text: string) {
+        this.output.push(`${this.value}:${text}`);
+      }
+      clear() {
+        this.clears++;
       }
     }
-    const program = new Basic(new Host());
+    const receiver = new Host();
+    const program = new Basic(receiver);
     expect(await program.host.readLine('Question? ')).toBe('answer');
     expect(program.host.random()).toBe(0.41);
+    program.run('10 CLS\n20 PRINT "hello"');
+    expect(receiver.output).toEqual(['answer:hello\n']);
+    expect(receiver.clears).toBe(1);
     expect(Object.keys(program.host).sort()).toEqual(['clear', 'random', 'readLine', 'write']);
+  });
+
+  it.each(['write', 'clear'] as const)('recovers after an injected %s failure', (callback) => {
+    const output: string[] = [];
+    const host = {
+      write: jest.fn((text: string) => {
+        output.push(text);
+      }),
+      clear: jest.fn<() => void>(),
+    };
+    const failure = new Error(`${callback} failed`);
+    host[callback].mockImplementationOnce(() => {
+      throw failure;
+    });
+    const program = new Basic(host);
+    expect(() => program.run('10 CLS\n20 PRINT "first"\n30 PRINT "skipped"')).toThrow(failure);
+    expect(program.status).toBe('error');
+    expect(output).toEqual([]);
+    program.readLine('40 PRINT "also skipped"');
+    expect(output).toEqual([]);
+    program.reset();
+    program.readLine('10 PRINT "reset"');
+    program.run('10 PRINT "new run"');
+    expect(output).toEqual(['reset\n', 'new run\n']);
+    expect(program.status).toBe('halted');
   });
 
   it('has a quiet default host and explicit unsupported input', async () => {
