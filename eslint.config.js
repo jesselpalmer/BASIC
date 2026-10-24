@@ -12,6 +12,7 @@ export default defineConfig([
   },
   {
     files: ['src/**/*.ts', 'scripts/**/*.ts'],
+    rules: {'@typescript-eslint/switch-exhaustiveness-check': 'error'},
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       globals: globals.node,

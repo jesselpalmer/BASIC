@@ -77,7 +77,9 @@ export function expressionType(expression: Expression): ValueType | null {
           values.push(left === right ? left : null);
         }
         break;
-      default:
+      case 'NumberLiteral':
+      case 'UnaryExpression':
+      case 'CallExpression':
         values.push('number');
     }
   }

@@ -23,8 +23,8 @@ const nextProgram = validateProgram(candidate);
 
 - `parseLine(source, {line = 1, offset = 0} = {})` checks one numbered statement's
   lexical/statement syntax and returns a frozen `Line`. Blank input returns
-  `null`. Multiple numbered statements and bare labels are rejected; a future
-  editor will handle bare-label deletion before statement parsing. It neither
+  `null`. Multiple numbered statements and bare labels are rejected; the stored
+  editor handles bare-label deletion before statement parsing. It neither
   checks another line's labels nor assigns variables. Supplied fragments begin
   at column 1; the options retain an original physical line and absolute offset.
 - `parseProgram(source)` tokenizes/parses the complete source, ignores blank

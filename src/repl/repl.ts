@@ -1,7 +1,7 @@
 import type {Host, InputOptions} from '../core/types.ts';
 import Basic from '../basic.ts';
 import constants from '../shared/constants.ts';
-import {abortError} from '../core/input.ts';
+import {abortError, isAbortError} from '../core/cancellation.ts';
 import StoredProgram from './program.ts';
 
 export default class Repl {
@@ -53,7 +53,7 @@ export default class Repl {
         try {
           line = await this.#read(constants.Strings.Repl.PROMPT);
         } catch (error) {
-          if (!(error instanceof Error && error.name === 'AbortError')) throw error;
+          if (!isAbortError(error)) throw error;
           if (signal?.aborted) throw error;
           this.host.write('\n');
           continue;
@@ -85,7 +85,7 @@ export default class Repl {
             this.host.writeError('Unknown session command. Use RUN, LIST, NEW, or EXIT.\n');
           }
         } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') {
+          if (isAbortError(error)) {
             if (signal?.aborted) throw error;
             this.host.write('\n');
           } else {
