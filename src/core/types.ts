@@ -1,38 +1,52 @@
 export type BasicValue = number | string;
 export type ComparisonOperator = '=' | '<>' | '<' | '<=' | '>' | '>=';
+/** Physical source coordinates; line/column are 1-based UTF-16 units, offset is 0-based. */
 export interface Position {
   readonly line: number;
   readonly column: number;
   readonly offset: number;
 }
+/** A half-open source span. BASIC labels are independent of physical line numbers. */
 export interface Location {
   readonly label: number | null;
   readonly start: Position;
   readonly end: Position;
 }
 export interface SourceOptions {
+  /** Starting physical line (default 1); a fragment always begins at column 1. */
   line?: number;
+  /** Starting UTF-16 offset in the original source (default 0). */
   offset?: number;
 }
 export interface InputOptions {
   signal?: AbortSignal;
 }
+/** Resolve to resume execution; yield to a host task and release owned resources on abort. */
 export type ExecutionScheduler = (signal: AbortSignal) => Promise<void>;
 export interface RunOptions extends InputOptions {
+  /** Nonnegative safe integer; counts executed statements, including INPUT and END. */
   instructionLimit?: number;
+  /** Positive safe integer; statements per batch (default 256). */
   yieldEvery?: number;
+  /** Defaults to a cancellable timer task; an already-resolved promise does not yield to I/O. */
   scheduler?: ExecutionScheduler;
 }
+/** Synchronous output and async input capabilities; the interpreter owns no terminal or files. */
 export interface Host {
   write(text: string): void;
   clear(): void;
+  /** Return untrimmed text, or null at EOF. Honor the signal to release input resources. */
   readLine(prompt?: string, options?: InputOptions): Promise<string | null>;
+  /** Return a finite number in [0, 1). */
   random(): number;
 }
 export type RunStatus = 'ready' | 'running' | 'waiting' | 'halted' | 'error';
+/** Immutable observation of execution; locations retain the original physical source positions. */
 export interface RunResult {
   readonly status: RunStatus;
+  /** Most recently entered statement, or null before execution. */
   readonly currentLocation: Location | null;
+  /** Next statement when ready/running; null while waiting, halted, or in error. */
   readonly nextLocation: Location | null;
   readonly diagnostic: Readonly<Diagnostic> | null;
 }
@@ -118,41 +132,19 @@ export type NodeOf<K extends keyof NodeFields> = {
   readonly type: K;
   readonly location: Location;
 } & NodeFields[K];
-export type Expression = {
-  [
-    K in
-      | 'NumberLiteral'
-      | 'StringLiteral'
-      | 'Variable'
-      | 'GroupExpression'
-      | 'UnaryExpression'
-      | 'BinaryExpression'
-      | 'CallExpression'
-  ]: NodeOf<K>;
-}[
+// Map each kind separately so the discriminator stays paired with its own fields.
+type Nodes<K extends keyof NodeFields> = {[P in K]: NodeOf<P>}[K];
+export type Expression = Nodes<
   | 'NumberLiteral'
   | 'StringLiteral'
   | 'Variable'
   | 'GroupExpression'
   | 'UnaryExpression'
   | 'BinaryExpression'
-  | 'CallExpression'];
+  | 'CallExpression'
+>;
 export type Comparison = NodeOf<'Comparison'>;
-export type Statement = {
-  [
-    K in
-      | 'LetStatement'
-      | 'InputStatement'
-      | 'IfStatement'
-      | 'GotoStatement'
-      | 'ForStatement'
-      | 'NextStatement'
-      | 'PrintStatement'
-      | 'RemStatement'
-      | 'ClsStatement'
-      | 'EndStatement'
-  ]: NodeOf<K>;
-}[
+export type Statement = Nodes<
   | 'LetStatement'
   | 'InputStatement'
   | 'IfStatement'
@@ -162,7 +154,8 @@ export type Statement = {
   | 'PrintStatement'
   | 'RemStatement'
   | 'ClsStatement'
-  | 'EndStatement'];
+  | 'EndStatement'
+>;
 export type ParsedLine = NodeOf<'Line'>;
 export interface Program {
   readonly type: 'Program';

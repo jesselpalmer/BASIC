@@ -295,6 +295,18 @@ describe('jumps across loop boundaries', () => {
 });
 
 describe('loop lifecycle', () => {
+  it('retains a prepared loop program after invalid replacement and restarts its control flow', () => {
+    const output: string[] = [];
+    const basic = new Basic({write: (text) => output.push(text)});
+    basic.reset('10 FOR I=1 TO 2\n20 PRINT I\n30 NEXT I');
+    basic.step();
+    expect(() => basic.reset('40 FOR J=1 TO 3')).toThrow('FOR has no matching NEXT');
+    expect(basic.state).toMatchObject({status: 'error', nextLocation: null});
+
+    expect(basic.run().status).toBe('halted');
+    expect(output).toEqual(['1\n', '2\n']);
+  });
+
   it('keeps independent instances isolated and permits reset after cancellation', () => {
     const first = setup();
     const second = setup();

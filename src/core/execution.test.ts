@@ -58,7 +58,15 @@ describe('cooperative execution', () => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 0);
     try {
-      const error = await failure(basic.runAsync('10 GOTO 10', {signal: controller.signal}));
+      // A scheduler that yields only microtasks must exhaust this budget instead
+      // of starving both the abort timer and the test runner's timeout forever.
+      const error = await failure(
+        basic.runAsync('10 GOTO 10', {
+          signal: controller.signal,
+          yieldEvery: 1,
+          instructionLimit: 1024,
+        }),
+      );
       expect(error).toMatchObject({name: 'AbortError'});
       expect(basic.state).toMatchObject({status: 'halted', diagnostic: null});
       expect(basic.run('10 END').status).toBe('halted');
@@ -431,4 +439,153 @@ describe('scheduler resource ownership', () => {
     });
     expect(scheduler).not.toHaveBeenCalled();
   });
+});
+
+describe('async driver ownership', () => {
+  it.each(
+    (['step', 'stepAsync', 'readLine', 'readLineAsync'] as const).flatMap((method) => [
+      {method, source: '10 END', status: 'halted' as const},
+      {method, source: '10 PRINT MISSING', status: 'error' as const},
+    ]),
+  )('keeps public $method inert during an outstanding $status continuation', async (testCase) => {
+    const {basic, output} = setup();
+    const running = failure(basic.runAsync(testCase.source));
+    const current = basic.state;
+    expect(current.status).toBe(testCase.status);
+
+    const method = testCase.method;
+    const result =
+      method === 'step' || method === 'stepAsync'
+        ? basic[method]()
+        : basic[method]('invalid source that must never be parsed');
+    expect(await result).toEqual(current);
+    const completed = await running;
+    if (testCase.status === 'error') {
+      expect(completed).toBeInstanceOf(BasicRuntimeError);
+      expect(completed).toMatchObject({diagnostic: {code: 'UNDEFINED_VARIABLE'}});
+    } else {
+      expect(completed).toEqual(current);
+    }
+    expect(basic.state).toEqual(current);
+    expect(output).toEqual([]);
+  });
+
+  it.each(['step', 'stepAsync', 'readLine', 'readLineAsync'] as const)(
+    'rejects public %s while scheduling without changing the active run',
+    async (method) => {
+      const {basic, output} = setup();
+      const paused = pausedScheduler();
+      const running = basic.runAsync('10 PRINT 1\n20 PRINT 2', {
+        instructionLimit: 2,
+        yieldEvery: 1,
+        scheduler: paused.scheduler,
+      });
+      await paused.entered.promise;
+      const current = basic.state;
+      const attempt = () =>
+        method === 'step' || method === 'stepAsync'
+          ? basic[method]()
+          : basic[method]('30 PRINT "interference"');
+
+      expect(await failure(Promise.resolve().then(attempt))).toMatchObject({
+        message: 'An async run is active; cancel or reset before stepping or immediate input',
+      });
+      expect(basic.state).toEqual(current);
+      expect(output).toEqual(['1\n']);
+
+      paused.work.resolve();
+      expect((await running).status).toBe('halted');
+      expect(output).toEqual(['1\n', '2\n']);
+      expect(basic.step()).toEqual(basic.state);
+    },
+  );
+
+  it('keeps INPUT and its successor under the run driver after rejected external stepping', async () => {
+    const inputStarted = deferred<void>();
+    const reply = deferred<string | null>();
+    const output: string[] = [];
+    const readLine = jest.fn(() => {
+      inputStarted.resolve();
+      return reply.promise;
+    });
+    const basic = new Basic({readLine, write: (text) => output.push(text)});
+    const paused = pausedScheduler();
+    const running = basic.runAsync('10 REM start\n20 INPUT N\n30 PRINT N', {
+      yieldEvery: 1,
+      scheduler: paused.scheduler,
+    });
+    await paused.entered.promise;
+    expect(await failure(basic.stepAsync())).toMatchObject({
+      message: 'An async run is active; cancel or reset before stepping or immediate input',
+    });
+    expect(readLine).not.toHaveBeenCalled();
+
+    paused.work.resolve();
+    await inputStarted.promise;
+    expect(basic.state).toMatchObject({status: 'waiting', currentLocation: {label: 20}});
+    reply.resolve('4');
+    expect((await running).status).toBe('halted');
+    expect(readLine).toHaveBeenCalledTimes(1);
+    expect(output).toEqual(['4\n']);
+  });
+
+  it('retains the next statement for scheduler diagnostics after rejected external stepping', async () => {
+    const {basic, output} = setup();
+    const paused = pausedScheduler();
+    const running = failure(
+      basic.runAsync('10 PRINT 1\n20 PRINT 2', {yieldEvery: 1, scheduler: paused.scheduler}),
+    );
+    await paused.entered.promise;
+    expect(() => basic.step()).toThrow('An async run is active');
+    const cause = new Error('scheduler failed');
+    paused.work.reject(cause);
+
+    expect(await running).toMatchObject({
+      diagnostic: {code: 'SCHEDULER_FAILED', label: 20, line: 2, column: 4},
+      cause,
+    });
+    expect(basic.state).toMatchObject({status: 'error', currentLocation: {label: 20}});
+    expect(output).toEqual(['1\n']);
+  });
+
+  it('does not let public stepping bypass the active instruction budget', async () => {
+    const {basic, output} = setup();
+    const paused = pausedScheduler();
+    const running = failure(
+      basic.runAsync('10 PRINT 1\n20 PRINT 2\n30 PRINT 3', {
+        instructionLimit: 2,
+        yieldEvery: 1,
+        scheduler: paused.scheduler,
+      }),
+    );
+    await paused.entered.promise;
+    expect(() => basic.step()).toThrow('An async run is active');
+    paused.work.resolve();
+
+    expect(await running).toMatchObject({diagnostic: {code: 'INSTRUCTION_LIMIT', label: 30}});
+    expect(output).toEqual(['1\n', '2\n']);
+  });
+
+  it('owns stepping between synchronous statements before the first scheduler yield', async () => {
+    const {basic, output} = setup();
+    const running = basic.runAsync('10 REM start\n20 PRINT "done"');
+    expect(() => basic.step()).toThrow('An async run is active');
+    expect(basic.state).toMatchObject({currentLocation: {label: 10}, nextLocation: {label: 20}});
+    expect((await running).status).toBe('halted');
+    expect(output).toEqual(['done\n']);
+  });
+
+  it.each(['10 END', '10 PRINT "done"', ''])(
+    'cancels an outstanding final continuation even after the language halts: %j',
+    async (source) => {
+      const {basic} = setup();
+      const running = failure(basic.runAsync(source));
+      expect(basic.status).toBe('halted');
+      const cancelled = basic.cancel();
+      expect(await running).toMatchObject({name: 'AbortError'});
+      expect(cancelled).toMatchObject({status: 'halted', diagnostic: null});
+      expect(basic.cancel()).toEqual(cancelled);
+      expect(basic.step()).toEqual(cancelled);
+    },
+  );
 });

@@ -126,6 +126,10 @@ During a pending request, `state.status` is `waiting`, `currentLocation` points
 at `INPUT`, and no successor statement runs. A successful `stepAsync` completes
 only that statement; `runAsync` continues automatically. Another step or
 immediate entry while waiting rejects without replacing the pending request.
+An outstanding `runAsync` owns stepping between batches as well: public
+`step`, `stepAsync`, and `readLine`/`readLineAsync` reject while it can still
+advance instructions. After `halted` or `error`, they retain their no-op behavior.
+Reset, cancellation, and replacement runs remain available between callbacks.
 The REPL awaits program input before asking for another editor entry.
 
 `cancel()` aborts pending input or a scheduled batch, halts execution, and returns an immutable state.
