@@ -38,10 +38,30 @@ export interface RunOptions extends InputOptions {
   /** Optional debugger gate before each statement; cancellation releases a suspended gate. */
   beforeStatement?: (signal: AbortSignal) => void | Promise<void>;
 }
+/** Stateless drawing in the fixed 320 by 200 logical pixel surface. */
+export type GraphicsCommand =
+  | {readonly kind: 'pset'; readonly x: number; readonly y: number; readonly color: number}
+  | {
+      readonly kind: 'line';
+      readonly x1: number;
+      readonly y1: number;
+      readonly x2: number;
+      readonly y2: number;
+      readonly color: number;
+    }
+  | {
+      readonly kind: 'circle';
+      readonly x: number;
+      readonly y: number;
+      readonly radius: number;
+      readonly color: number;
+    };
 /** Synchronous output and async input capabilities; the interpreter owns no terminal or files. */
 export interface Host {
   write(text: string): void;
   clear(): void;
+  /** Optional graphics capability; clip primitives to the logical surface in bounded work. */
+  draw?(command: GraphicsCommand): void;
   /** Return untrimmed text, or null at EOF. Honor the signal to release input resources. */
   readLine(prompt?: string, options?: InputOptions): Promise<string | null>;
   /** Return a finite number in [0, 1). */
@@ -134,6 +154,15 @@ export interface NodeFields {
     readonly trailingSemicolon: boolean;
   };
   RemStatement: {readonly text: string};
+  ColorStatement: {readonly color: Expression};
+  PsetStatement: {readonly x: Expression; readonly y: Expression};
+  LineStatement: {
+    readonly x1: Expression;
+    readonly y1: Expression;
+    readonly x2: Expression;
+    readonly y2: Expression;
+  };
+  CircleStatement: {readonly x: Expression; readonly y: Expression; readonly radius: Expression};
   ClsStatement: Record<never, never>;
   EndStatement: Record<never, never>;
   Line: {readonly label: number; readonly source: string; readonly statement: Statement};
@@ -163,8 +192,16 @@ export type Statement = Nodes<
   | 'NextStatement'
   | 'PrintStatement'
   | 'RemStatement'
+  | 'ColorStatement'
+  | 'PsetStatement'
+  | 'LineStatement'
+  | 'CircleStatement'
   | 'ClsStatement'
   | 'EndStatement'
+>;
+export type GraphicsStatement = Extract<
+  Statement,
+  {type: 'ColorStatement' | 'PsetStatement' | 'LineStatement' | 'CircleStatement'}
 >;
 export type ParsedLine = NodeOf<'Line'>;
 export interface Program {

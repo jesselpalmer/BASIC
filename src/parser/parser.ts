@@ -218,6 +218,34 @@ class Parser {
         const comment = this.expect('COMMENT', undefined, 'Expected comment');
         return this.node('RemStatement', command, comment, {text: comment.value});
       }
+      case 'COLOR': {
+        const color = this.expression();
+        return this.node('ColorStatement', command, color, {color});
+      }
+      case 'PSET': {
+        const x = this.expression();
+        this.comma();
+        const y = this.expression();
+        return this.node('PsetStatement', command, y, {x, y});
+      }
+      case 'LINE': {
+        const x1 = this.expression();
+        this.comma();
+        const y1 = this.expression();
+        this.comma();
+        const x2 = this.expression();
+        this.comma();
+        const y2 = this.expression();
+        return this.node('LineStatement', command, y2, {x1, y1, x2, y2});
+      }
+      case 'CIRCLE': {
+        const x = this.expression();
+        this.comma();
+        const y = this.expression();
+        this.comma();
+        const radius = this.expression();
+        return this.node('CircleStatement', command, radius, {x, y, radius});
+      }
       case 'CLS':
         return this.node('ClsStatement', command, command, {});
       case 'END':
@@ -225,6 +253,10 @@ class Parser {
       default:
         this.fail('UNSUPPORTED_STATEMENT', `Unsupported statement ${command.raw}`, command);
     }
+  }
+
+  comma(): void {
+    this.expect('PUNCTUATION', ',', 'Expected , between graphics arguments');
   }
 
   print(command: Token) {

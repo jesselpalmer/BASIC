@@ -7,6 +7,7 @@ import {
   BasicRuntimeError,
   Evaluator,
   type BasicValue,
+  type GraphicsCommand,
   type Host,
   type Program,
   type RunResult,
@@ -29,6 +30,15 @@ const host: Host = {
     return 0.5;
   },
 };
+const command: GraphicsCommand = {kind: 'circle', x: 160, y: 100, radius: 20, color: 14};
+const graphicsHost: Host = {
+  ...host,
+  draw(value) {
+    const color: number = value.color;
+    void color;
+  },
+};
+graphicsHost.draw?.(command);
 const program: Program = parseProgram('10 PRINT 1');
 const basic = new Basic(host);
 basic.reset(program);
@@ -103,6 +113,16 @@ evaluator.reset();
 
 // These rejected assignments are part of the public contract. A missing error
 // makes TypeScript report an unused @ts-expect-error directive.
+// @ts-expect-error Graphics commands are readonly.
+command.color = 1;
+const invalidGraphicsHost: Host = {
+  ...host,
+  // @ts-expect-error A graphics host callback receives a command, not text.
+  draw: (text: string) => {
+    void text;
+  },
+};
+void invalidGraphicsHost;
 // @ts-expect-error Programs expose a readonly line array.
 program.lines[0] = loops.lines[0];
 // @ts-expect-error Execution snapshots expose readonly status.

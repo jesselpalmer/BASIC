@@ -13,6 +13,7 @@ export function createHost(overrides: Partial<Host> = {}): Host {
   return {
     write: bind('write', () => {}),
     clear: bind('clear', () => {}),
+    ...(overrides.draw === undefined ? {} : {draw: bind('draw', undefined)}),
     readLine: bind('readLine', () =>
       Promise.reject(new Error('Input is not supported by this host')),
     ),

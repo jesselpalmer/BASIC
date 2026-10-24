@@ -3,6 +3,8 @@
 The playground is a static page: BASIC runs in the browser, with no account or
 application server. The editor starts with the real greeting example; the example
 picker also includes the repository's times-table and guessing-game programs.
+**A little landscape** loads the downloadable [picture example](../examples/picture.bas),
+which uses the [graphics statements](graphics.md) and 16-color canvas.
 
 From a checkout, run `bun install --frozen-lockfile`, `bun run build:playground`,
 then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
@@ -73,4 +75,6 @@ Linux/macOS CI starts from a checkout and frozen install, then runs both gates.
 Browser tests use observable UI readiness and deadlines, not fixed sleeps, with
 no retries masking failures. Traces and screenshots are retained on failure.
 See [quality checks](quality-checks.md) for browser installation and coverage
-boundaries. This milestone does not configure public hosting or add graphics.
+boundaries. This milestone does not configure public hosting. The later graphics
+extension also has real pixel, scaling, clearing, rerun, and cancellation checks
+in `scripts/browser/graphics.e2e.ts`.

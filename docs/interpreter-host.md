@@ -251,3 +251,8 @@ with coverage, and the installed package. Tests exercise ordered execution,
 stepping, frozen state, isolation/reset/recovery, host errors/reentrancy, full
 preflight, CLI output/errors, EOF/cancellation/SIGINT, listener cleanup, and
 quiet ESM/CommonJS imports with stdin held open. Nothing is published by checks.
+
+Graphics hosts may implement the optional `draw(command: GraphicsCommand)`
+capability. Existing text-only hosts require no changes; executed drawing
+statements report `GRAPHICS_UNAVAILABLE` when it is absent. See the
+[graphics contract](graphics.md) for commands, palette, rounding and lifecycle.

@@ -8,7 +8,8 @@ variables, input, branching, loops, and stored-program editing and persistence.
 
 The [v0.1 language reference](docs/language-v0.1.md) is the complete supported
 dialect. This is a deliberately limited text-programming language, without
-QBasic or GW-BASIC compatibility, arrays, subroutines, graphics, or sound.
+QBasic or GW-BASIC compatibility, arrays, subroutines, or sound. The browser
+also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 
 ## Quick start
@@ -57,6 +58,12 @@ through the same parser and runtime as the CLI. No account or application server
 is required. Edits restore locally after reload; import and export `.bas` files
 to move programs between the browser and terminal. See the
 [playground guide](docs/playground.md) for controls and tests.
+
+Choose **A little landscape** to try graphics. `COLOR`, `PSET`, `LINE`, and
+`CIRCLE` use a 16-color palette; `CLS` clears text and drawing. The canvas scales
+on screen while BASIC coordinates stay fixed. Graphics statements need a browser
+or library host with drawing support; the terminal reports an unsupported-host
+diagnostic.
 
 ## Installation
 

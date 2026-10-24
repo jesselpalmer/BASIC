@@ -148,6 +148,16 @@ function checkFileFailures({consumer, executable, file}: CliContext): void {
       stderr: 'Line 10, column 11: Cannot divide by zero\n',
     },
     {
+      source: '10 PSET 1,2',
+      stdout: '',
+      stderr: 'Line 10, column 4: Graphics are not supported by this host\n',
+    },
+    {
+      source: '10 COLOR 2',
+      stdout: '',
+      stderr: 'Line 10, column 4: Graphics are not supported by this host\n',
+    },
+    {
       source: '10 INPUT "Answer"; N\n20 PRINT "skipped"',
       stdout: 'Answer? ',
       stderr: 'Line 10, column 4: Input ended before a value was received\n',

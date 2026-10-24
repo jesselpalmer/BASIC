@@ -1,7 +1,13 @@
 import Basic from '../core/runtime.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
 import {defaultScheduler} from '../core/scheduling.ts';
-import type {Diagnostic, ExecutionScheduler, Location, VariableSnapshot} from '../core/types.ts';
+import type {
+  Diagnostic,
+  ExecutionScheduler,
+  GraphicsCommand,
+  Location,
+  VariableSnapshot,
+} from '../core/types.ts';
 
 export type BrowserStatus =
   'idle' | 'running' | 'waiting' | 'paused' | 'stopped' | 'finished' | 'error';
@@ -21,6 +27,7 @@ export interface BrowserState {
 export interface BrowserView {
   write(text: string): void;
   clear(): void;
+  draw?(command: GraphicsCommand): void;
   /** Keep this bound submit callback with the displayed prompt; stale calls return false. */
   requestInput(prompt: string, submit: (text: string) => boolean): void;
   stateChanged(state: BrowserState): void;
@@ -90,12 +97,14 @@ export class BrowserSession {
       throw optionError;
     }
     this.stop();
+    const draw = this.#view.draw?.bind(this.#view);
     const execution: Execution = {
       basic: new Basic({
         write: (text) => this.#callView(execution, () => this.#view.write(text)),
         clear: () => this.#callView(execution, () => this.#view.clear()),
         readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
         random: this.#options.random,
+        draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
       }),
       state: Object.freeze({
         status: 'running',

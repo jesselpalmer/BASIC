@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add Pause, Continue, Step, and read-only variable/source inspection using the
+  shared runtime's statement boundary gate.
+- Add a fixed 320×200 browser canvas, 16-color palette, `COLOR`, `PSET`, `LINE`,
+  and `CIRCLE`, plus a downloadable picture example. Graphics hosts are optional;
+  the terminal reports a source-located unsupported-host error. Rendering work
+  stays bounded even for enormous clipped coordinates.
+
 - Add a static browser playground using the existing parser and runtime, with
   editable source, actual examples, INPUT, Run/Stop, diagnostics, and bounded
   output rendering.
