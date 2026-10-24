@@ -54,7 +54,9 @@ Open `http://127.0.0.1:3000`. Choose an example, edit its source, and run it;
 use the input field when prompted. Stop or Escape cancels a busy loop or pending
 input. Edits apply to the next run. The interpreter runs entirely in the browser
 through the same parser and runtime as the CLI. No account or application server
-is required. See the [playground guide](docs/playground.md) for controls and tests.
+is required. Edits restore locally after reload; import and export `.bas` files
+to move programs between the browser and terminal. See the
+[playground guide](docs/playground.md) for controls and tests.
 
 ## Installation
 

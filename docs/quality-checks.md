@@ -16,6 +16,8 @@ Both CI jobs also install Playwright's Chromium headless shell and run
 UI: examples, INPUT, edits and replacement runs, diagnostics, keyboard controls,
 literal output, narrow layouts, and stopping both silent and printing infinite
 loops after visible output truncation. Failed runs retain screenshots and traces.
+Document tests also exercise local restore, replacement confirmation, read/storage
+failures, stale imports, and exact downloads executed through the terminal CLI.
 For a local run, install the browser once:
 
 ```sh

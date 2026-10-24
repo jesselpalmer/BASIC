@@ -43,13 +43,28 @@
           <label class="sr-only" for="source">BASIC source code</label>
           <textarea
             id="source"
-            aria-describedby="editor-help"
+            aria-describedby="editor-help storage-status"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
             autocorrect="off"
             wrap="off"
           ></textarea>
+          <div class="document-controls">
+            <div class="file-controls" aria-label="Program files">
+              <button id="import-file" class="file-button" type="button">Import .bas</button>
+              <input
+                id="file-input"
+                type="file"
+                accept=".bas,text/plain"
+                aria-label="BASIC file to import"
+                hidden
+              />
+              <button id="export-file" class="file-button" type="button">Export .bas</button>
+            </div>
+            <p id="storage-status" class="storage-status" role="status"></p>
+            <p id="file-status" class="file-status" role="status" hidden></p>
+          </div>
           <div class="editor-footer">
             <p id="editor-help">Line numbers first. Curiosity next.</p>
             <span class="shortcut" aria-hidden="true">Ctrl / ⌘ + Enter to run</span>
