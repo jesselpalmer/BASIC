@@ -17,6 +17,12 @@ export interface SourceOptions {
 export interface InputOptions {
   signal?: AbortSignal;
 }
+export type ExecutionScheduler = (signal: AbortSignal) => Promise<void>;
+export interface RunOptions extends InputOptions {
+  instructionLimit?: number;
+  yieldEvery?: number;
+  scheduler?: ExecutionScheduler;
+}
 export interface Host {
   write(text: string): void;
   clear(): void;

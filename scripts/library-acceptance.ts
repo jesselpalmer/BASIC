@@ -16,6 +16,8 @@ export const libraryAcceptanceCases = [
   'cancellation and late reply',
   'replacement run isolates old input',
   'nested, descending, empty, and inactive loops',
+  'instruction limits and cooperative batches',
+  'replacement run isolates a pending scheduler',
 ] as const;
 
 // Runtime code comes only from the supplied module. Type imports disappear when
@@ -218,6 +220,63 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
         return true;
       },
     );
+  });
+  await check('instruction limits and cooperative batches', async () => {
+    const {basic, output} = setup();
+    let yields = 0;
+    await assert.rejects(
+      basic.runAsync('10 LET N=0\n20 LET N=N+1\n30 PRINT N\n40 GOTO 20', {
+        instructionLimit: 7,
+        yieldEvery: 2,
+        scheduler: () => {
+          yields++;
+          return Promise.resolve();
+        },
+      }),
+      (error: unknown) => {
+        assert.ok(error instanceof api.BasicRuntimeError);
+        assert.equal(error.diagnostic.code, 'INSTRUCTION_LIMIT');
+        assert.equal(error.diagnostic.label, 20);
+        assert.equal(error.diagnostic.column, 4);
+        return true;
+      },
+    );
+    assert.equal(yields, 3);
+    assert.deepEqual(output, ['1\n', '2\n']);
+    assert.equal(basic.status, 'error');
+    assert.equal((await basic.runAsync('10 PRINT "recovered"')).status, 'halted');
+    assert.deepEqual(output, ['1\n', '2\n', 'recovered\n']);
+  });
+  await check('replacement run isolates a pending scheduler', async () => {
+    const {basic, output} = setup();
+    let scheduled!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      scheduled = resolve;
+    });
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let oldSignal: AbortSignal | undefined;
+    const old = basic.runAsync('10 PRINT "old"\n20 GOTO 10', {
+      yieldEvery: 1,
+      scheduler(signal) {
+        oldSignal = signal;
+        scheduled();
+        return pending;
+      },
+    });
+    const rejected = assert.rejects(old, {name: 'AbortError'});
+    await ready;
+    basic.run('10 PRINT "new"');
+    const current = basic.state;
+    await rejected;
+    assert.equal(oldSignal?.aborted, true);
+    release();
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(basic.state, current);
+    assert.deepEqual(output, ['old\n', 'new\n']);
   });
   assert.deepEqual(completed, libraryAcceptanceCases);
   return completed;

@@ -4,6 +4,7 @@ import {createHost} from './host.ts';
 import {abortError, readInput} from './input.ts';
 import {containsLoopBody, pairLoops} from './loops.ts';
 import type {LoopPair} from './loops.ts';
+import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine, parseProgram, validateProgram} from '../parser/parser.ts';
 import type {
   Diagnostic,
@@ -15,6 +16,7 @@ import type {
   ParsedLine,
   Program,
   RunResult,
+  RunOptions,
   RunStatus,
   SourceOptions,
 } from './types.ts';
@@ -38,6 +40,7 @@ export default class Basic {
   #usedLabels = new Set<number>();
   #generation = 0;
   #pendingInput: AbortController | null = null;
+  #pendingRun: AbortController | null = null;
   #labelIndices = new Map<number, number>();
   #loopPairs: LoopPair[] = [];
   #pairsByFor = new Map<number, LoopPair>();
@@ -73,7 +76,7 @@ export default class Basic {
   /** Prepare a fresh run, retaining the loaded program when omitted. */
   reset(program?: string | Program): RunResult {
     this.#assertIdle();
-    this.#invalidateInput();
+    this.#invalidateExecution();
     this.#evaluator.reset();
     this.#loopFrames.clear();
     this.#index = 0;
@@ -103,20 +106,81 @@ export default class Basic {
     return this.state;
   }
 
-  async runAsync(program?: string | Program, options: InputOptions = {}): Promise<RunResult> {
+  async runAsync(program?: string | Program, options: RunOptions = {}): Promise<RunResult> {
+    const {signal, instructionLimit, yieldEvery = 256, scheduler = defaultScheduler} = options;
+    if (
+      instructionLimit !== undefined &&
+      (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
+    )
+      throw new TypeError('instructionLimit must be a nonnegative safe integer');
+    if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
+      throw new TypeError('yieldEvery must be a positive safe integer');
+    if (typeof scheduler !== 'function') throw new TypeError('scheduler must be a function');
     this.reset(program);
     const generation = this.#generation;
-    while (this.#status === 'ready' || this.#status === 'running') {
-      await this.stepAsync(options);
-      if (generation !== this.#generation) throw abortError();
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    signal?.addEventListener('abort', onAbort, {once: true});
+    if (signal?.aborted) controller.abort();
+    this.#pendingRun = controller;
+    let executed = 0;
+    try {
+      this.#checkAbort(controller.signal);
+      while (this.#status === 'ready' || this.#status === 'running') {
+        const line = this.#program.lines[this.#index];
+        if (line && executed === instructionLimit) {
+          this.#current = line;
+          throw new BasicRuntimeError(
+            'INSTRUCTION_LIMIT',
+            `Instruction limit of ${instructionLimit} reached`,
+            line.statement.location.start,
+            line.label,
+          );
+        }
+        await this.stepAsync({signal: controller.signal});
+        if (generation !== this.#generation) throw abortError();
+        this.#checkAbort(controller.signal);
+        executed++;
+        if (
+          (this.#status === 'ready' || this.#status === 'running') &&
+          executed % yieldEvery === 0 &&
+          executed !== instructionLimit
+        ) {
+          try {
+            await yieldExecution(scheduler, controller.signal);
+          } catch (cause) {
+            if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+            const next = this.#program.lines[this.#index];
+            this.#current = next;
+            throw new BasicRuntimeError(
+              'SCHEDULER_FAILED',
+              'Execution scheduler failed',
+              next.statement.location.start,
+              next.label,
+              {cause},
+            );
+          }
+          if (generation !== this.#generation) throw abortError();
+          this.#checkAbort(controller.signal);
+        }
+      }
+      return this.state;
+    } catch (error) {
+      if (generation === this.#generation) {
+        if (error instanceof Error && error.name === 'AbortError') this.#halt();
+        else this.#recordFailure(error);
+      }
+      throw error;
+    } finally {
+      signal?.removeEventListener('abort', onAbort);
+      if (this.#pendingRun === controller) this.#pendingRun = null;
     }
-    return this.state;
   }
 
   cancel(): RunResult {
     this.#assertIdle();
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
-    this.#invalidateInput();
+    this.#invalidateExecution();
     this.#halt();
     this.#diagnostic = null;
     return this.state;
@@ -225,13 +289,16 @@ export default class Basic {
       throw new Error('Input is already pending; cancel or reset first');
   }
 
-  #invalidateInput(): void {
+  #invalidateExecution(): void {
     this.#generation++;
     const pending = this.#pendingInput;
+    const run = this.#pendingRun;
     this.#pendingInput = null;
+    this.#pendingRun = null;
     this.#executing = true;
     try {
       pending?.abort();
+      run?.abort();
     } finally {
       this.#executing = false;
     }
