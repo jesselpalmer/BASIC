@@ -108,7 +108,7 @@ Parser-specific codes are `EXPECTED_STATEMENT`, `EXPECTED_TOKEN`,
 `DUPLICATE_LABEL` is a program-validation failure and `INVALID_STATEMENT` reports
 multiple statements supplied to `parseLine`.
 
-`npm test` covers precedence, associativity, PRINT separators, exact source spans,
+`bun test` covers precedence, associativity, PRINT separators, exact source spans,
 invalid/trailing syntax, duplicate labels, snapshots, and failure preservation.
-`npm run test:package` verifies the public parser exports in installed ESM and
+`bun run test:package` verifies the public parser exports in installed ESM and
 CommonJS consumers alongside the existing CLI/library checks.

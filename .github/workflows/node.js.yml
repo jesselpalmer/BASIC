@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Bun CI
 
 on:
   push:
@@ -11,15 +11,15 @@ permissions:
 
 jobs:
   test:
-    name: Node 24 checks
+    name: Bun checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run test:package
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun test
+      - run: bun run test:package

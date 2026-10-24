@@ -1,24 +1,14 @@
 import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 export default [
   {ignores: ['coverage/**', 'lib/**', 'dist/**']},
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    files: ['**/*.js', 'bin/basic'],
+    files: ['**/*.ts', '**/*.js', 'bin/basic'],
     languageOptions: {globals: globals.node},
-    rules: {
-      ...js.configs.recommended.rules,
-      eqeqeq: ['error', 'always'],
-      quotes: ['error', 'single', {avoidEscape: true}],
-      semi: ['error', 'always'],
-      'max-len': ['error', {
-        code: 80,
-        ignorePattern: '^import .*|^export .*',
-      }],
-    },
-  },
-  {
-    files: ['**/*.test.js'],
-    languageOptions: {globals: globals.jest},
+    rules: {'max-len': ['error', {code: 100, ignorePattern: '^import .*|^export .*'}]},
   },
 ];
