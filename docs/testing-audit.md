@@ -99,10 +99,11 @@ installation directories are removed in a `finally` block.
   Bun versions are not certified by this matrix. Global/POSIX signal cases are
   explicitly platform-conditional. Published-registry installation is not
   exercised: tests install the exact locally packed artifact without publishing.
-- **Instruction scheduling:** [#41](https://github.com/jesselpalmer/BASIC/issues/41)
-  still needs execution limits/fair yielding and interruption of a CPU-bound
-  loop. Current cancellation checks cover pending INPUT. Bounded step tests do
-  not imply a tight infinite `runAsync()` loop can be interrupted today.
+- **Instruction scheduling at the audit baseline:** #41 was still open when this
+  audit ran. It is now implemented: see [responsive execution](execution.md).
+  Additional tests exercise deterministic scheduling/limits and real CLI SIGINT
+  during self-jumps and long loops, including the packed installation. Synchronous
+  execution remains blocking.
 - **Future MVP features:** stored program editing (#42), LOAD/SAVE (#43), and
   editor/file acceptance work (#44/#45) need tests when implemented. Graphics
   will need host-contract and rendering acceptance tests of its own.
