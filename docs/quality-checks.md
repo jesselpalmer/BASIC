@@ -106,3 +106,10 @@ A known readline constructor-failure cleanup boundary is tracked in
 [issue #92](https://github.com/jesselpalmer/BASIC/issues/92). It is not covered by
 the successful-construction listener-cleanup assertions; see the
 [maintainability review](maintainability-audit.md#remaining-runtime-boundary).
+
+## Commit history
+
+Follow [Contributing](../CONTRIBUTING.md) for Conventional Commit titles and
+squash merging. A separate `Conventional PR title` workflow checks titles on PR
+creation, updates, and edits. It checks the final squash title; behavioral tests
+and source quality checks remain in `bun run check`.
