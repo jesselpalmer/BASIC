@@ -3,6 +3,8 @@ export {createHost} from './core/host.ts';
 export {parseLine, parseProgram, validateProgram} from './parser/parser.ts';
 export type {
   BasicValue,
+  Comparison,
+  ComparisonOperator,
   Host,
   InputOptions,
   RunStatus,

@@ -34,6 +34,7 @@ try {
   bun(['install', '--ignore-scripts', archive]);
   const installed = join(consumer, 'node_modules/node-basic-lang');
   assert.ok(existsSync(join(installed, 'src/index.ts')));
+  assert.ok(existsSync(join(installed, 'examples/guess.bas')));
   const files = readdirSync(installed, {recursive: true}).map(String);
   assert.ok(!files.some((file) => file.endsWith('.test.ts') || file.includes('__tests__')));
 
@@ -56,7 +57,8 @@ try {
       '-e',
       `${statement}
        const basic = new Basic({write: text => process.stdout.write(text)});
-       basic.run('30 END\\n20 PRINT "package "; A\\n10 LET A = INT(2.9)*3');
+       basic.run('50 END\\n40 PRINT "package "; A\\n30 PRINT "skipped"\\n20 IF A=6 THEN 40\\n10 LET A = INT(2.9)*3');
+       basic.run('10 GOTO 30\\n20 PRINT "skipped"\\n30 REM');
        basic.reset(parseProgram('10 PRINT "step"'));
        const result = basic.step();
        if (result.status !== 'halted' || result.currentLocation.label !== 10 ||
@@ -98,7 +100,9 @@ try {
        if (!(failure instanceof BasicRuntimeError) ||
            failure.diagnostic.code !== 'UNDEFINED_VARIABLE' ||
            failure.diagnostic.label !== 20 ||
-           failure.diagnostic.column !== 10) process.exit(1);`,
+           failure.diagnostic.column !== 10) process.exit(1);
+       const branch = parseLine('10 IF 1 < 2 THEN 20');
+       if (!evaluator.compare(branch.statement.condition)) process.exit(1);`,
     ]);
     assert.equal(evaluated.stdout, '');
     assert.equal(evaluated.stderr, '');
@@ -123,8 +127,9 @@ try {
   writeFileSync(
     typedConsumer,
     `
-    import {Basic, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
-            type BasicValue, type Host, type Program, type RunResult, type InputOptions} from 'node-basic-lang';
+    import {Basic, parseLine, parseProgram, BasicSyntaxError, BasicRuntimeError, Evaluator,
+            type BasicValue, type Host, type Program, type RunResult, type InputOptions,
+            type Comparison, type ComparisonOperator} from 'node-basic-lang';
     const host: Host = {
       write(text: string) { void text; }, clear() {},
       async readLine() { return null; }, random() { return 0.5; },
@@ -145,6 +150,13 @@ try {
     void asyncResult;
     void label; void diagnosticCode;
     const evaluator = new Evaluator(host);
+    const branch = parseLine('10 IF 1 < 2 THEN 20');
+    if (branch?.statement.type === 'IfStatement') {
+      const condition: Comparison = branch.statement.condition;
+      const operator: ComparisonOperator = condition.operator;
+      const result: boolean = evaluator.compare(condition);
+      void operator; void result;
+    }
     try { parseProgram('10 PRINT 1+'); } catch (error) {
       if (!(error instanceof BasicSyntaxError)) throw error;
       const code: string = error.diagnostic.code;

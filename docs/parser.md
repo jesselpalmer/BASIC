@@ -33,18 +33,19 @@ const nextProgram = validateProgram(candidate);
   executing any of them. `010` and `10` are duplicate labels.
 - `validateProgram(lines)` is the separate whole-program validation boundary.
   Pass an array of parsed `Line` nodes, excluding blank-edit `null` results. It
-  currently checks duplicate labels, copies the candidate, sorts the copy, and
+  checks duplicate labels, resolves every literal jump target, checks statically
+  known comparison type mismatches, copies the candidate, sorts the copy, and
   freezes the complete snapshot. It does not reorder/freeze the caller's array
   or retain mutable references to its nodes. This API expects parser-produced
   nodes; it is not a schema validator for untrusted or deserialized AST objects.
 
-Only `LET`, `INPUT`, `PRINT`, `REM`, `CLS`, and `END` statements are supported by this
-parser. Jumps and loops still fail explicitly; their feature tickets
-add their own grammar. Forward-target resolution and loop pairing will be added
-to `validateProgram`, keeping `parseLine` usable for incomplete edits. They are
-not performed, or claimed to be supported, by this initial parser.
+The parser supports `LET`, `INPUT`, `IF/THEN`, `GOTO`, `PRINT`, `REM`, `CLS`, and
+`END`. `FOR`/`NEXT` remains a future feature. `parseLine` accepts unresolved
+forward targets and leaves semantic comparison type checking to whole-program
+validation, so editors can retain incomplete candidates. Loop pairing will
+extend `validateProgram` in its own ticket.
 
-The file host reads a file once and passes its source to `Basic.run()`, which
+The file host reads a file once and passes its source to `Basic.runAsync()`, which
 uses `parseProgram`; the parser has no filesystem access. A host should replace
 its stored program only after a parse/validation
 call succeeds. All APIs are stateless: a failed candidate leaves the previous
@@ -66,6 +67,8 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is required.                                                                             |
 | `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
+| `IfStatement`    | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                             |
+| `GotoStatement`  | `target` (`NumberLiteral`).                                                                                                            |
 | `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`.                                                    |
 | `RemStatement`   | `text`, including all whitespace/text after `REM`.                                                                                     |
 | `ClsStatement`   | None. No arguments permitted.                                                                                                          |
@@ -90,10 +93,22 @@ operators. Parentheses and calls are explicit nodes. `ABS`, `INT`, and `RND`
 require parentheses; unknown functions and reserved names as variable targets
 are rejected. Standalone legacy `ABS`/`INT` commands are not parser syntax.
 
-Parsing does not evaluate expressions or check types, variable initialization,
-division by zero, or built-in arity. For example, `ABS()` has a valid call shape
-but will fail arity checking in the evaluator. Comparisons are not expressions;
-they arrive with the `IF` grammar. Nesting of groups, unary signs, and calls is
+`Comparison` is a separate node, not an expression value. It has `left`/`right`
+expressions, `operator`, `operatorLocation`, and its own `location`. Its public
+`ComparisonOperator` type is `= | <> | < | <= | > | >=`. Targets retain integer
+`value`, original decimal `raw` spelling, and location. Decimal points, signs,
+variables, parenthesized/computed targets, chained comparisons, Boolean operators,
+`ELSE`, and inline `THEN` bodies are rejected.
+
+Whole-program validation checks comparison operand types using literals,
+variable suffixes, operator/built-in result types, grouping, and homogeneous
+`+` expressions. It rejects mixed types and string ordering at the comparison
+operator without evaluating anything. Mixed `+` expressions have no valid
+inferred result type and keep their evaluator diagnostics when reached. This
+is not general constant evaluation: undefined variables, division by zero,
+non-finite results, and built-in arity remain runtime checks. `parseLine` only
+checks syntax. For example, `ABS()` has a valid call shape but fails arity when
+evaluated. Nesting of groups, unary signs, and calls is
 limited to 256 levels and produces a BASIC diagnostic when exceeded. Long flat
 binary expressions use iterative parsing, copying, and freezing.
 
@@ -107,7 +122,9 @@ occurrence in physical input order. The parser never returns a partial snapshot.
 
 Parser-specific codes are `EXPECTED_STATEMENT`, `EXPECTED_TOKEN`,
 `EXPECTED_EXPRESSION`, `UNEXPECTED_TOKEN`, `UNSUPPORTED_STATEMENT`,
-`UNKNOWN_FUNCTION`, and `EXPRESSION_TOO_DEEP`. Lexer diagnostics pass through;
+`UNKNOWN_FUNCTION`, `EXPECTED_COMPARISON`, `INVALID_TARGET`, and
+`EXPRESSION_TOO_DEEP`. Whole-program validation adds `MISSING_TARGET` and
+`TYPE_MISMATCH` for comparison types. Lexer diagnostics pass through;
 `DUPLICATE_LABEL` is a program-validation failure and `INVALID_STATEMENT` reports
 multiple statements supplied to `parseLine`.
 

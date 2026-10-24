@@ -1,4 +1,5 @@
 export type BasicValue = number | string;
+export type ComparisonOperator = '=' | '<>' | '<' | '<=' | '>' | '>=';
 export interface Position {
   readonly line: number;
   readonly column: number;
@@ -77,6 +78,14 @@ export interface NodeFields {
     readonly nameLocation: Location;
     readonly arguments: readonly Expression[];
   };
+  Comparison: {
+    readonly left: Expression;
+    readonly right: Expression;
+    readonly operator: ComparisonOperator;
+    readonly operatorLocation: Location;
+  };
+  IfStatement: {readonly condition: Comparison; readonly target: NodeOf<'NumberLiteral'>};
+  GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
   LetStatement: {readonly target: NodeOf<'Variable'>; readonly expression: Expression};
   InputStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
@@ -115,11 +124,14 @@ export type Expression = {
   | 'UnaryExpression'
   | 'BinaryExpression'
   | 'CallExpression'];
+export type Comparison = NodeOf<'Comparison'>;
 export type Statement = {
   [
     K in
       | 'LetStatement'
       | 'InputStatement'
+      | 'IfStatement'
+      | 'GotoStatement'
       | 'PrintStatement'
       | 'RemStatement'
       | 'ClsStatement'
@@ -128,6 +140,8 @@ export type Statement = {
 }[
   | 'LetStatement'
   | 'InputStatement'
+  | 'IfStatement'
+  | 'GotoStatement'
   | 'PrintStatement'
   | 'RemStatement'
   | 'ClsStatement'

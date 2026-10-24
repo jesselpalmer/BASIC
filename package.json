@@ -58,7 +58,8 @@
     "src/",
     "!src/**/*.test.ts",
     "!src/**/__tests__/",
-    "docs/"
+    "docs/",
+    "examples/"
   ],
   "types": "./src/index.ts",
   "packageManager": "bun@1.4.4"

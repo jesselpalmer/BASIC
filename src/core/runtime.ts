@@ -7,6 +7,7 @@ import type {
   Diagnostic,
   Host,
   InputOptions,
+  Location,
   ParsedLine,
   Program,
   RunResult,
@@ -29,6 +30,7 @@ export default class Basic {
   #usedLabels = new Set<number>();
   #generation = 0;
   #pendingInput: AbortController | null = null;
+  #labelIndices = new Map<number, number>();
 
   constructor(host: Partial<Host> = {}) {
     this.#host = Object.freeze(createHost(host));
@@ -70,6 +72,7 @@ export default class Basic {
     try {
       if (typeof program === 'string') this.#program = parseProgram(program);
       else if (program !== undefined) this.#program = validateProgram(program.lines);
+      this.#labelIndices = new Map(this.#program.lines.map((line, index) => [line.label, index]));
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -180,6 +183,7 @@ export default class Basic {
       }
       this.#usedLabels.add(line.label);
       this.#program = emptyProgram;
+      this.#labelIndices.clear();
       this.#immediate = true;
       return line;
     } catch (error) {
@@ -279,7 +283,25 @@ export default class Basic {
     this.#executing = true;
     const statement = line.statement;
     try {
+      if (
+        this.#immediate &&
+        (statement.type === 'IfStatement' || statement.type === 'GotoStatement')
+      ) {
+        throw new BasicRuntimeError(
+          'PROGRAM_REQUIRED',
+          'IF and GOTO require a complete program; use run or runAsync',
+          statement.location.start,
+          line.label,
+        );
+      }
       switch (statement.type) {
+        case 'GotoStatement':
+          this.#jump(statement.target.value, statement.target.location);
+          break;
+        case 'IfStatement':
+          if (this.#evaluator.compare(statement.condition))
+            this.#jump(statement.target.value, statement.target.location);
+          break;
         case 'InputStatement':
           throw new BasicRuntimeError(
             'ASYNC_INPUT_REQUIRED',
@@ -312,6 +334,19 @@ export default class Basic {
     } finally {
       this.#executing = false;
     }
+  }
+
+  #jump(label: number, location: Location): void {
+    const index = this.#labelIndices.get(label);
+    if (index === undefined) {
+      throw new BasicRuntimeError(
+        'MISSING_TARGET',
+        `No line label ${label}`,
+        location.start,
+        location.label,
+      );
+    }
+    this.#index = index;
   }
 
   #callHost(callback: 'write' | 'clear', line: ParsedLine, text = ''): void {
