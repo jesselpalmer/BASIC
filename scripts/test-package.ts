@@ -33,6 +33,13 @@ try {
   const installed = join(consumer, 'node_modules/node-basic-lang');
   for (const file of [
     'src/index.ts',
+    'bin/basic',
+    'README.md',
+    'LICENSE',
+    'CHANGELOG.md',
+    'docs/language-v0.1.md',
+    'docs/terminal.md',
+    'docs/release-checklist.md',
     'examples/greeting.bas',
     'examples/guess.bas',
     'examples/times-table.bas',

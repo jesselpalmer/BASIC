@@ -1,13 +1,14 @@
-# BASIC v0.1 language and session contract
+# BASIC v0.1.0 language reference
 
-This is the **target contract for the terminal MVP**, not a list of features
-already implemented. The current executable supports the statements in
-[the README](../README.md#supported-commands). The implementation work is tracked
-in [issues #30–#47](https://github.com/jesselpalmer/BASIC/issues).
+This is the authoritative reference for the implemented **v0.1.0 terminal MVP**.
+The [README](../README.md) covers installation and quick starts;
+[terminal editing](terminal.md) documents session workflows. The release candidate
+is prepared locally; this reference does not assert registry publication.
 
 This project defines a small, line-numbered BASIC dialect for writing text
 programs. It does not claim QBasic, GW-BASIC, or another BASIC's compatibility.
-The same parser and runtime will eventually serve terminal and browser hosts.
+The terminal and embeddable API use the same parser and runtime. A browser host
+is outside this release.
 
 ## Programs and source text
 
@@ -306,10 +307,10 @@ clear stored source, terminate the interactive host, or execute later statements
 
 ## Acceptance programs
 
-These programs define the target MVP and become executable fixtures as the
-language tickets land. All three now execute through the current file/runtime
-path and the stored editor. `LOAD` and `SAVE` support complete-program round
-trips through the terminal session; `SAVE` also preserves incomplete edits.
+These programs are executable acceptance fixtures for the implemented dialect.
+All three execute through the file/runtime path and the stored editor. `LOAD` and
+`SAVE` support complete-program round trips through the terminal session; `SAVE`
+also preserves incomplete edits.
 
 ### Greeting
 
@@ -368,7 +369,8 @@ are separate from the terminal session.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, graphics, and
-sound are outside the terminal MVP. Browser hosts and drawing commands come later.
+sound are outside the terminal MVP. Browser hosts and drawing commands are not
+included in v0.1.0.
 
 Sources: [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
 and [cleanup, MVP, and graphics roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk).
