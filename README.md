@@ -120,9 +120,12 @@ quotes. `CLS` and `END` take no arguments. Malformed labels, unterminated string
 unexpected characters, and trailing operands now produce located errors instead
 of being partially interpreted or silently ignored.
 
-The [tokenizer](docs/tokenizer.md) also recognizes the planned expression syntax.
-Expression execution, numeric program ordering, full-program validation, and
-stored editing are still upcoming work; unsupported commands fail explicitly.
+The [parser API](docs/parser.md) builds immutable programs sorted by numeric
+label, with syntax trees for expressions, `LET`, `PRINT`, `REM`, `CLS`, and `END`.
+It is available separately through `parseLine`, `parseProgram`, and
+`validateProgram`. It does not execute the new syntax. The CLI and `Basic` still
+use the legacy execution path above; expression evaluation, execution of parsed
+programs, and stored editing follow in later tickets.
 
 ## Sample file
 

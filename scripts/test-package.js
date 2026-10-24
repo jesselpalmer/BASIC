@@ -42,9 +42,10 @@ try {
   ]);
 
   // Resolve the public package name outside this checkout, in both formats.
+  const exports = 'Basic, createHost, parseLine, parseProgram, validateProgram';
   for (const [format, statement] of [
-    ['module', 'import {Basic, createHost} from "node-basic-lang";'],
-    ['commonjs', 'const {Basic, createHost} = require("node-basic-lang");'],
+    ['module', `import {${exports}} from "node-basic-lang";`],
+    ['commonjs', `const {${exports}} = require("node-basic-lang");`],
   ]) {
     const quiet = run(process.execPath, [`--input-type=${format}`, '-e',
       `${statement} new Basic(); createHost();`,
@@ -58,6 +59,18 @@ try {
     ]);
     assert.equal(executed.stdout, 'package works\n');
     assert.equal(executed.stderr, '');
+    const parsed = run(process.execPath, [`--input-type=${format}`, '-e',
+      `${statement}
+       const program = parseProgram('20 END\\n10 LET A = 1+2*3');
+       const replacement = parseLine('10 PRINT A;');
+       const edited = validateProgram([program.lines[1], replacement]);
+       if (program.lines[0].label !== 10 ||
+           program.lines[0].statement.expression.right.operator !== '*' ||
+           !edited.lines[0].statement.trailingSemicolon ||
+           !Object.isFrozen(edited.lines[0].statement.items)) process.exit(1);`,
+    ]);
+    assert.equal(parsed.stdout, '');
+    assert.equal(parsed.stderr, '');
   }
 
   const shim = join(consumer, 'node_modules/.bin',
@@ -73,7 +86,7 @@ try {
   const interactive = run(process.execPath, [executable]);
   assert.equal(interactive.stdout.split('\n')[0], `BASIC ${metadata.version}`);
   assert.equal(interactive.stderr, '');
-  console.log('Packed package: ESM, CommonJS, basic, and banner passed.');
+  console.log('Packed package: imports, parser, basic, and banner passed.');
 } finally {
   rmSync(directory, {recursive: true, force: true});
 }
