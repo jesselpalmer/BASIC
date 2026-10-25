@@ -20,7 +20,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
-import {maxLineStatements} from '../core/instructions.ts';
+import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets} from '../core/input.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
@@ -60,6 +60,9 @@ class Parser {
   lineStart: number;
   label: number | null;
   depth: number;
+  conditionalDepth = 0;
+  branchDepth = 0;
+  lineStatementCount = 0;
   constructor(source: string, {line = 1, offset = 0, dialect}: SourceOptions = {}) {
     this.dialect = validateDialect(dialect);
     this.source = source;
@@ -88,7 +91,16 @@ class Parser {
   }
 
   atStatementEnd() {
-    return this.atEnd() || this.at('PUNCTUATION', ':');
+    return this.atEnd() || this.at('PUNCTUATION', ':') || (this.branchDepth > 0 && this.atElse());
+  }
+
+  atElse() {
+    const following = this.tokens[this.index + 1];
+    return (
+      this.at('IDENTIFIER', 'ELSE') &&
+      !(following.type === 'OPERATOR' && following.value === '=') &&
+      !(following.type === 'PUNCTUATION' && following.value === '(')
+    );
   }
 
   fail(code: string, message: string, token = this.peek()): never {
@@ -145,6 +157,7 @@ class Parser {
       }
       const label = this.expect('LABEL', undefined, 'Expected a line label');
       this.label = label.value;
+      this.lineStatementCount = 0;
       const statement = this.sequence();
       if (!this.atEnd()) {
         this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(this.peek().raw)}`);
@@ -186,6 +199,9 @@ class Parser {
     if (this.atStatementEnd()) {
       this.fail('EXPECTED_STATEMENT', 'Expected a statement after the label');
     }
+    if (this.lineStatementCount === maxLineStatements)
+      this.fail('STATEMENT_LIMIT', `A line permits at most ${maxLineStatements} statements`);
+    this.lineStatementCount++;
     if (command.type === 'IDENTIFIER') {
       const following = this.tokens[this.index + 1];
       // Like GO, DIM remains an ordinary native name outside this statement form.
@@ -261,22 +277,48 @@ class Parser {
       case 'GOTO':
         return this.goto(command);
       case 'IF': {
-        const left = this.expression();
-        const operator = this.peek();
-        if (operator.type !== 'OPERATOR' || !comparisonOperators.has(operator.value)) {
-          this.fail('EXPECTED_COMPARISON', 'Expected one comparison operator', operator);
+        if (this.conditionalDepth === maxConditionalDepth)
+          this.fail(
+            'CONDITIONAL_LIMIT',
+            `Conditional nesting exceeds ${maxConditionalDepth}`,
+            command,
+          );
+        this.conditionalDepth++;
+        try {
+          const left = this.expression();
+          const operator = this.peek();
+          if (operator.type !== 'OPERATOR' || !comparisonOperators.has(operator.value)) {
+            this.fail('EXPECTED_COMPARISON', 'Expected one comparison operator', operator);
+          }
+          this.take();
+          const right = this.expression();
+          const condition = this.node('Comparison', left, right, {
+            left,
+            right,
+            operator: operator.value as ComparisonOperator,
+            operatorLocation: this.location(operator),
+          });
+          const transfer = this.peek();
+          if (!this.at('KEYWORD', 'THEN') && !this.at('KEYWORD', 'GOTO'))
+            this.fail('EXPECTED_TOKEN', 'Expected THEN or GOTO after the comparison');
+          this.take();
+          const consequent =
+            transfer.value === 'GOTO' ? this.jumpTarget() : this.conditionalBranch();
+          let alternate: NodeFields['InlineIfStatement']['alternate'] = null;
+          if (this.atElse()) {
+            this.take();
+            alternate = this.conditionalBranch();
+          }
+          if (consequent.type === 'NumberLiteral' && alternate === null)
+            return this.node('IfStatement', command, consequent, {condition, target: consequent});
+          return this.node('InlineIfStatement', command, alternate ?? consequent, {
+            condition,
+            consequent,
+            alternate,
+          });
+        } finally {
+          this.conditionalDepth--;
         }
-        this.take();
-        const right = this.expression();
-        const condition = this.node('Comparison', left, right, {
-          left,
-          right,
-          operator: operator.value as ComparisonOperator,
-          operatorLocation: this.location(operator),
-        });
-        this.expect('KEYWORD', 'THEN', 'Expected THEN followed by a literal line label');
-        const target = this.jumpTarget();
-        return this.node('IfStatement', command, target, {condition, target});
       }
       case 'INPUT': {
         let prompt: NodeOf<'StringLiteral'> | null = null;
@@ -350,6 +392,23 @@ class Parser {
 
   comma(): void {
     this.expect('PUNCTUATION', ',', 'Expected , between graphics arguments');
+  }
+
+  conditionalBranch(): NodeFields['InlineIfStatement']['consequent'] {
+    if (this.at('NUMBER')) return this.jumpTarget();
+    this.branchDepth++;
+    try {
+      const statement = this.statement();
+      if (!inlineBodyAllowed(statement))
+        this.fail(
+          'UNSUPPORTED_BRANCH',
+          'DIM, DATA, FOR and NEXT are unsupported as inline branch bodies',
+          this.tokens[this.index - 1],
+        );
+      return statement;
+    } finally {
+      this.branchDepth--;
+    }
   }
 
   assignment(command: Token, name: TokenOf<'IDENTIFIER'>): NodeOf<'LetStatement'> {
@@ -493,6 +552,7 @@ class Parser {
           this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(first.raw)}`, first);
         }
         items.push(last);
+        if (this.branchDepth > 0 && this.atElse()) break;
         if (!this.at('PUNCTUATION', ';')) {
           const next = this.peek();
           // Operators still belong to the current expression; only a new
@@ -530,7 +590,11 @@ class Parser {
       if (
         token.type === 'NEWLINE' ||
         token.type === 'EOF' ||
-        (token.type === 'PUNCTUATION' && token.value === ':')
+        (token.type === 'PUNCTUATION' && token.value === ':') ||
+        (this.branchDepth > 0 &&
+          depth === 0 &&
+          token.type === 'IDENTIFIER' &&
+          token.value === 'ELSE')
       )
         return false;
       if (token.type !== 'PUNCTUATION') continue;

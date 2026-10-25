@@ -113,7 +113,9 @@ source validation happens before any effects, including syntax after `END`.
 Undefined variables and other execution-dependent checks remain runtime errors.
 
 `IF left comparison right THEN label` evaluates both operands left to right.
-True branches jump; false branches fall through. Numbers support `=`, `<>`,
+Literal branches jump; a false IF without ELSE skips its physical line. Inline
+branches use prepared continuations and the physical-last-clause rule; see
+[inline conditionals](inline-conditionals.md). Numbers support `=`, `<>`,
 `<`, `<=`, `>`, `>=`; strings support exact, case-sensitive `=` and `<>` only.
 `GOTO label` always jumps. A step changes only the program counter and reports
 the target statement in `nextLocation`; it does not execute the target in that
@@ -301,10 +303,16 @@ statements report `GRAPHICS_UNAVAILABLE` when it is absent. See the
 Colon-separated members execute through the same prepared instruction driver.
 `step()`/`stepAsync()` advance one member, preserving distinct physical columns
 under a shared label. Gates, instruction limits and yields count members rather
-than the structural sequence. GOTO targets the first member, false IF skips the
+than the structural sequence. GOTO targets the first member, false IF without ELSE skips the
 rest of the numbered line, and END halts before later members. Legacy immediate
 `readLine`/`readLineAsync` reject sequences as PROGRAM_REQUIRED before any member
 effects. See [the sequence contract](statement-sequences.md).
+
+An inline IF condition costs one Step/gate/budget unit, and each chosen body
+statement costs another. Unchosen branches and clause skips cost no synthetic
+instructions. GOSUB saves the prepared clause successor, which may be the next
+numbered line rather than the next lexical member. INPUT/WAIT completes that
+successor only after generation/abort checks, retaining normal cancellation.
 
 Literal GOSUB/RETURN use the same prepared driver and each cost one statement,
 gate and instruction-budget unit. Locations identify real callee/return positions;

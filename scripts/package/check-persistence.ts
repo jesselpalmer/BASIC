@@ -62,6 +62,8 @@ export async function checkPersistenceSessions(executable: string): Promise<void
       {invalid: '10 END:READ A(0)', diagnostic: /Array A requires DIM/},
       {invalid: '10 END:INPUT A(0)', diagnostic: /Array A requires DIM/},
       {invalid: '10 INPUT A,,B', diagnostic: /Expected a variable or array/},
+      {invalid: '10 IF 1=1 THEN PRINT "ok" ELSE 999', diagnostic: /No line label 999/},
+      {invalid: '10 IF 1=1 THEN PRINT "ok" ELSE PRINT A(0)', diagnostic: /Array A requires DIM/},
     ]) {
       writeFileSync(saved, '10 PRINT "original"');
       writeFileSync(candidate, invalid);

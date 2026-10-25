@@ -1,0 +1,13 @@
+10 REM Authored conditional probe; whitespace-normalized source excerpts below.
+15 DIM B(13):B(6)=3:B(13)=7:TOTAL=0:GOTO 85
+20 TOTAL=TOTAL+1:PRINT "after=";TOTAL:IF TOTAL=1 THEN B(6)=9:GOTO 85
+30 END
+85 LET D=B(6)-B(13):IF D<0 THEN PRINT "I WIN BY";-D;"POINTS":GOTO 20
+90 PRINT "nonnegative":GOSUB 100:IF 1=1 THEN GOSUB 200 ELSE PRINT "wrong":PRINT "wrong tail"
+95 PRINT "done":END
+100 FOR J=0 TO 1
+101 IF J<>0 THEN IF J<>6 THEN 105
+102 PRINT "edge":GOTO 110
+105 PRINT "interior"
+110 NEXT J:RETURN
+200 PRINT "sub":RETURN

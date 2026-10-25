@@ -21,6 +21,8 @@ const maxCallDepth = 1024;
 /** The cursor and active loops belong to one execution of a prepared snapshot. */
 export class ControlFlow {
   #index = 0;
+  #currentIndex = -1;
+  #explicitTransfer = false;
   #loopFrames = new Map<number, LoopFrame>();
   #calls: CallFrame[] = [];
   // Unique across current and suspended contexts, like the shared BASIC values.
@@ -37,7 +39,11 @@ export class ControlFlow {
 
   takeInstruction(): Instruction | undefined {
     const line = this.nextInstruction;
-    if (line) this.#index++;
+    if (line) {
+      this.#currentIndex = this.#index;
+      this.#index = line.nextIndex;
+      this.#explicitTransfer = false;
+    }
     return line;
   }
 
@@ -48,7 +54,24 @@ export class ControlFlow {
   }
 
   skipLine(location: Location): void {
-    this.#moveTo(this.prepared.instructions[this.#index - 1].nextLineIndex, location);
+    this.#moveTo(this.prepared.instructions[this.#currentIndex].nextLineIndex, location);
+  }
+
+  chooseBranch(taken: boolean, location: Location): void {
+    const branches = this.prepared.instructions[this.#currentIndex].branches!;
+    const destination = taken ? branches.whenTrue : branches.whenFalse;
+    this.#moveTo(
+      destination.kind === 'label'
+        ? this.#target(destination.target.value, destination.target.location)
+        : destination.index,
+      destination.kind === 'label' ? destination.target.location : location,
+    );
+  }
+
+  finishInstruction(): void {
+    const instruction = this.prepared.instructions[this.#currentIndex];
+    if (!this.#explicitTransfer && instruction.nextIndex !== this.#currentIndex + 1)
+      this.#moveTo(instruction.nextIndex, instruction.statement.location);
   }
 
   jump(label: number, location: Location): void {
@@ -73,6 +96,7 @@ export class ControlFlow {
     this.#calls.push({index: this.#index, loops: this.#loopFrames});
     this.#loopFrames = loops;
     this.#index = index;
+    this.#explicitTransfer = true;
   }
 
   returnFromCall(location: Location): void {
@@ -125,8 +149,8 @@ export class ControlFlow {
       );
     }
     this.evaluator.assign(statement.variable, start);
-    // Taking an instruction advances before dispatch, so its header is index - 1.
-    const pair = this.prepared.pairsByFor.get(this.#index - 1)!;
+    // The actual header position is independent of its prepared successor.
+    const pair = this.prepared.pairsByFor.get(this.#currentIndex)!;
     if (step > 0 ? start > limit : start < limit)
       this.#moveTo(pair.nextIndex + 1, statement.location);
     else {
@@ -136,7 +160,7 @@ export class ControlFlow {
   }
 
   nextLoop(statement: NodeOf<'NextStatement'>): void {
-    const pair = this.prepared.pairsByNext.get(this.#index - 1)!;
+    const pair = this.prepared.pairsByNext.get(this.#currentIndex)!;
     const frame = this.#loopFrames.get(pair.forIndex);
     if (!frame) {
       throw new BasicRuntimeError(
@@ -174,6 +198,7 @@ export class ControlFlow {
       }
     }
     this.#index = index;
+    this.#explicitTransfer = true;
   }
 
   #checkDestination(

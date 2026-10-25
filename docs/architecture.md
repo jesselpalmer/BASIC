@@ -28,8 +28,8 @@ are implementation modules, not additional public package entrypoints. See the
 | `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.  |
 | `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                         |
 | `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                 |
-| `core/instructions.ts`                | Bounded line sequences and immutable leaf instruction positions retaining original Lines and ordinals.               |
-| `core/prepared_program.ts`            | A validated program, flat leaf instructions and label/loop indexes derived from that exact snapshot.                 |
+| `core/instructions.ts`                | Bounded sequence/conditional trees, real instruction positions and prepared branch/continuation destinations.        |
+| `core/prepared_program.ts`            | A validated program, flat real instructions and label/loop indexes derived from that exact snapshot.                 |
 | `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
 | `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                      |
 | `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
@@ -59,8 +59,14 @@ the prepared program atomically after validation. Reset execution state on every
 new run; never reuse loop frames or variable values accidentally across runs.
 Every branch, loop repeat, and loop skip follows the same destination rules.
 A StatementSequence retains its physical line and separators while preparation
-derives one instruction per leaf. Labels enter the first member; loops pair at
-instruction positions. False IF skips the physical line through the same native
+derives one instruction per ordinary statement or IF condition. Inline branches
+retain their clause tree; only selected bodies execute. Prepared successors
+encode physical-last-clause scope and GOSUB return positions, without invented
+instructions. Noncontiguous clause completion uses native transfer guards while
+contiguous fallthrough adds no loop-table scan. The actual current position is
+separate from its successor. See [inline conditionals](inline-conditionals.md).
+Labels enter the first member; loops pair at instruction positions. False IF
+without ELSE skips the physical line through the same native
 loop guards. Immediate library entry rejects sequences before member effects.
 Literal GOSUB saves the real next position and caller loop-map ownership.
 Callees own fresh loop contexts; RETURN drops callee loops and restores caller
