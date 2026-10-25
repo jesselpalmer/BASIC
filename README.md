@@ -3,13 +3,17 @@
 # BASIC
 
 A small line-numbered BASIC interpreter with a Bun terminal editor, an
-embeddable TypeScript API, and a static browser playground. BASIC 1.0 includes
+embeddable TypeScript API, and a static browser playground. The current
+development snapshot includes
 expressions, input, branching, loops, saved programs, graphics, animation and
 keyboard controls, with a complete Pong game written in BASIC.
 
-The [1.0 language reference](docs/language-v1.md) is the complete supported
-dialect. This is a deliberately limited dialect, without
-QBasic or GW-BASIC compatibility, arrays, subroutines, or sound. The browser
+**1.0 is not ready:** verified classic-game compatibility is now required.
+See the [compatibility roadmap](docs/classic-games-roadmap.md) and
+[release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
+The [language reference](docs/language-v1.md) describes current native behavior;
+arrays, subroutines and the historical profiles are not implemented yet.
+The new scope does not claim general QBasic or GW-BASIC compatibility. The browser
 also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 
@@ -68,7 +72,8 @@ is required. Edits restore locally after reload; import and export `.bas` files
 to move programs between the browser and terminal. See the
 [playground guide](docs/playground.md) for controls and tests.
 
-The reviewed `BASIC-playground-1.0.0.tar.gz` archive identified in #109 runs
+The earlier `BASIC-playground-1.0.0.tar.gz` archive recorded in #109 is a
+superseded development snapshot, not an approved 1.0 release. A static archive runs
 without a checkout or Bun installation. Extract it and serve the versioned
 directory with a static HTTP server, for example:
 
@@ -109,9 +114,10 @@ a checkout, install the `basic` command with:
 bun install -g .
 ```
 
-Alternatively, download the reviewed npm archive identified in
+For development testing, use an exact archive identified in
 [release readiness #109](https://github.com/jesselpalmer/BASIC/issues/109),
-verify its recorded checksum, and install that file:
+verify its recorded checksum and scope, and install that file. The earlier
+candidate is superseded and must not be published as 1.0:
 
 ```bash
 bun install --global ./node-basic-lang-1.0.0.tgz

@@ -1,11 +1,18 @@
-# BASIC 1.0.0
+# BASIC 1.0.0 — draft, not ready
 
 BASIC 1.0 brings a small, documented line-numbered dialect to a Bun library/CLI
 and a static browser playground. It includes a complete playable Pong game whose
 logic is written in BASIC. The exact candidate, validation evidence and
 publication status are recorded in [release readiness #109](https://github.com/jesselpalmer/BASIC/issues/109).
 
-## Included
+**Release hold:** the earlier small-dialect candidate is superseded. Correct
+classic game listings are required before 1.0; see the
+[compatibility roadmap](classic-games-roadmap.md) and
+[epic #114](https://github.com/jesselpalmer/BASIC/issues/114). Planned dialect
+features are not implemented or validated yet. Rework these notes after that
+implementation; do not publish earlier candidate archives as 1.0.
+
+## Implemented in the current development snapshot
 
 - Typed numeric/string variables, expressions, ABS/INT/RND, PRINT/INPUT,
   IF/THEN and GOTO, nested FOR/NEXT loops, REM, CLS and END.
@@ -30,9 +37,11 @@ The static playground is validated in desktop Chromium on Linux/macOS; other
 browser engines and mobile input are not validated targets. Serve the extracted
 playground over HTTP; no application backend or account is required.
 
-This is not a QBasic or GW-BASIC compatibility release. Arrays, GOSUB/RETURN,
-additional string functions, sound and play-only exports are outside the 1.0
-scope. The [language reference](language-v1.md) and
+The target is the pinned classic collection with verified dialect rules, not
+general QBasic/GW-BASIC compatibility. Arrays, GOSUB/RETURN and corpus-required
+strings/data/formatting/control-flow/host features are now 1.0 blockers; they are
+not present yet. Sound and play-only exports remain optional unless required by
+a verified dependency. The [native language reference](language-v1.md) and
 [support/extension policy](compatibility.md) define the supported contract.
 
 Migration from the earlier JavaScript package requires Bun and named imports,
@@ -43,8 +52,10 @@ source that previously executed partially. See the
 
 ## Try it
 
-Install the reviewed `node-basic-lang-1.0.0.tgz` archive with Bun, or serve the
-reviewed `BASIC-playground-1.0.0.tar.gz` static archive after extraction. The
+Use a checkout for current development testing. A newly validated
+`node-basic-lang-1.0.0.tgz` package and `BASIC-playground-1.0.0.tar.gz` static
+archive must be produced after compatibility work; the earlier artifacts are
+historical snapshots, not approved publication bytes. The
 release manifest identifies their exact hashes and candidate commit. Until
 publication completes, use the candidate artifacts identified in #109 rather
 than assuming an unversioned registry install resolves to this version.

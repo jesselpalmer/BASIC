@@ -6,14 +6,32 @@ procedure prepares and validates artifacts; it does not publish a package,
 create a tag, or create a GitHub release. Do not infer readiness from issue
 closure, old test counts, or an earlier development snapshot.
 
+## Classic-game gate — required before a new candidate
+
+The earlier READY decision is withdrawn. #109 now records **NOT READY** and
+[classic compatibility #114](https://github.com/jesselpalmer/BASIC/issues/114)
+is required. Follow the [roadmap](classic-games-roadmap.md):
+
+- Complete #115's source/manual certification and all 108-file dispositions.
+  Keep raw and reviewed corrections separate; unknown/valid-unimplemented/asset
+  blockers cannot be hidden by skips or declared invalid without evidence.
+- Complete #116's dialect/API design, required implementation tickets and
+  #129's behavioral library/installed CLI/browser/static acceptance. Require
+  meaningful gameplay/state/output, retries/restarts and error/lifecycle coverage.
+- Reconcile unresolved blockers and any explicitly approved scope changes in
+  #109. Preserve existing native/Pong/graphics/input/work-recovery regressions.
+- The old 201b524 candidate/archives are historical and must not be published as
+  1.0. Validate a new exact integrated candidate with the commands below.
+
 ## Contract and metadata
 
 - Confirm package version `1.0.0`, the metadata-derived `BASIC 1.0.0` banner,
   [release notes](release-notes-1.0.md), README and changelog agree.
 - Review the [language reference](language-v1.md), [public runtime API](interpreter-host.md),
   [support/extension policy](compatibility.md), and graphics/WAIT/keyboard guides.
-  The reserved-name policy protects existing valid programs; optional future
-  language work is not part of this release.
+  The reserved-name policy protects existing valid programs. Settle historical
+  profiles, new public AST/types/capabilities and all required corpus features
+  before freezing the contract; planned syntax is not implemented behavior.
 - Confirm #54, #55 and #56 are merged. Record real game playthroughs and independent
   animation/input/game/API review, resolving correctness, data-loss and
   responsiveness blockers. Keep the supported Bun/browser/platform scope precise.
@@ -58,7 +76,8 @@ Validate those exact bytes, rather than repacking a different archive later:
   unsupported graphics/keyboard diagnostics in terminal hosts.
 - Extract the static archive outside the checkout and serve it on a generic HTTP
   server. Run actual browser checks against that extracted distribution,
-  including Pong, examples, controls and source round trips. Nothing may depend
+  including Pong, verified classic games/profile selection, examples, controls
+  and source round trips. Nothing may depend
   on checkout-only files, application servers or a build performed by the user.
 - Retain the manifest and exact artifacts. Link their CI artifacts and logs from
   #109; record full hashes, artifact names and successful commands. If artifacts
@@ -67,7 +86,7 @@ Validate those exact bytes, rather than repacking a different archive later:
 
 ## Readiness decision
 
-Require all readiness gates in #109, including a fresh green Linux/macOS run for
+Require all expanded compatibility and readiness gates in #109, including a fresh green Linux/macOS run for
 that exact candidate and concrete package/static-artifact evidence. Record the
 commit, artifact identities, review outcomes and any blockers in the issue's
 **Release decision** section. Change its actual field to `Readiness: READY` only

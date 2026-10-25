@@ -1,8 +1,13 @@
-# BASIC 1.0 support and compatibility
+# BASIC support and compatibility — provisional 1.0 contract
 
 BASIC is a small dialect with one shared parser/runtime. The [language reference](language-v1.md)
 defines accepted programs; the API guides define embedding and host behavior.
-This project does not claim QBasic, GW-BASIC, or general historical BASIC compatibility.
+The current snapshot does not implement historical compatibility.
+**The final 1.0 contract is not frozen:** correct classic listings are now required
+by [#114](https://github.com/jesselpalmer/BASIC/issues/114), following the
+[compatibility roadmap](classic-games-roadmap.md). The rules below describe
+existing native behavior and the policy to preserve it; planned profiles are not
+yet accepted syntax. General QBasic/GW-BASIC compatibility is not claimed.
 
 ## Supported delivery targets
 
@@ -50,7 +55,8 @@ queue limits, Escape Stop, and unsupported-host behavior are explicit.
 
 ## Reserved names and extension policy
 
-These names are reserved case-insensitively in 1.0, including terminal commands
+These names are currently reserved case-insensitively in the native dialect,
+including terminal commands
 and grammar words that are not standalone statements:
 
 ```text
@@ -74,12 +80,16 @@ Versioning follows semantic compatibility for both programs and consumers:
 - Removing or changing supported behavior, reserving a previously valid name,
   requiring a new callback on complete structural hosts, or extending a public
   closed AST/discriminated union in a way that breaks exhaustive consumers
-  requires a major version. An explicitly selected future dialect can provide
-  incompatible extensions separately; 1.0 has no dialect-selection option.
+  requires a major version. An explicitly selected dialect can provide
+  incompatible semantics separately. The current snapshot has no selection
+  option; [design #116](https://github.com/jesselpalmer/BASIC/issues/116) must
+  settle profiles, public types and the final reserved-name policy before 1.0.
 
-Arrays, subroutines, extra string functions, sound, broad dialect compatibility,
-and a play-only game exporter remain optional future work. None is a hidden
-requirement for the supported 1.0 experience.
+Arrays, subroutines, required string/data/control-flow features and verified
+classic profiles are now explicit 1.0 blockers. They are not implemented by this
+planning update. Sound and a play-only exporter remain optional unless a verified
+corpus dependency changes that decision. #109 records NOT READY until a new
+candidate meets the expanded gates; earlier candidate archives are historical.
 
 ## Migration from the older JavaScript package
 
