@@ -6,7 +6,8 @@ import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
-import {readInput} from './input.ts';
+import {readInput, inputTargets, isInputStatement} from './input.ts';
+import type {InputStatement} from './input.ts';
 import {formatPrintUsing} from './print_using.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
@@ -276,8 +277,9 @@ export default class Basic {
     this.#checkAbort(signal);
     const line = this.#controlFlow.nextInstruction;
     if (
+      !line ||
       this.#immediate ||
-      (line?.statement.type !== 'InputStatement' && line?.statement.type !== 'WaitStatement')
+      (!isInputStatement(line.statement) && line.statement.type !== 'WaitStatement')
     )
       return this.#step();
     const generation = this.#generation;
@@ -308,7 +310,7 @@ export default class Basic {
     this.#checkAbort(options.signal);
     const generation = this.#generation;
     const line = this.#prepareImmediate(source, options);
-    if (line?.statement.type === 'InputStatement' || line?.statement.type === 'WaitStatement') {
+    if (line && (isInputStatement(line.statement) || line.statement.type === 'WaitStatement')) {
       await this.#executeSuspension(line, line.statement, options.signal);
       if (generation !== this.#generation) throw abortError();
       this.#checkAbort(options.signal);
@@ -344,6 +346,16 @@ export default class Basic {
           line.label,
         );
       }
+      if (
+        line.statement.type === 'InputTargetsStatement' &&
+        line.statement.targets.some((target) => target.type === 'ArrayReference')
+      )
+        throw new BasicRuntimeError(
+          'PROGRAM_REQUIRED',
+          'Indexed INPUT requires a complete program; use runAsync or stepAsync',
+          line.statement.location.start,
+          line.label,
+        );
       this.#usedLabels.add(line.label);
       this.#prepared = this.#emptyProgram;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
@@ -395,7 +407,7 @@ export default class Basic {
 
   async #executeSuspension(
     line: Instruction,
-    statement: NodeOf<'InputStatement'> | NodeOf<'WaitStatement'>,
+    statement: InputStatement | NodeOf<'WaitStatement'>,
     signal?: AbortSignal,
   ): Promise<void> {
     const generation = this.#generation;
@@ -419,7 +431,7 @@ export default class Basic {
         }
         await pending;
       } else {
-        const value = await readInput(
+        const values = await readInput(
           {
             readLine: (prompt, options) => {
               this.#executing = true;
@@ -442,7 +454,16 @@ export default class Basic {
           controller.signal,
         );
         if (generation !== this.#generation || controller.signal.aborted) throw abortError();
-        this.#evaluator.assign(statement.target, value);
+        // Indices may invoke host functions. Keep the same mutation guard as
+        // synchronous assignment while committing the validated response.
+        this.#executing = true;
+        try {
+          inputTargets(statement).forEach((target, index) =>
+            this.#evaluator.assign(target, values[index]),
+          );
+        } finally {
+          this.#executing = false;
+        }
       }
     } catch (error) {
       if (generation === this.#generation) {
@@ -532,6 +553,7 @@ export default class Basic {
             line.label,
           );
         case 'InputStatement':
+        case 'InputTargetsStatement':
           throw new BasicRuntimeError(
             'ASYNC_INPUT_REQUIRED',
             'Use runAsync, stepAsync, or readLineAsync for INPUT',

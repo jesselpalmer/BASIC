@@ -227,6 +227,10 @@ export interface NodeFields {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly target: NodeOf<'Variable'>;
   };
+  InputTargetsStatement: {
+    readonly prompt: NodeOf<'StringLiteral'> | null;
+    readonly targets: readonly AssignmentTarget[];
+  };
   PrintStatement: {
     readonly items: readonly Expression[];
     readonly separators: readonly Location[];
@@ -287,6 +291,7 @@ export type SimpleStatement = Nodes<
   | 'DimStatement'
   | 'LetStatement'
   | 'InputStatement'
+  | 'InputTargetsStatement'
   | 'IfStatement'
   | 'GotoStatement'
   | 'GosubStatement'

@@ -60,6 +60,8 @@ export async function checkPersistenceSessions(executable: string): Promise<void
       {invalid: '10 FOR I=1 TO 2', diagnostic: /FOR has no matching NEXT/},
       {invalid: '10 DATA 1:PRINT 2', diagnostic: /DATA must be the last statement/},
       {invalid: '10 END:READ A(0)', diagnostic: /Array A requires DIM/},
+      {invalid: '10 END:INPUT A(0)', diagnostic: /Array A requires DIM/},
+      {invalid: '10 INPUT A,,B', diagnostic: /Expected a variable or array/},
     ]) {
       writeFileSync(saved, '10 PRINT "original"');
       writeFileSync(candidate, invalid);

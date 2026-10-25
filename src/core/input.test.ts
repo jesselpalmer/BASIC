@@ -78,7 +78,7 @@ describe('INPUT grammar', () => {
     '10 INPUT',
     '10 INPUT "Prompt" N',
     '10 INPUT "Prompt";',
-    '10 INPUT A,B',
+    '10 INPUT A,,B',
     '10 INPUT A;B',
     '10 INPUT A+1',
     '10 INPUT (A)',
@@ -345,7 +345,7 @@ describe('waiting, stepping, and cancellation', () => {
 
   it('validates all INPUT grammar before asking, and allows unreachable input in synchronous runs', async () => {
     const {basic, prompts} = scripted([]);
-    expect(await watch(basic.runAsync('10 INPUT N\n20 INPUT A,B'))).toBeInstanceOf(
+    expect(await watch(basic.runAsync('10 INPUT N\n20 INPUT A,,B'))).toBeInstanceOf(
       BasicSyntaxError,
     );
     expect(basic.run('10 END\n20 INPUT N').status).toBe('halted');

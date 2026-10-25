@@ -63,6 +63,43 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(subroutine.stdout, 'take=4:0:3\nnested=4\n');
   assert.equal(subroutine.stderr, '');
+  const inputProbe = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/input/probe.bas')],
+    input: 'oops\n2,3\n4,bad,"oops"\n4,5,"hi, ""Jesse"""\n',
+  });
+  assert.equal(
+    inputProbe.stdout,
+    'TURN NO. 1 WHAT IS YOUR GUESS? Invalid input; enter 2 comma-separated values.\n? Cell? Invalid input; enter 3 comma-separated values.\nCell? pair=2:3\ncell=4:5:hi, "Jesse"\ndata=7:8\n',
+  );
+  assert.equal(inputProbe.stderr, '');
+  const inputSource = '10 DIM A(2):INPUT I,A(I):PRINT I;":";A(I):END';
+  const storedInput = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: inputSource + '\nSAVE "input-saved.bas"\nRUN\n2,9\nRUN\n1,8\nEXIT\n',
+  });
+  assert.equal(storedInput.stderr, '');
+  assert.equal(readFileSync(join(consumer, 'input-saved.bas'), 'utf8'), inputSource);
+  assert.ok(storedInput.stdout.includes('2:9\n'));
+  assert.ok(storedInput.stdout.includes('1:8\n'));
+  const loadedInput = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "input-saved.bas"\nLIST\nRUN\n2,7\nEXIT\n',
+  });
+  assert.equal(loadedInput.stderr, '');
+  assert.ok(loadedInput.stdout.includes(inputSource));
+  assert.ok(loadedInput.stdout.includes('2:7\n'));
+  writeFileSync(file, '10 N=7:M=8:INPUT N,M:PRINT "never"');
+  const listEof = runProcess({
+    cwd: consumer,
+    args: [executable, file],
+    input: '1,bad\n',
+    expectedStatus: 1,
+  });
+  assert.match(listEof.stderr, /Input ended/);
+  assert.doesNotMatch(listEof.stdout, /never/);
   const data = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/data/probe.bas')],

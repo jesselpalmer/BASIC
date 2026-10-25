@@ -36,6 +36,7 @@ export const libraryAcceptanceCases = [
   'statement sequences preserve positions, line scope and preflight validation',
   'literal subroutines preserve caller loops, shared values and real return positions',
   'native data pools preserve corpus literals, sequential reads and fresh cursors',
+  'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -423,6 +424,59 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       output.length = 0;
       basic.run(source);
       assert.equal(output.join(''), expected);
+    },
+  );
+  await check(
+    'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/input/probe.bas'),
+        'utf8',
+      );
+      const expected =
+        'TURN NO. 1 WHAT IS YOUR GUESSInvalid input; enter 2 comma-separated values.\nInvalid input; enter 3 comma-separated values.\npair=2:3\ncell=4:5:hi, "Jesse"\ndata=7:8\n';
+      const {basic, output, prompts, remaining} = setup([
+        'oops',
+        '2,3',
+        '4,bad,"oops"',
+        '4,5,"hi, ""Jesse"""',
+      ]);
+      await basic.runAsync(source);
+      assert.equal(output.join(''), expected);
+      assert.deepEqual(prompts, ['? ', '? ', 'Cell? ', 'Cell? ']);
+      assert.equal(remaining.length, 0);
+      remaining.push('oops', '2,3', '4,bad,"oops"', '4,5,"hi, ""Jesse"""');
+      output.length = 0;
+      await basic.runAsync();
+      assert.equal(output.join(''), expected);
+      assert.deepEqual(basic.arrays.find((a) => a.name === 'P')?.values, [0, 0, 0, 0, 4, 5]);
+      const indexed = setup(['2,9']);
+      await indexed.basic.runAsync('10 DIM A(2):INPUT I,A(I):PRINT A(2)');
+      assert.equal(indexed.output.join(''), '9\n');
+      assert.throws(() => api.parseProgram('10 END:INPUT A(0)'), api.BasicSyntaxError);
+      const eof = setup(['1,bad', null]);
+      await assert.rejects(
+        eof.basic.runAsync('10 N=7:M=8:INPUT N,M'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'INPUT_ENDED',
+      );
+      assert.deepEqual(eof.basic.variables, [
+        {name: 'N', value: 7},
+        {name: 'M', value: 8},
+      ]);
+      const old = pending();
+      const waiting = old.basic
+        .runAsync('10 INPUT A,B:PRINT "old"')
+        .catch((error: unknown) => error);
+      old.basic.run('10 PRINT "fresh"');
+      old.requests[0].reply('1,2');
+      const cancelled = await waiting;
+      assert.ok(cancelled instanceof Error);
+      assert.equal(cancelled.name, 'AbortError');
+      assert.equal(old.output.join(''), 'fresh\n');
+      const raw = setup(['  "x,y"  ']);
+      await raw.basic.runAsync('10 DIM S$(0):INPUT S$(0):PRINT S$(0)');
+      assert.equal(raw.output.join(''), '  "x,y"  \n');
     },
   );
   await check('public evaluator values and diagnostics', () => {

@@ -96,6 +96,11 @@ old work must never affect a replacement run.
 The synchronous host callback guard is a different invariant: a callback cannot
 mutate execution in the middle of a statement. Keep it even when async ownership
 is explicit. The execution budget counts statements, not INPUT retries or yields.
+INPUT lists decode/convert a complete response before committing targets. After
+the generation/abort check, commit left to right under the synchronous mutation
+guard because array indices may invoke host functions. Retries retain no partial
+fields. The legacy single-scalar AST/raw string contract stays intact; see
+[INPUT targets](input-targets.md) for row, limit and failure policies.
 
 ## Terminal and stored source
 

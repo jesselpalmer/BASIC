@@ -59,7 +59,8 @@ nonnegative integers, include zero, and declarations apply to the complete
 program before execution. Numeric/string elements start at 0/empty string;
 scalars keep their existing undefined-name behavior and separate storage.
 Indices must be safe integers within bounds. Native has no implicit dimensions,
-indexed INPUT, `%` arrays, square-bracket access or MAT yet. DIM remains a valid
+`%` arrays, square-bracket access or MAT yet. Indexed INPUT and READ reuse the
+same explicit declaration and index rules. DIM remains a valid
 scalar name outside its declaration form. See the array contract for resource
 caps, evaluation order, preflight diagnostics and bounded observations.
 
@@ -142,29 +143,29 @@ In these forms, `expression` follows the rules above, `variable` is a name, and
 `line` is a literal valid line label. Square brackets describe optional syntax;
 they are not written in a program.
 
-| Statement        | Form and behavior                                                        |
-| ---------------- | ------------------------------------------------------------------------ |
-| Assignment       | `[LET] variable = expression`; `LET` is optional.                        |
-| Output           | `PRINT [items] [;]`; expression/separator rules below.                   |
-| Formatted output | `PRINT USING template, value [, value ...] [;]`; integer subset below.   |
-| Input            | `INPUT ["prompt";] variable`; one target only.                           |
-| Program data     | `DATA literal [, literal ...]`; final statement on its physical line.    |
-| Read data        | `READ target [, target ...]`; numeric/string scalars or DIM arrays.      |
-| Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.      |
-| Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
-| Conditional jump | `IF expression comparison expression THEN line`.                         |
-| Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.         |
-| Return           | `RETURN`; resume at the real instruction following the caller.           |
-| Jump             | `GOTO line` or `GO TO line`; literal targets only.                       |
-| Loop start       | `FOR variable = expression TO expression [STEP expression]`.             |
-| Loop end         | `NEXT variable`; the variable is required.                               |
-| Comment          | `REM [any remaining text]`.                                              |
-| Pen color        | `COLOR expression`; select an integer palette index from 0 through 15.   |
-| Pixel            | `PSET expression,expression`; draw one logical pixel.                    |
-| Segment          | `LINE expression,expression,expression,expression`; draw a line segment. |
-| Circle           | `CIRCLE expression,expression,expression`; draw a circle outline.        |
-| Clear            | `CLS`; asks the host to clear text and graphics.                         |
-| Completion       | `END`; finishes the run normally and returns control to its host.        |
+| Statement        | Form and behavior                                                            |
+| ---------------- | ---------------------------------------------------------------------------- |
+| Assignment       | `[LET] variable = expression`; `LET` is optional.                            |
+| Output           | `PRINT [items] [;]`; expression/separator rules below.                       |
+| Formatted output | `PRINT USING template, value [, value ...] [;]`; integer subset below.       |
+| Input            | `INPUT ["prompt";] target [, target ...]`; scalar or explicit array targets. |
+| Program data     | `DATA literal [, literal ...]`; final statement on its physical line.        |
+| Read data        | `READ target [, target ...]`; numeric/string scalars or DIM arrays.          |
+| Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.          |
+| Wait             | `WAIT expression`; yield for a duration in milliseconds.                     |
+| Conditional jump | `IF expression comparison expression THEN line`.                             |
+| Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.             |
+| Return           | `RETURN`; resume at the real instruction following the caller.               |
+| Jump             | `GOTO line` or `GO TO line`; literal targets only.                           |
+| Loop start       | `FOR variable = expression TO expression [STEP expression]`.                 |
+| Loop end         | `NEXT variable`; the variable is required.                                   |
+| Comment          | `REM [any remaining text]`.                                                  |
+| Pen color        | `COLOR expression`; select an integer palette index from 0 through 15.       |
+| Pixel            | `PSET expression,expression`; draw one logical pixel.                        |
+| Segment          | `LINE expression,expression,expression,expression`; draw a line segment.     |
+| Circle           | `CIRCLE expression,expression,expression`; draw a circle outline.            |
+| Clear            | `CLS`; asks the host to clear text and graphics.                             |
+| Completion       | `END`; finishes the run normally and returns control to its host.            |
 
 Unknown statements, extra arguments, and unconsumed tokens are syntax errors.
 `CLS` and `END` take no operands. Keywords inside strings are ordinary text.
@@ -277,14 +278,30 @@ line. `CLS` does not reset variables, change the program, or move the next line.
 
 An optional prompt must be a string literal followed by `;`. The host displays
 that literal followed by `? `; without a prompt it displays `? `. Input consumes
-one complete line without its line ending. String input preserves spaces and
-needs no quotes.
+one complete line without its line ending. A single string target, scalar or
+indexed, preserves the entire response including spaces, commas and quotes.
 
 For numeric input, trim surrounding spaces/tabs and require a complete signed
 or unsigned decimal value using the literal forms above. Empty, partial,
 non-finite, or otherwise invalid input produces a useful retry message and asks
 again without assigning the target. Do not use prefix parsing such as accepting
 `12oops` as `12`.
+
+Multiple targets require exactly one comma-separated field per target in the
+same response. Spaces/tabs outside quoted fields are trimmed; quoted contents
+are preserved, and doubled quotes decode to one quote. Empty fields are allowed
+for string targets. Numeric fields, including quoted ones, use the same complete
+finite conversion. Missing/surplus fields, invalid numbers or malformed quoting
+retry the whole row before any assignment. Newline characters are unsupported
+inside rows. No fields carry over into the next response.
+
+After row validation, targets assign left to right; `INPUT I,A(I)` uses the new
+I for the index. A commit-time bounds/index failure preserves earlier writes
+and ends the run without retrying. A list costs one statement regardless of
+retries. Permit at most 4096 targets and 65536 UTF-16 units per multi-target
+response; an oversized response reports INPUT_LIMIT. Historical continuation,
+ignored surplus fields and INPUT LINE/LINPUT are unsupported. See the
+[INPUT target contract](input-targets.md) for detailed native policies.
 
 Execution waits for input without blocking the host. EOF before a value arrives
 ends the run with a source-located input-ended diagnostic; file mode exits with

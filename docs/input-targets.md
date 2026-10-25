@@ -1,6 +1,6 @@
 # Native INPUT target lists
 
-**Status:** design recorded before implementation for the first native #121 slice.
+**Status:** implemented first native #121 slice; design recorded before code.
 Historical input/line/file profiles and whole-game certification remain pending.
 
 ## Evidence and native boundary

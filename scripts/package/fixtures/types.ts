@@ -314,3 +314,25 @@ if (restoreStatement?.type === 'RestoreStatement') {
   const kind: 'RestoreStatement' = restoreStatement.type;
   void kind;
 }
+
+const inputList = parseLine('10 INPUT N,A(N),S$')?.statement;
+if (inputList?.type === 'InputTargetsStatement') {
+  const target: AssignmentTarget = inputList.targets[0];
+  void target;
+  const invalidTarget: (typeof inputList.targets)[number] = {
+    // @ts-expect-error INPUT target lists accept assignment targets, not literals.
+    type: 'NumberLiteral',
+    value: 1,
+    raw: '1',
+    location: inputList.location,
+  };
+  void invalidTarget;
+  // @ts-expect-error Input target lists belong to immutable snapshots.
+  inputList.targets[0] = target;
+}
+const scalarInput = parseLine('10 INPUT N')?.statement;
+if (scalarInput?.type === 'InputStatement') {
+  // Existing scalar syntax retains the Variable-only target field.
+  const kind: 'Variable' = scalarInput.target.type;
+  void kind;
+}

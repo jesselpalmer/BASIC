@@ -79,7 +79,7 @@ describe('array syntax and preflight', () => {
     '10 A(1,2,3)=1',
     '10 PRINT A(,1)',
     '10 PRINT A(1,)',
-    '10 INPUT A(1)',
+    '10 INPUT A(1)=2',
     '10 FOR A(1)=1 TO 2',
   ])('rejects malformed or unsupported syntax: %s', (source) => {
     expect(() => parseLine(source)).toThrow(BasicSyntaxError);
