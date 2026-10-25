@@ -137,8 +137,15 @@ open; existing SQR/EXP scalar and array names are preserved.
 The [native statement/instruction slice](statement-sequences.md) for #118 adds
 colon sequences with physical statement positions, same-line loops, line-entry
 jumps and source-backed false-IF line scope. Inline THEN/ELSE, historical
-backslashes/modifiers and GOSUB/RETURN remain separate work. AWARI sequence
+backslashes/modifiers remain separate work; literal calls use the subroutine
+slice below. AWARI sequence
 probes explicitly add native keyword whitespace and are not whole-game passes.
+
+The [native literal subroutine slice](subroutines.md) for #57 adds contextual
+GOSUB/RETURN with real return positions, shared values, owned caller/callee loop
+contexts and a bounded call stack. Existing names remain available. Computed
+dispatch, historical transfer policies and full game/corpus outcomes stay open.
+The normalized AWARI call probe is not a whole-game or unchanged-source pass.
 
 ## Delivery order and tickets
 

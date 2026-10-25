@@ -39,8 +39,9 @@ share a label and physical line while retaining different columns. GOTO enters
 a numbered line at its first instruction. END prevents following instructions
 on that line from executing. Existing loop entry/discard rules are preserved
 using flat instruction positions. An empty loop skips its matching NEXT but
-continues with the following same-line statement. Future GOSUB return addresses
-must use these positions rather than labels; calls are not added in this slice.
+continues with the following same-line statement. The [literal subroutine
+extension](subroutines.md) now uses these real positions for same-line return
+addresses; calls were a separate implementation from this sequence slice.
 
 Legacy immediate readLine/readLineAsync remain single-statement entrypoints.
 Reject a sequence as PROGRAM_REQUIRED before any member executes; users can

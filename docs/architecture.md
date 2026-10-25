@@ -22,23 +22,23 @@ are implementation modules, not additional public package entrypoints. See the
 
 ## Source and execution
 
-| Owner                                 | Responsibility                                                                                                             |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                             |
-| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.        |
-| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                               |
-| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                       |
-| `core/instructions.ts`                | Bounded line sequences and immutable leaf instruction positions retaining original Lines and ordinals.                     |
-| `core/prepared_program.ts`            | A validated program, flat leaf instructions and label/loop indexes derived from that exact snapshot.                       |
-| `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.           |
-| `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps, false IF line skips and loop transitions. |
-| `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                                    |
-| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                           |
-| `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.                |
-| `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                               |
-| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                              |
-| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                                   |
-| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization.       |
+| Owner                                 | Responsibility                                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                       |
+| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.  |
+| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                         |
+| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                 |
+| `core/instructions.ts`                | Bounded line sequences and immutable leaf instruction positions retaining original Lines and ordinals.               |
+| `core/prepared_program.ts`            | A validated program, flat leaf instructions and label/loop indexes derived from that exact snapshot.                 |
+| `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
+| `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                      |
+| `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
+| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
+| `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
+| `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
+| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
+| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                             |
+| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization. |
 
 Parsing a line permits incomplete forward targets and loop pairs for editing.
 Validating a complete program checks every statement before effects, including
@@ -61,6 +61,11 @@ A StatementSequence retains its physical line and separators while preparation
 derives one instruction per leaf. Labels enter the first member; loops pair at
 instruction positions. False IF skips the physical line through the same native
 loop guards. Immediate library entry rejects sequences before member effects.
+Literal GOSUB saves the real next position and caller loop-map ownership.
+Callees own fresh loop contexts; RETURN drops callee loops and restores caller
+frames while scalar/array values remain shared. An ownership set enforces native
+active-loop-variable rules across suspended calls. Terminal paths clear all
+call/loop frames. See [subroutines](subroutines.md) for limits and guards.
 
 The Program, its Lines, prepared indexes and runtime/evaluator instance share an
 explicit immutable dialect. The public host-first constructors retain their

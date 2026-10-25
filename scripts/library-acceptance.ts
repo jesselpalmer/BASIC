@@ -34,6 +34,7 @@ export const libraryAcceptanceCases = [
   'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
   'scientific literals and powers execute corpus formulas with bounded failures',
   'statement sequences preserve positions, line scope and preflight validation',
+  'literal subroutines preserve caller loops, shared values and real return positions',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -327,6 +328,53 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
           error.diagnostic.column === 12,
       );
       assert.deepEqual(limited.output, ['1\n']);
+    },
+  );
+  await check(
+    'literal subroutines preserve caller loops, shared values and real return positions',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/subroutines/probe.bas'),
+        'utf8',
+      );
+      const expected = 'take=4:0:3\nnested=4\n';
+      const {basic, output} = setup();
+      basic.run(api.parseProgram(source));
+      assert.equal(output.join(''), expected);
+      output.length = 0;
+      await basic.runAsync();
+      assert.equal(output.join(''), expected);
+      basic.reset('10 GOSUB 100:PRINT "done":END\n100 RETURN');
+      basic.step();
+      assert.equal(basic.state.nextLocation?.label, 100);
+      basic.step();
+      assert.equal(basic.state.nextLocation?.label, 10);
+      assert.equal(basic.state.nextLocation?.start.column, 14);
+      const io = setup(['4'], {wait: () => Promise.resolve()});
+      await io.basic.runAsync('10 GOSUB 100:PRINT N+1:END\n100 INPUT N:WAIT 0:RETURN');
+      assert.equal(io.output.join(''), '5\n');
+      output.length = 0;
+      assert.throws(() => basic.run('10 PRINT "never":END:GOSUB 999'), api.BasicSyntaxError);
+      assert.deepEqual(output, []);
+      basic.run();
+      assert.equal(output.join(''), 'done\n');
+      assert.throws(
+        () => basic.run('10 RETURN'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError &&
+          error.diagnostic.code === 'RETURN_WITHOUT_GOSUB',
+      );
+      assert.throws(
+        () => basic.run('10 FOR I=1 TO 2:GOSUB 100:NEXT I:END\n100 FOR I=1 TO 2:NEXT I:RETURN'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError &&
+          error.diagnostic.code === 'LOOP_VARIABLE_ACTIVE',
+      );
+      output.length = 0;
+      basic.run(
+        '10 DIM GOSUB(0),RETURN(0):GOSUB=1:RETURN=2:GOSUB(0)=3:RETURN(0)=4:PRINT GOSUB;RETURN;GOSUB(0);RETURN(0)',
+      );
+      assert.equal(output.join(''), '1234\n');
     },
   );
   await check('public evaluator values and diagnostics', () => {

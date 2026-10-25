@@ -454,7 +454,7 @@ export default class Basic {
   }
 
   #recordFailure(error: unknown): void {
-    this.#controlFlow.clearLoops();
+    this.#controlFlow.clearFrames();
     this.#status = 'error';
     this.#diagnostic =
       error instanceof BasicRuntimeError || error instanceof BasicSyntaxError
@@ -463,7 +463,7 @@ export default class Basic {
   }
 
   #halt(): void {
-    this.#controlFlow.clearLoops();
+    this.#controlFlow.clearFrames();
     this.#status = 'halted';
   }
 
@@ -478,12 +478,14 @@ export default class Basic {
         (statement.type === 'DimStatement' ||
           statement.type === 'IfStatement' ||
           statement.type === 'GotoStatement' ||
+          statement.type === 'GosubStatement' ||
+          statement.type === 'ReturnStatement' ||
           statement.type === 'ForStatement' ||
           statement.type === 'NextStatement')
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'DIM, IF, GOTO, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, IF, GOTO, GOSUB, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
@@ -497,6 +499,12 @@ export default class Basic {
           break;
         case 'GotoStatement':
           this.#controlFlow.jump(statement.target.value, statement.target.location);
+          break;
+        case 'GosubStatement':
+          this.#controlFlow.call(statement);
+          break;
+        case 'ReturnStatement':
+          this.#controlFlow.returnFromCall(statement.location);
           break;
         case 'IfStatement':
           if (this.#evaluator.compare(statement.condition))

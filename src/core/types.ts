@@ -210,6 +210,8 @@ export interface NodeFields {
   };
   IfStatement: {readonly condition: Comparison; readonly target: NodeOf<'NumberLiteral'>};
   GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
+  GosubStatement: {readonly target: NodeOf<'NumberLiteral'>};
+  ReturnStatement: Record<never, never>;
   ForStatement: {
     readonly variable: NodeOf<'Variable'>;
     readonly start: Expression;
@@ -284,6 +286,8 @@ export type SimpleStatement = Nodes<
   | 'InputStatement'
   | 'IfStatement'
   | 'GotoStatement'
+  | 'GosubStatement'
+  | 'ReturnStatement'
   | 'ForStatement'
   | 'NextStatement'
   | 'PrintStatement'

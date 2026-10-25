@@ -57,6 +57,30 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
   assert.equal(statements.stderr, '');
+  const subroutine = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/subroutines/probe.bas')],
+  });
+  assert.equal(subroutine.stdout, 'take=4:0:3\nnested=4\n');
+  assert.equal(subroutine.stderr, '');
+  const storedCalls = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input:
+      '10 GOSUB 100:PRINT "done":END\n100 PRINT "sub":RETURN\nSAVE "subroutine-saved.bas"\nRUN\nEXIT\n',
+  });
+  assert.ok(storedCalls.stdout.includes('sub\ndone\n'));
+  assert.equal(storedCalls.stderr, '');
+  const savedCalls = '10 GOSUB 100:PRINT "done":END\n100 PRINT "sub":RETURN';
+  assert.equal(readFileSync(join(consumer, 'subroutine-saved.bas'), 'utf8'), savedCalls);
+  const loadedCalls = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "subroutine-saved.bas"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.ok(loadedCalls.stdout.includes(savedCalls));
+  assert.ok(loadedCalls.stdout.includes('sub\ndone\n'));
+  assert.equal(loadedCalls.stderr, '');
   const sequence = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/sequences/probe.bas')],
