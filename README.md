@@ -13,7 +13,9 @@ See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The [language reference](docs/language-v1.md) describes current native behavior;
 arrays, subroutines and the historical profiles are not implemented yet.
-The new scope does not claim general QBasic or GW-BASIC compatibility. The browser
+The new scope does not claim general QBasic or GW-BASIC compatibility.
+Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
+these native extensions preserve existing names and execution semantics. The browser
 also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 
@@ -236,11 +238,11 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 
 | Statement                                                 | Behavior                                                                                                      |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `LET name = expression`                                   | Assign a number, or a string to a name ending in `$`.                                                         |
+| `[LET] name = expression`                                 | Assign a number, or a string to a name ending in `$`.                                                         |
 | `INPUT ["prompt";] name`                                  | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
 | `WAIT milliseconds`                                       | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
 | `IF left comparison right THEN line`                      | Jump when one comparison is true; otherwise continue to the next line.                                        |
-| `GOTO line`                                               | Jump to an existing literal line label.                                                                       |
+| `GOTO line` / `GO TO line`                                | Jump to an existing literal line label.                                                                       |
 | `FOR variable = start TO end [STEP expression]`           | Enter an inclusive numeric loop; the default step is 1.                                                       |
 | `NEXT variable`                                           | Increment the matching loop variable and repeat or finish the loop.                                           |
 | `PRINT [expression [; expression]... [;]]`                | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |

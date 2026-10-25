@@ -73,7 +73,7 @@
         "column": 5,
         "offset": 762
       },
-      "behaviorStatus": "not-run",
+      "behaviorStatus": "partial-native-path",
       "blockers": [
         "source-certification",
         "dialect-certification",
@@ -81,7 +81,17 @@
         "behavioral-acceptance"
       ],
       "printedSystem": "EduSystem 30",
-      "reviewRecord": "classic-source-review.md#23mtch"
+      "reviewRecord": "classic-source-review.md#23mtch",
+      "behaviorEvidence": {
+        "oracle": "classic-source-review.md#tested-partial-native-path",
+        "scope": "Unchanged-source loss/replay path, direct/installed library and browser. Not a complete historical pass.",
+        "remainingBlockers": [
+          "EduSystem profile certification",
+          "RND(0) semantics",
+          "historical numeric formatting",
+          "complete game/input and distribution acceptance"
+        ]
+      }
     },
     {
       "file": "3dplot.bas",

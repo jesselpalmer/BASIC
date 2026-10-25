@@ -17,7 +17,7 @@ function narrow<T extends {type: string}, K extends T['type']>(
 }
 
 // Display tree shape without source spans; this does not evaluate expressions.
-type Shape = string | number | Shape[];
+type Shape = string | number | readonly Shape[];
 function shape(node: Expression): Shape {
   switch (node.type) {
     case 'NumberLiteral':
@@ -201,7 +201,17 @@ describe('statement parsing', () => {
     ['10 CLS 1', 'UNEXPECTED_TOKEN', 8],
     ['10 END "extra"', 'UNEXPECTED_TOKEN', 8],
     ['10 "PRINT" "x"', 'UNSUPPORTED_STATEMENT', 4],
-    ['10 A = 1', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 A = 1 2', 'UNEXPECTED_TOKEN', 10],
+    ['10 A == 2', 'EXPECTED_EXPRESSION', 7],
+    ['10 SCORE 1', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 PRUNT "hello"', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 GO 20', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 GO TO20', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 G O TO 20', 'UNSUPPORTED_STATEMENT', 4],
+    ['10 GO TO X', 'INVALID_TARGET', 10],
+    ['10 GO TO -1', 'INVALID_TARGET', 10],
+    ['10 GO TO 65536', 'INVALID_TARGET', 10],
+    ['10 GO TO 20 30', 'UNEXPECTED_TOKEN', 13],
     ['10 ABS "1"', 'UNSUPPORTED_STATEMENT', 4],
   ])('rejects invalid or not-yet-supported syntax: %s', (source, code, column) => {
     expect(diagnostic(() => parseLine(source))).toMatchObject({
@@ -220,6 +230,50 @@ describe('statement parsing', () => {
       line: 2,
       column: 1,
       offset: 7,
+    });
+  });
+});
+
+describe('common classic spellings', () => {
+  it.each([
+    ['10 A=1+2*3', 'A', ['+', 1, ['*', 2, 3]]],
+    ['10 name$ = "MiX " + "Case"', 'NAME$', ['+', ['string', 'MiX '], ['string', 'Case']]],
+    ['10 GO=2', 'GO', 2],
+    ['10 GOTOA=GO+1', 'GOTOA', ['+', ['variable', 'GO'], 1]],
+  ] as const)('parses scalar assignment without LET: %s', (source, name, expected) => {
+    const statement = narrow(parseLine(source).statement, 'LetStatement');
+    expect(statement.target.name).toBe(name);
+    expect(shape(statement.expression)).toEqual(expected);
+  });
+
+  it.each(['10 GO TO 20', '10 go\tto\t20', '10 GOTO 20'])('parses a literal jump: %s', (source) => {
+    const statement = narrow(parseLine(source).statement, 'GotoStatement');
+    expect(statement.target.value).toBe(20);
+    expect(statement.location.start.column).toBe(4);
+    expect(source.slice(statement.location.start.offset, statement.location.end.offset)).toBe(
+      source.slice(3),
+    );
+  });
+
+  it('retains physical source spans for implicit assignment and spaced GO TO', () => {
+    const line = parseLine(' 25\tgo = -2', {line: 7, offset: 100});
+    const statement = narrow(line.statement, 'LetStatement');
+    expect(line.source).toBe(' 25\tgo = -2');
+    expect(statement.location).toMatchObject({
+      label: 25,
+      start: {line: 7, column: 5, offset: 104},
+      end: {line: 7, column: 12, offset: 111},
+    });
+    expect(statement.target.location).toMatchObject({
+      start: {line: 7, column: 5, offset: 104},
+      end: {line: 7, column: 7, offset: 106},
+    });
+    const jump = narrow(parseLine('40 GO TO 25').statement, 'GotoStatement');
+    expect(jump.target.location.start).toEqual({line: 1, column: 10, offset: 9});
+    expect(diagnostic(() => parseProgram('40 GO TO 25'))).toMatchObject({
+      code: 'MISSING_TARGET',
+      label: 40,
+      column: 10,
     });
   });
 });

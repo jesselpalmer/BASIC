@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {createHash} from 'node:crypto';
 import type * as PublicApi from '../src/index.ts';
 import type {GraphicsCommand, Host, LogicalKey} from '../src/index.ts';
 
@@ -17,6 +18,8 @@ type Api = Pick<
 
 export const libraryAcceptanceCases = [
   'public program execution and stepping',
+  'common classic spellings preserve native names and execution',
+  'unchanged 23 Matches loss/replay path and explicit native RNG limit',
   'public parser snapshots and diagnostics',
   'public evaluator values and diagnostics',
   'greeting preserves input',
@@ -94,6 +97,73 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     assert.ok(Object.isFrozen(result));
     basic.run('10 FOR I=1 TO 2\n20 PRINT I;\n30 NEXT I\n40 PRINT I');
     assert.equal(output.join(''), 'package 6\nstep\n123\n');
+  });
+  await check('common classic spellings preserve native names and execution', () => {
+    const source = [
+      '10 go=4',
+      '20 LET TOGETHER=GO+1',
+      '30 GO TO 50',
+      '40 PRINT "skipped"',
+      '50 PRINT GO;":";TOGETHER',
+      '60 END',
+    ].join('\n');
+    const {basic, output} = setup();
+    const program = api.parseProgram(source);
+    assert.equal(program.lines[0].source, '10 go=4');
+    assert.equal(program.lines[2].source, '30 GO TO 50');
+    basic.run(program);
+    basic.run();
+    assert.equal(output.join(''), '4:5\n4:5\n');
+    assert.deepEqual(basic.variables, [
+      {name: 'GO', value: 4},
+      {name: 'TOGETHER', value: 5},
+    ]);
+  });
+  await check('unchanged 23 Matches loss/replay path and explicit native RNG limit', async () => {
+    const source = readFileSync(
+      new URL('./package/fixtures/classic/23mtch.bas', import.meta.url),
+      'utf8',
+    );
+    assert.equal(
+      createHash('sha256').update(source).digest('hex'),
+      '6406621c19cfac9961d0b4fa36ba50d322f4697648b1021fe99cace6ef9d8896',
+      'The historical fixture must retain its pinned source bytes',
+    );
+    const {basic, output, prompts} = setup(Array<string>(7).fill('1'));
+    // This source replays forever. EOF at the next round's prompt bounds the
+    // observation without changing the game or manufacturing a terminating END.
+    await assert.rejects(basic.runAsync(source, {instructionLimit: 500}), (error: unknown) => {
+      assert.ok(error instanceof api.BasicRuntimeError);
+      assert.equal(error.diagnostic.code, 'INPUT_ENDED');
+      assert.equal(error.diagnostic.label, 230);
+      return true;
+    });
+    const text = output.join('');
+    assert.deepEqual(
+      [...text.matchAll(/THERE ARE NOW(\d+)MATCHES\./g)].map((match) => Number(match[1])),
+      [23, 21, 17, 13, 9, 5, 1, 23],
+    );
+    assert.deepEqual(
+      [...text.matchAll(/I TOOK(\d+)\.\.\./g)].map((match) => Number(match[1])),
+      [1, 3, 3, 3, 3, 3],
+    );
+    assert.equal(text.split('I WON!! BETTER LUCK NEXT TIME.').length - 1, 1);
+    assert.equal(prompts.length, 8);
+    assert.ok(basic.variables.some(({name, value}) => name === 'M' && value === 23));
+    // The other branch remains a compatibility blocker, rather than being
+    // skipped or rewritten to the native zero-argument random function.
+    const blocked = setup(['2']);
+    await assert.rejects(
+      blocked.basic.runAsync(source, {instructionLimit: 500}),
+      (error: unknown) => {
+        assert.ok(error instanceof api.BasicRuntimeError);
+        assert.equal(error.diagnostic.code, 'INVALID_ARGUMENT_COUNT');
+        assert.equal(error.diagnostic.label, 330);
+        return true;
+      },
+    );
+    basic.run('10 recovered$="after game"\n20 PRINT recovered$');
+    assert.ok(output.join('').endsWith('after game\n'));
   });
   await check('public parser snapshots and diagnostics', () => {
     const program = api.parseProgram('20 END\n10 LET A = 1+2*3');

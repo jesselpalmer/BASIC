@@ -4,7 +4,8 @@ This records evidence and remaining blockers for #115. It does not declare a
 whole dialect or the corpus compatible. The [structured ledger](classic-games-ledger.json)
 contains all 108 pinned files, raw hashes/sizes, book references, provisional
 attribution, observed feature labels, first native diagnostic and explicit
-unresolved status. No file has a behavioral pass yet.
+unresolved status. No file has a complete historical compatibility pass. 23MTCH now has the partial
+native loss/replay observation described below.
 
 ## Evidence rules
 
@@ -103,12 +104,18 @@ claiming EduSystem compatibility or changing existing native numeric formatting.
 The native name GO must remain available in LET/expressions; no globally reserved
 GO keyword or arbitrary keyword splitting is necessary for this spelling.
 
-### Partial path oracle
+### Tested partial native path
 
 Seven successive human moves of 1 produce computer moves `1,3,3,3,3,3`, leaving
 21,17,13,9,5,1 after the computer turns. Taking the final match loses. The source
 then jumps back to initialize M to 23 and asks for a new move. This path does not
 execute RND(0), and is useful as an unchanged-source control-flow regression.
+
+Direct and installed ESM/CommonJS acceptance execute this unchanged-source
+loss/replay path and check every remaining-match count, computer move, result
+and replay initialization. Browser automation imports the source, plays that
+path, stops, reruns and observes the blocked branch. Native EOF bounds the
+library observation at the next prompt without editing the game.
 
 It is not a full compatibility pass: choosing 2 on the first turn reaches the
 RND(0) branch, which the native runtime currently rejects for arity. Classic

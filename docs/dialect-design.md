@@ -2,6 +2,8 @@
 
 **Status:** shared design decisions and the first verified grammar slice, for
 #116. Implementation is incremental; no historical profile is enabled today.
+The optional-LET/contextual-GO-TO native slice below is implemented; the remaining
+profile/API/persistence design is still pending.
 Unresolved dialect rules remain feature/release blockers, not native fallbacks.
 The [source review](classic-source-review.md) records the evidence already checked.
 

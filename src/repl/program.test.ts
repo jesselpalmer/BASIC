@@ -41,6 +41,22 @@ it('rejects invalid replacement syntax and labels without changing prior source 
   expect(source.dirty).toBe(false);
 });
 
+it('retains common classic spellings through stored edits and validation', () => {
+  const source = new StoredProgram();
+  source.edit('30 PRINT GO');
+  source.edit('10 go = 2');
+  source.edit('20 GO TO 30');
+  const expected = '10 go = 2\n20 GO TO 30\n30 PRINT GO';
+  expect(source.source).toBe(expected);
+  const snapshot = parseProgram(source.source);
+  source.replace(snapshot, 'classic.bas');
+  expect(source.source).toBe(expected);
+  expect(source.dirty).toBe(false);
+  expect(() => source.edit('20 GO TO nope')).toThrow();
+  expect(source.source).toBe(expected);
+  expect(source.dirty).toBe(false);
+});
+
 it('tracks the current filename and saved baseline through edits, loads, and NEW', () => {
   const source = new StoredProgram();
   expect(source.filename).toBeNull();
