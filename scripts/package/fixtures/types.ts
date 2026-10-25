@@ -336,3 +336,16 @@ if (scalarInput?.type === 'InputStatement') {
   const kind: 'Variable' = scalarInput.target.type;
   void kind;
 }
+
+const inlineIf = parseLine('10 IF 1=1 THEN PRINT 1 ELSE 20')?.statement;
+if (inlineIf?.type === 'InlineIfStatement') {
+  const branch: SimpleStatement | Expression | null = inlineIf.alternate;
+  void branch;
+  // @ts-expect-error Conditional branch trees are immutable.
+  inlineIf.alternate = null;
+}
+const literalIf = parseLine('10 IF 1=1 THEN 20')?.statement;
+if (literalIf?.type === 'IfStatement') {
+  const targetKind: 'NumberLiteral' = literalIf.target.type;
+  void targetKind;
+}

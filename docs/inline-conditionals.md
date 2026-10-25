@@ -1,6 +1,6 @@
 # Native inline conditionals
 
-**Status:** design recorded before implementation for the next native #118 slice.
+**Status:** implemented next native #118 slice; design recorded before code.
 Historical separators/modifiers/profiles and whole-game certification remain open.
 
 ## Source and native boundary

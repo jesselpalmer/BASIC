@@ -63,6 +63,33 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(subroutine.stdout, 'take=4:0:3\nnested=4\n');
   assert.equal(subroutine.stderr, '');
+  const conditional = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/conditionals/probe.bas')],
+  });
+  assert.equal(
+    conditional.stdout,
+    'I WIN BY4POINTS\nafter=1\nnonnegative\nedge\ninterior\nsub\ndone\n',
+  );
+  assert.equal(conditional.stderr, '');
+  const conditionalSource =
+    '10 IF 1=1 THEN GOSUB 100 ELSE PRINT "wrong":PRINT "wrong tail"\n20 PRINT "next":END\n100 PRINT "sub":RETURN';
+  const storedConditional = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: conditionalSource + '\nSAVE "conditional-saved.bas"\nRUN\nEXIT\n',
+  });
+  assert.equal(storedConditional.stderr, '');
+  assert.ok(storedConditional.stdout.includes('sub\nnext\n'));
+  assert.equal(readFileSync(join(consumer, 'conditional-saved.bas'), 'utf8'), conditionalSource);
+  const loadedConditional = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "conditional-saved.bas"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.equal(loadedConditional.stderr, '');
+  assert.ok(loadedConditional.stdout.includes(conditionalSource));
+  assert.ok(loadedConditional.stdout.includes('sub\nnext\n'));
   const inputProbe = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/input/probe.bas')],

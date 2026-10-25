@@ -102,6 +102,7 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 | `InputStatement`        | Existing single-scalar form: `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`. |
 | `InputTargetsStatement` | New list/indexed form: readonly `targets` (`AssignmentTarget` list) and the same optional literal `prompt`.                         |
 | `IfStatement`           | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                          |
+| `InlineIfStatement`     | `condition`, `consequent`, and nullable `alternate`; branch bodies or literal targets retain physical locations.                    |
 | `GotoStatement`         | `target` (`NumberLiteral`).                                                                                                         |
 | `ForStatement`          | Numeric `variable` (`Variable`), `start`/`end` expressions, and `step` (expression or null for default 1).                          |
 | `NextStatement`         | Numeric `variable` (`Variable`); it is required.                                                                                    |
@@ -138,8 +139,11 @@ are rejected. Standalone legacy `ABS`/`INT` commands are not parser syntax.
 expressions, `operator`, `operatorLocation`, and its own `location`. Its public
 `ComparisonOperator` type is `= | <> | < | <= | > | >=`. Targets retain integer
 `value`, original decimal `raw` spelling, and location. Decimal points, signs,
-variables, parenthesized/computed targets, chained comparisons, Boolean operators,
-`ELSE`, and inline `THEN` bodies are rejected.
+variables, parenthesized/computed targets, chained comparisons and Boolean
+operators are rejected. Literal IF without ELSE retains IfStatement. Inline
+THEN/ELSE and nested IF add InlineIfStatement with structured branches; IF ...
+GOTO is an alias. ELSE is contextual and retains existing native names.
+See [inline conditionals](inline-conditionals.md) for limits/body restrictions.
 
 Whole-program validation checks comparison operand types using literals,
 variable suffixes, operator/built-in result types, grouping, and homogeneous

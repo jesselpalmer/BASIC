@@ -42,7 +42,7 @@ the 1.0 freeze; current valid native programs must retain their meaning.
   punctuation, or keywords in that text. An empty comment is valid.
 - Colon sequences preserve each member's physical source span and execute one
   statement at a time. GOTO enters the target line at its first statement; END
-  stops the run immediately. A false IF skips the rest of its physical line.
+  stops the run immediately. A false IF without ELSE skips its physical line.
   Strings, REM text and USING templates retain literal colons. Empty/trailing
   separators, apostrophe comments and backslash separators are unsupported.
   See [statement sequences](statement-sequences.md) for limits and details.
@@ -153,7 +153,7 @@ they are not written in a program.
 | Read data        | `READ target [, target ...]`; numeric/string scalars or DIM arrays.          |
 | Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.          |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                     |
-| Conditional jump | `IF expression comparison expression THEN line`.                             |
+| Conditional      | `IF comparison THEN branch [ELSE branch]`; a label or inline statement.      |
 | Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.             |
 | Return           | `RETURN`; resume at the real instruction following the caller.               |
 | Jump             | `GOTO line` or `GO TO line`; literal targets only.                           |
@@ -311,10 +311,23 @@ text such as `RUN` or `EXIT` belongs to the program's input, not the editor.
 
 ### IF and GOTO
 
-`IF` contains exactly one comparison. If true, execute the target line next;
-otherwise, continue to the next numbered line. Both operands are evaluated.
-`THEN` accepts a literal label only, not an inline statement. There is no `ELSE`
-or block `IF`.
+`IF` contains exactly one comparison and evaluates both operands. Each THEN/ELSE
+branch is a literal label or an inline statement, including another IF. A false
+condition without ELSE skips to the next numbered line. ELSE binds the nearest
+unpaired IF; only the physically last clause continues into following colon
+statements. Earlier clauses finish at the next numbered line. Thus
+`IF C=1 THEN PRINT "yes" ELSE PRINT "no":PRINT "tail"` prints tail only on the
+false path. Explicit jumps/END/RETURN retain their transfer behavior.
+
+`IF comparison GOTO label` is also accepted, with optional ELSE. Existing
+literal THEN-without-ELSE trees retain their original AST. New InlineIfStatement
+retains both branches; IF conditions and chosen statements count separately for
+Step/budgets. Literal branches add no synthetic instruction. Native inline bodies
+exclude DIM, DATA, FOR and NEXT; block IF/ENDIF, postfix modifiers and historical
+separators remain unsupported. Limit nesting to 128 and all condition/body nodes
+to 4096 per physical line. ELSE remains a contextual name; parenthesize ambiguous
+ELSE values in PRINT/USING branch expressions. See the
+[conditional contract](inline-conditionals.md) for source/loop/call rules.
 
 `GOTO` and the spaced spelling `GO TO` always jump. Complete-program validation checks every literal target,
 including those in unreachable lines, before executing any statements.

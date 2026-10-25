@@ -465,6 +465,8 @@ export default class Basic {
           this.#executing = false;
         }
       }
+      if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+      if (!this.#immediate) this.#controlFlow.finishInstruction();
     } catch (error) {
       if (generation === this.#generation) {
         if (isAbortError(error)) {
@@ -505,6 +507,7 @@ export default class Basic {
           statement.type === 'ReadStatement' ||
           statement.type === 'RestoreStatement' ||
           statement.type === 'IfStatement' ||
+          statement.type === 'InlineIfStatement' ||
           statement.type === 'GotoStatement' ||
           statement.type === 'GosubStatement' ||
           statement.type === 'ReturnStatement' ||
@@ -544,6 +547,12 @@ export default class Basic {
           if (this.#evaluator.compare(statement.condition))
             this.#controlFlow.jump(statement.target.value, statement.target.location);
           else this.#controlFlow.skipLine(statement.location);
+          break;
+        case 'InlineIfStatement':
+          this.#controlFlow.chooseBranch(
+            this.#evaluator.compare(statement.condition),
+            statement.location,
+          );
           break;
         case 'WaitStatement':
           throw new BasicRuntimeError(
@@ -594,6 +603,8 @@ export default class Basic {
           this.#halt();
           break;
       }
+      if (!this.#immediate && statement.type !== 'EndStatement')
+        this.#controlFlow.finishInstruction();
     } catch (error) {
       this.#recordFailure(error);
       throw error;

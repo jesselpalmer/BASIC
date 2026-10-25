@@ -37,6 +37,7 @@ export const libraryAcceptanceCases = [
   'literal subroutines preserve caller loops, shared values and real return positions',
   'native data pools preserve corpus literals, sequential reads and fresh cursors',
   'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
+  'inline conditionals preserve physical clause scope, nested tests and call continuations',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -477,6 +478,55 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       const raw = setup(['  "x,y"  ']);
       await raw.basic.runAsync('10 DIM S$(0):INPUT S$(0):PRINT S$(0)');
       assert.equal(raw.output.join(''), '  "x,y"  \n');
+    },
+  );
+  await check(
+    'inline conditionals preserve physical clause scope, nested tests and call continuations',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/conditionals/probe.bas'),
+        'utf8',
+      );
+      const expected = 'I WIN BY4POINTS\nafter=1\nnonnegative\nedge\ninterior\nsub\ndone\n';
+      const {basic, output} = setup();
+      basic.run(api.parseProgram(source));
+      await basic.runAsync();
+      assert.equal(output.join(''), expected + expected);
+      const scope = setup();
+      scope.basic.run('10 IF 1=1 THEN PRINT "yes" ELSE PRINT "no":PRINT "tail"\n20 PRINT "next"');
+      assert.equal(scope.output.join(''), 'yes\nnext\n');
+      scope.output.length = 0;
+      scope.basic.run('10 IF 1=2 THEN PRINT "yes" ELSE PRINT "no":PRINT "tail"\n20 PRINT "next"');
+      assert.equal(scope.output.join(''), 'no\ntail\nnext\n');
+      const io = setup(['4'], {wait: () => Promise.resolve()});
+      await io.basic.runAsync(
+        '10 IF 1=1 THEN INPUT N ELSE END:PRINT "wrong"\n20 IF N=4 THEN WAIT 0 ELSE END\n30 PRINT N',
+      );
+      assert.equal(io.output.join(''), '4\n');
+      output.length = 0;
+      assert.throws(
+        () => basic.run('10 PRINT "never":IF 1=1 THEN PRINT "ok" ELSE 999'),
+        api.BasicSyntaxError,
+      );
+      assert.deepEqual(output, []);
+      basic.run();
+      assert.equal(output.join(''), expected);
+      assert.throws(
+        () => basic.run('10 IF 1=1 THEN PRINT "before" ELSE END:FOR I=1 TO 2\n20 NEXT I'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'LOOP_ENTRY',
+      );
+      const old = pending();
+      const waiting = old.basic
+        .runAsync('10 IF 1=1 THEN INPUT N ELSE END\n20 PRINT "old"')
+        .catch((error: unknown) => error);
+      while (old.requests.length === 0) await Promise.resolve();
+      old.basic.run('10 PRINT "fresh"');
+      old.requests[0].reply('9');
+      const cancelled = await waiting;
+      assert.ok(cancelled instanceof Error);
+      assert.equal(cancelled.name, 'AbortError');
+      assert.equal(old.output.join(''), 'fresh\n');
     },
   );
   await check('public evaluator values and diagnostics', () => {

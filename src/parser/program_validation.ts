@@ -84,21 +84,27 @@ export function validateProgram(
         }
       }
     }
+    const targets: NodeOf<'NumberLiteral'>[] = [];
     if (
-      statement.type !== 'GotoStatement' &&
-      statement.type !== 'IfStatement' &&
-      statement.type !== 'GosubStatement'
+      statement.type === 'GotoStatement' ||
+      statement.type === 'IfStatement' ||
+      statement.type === 'GosubStatement'
     )
-      continue;
-    if (!labels.has(statement.target.value)) {
-      throw new BasicSyntaxError(
-        'MISSING_TARGET',
-        `No line label ${statement.target.value}`,
-        statement.target.location.start,
-        statement.location.label,
-      );
+      targets.push(statement.target);
+    if (statement.type === 'InlineIfStatement') {
+      if (statement.consequent.type === 'NumberLiteral') targets.push(statement.consequent);
+      if (statement.alternate?.type === 'NumberLiteral') targets.push(statement.alternate);
     }
-    if (statement.type === 'IfStatement') {
+    for (const target of targets)
+      if (!labels.has(target.value)) {
+        throw new BasicSyntaxError(
+          'MISSING_TARGET',
+          `No line label ${target.value}`,
+          target.location.start,
+          statement.location.label,
+        );
+      }
+    if (statement.type === 'IfStatement' || statement.type === 'InlineIfStatement') {
       const condition = statement.condition;
       const problem = comparisonTypeError(
         expressionType(condition.left),

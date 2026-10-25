@@ -177,6 +177,13 @@ freeze the public closed AST/reserved-word/host contract before these decisions.
 
 ## Release evidence
 
+The [native inline conditional slice](inline-conditionals.md) adds statement/
+literal THEN/ELSE branches, nested IF, IF ... GOTO and physical-last-clause
+continuation, including conditional call returns and native loop guards. Its
+authored probe names all whitespace added to AWARI 85 and LIFE2 101. This remains
+partial #118 progress: branch-local DIM/DATA/FOR/NEXT, historical modifiers/
+separators/profile rules and whole-game outcomes stay open; #109 is NOT READY.
+
 The [native INPUT target slice](input-targets.md) adds scalar/array lists,
 whole-row retries and guarded sequential commit while preserving existing
 single-scalar syntax and raw string responses. Its authored probe retains

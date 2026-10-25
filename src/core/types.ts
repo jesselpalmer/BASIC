@@ -209,6 +209,11 @@ export interface NodeFields {
     readonly operatorLocation: Location;
   };
   IfStatement: {readonly condition: Comparison; readonly target: NodeOf<'NumberLiteral'>};
+  InlineIfStatement: {
+    readonly condition: Comparison;
+    readonly consequent: SimpleStatement | NodeOf<'NumberLiteral'>;
+    readonly alternate: SimpleStatement | NodeOf<'NumberLiteral'> | null;
+  };
   GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
   GosubStatement: {readonly target: NodeOf<'NumberLiteral'>};
   ReturnStatement: Record<never, never>;
@@ -293,6 +298,7 @@ export type SimpleStatement = Nodes<
   | 'InputStatement'
   | 'InputTargetsStatement'
   | 'IfStatement'
+  | 'InlineIfStatement'
   | 'GotoStatement'
   | 'GosubStatement'
   | 'ReturnStatement'

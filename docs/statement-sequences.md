@@ -13,11 +13,13 @@ actual colon separator locations. No empty, leading, repeated or trailing colon
 is accepted. REM consumes the remainder of its physical line; colons in REM,
 strings or PRINT USING template strings never become separators. PRINT USING
 lookahead stops at a statement boundary so a later comma cannot reinterpret an
-earlier USING variable. Backslash separators and inline THEN/ELSE/modifiers
-remain separate, unsupported historical grammar.
+earlier USING variable. The later [inline conditional extension](inline-conditionals.md)
+adds bounded THEN/ELSE trees and IF ... GOTO while retaining this source model.
+Backslash separators and postfix modifiers remain unsupported historical grammar.
 
 A sequence is structural, not an executed instruction. It cannot contain another
-sequence. Cap each physical line at 4096 executed statement nodes; enforce this
+sequence. Inline conditionals may contain ordinary branch bodies. Cap each
+physical line at 4096 condition/body statement nodes; enforce this
 in parsing, complete validation and immediate-entry preflight before effects.
 Reject malformed caller-supplied sequence lists and inconsistent separator counts.
 
@@ -32,8 +34,8 @@ including FOR and NEXT on the same line. Whole-program declaration/reference,
 keyboard/graphics/output and jump validation visits every leaf, even after END
 or an unconditional jump, before host effects or array allocation.
 
-Runtime control flow advances by one instruction. Step, async statement gates,
-budgets and cooperative yields all count leaf statements; the structural sequence
+Runtime control flow follows prepared instruction successors. Step, async statement gates,
+budgets and cooperative yields count selected statements and IF conditions; the structural sequence
 costs nothing. Current/next locations use leaf spans, so several instructions can
 share a label and physical line while retaining different columns. GOTO enters
 a numbered line at its first instruction. END prevents following instructions
@@ -57,8 +59,9 @@ form, true jumps to that label and false skips the remaining physical line. This
 also preserves all existing single-statement native behavior. Apply the existing
 native loop-entry/discard guards to the false-path destination; do not invent an
 active loop if a skipped same-line FOR header would otherwise enter its body.
-Inline THEN statements, ELSE, nested conditions and postfix modifiers remain
-#118 work and must preserve their own clause structure when added.
+Inline THEN/ELSE/nested conditions are now implemented by the linked conditional
+extension, preserving their clause structure and physical-last-clause continuation.
+Postfix modifiers and branch-local DIM/DATA/FOR/NEXT remain #118 work.
 
 ## Verification
 

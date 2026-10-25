@@ -251,7 +251,7 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 | `[LET] name = expression`                                 | Assign a number, or a string to a name ending in `$`.                                                         |
 | `INPUT ["prompt";] target [, target ...]`                 | Read scalars/array elements; a list retries a complete comma-separated row. Single strings retain raw text.   |
 | `WAIT milliseconds`                                       | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
-| `IF left comparison right THEN line`                      | Jump when one comparison is true; otherwise continue to the next line.                                        |
+| `IF comparison THEN branch [ELSE branch]`                 | Select a literal label or inline statement; nested IF and IF ... GOTO are supported.                          |
 | `GOTO line` / `GO TO line`                                | Jump to an existing literal line label.                                                                       |
 | `FOR variable = start TO end [STEP expression]`           | Enter an inclusive numeric loop; the default step is 1.                                                       |
 | `NEXT variable`                                           | Increment the matching loop variable and repeat or finish the loop.                                           |
@@ -339,10 +339,14 @@ safe replacement of an active run.
 ## Branching and a guessing game
 
 In complete programs, `IF` supports numeric `=`, `<>`, `<`, `<=`, `>`, `>=`,
-and exact, case-sensitive string `=`/`<>`. Types must match. `THEN` and `GOTO`
-take literal decimal labels from 1 through 65535; every target must exist before
-the program runs, including in unreachable statements. There is no `ELSE`,
-inline statement after `THEN`, comparison-as-value, or Boolean expression syntax.
+and exact, case-sensitive string `=`/`<>`. Types must match. Literal targets range
+from 1 through 65535 and must exist before execution, even in unreachable code.
+Inline THEN/ELSE and nested IF follow the
+[physical-last-clause rule](docs/inline-conditionals.md): only the last clause
+continues into following colon statements. Conditions and selected statements
+each cost one Step/budget unit. ELSE is contextual; existing names remain valid.
+Block IF/ENDIF, comparison-as-value and Boolean expressions remain unsupported,
+as do branch-local DIM/DATA/FOR/NEXT in this native slice.
 
 Try the [guessing game](examples/guess.bas) from a checkout:
 

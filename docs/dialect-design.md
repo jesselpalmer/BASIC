@@ -176,6 +176,13 @@ rows. Native retries malformed/short/surplus rows before assignment; BASIC-PLUS
 continuation, ignored surplus values and line/file input require separate policy.
 Do not reinterpret native row tests as historical profile certification.
 
+The [native inline conditional contract](inline-conditionals.md) adopts physical
+last-clause continuation while retaining native comparison/label/loop policies.
+THEN/ELSE trees flatten into real conditions and body instructions with explicit
+successors. Existing literal IF ASTs and ELSE names stay intact. Branch-local
+DIM/DATA/FOR/NEXT, modifiers, historical separators and profile certification
+remain separate work rather than being inferred from this native extension.
+
 Existing Host callbacks remain sufficient for grammar/math changes. Add file,
 clock/randomization or terminal capabilities only for concrete verified needs;
 all are bounded and fail clearly when absent. A PRINT cursor is run-owned logical
