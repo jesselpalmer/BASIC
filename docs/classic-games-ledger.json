@@ -37,7 +37,7 @@
         "column": 4,
         "offset": 669
       },
-      "behaviorStatus": "not-run",
+      "behaviorStatus": "partial-native-path",
       "blockers": [
         "source-certification",
         "dialect-certification",
@@ -57,11 +57,23 @@
           "browser-static"
         ],
         "remainingBlockers": [
-          "PRINT USING",
-          "adjacent PRINT items",
-          "historical formatting",
+          "historical numeric spacing",
           "dialect certification",
-          "full raw/corrected game acceptance"
+          "complete compatibility/corpus acceptance"
+        ]
+      },
+      "behaviorEvidence": {
+        "oracle": "classic-source-review.md#tested-corrected-native-path",
+        "rawFixture": "scripts/package/fixtures/classic/1check-raw.bas",
+        "correctedFixture": "scripts/package/fixtures/classic/1check-corrected.bas",
+        "correctedSha256": "952576cf60f86f5548a880e261e06f6e7353ad607827596d83e028ddbe7ece94",
+        "correction": "Exactly one byte on line74: semicolon after B$ becomes comma, matching the inspected printed listing.",
+        "rawResult": "Rejected before effects at unsupported line74 template delimiter; never rewritten.",
+        "scope": "Complete scripted corrected native path: exact numbered/48-piece/47-piece/replay boards, illegal move unchanged, legal1-to19 midpoint, MAYBE retry, YES replay, NO exit and fresh rerun. Direct/installed ESM/CommonJS, CLI and actual browser/static. Not a complete historical pass.",
+        "remainingBlockers": [
+          "historical numeric spacing",
+          "dialect certification",
+          "complete compatibility/corpus acceptance"
         ]
       }
     },

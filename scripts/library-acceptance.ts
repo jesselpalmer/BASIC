@@ -3,7 +3,11 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {runArrayAcceptance} from './array-acceptance.ts';
-import {runAdjacentPrintAcceptance} from './output-acceptance.ts';
+import {
+  runAdjacentPrintAcceptance,
+  runPrintUsingAcceptance,
+  runNativeCheckerAcceptance,
+} from './output-acceptance.ts';
 import type * as PublicApi from '../src/index.ts';
 import type {GraphicsCommand, Host, LogicalKey} from '../src/index.ts';
 
@@ -26,6 +30,8 @@ export const libraryAcceptanceCases = [
   'explicit native context rejects unsupported program metadata before effects',
   'explicit arrays execute board moves, enforce bounds, and isolate fresh runs',
   'string-involved PRINT adjacency preserves expressions, names, and atomic writes',
+  'native integer PRINT USING preserves names, alignment, and errors',
+  'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -240,6 +246,13 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check(
     'string-involved PRINT adjacency preserves expressions, names, and atomic writes',
     () => runAdjacentPrintAcceptance(api),
+  );
+  await check('native integer PRINT USING preserves names, alignment, and errors', () =>
+    runPrintUsingAcceptance(api),
+  );
+  await check(
+    'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
+    () => runNativeCheckerAcceptance(api),
   );
   await check('public evaluator values and diagnostics', () => {
     const evaluator = new api.Evaluator({random: () => 0.41});

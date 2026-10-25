@@ -67,6 +67,65 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
     'pieces:48\nFrom? To? illegal\npieces:48\nFrom? To? pieces:47\nFrom? moves:1\n',
   );
   assert.equal(board.stderr, '');
+  const checker = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/classic/1check-corrected.bas')],
+    input: '1\n2\n1\n19\n0\nMAYBE\nYES\n0\nNO\n',
+  });
+  assert.equal(checker.stderr, '');
+  const numberedBlock =
+    [
+      ' 1  2   3   4   5   6   7   8',
+      ' 9 10  11  12  13  14  15  16',
+      '17 18  19  20  21  22  23  24',
+      '25 26  27  28  29  30  31  32',
+      '33 34  35  36  37  38  39  40',
+      '41 42  43  44  45  46  47  48',
+      '49 50  51  52  53  54  55  56',
+      '57 58  59  60  61  62  63  64',
+    ].join('\n') + '\n';
+  assert.equal(checker.stdout.split(numberedBlock).length - 1, 2);
+  assert.deepEqual(
+    checker.stdout.split('\n').filter((line) => /^[01]{8}$/.test(line)),
+    [
+      '11111111',
+      '11111111',
+      '11000011',
+      '11000011',
+      '11000011',
+      '11000011',
+      '11111111',
+      '11111111',
+      '01111111',
+      '10111111',
+      '11100011',
+      '11000011',
+      '11000011',
+      '11000011',
+      '11111111',
+      '11111111',
+      '11111111',
+      '11111111',
+      '11000011',
+      '11000011',
+      '11000011',
+      '11000011',
+      '11111111',
+      '11111111',
+    ],
+  );
+  assert.ok(checker.stdout.includes('ILLEGAL MOVE.  TRY AGAIN...'));
+  assert.ok(checker.stdout.includes("PLEASE ANSWER 'YES' OR 'NO'."));
+  assert.ok(checker.stdout.includes('YOU MADE1JUMPS AND HAD47PIECES'));
+  assert.ok(checker.stdout.includes('YOU MADE0JUMPS AND HAD48PIECES'));
+  assert.ok(checker.stdout.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
+  const rawChecker = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/classic/1check-raw.bas')],
+    expectedStatus: 1,
+  });
+  assert.equal(rawChecker.stdout, '');
+  assert.match(rawChecker.stderr, /Line 74, column \d+: Expected , after the PRINT USING template/);
   writeFileSync(file, '10 WAIT 0\n20 WAIT .1\n30 PRINT "waited"');
   const waited = runProcess({cwd: consumer, args: [executable, file]});
   assert.equal(waited.stdout, 'waited\n');

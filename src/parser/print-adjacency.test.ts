@@ -155,7 +155,7 @@ describe('native PRINT item adjacency', () => {
       {type: 'StringLiteral'},
       {type: 'ArrayReference', name: 'USING', indices: [{value: 1}, {value: 2}]},
     ]);
-    expect(diagnostic('10 PRINT USING B$,J')).toMatchObject({code: 'UNEXPECTED_TOKEN', column: 18});
+    expect(parseLine('10 PRINT USING B$,J')?.statement.type).toBe('PrintUsingStatement');
   });
 
   it('retains physical UTF-16 spans, actual semicolons and exact fragment source', () => {

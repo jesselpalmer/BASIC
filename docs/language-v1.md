@@ -131,6 +131,7 @@ they are not written in a program.
 | ---------------- | ------------------------------------------------------------------------ |
 | Assignment       | `[LET] variable = expression`; `LET` is optional.                        |
 | Output           | `PRINT [items] [;]`; expression/separator rules below.                   |
+| Formatted output | `PRINT USING template, value [, value ...] [;]`; integer subset below.   |
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
@@ -179,6 +180,13 @@ presents buffered drawing before starting the timer. See
 [WAIT and animation](wait.md) for host and debugger contracts.
 
 ### PRINT
+
+`PRINT USING` accepts the [bounded native integer-field subset](print-using.md):
+a string template with `#` fields and exactly one safe integer per field,
+comma-separated values, and optional final semicolon. Fields align right; a
+negative sign consumes field width. Unsupported masks/fractions/overflow/reuse
+fail explicitly. USING remains an ordinary name outside this contextual form.
+This does not enable a historical profile or change unformatted number spacing.
 
 Adjacent complete expressions may omit a semicolon when either immediately
 neighboring item has string type: `PRINT "YOU MADE" M "JUMPS"`, `PRINT A$ B$`,

@@ -1,7 +1,12 @@
 # Native integer PRINT USING
 
-**Status:** settled design for the first #120 slice, recorded before code.
+**Status:** implemented native slice for #120; its design was recorded before code.
 Historical profiles and the remaining formatting forms stay open.
+
+The separately corrected 1CHECK fixture executes its scripted native path,
+including illegal/legal moves, retry, replay and normal exit. Its unformatted
+numeric spacing remains native, and its original dialect is not certified; this
+is not a complete historical-game compatibility pass.
 
 ## Evidence and scope
 
@@ -61,6 +66,12 @@ whitespace-sensitive reinterpretation, speculative parsing or source rewrite.
   unions before the 1.0 freeze.
 
 ## Verification and remaining work
+
+`PrintUsingStatement` carries `format`, `items`, `separators` (actual template/value
+commas and optional terminal semicolon), and `trailingSemicolon`. Ordinary PRINT
+retains its existing AST. Whole-program validation rejects a statically numeric
+template or an oversized item list before effects; dynamic formatting errors
+come from the bounded core formatter.
 
 Use independent expected strings for all eight 1..64 numbering rows, field/sign
 boundaries, literal preservation, safe integer extremes, exact caps, rejection

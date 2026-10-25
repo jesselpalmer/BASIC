@@ -58,6 +58,13 @@ snapshot untouched and subsequent parses start fresh.
 
 ## Syntax trees
 
+`PrintUsingStatement` is distinct from ordinary PRINT. Its `format` and `items`
+are expressions; `separators` records the actual template/value commas and an
+optional terminal semicolon, with `trailingSemicolon` indicating that final
+suppression. It is a new provisional Statement union case before the 1.0 freeze.
+USING stays an identifier: only a comma outside parentheses after the initial
+USING token selects formatted grammar. See [native PRINT USING](print-using.md).
+
 Array syntax adds `DimStatement` with `declarations`, `ArrayDeclaration` with
 `name`, `nameLocation` and literal `bounds`, and `ArrayReference` with `name`,
 `nameLocation` and expression `indices`. `ArrayReference` is an Expression and a
