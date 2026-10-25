@@ -100,6 +100,13 @@ representation, including displaying negative zero as `0`. All items evaluate
 before one host write, so a failing item prevents output from that statement.
 Earlier statements and consumed random calls are not rolled back.
 
+`PRINT USING` evaluates its template then value expressions left to right,
+formats one bounded integer-field pass, and writes once. A failed format writes
+nothing from that statement; consumed host effects remain consumed. Format
+failures point at the template expression, and host-write failures retain the
+statement location/cause. It counts as one instruction for stepping and budgets.
+See [the exact supported fields and limits](print-using.md).
+
 `CLS` only delegates to the host; it preserves variables and normal fallthrough.
 `REM` is inert. `END` halts without evaluating subsequent statements. Complete
 source validation happens before any effects, including syntax after `END`.

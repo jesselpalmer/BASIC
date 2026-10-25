@@ -6,6 +6,7 @@ import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {readInput} from './input.ts';
+import {formatPrintUsing} from './print_using.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
 import type {PreparedProgram} from './prepared_program.ts';
@@ -509,6 +510,13 @@ export default class Basic {
         case 'LetStatement':
           this.#evaluator.assign(statement.target, this.#evaluator.evaluate(statement.expression));
           break;
+        case 'PrintUsingStatement': {
+          const format = this.#evaluator.evaluate(statement.format);
+          const values = statement.items.map((item) => this.#evaluator.evaluate(item));
+          const text = formatPrintUsing(format, values, statement.format.location);
+          this.#callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
+          break;
+        }
         case 'PrintStatement': {
           const text = statement.items
             .map((item) => String(this.#evaluator.evaluate(item)))

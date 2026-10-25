@@ -1,5 +1,28 @@
 # Classic source fixtures
 
+## 1CHECK — raw and reviewed correction
+
+`1check-raw.bas` preserves the exact [pinned transcription](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/1check.bas),
+SHA-256 `87b6ea841f5e6ff0af0718ef3f4f905c992535455afd5d3400b1e2946c30d04f`.
+The book credits David Ahl. The inspected printed listing on page164 / leaf n165
+has a comma after B$ on line74; the transcription has a semicolon. The separately
+named `1check-corrected.bas` changes exactly that one byte, to match the
+[printed listing](https://archive.org/details/101basiccomputer0000davi/page/n165/mode/1up).
+Its SHA-256 is `952576cf60f86f5548a880e261e06f6e7353ad607827596d83e028ddbe7ece94`.
+No other source, spacing, dialogue or game logic is changed, including the raw
+file's final blank line. See
+`docs/classic-source-review.md` for scan edition/hash evidence and the source policy.
+
+These files use the same public-domain book/provenance policy described below;
+no modern repository license is inferred. Raw source is deliberately rejected
+at the unsupported template delimiter. The corrected listing executes a complete
+scripted native path (illegal move, legal jump, retry/replay and normal exit).
+Native number spacing still differs from the historical rules, and the original
+dialect is not certified. This is a corrected native path, not a complete
+historical-game compatibility pass. Both remain test fixtures excluded from npm.
+
+## 23MTCH — unchanged source
+
 `23mtch.bas` is unchanged from
 [maurymarkowitz/101-BASIC-Computer-Games](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/23mtch.bas),
 commit `45f75052be3f436f2e575f58d4aa611484268227`.

@@ -117,11 +117,16 @@ semantics and terminal/browser document persistence are still open in #116.
 The [explicit native array slice](arrays.md) in #58 now provides real board
 storage with preflight allocation checks. It does not activate a historical
 profile or complete 1CHECK's formatting and compatibility gates.
-String-involved native PRINT adjacency (#119) is implemented; the next settled
-slice is [single-pass native integer PRINT USING](print-using.md) (#120). Expressions
+String-involved native PRINT adjacency (#119) and
+[single-pass native integer PRINT USING](print-using.md) (#120) are implemented. Expressions
 remain greedy, ordinary names/spacing retain their meaning, and unsettled
 historical formatting policies remain explicit blockers. These contracts are
 recorded before their implementation; each slice gets its own validated PR.
+The raw 1CHECK listing remains unchanged and rejects its unsupported template
+delimiter. A separately reviewed one-character correction executes a full native
+scripted path with exact numbered/piece boards, illegal/legal moves, retry/replay
+and normal exit. Historical number spacing and dialect certification still block
+a complete compatibility pass; the full 108-file scope is unchanged.
 
 ## Delivery order and tickets
 

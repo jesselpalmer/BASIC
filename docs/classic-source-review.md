@@ -29,13 +29,34 @@ whole-corpus and per-profile gates remain in #109/#114/#115/#116/#129.
 
 ## 1CHECK
 
+### Tested corrected native path
+
+Two separate fixtures retain the pinned raw bytes and the reviewed one-character
+line74 template-delimiter correction. The fixture README records both hashes and
+scan provenance; tests assert exactly one changed byte. Raw source still fails
+before effects at line74 rather than being repaired by the interpreter.
+
+The corrected listing runs a complete scripted native path through library,
+installed ESM/CommonJS and CLI, and the actual browser/static artifact: exact
+eight-row 1..64 numbering, the 48-piece opening, illegal 1-to-2 without mutation,
+legal 1-to-19 clearing squares1/10 and setting19 (47 pieces), zero to summarize,
+MAYBE retry, YES rebuilding 48 pieces, and NO exiting normally at END999. Every
+piece-board row is compared with an independent expected string. The loaded
+corrected snapshot can rerun after a rejected raw replacement; browser export and
+reload preserve its exact bytes, and Stop leaves its source available.
+
+This is a **corrected native path**, not a full historical compatibility pass.
+Native unformatted numbers still have compact spelling, so its summary includes
+`YOU MADE1JUMPS AND HAD47PIECES`. Historical numeric padding/profile certification
+and broader compatibility remain open. No source/game logic is silently changed.
+
 The explicit native array slice now has an independently authored board/move
 fixture (`scripts/package/fixtures/arrays/board.bas`) covering the 48-piece start,
 an unchanged illegal move, the 47-piece legal jump and fresh reruns. It is a
 feature oracle, not the raw or corrected listing and not a whole-game pass.
-Native string-involved adjacent PRINT items are now accepted. PRINT USING,
-historical formatting and profile certification
-remain blockers. The ledger's first-native-diagnostic fields retain their stated
+Native string-involved adjacency and integer PRINT USING are now accepted;
+historical formatting and profile certification remain blockers. The ledger's
+first-native-diagnostic fields retain their stated
 historical baseline commit rather than pretending to be current parser results.
 
 - Upstream file: `1check.bas`, pinned by the ledger's raw SHA-256.
@@ -74,7 +95,7 @@ proof that the unknown original platform was BASIC-PLUS. DECsystem-10's reviewed
 INPUT section does not establish this inline prompt form; do not infer it from
 PRINT or transplant the INPUT grammar between the dialects.
 
-### Behavioral oracle, not yet executed
+### Behavioral oracle and remaining historical checks
 
 Initial board: rows 1, 2, 7 and 8 contain eight pieces; rows 3 through 6 are
 `11000011`. There are 48 pieces and 16 empty squares. Jump 1 to 2 is illegal and
@@ -93,9 +114,11 @@ source-located runtime error under the eventual documented profile rules. The
 exact historical fractional-subscript conversion still needs stronger evidence;
 this first oracle deliberately uses integral square numbers.
 
-Remaining: review the rest of the transcription/edition differences, implement
-the verified features, test legal/illegal inputs, real output, replay, cancellation
-and all distribution surfaces. No compatible-source pass is recorded yet.
+The corrected native path above executes these move/retry/replay checks with
+native output spelling. Remaining: review the rest of the transcription/edition
+differences, certify the dialect and its exact output/subscript rules, and test
+the remaining verified forms and input paths. No full historical compatibility
+pass is recorded yet.
 
 ## 23MTCH
 

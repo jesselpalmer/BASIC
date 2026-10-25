@@ -18,6 +18,7 @@ import type {
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
 import {validateDialect} from '../core/dialect.ts';
+import {maxPrintUsingValues} from '../core/print_using.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -190,7 +191,7 @@ class Parser {
         return this.assignment(command, name);
       }
       case 'PRINT':
-        return this.print(command);
+        return this.isPrintUsing() ? this.printUsing(command) : this.print(command);
       case 'FOR': {
         const variable = this.loopVariable();
         this.expect('OPERATOR', '=', 'Expected = after the loop variable');
@@ -403,6 +404,58 @@ class Parser {
       }
     }
     return this.node('PrintStatement', command, last, {items, separators, trailingSemicolon});
+  }
+
+  isPrintUsing(): boolean {
+    if (!this.at('IDENTIFIER', 'USING')) return false;
+    let depth = 0;
+    // Tokens always end in EOF. Only a top-level comma distinguishes this new
+    // syntax from ordinary PRINT, including USING arrays and adjacent items.
+    for (let index = this.index + 1; ; index++) {
+      const token = this.tokens[index];
+      if (token.type === 'NEWLINE' || token.type === 'EOF') return false;
+      if (token.type !== 'PUNCTUATION') continue;
+      if (token.value === '(') depth++;
+      else if (token.value === ')') {
+        if (depth === 0) return false;
+        depth--;
+      } else if (token.value === ',' && depth === 0) return true;
+    }
+  }
+
+  printUsing(command: Token): NodeOf<'PrintUsingStatement'> {
+    this.take(); // Contextual USING stays an ordinary native name elsewhere.
+    const format = this.expression();
+    const separator = this.expect('PUNCTUATION', ',', 'Expected , after the PRINT USING template');
+    const separators = [this.location(separator)];
+    const items: Expression[] = [];
+    let last: Token | Expression;
+    let trailingSemicolon = false;
+    for (;;) {
+      const first = this.peek();
+      last = this.expression();
+      items.push(last);
+      if (items.length > maxPrintUsingValues) {
+        this.fail(
+          'FORMAT_LIMIT',
+          `PRINT USING permits at most ${maxPrintUsingValues} values`,
+          first,
+        );
+      }
+      if (!this.at('PUNCTUATION', ',')) break;
+      separators.push(this.location(this.take()));
+    }
+    if (this.at('PUNCTUATION', ';')) {
+      last = this.take();
+      separators.push(this.location(last));
+      trailingSemicolon = true;
+    }
+    return this.node('PrintUsingStatement', command, last, {
+      format,
+      items,
+      separators,
+      trailingSemicolon,
+    });
   }
 
   jumpTarget(): NodeOf<'NumberLiteral'> {

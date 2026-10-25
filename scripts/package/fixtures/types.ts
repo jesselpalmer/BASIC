@@ -166,6 +166,17 @@ if (arrayAssignment.type === 'LetStatement') {
 const arraySnapshots: readonly ArraySnapshot[] = basic.arrays;
 const evaluatorArrays: readonly ArraySnapshot[] = evaluator.snapshotArrays();
 void evaluatorArrays;
+const formattedStatement = parseProgram('10 PRINT USING "##",1').lines[0].statement;
+if (formattedStatement.type === 'PrintUsingStatement') {
+  const format: Expression = formattedStatement.format;
+  const items: readonly Expression[] = formattedStatement.items;
+  const punctuation: readonly import('node-basic-lang').Location[] = formattedStatement.separators;
+  void format;
+  void items;
+  void punctuation;
+  // @ts-expect-error Formatted item lists cannot be mutated.
+  formattedStatement.items[0] = format;
+}
 
 // These rejected assignments are part of the public contract. A missing error
 // makes TypeScript report an unused @ts-expect-error directive.

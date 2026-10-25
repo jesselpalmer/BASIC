@@ -10,7 +10,8 @@ section 3.3.2, printed pages 3-8–3-9, documents omitting the semicolon between
 text and another PRINT item. The [source review](classic-source-review.md)
 records the manual provenance and the adjacent text/number forms in 1CHECK.
 This native slice preserves native output spelling; historical number padding,
-comma zones, TAB and PRINT USING remain separate work.
+comma zones and TAB remain separate work. [Native integer PRINT USING](print-using.md)
+has its own explicitly bounded contract.
 
 ## Item boundaries
 

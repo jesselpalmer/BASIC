@@ -227,6 +227,13 @@ export interface NodeFields {
     readonly separators: readonly Location[];
     readonly trailingSemicolon: boolean;
   };
+  PrintUsingStatement: {
+    readonly format: Expression;
+    readonly items: readonly Expression[];
+    /** Physical template/value commas and an optional terminal semicolon. */
+    readonly separators: readonly Location[];
+    readonly trailingSemicolon: boolean;
+  };
   RemStatement: {readonly text: string};
   WaitStatement: {readonly duration: Expression};
   ColorStatement: {readonly color: Expression};
@@ -276,6 +283,7 @@ export type Statement = Nodes<
   | 'ForStatement'
   | 'NextStatement'
   | 'PrintStatement'
+  | 'PrintUsingStatement'
   | 'RemStatement'
   | 'WaitStatement'
   | 'ColorStatement'

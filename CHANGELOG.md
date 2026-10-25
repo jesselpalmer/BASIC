@@ -10,9 +10,13 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add contextual native PRINT USING with bounded single-pass integer # fields,
+  exact alignment and atomic writes. Preserve USING scalar/array names. Test the
+  separately reviewed one-byte 1CHECK correction through moves/retry/replay/exit;
+  raw-source rejection and historical formatting/profile blockers stay explicit.
 - Accept string-involved adjacent PRINT items while preserving greedy expressions,
   native numeric spelling, physical semicolon spans and existing USING names.
-  Integer PRINT USING and historical output policies remain pending.
+  Historical output policies remain pending.
 - Add explicit native DIM, numeric/string arrays with one or two dimensions,
   indexed reads/assignments, preflight allocation limits and bounded immutable
   array observations. Preserve scalar DIM names and separate scalar/array storage.

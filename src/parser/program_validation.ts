@@ -5,6 +5,7 @@ import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
 import {pairLoops} from '../core/loops.ts';
 import {validateArrays} from '../core/array_declarations.ts';
+import {maxPrintUsingValues} from '../core/print_using.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
@@ -35,6 +36,24 @@ export function validateProgram(
   }
   for (const {statement} of lines) {
     validateKeyboardArguments(statement);
+    if (statement.type === 'PrintUsingStatement') {
+      if (expressionType(statement.format) === 'number') {
+        throw new BasicSyntaxError(
+          'TYPE_MISMATCH',
+          'PRINT USING requires a string image',
+          statement.format.location.start,
+          statement.location.label,
+        );
+      }
+      if (statement.items.length > maxPrintUsingValues) {
+        throw new BasicSyntaxError(
+          'FORMAT_LIMIT',
+          `PRINT USING permits at most ${maxPrintUsingValues} values`,
+          statement.location.start,
+          statement.location.label,
+        );
+      }
+    }
     if (statement.type === 'WaitStatement' && expressionType(statement.duration) === 'string') {
       throw new BasicSyntaxError(
         'TYPE_MISMATCH',

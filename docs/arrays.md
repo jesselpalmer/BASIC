@@ -63,6 +63,7 @@ or corrected historical listing. Also cover string/2D storage, zero/upper edges,
 same-name scalars, contextual DIM, failed assignments, rank/declaration/resource
 errors, retained snapshots, reset/isolation, cancellation and source locations.
 Exercise direct and installed ESM/CommonJS/type/CLI consumers and actual Chromium
-against checkout and the exact extracted static artifact on Linux/macOS. 1CHECK
-still needs PRINT USING, adjacent PRINT items and historical formatting/profile
-work; retain those blockers in the corpus ledger and #129/#109.
+against checkout and the exact extracted static artifact on Linux/macOS. The
+separate corrected native 1CHECK path now exercises integer PRINT USING and
+adjacent items too; historical formatting/profile work remains open in the
+corpus ledger and #129/#109.
