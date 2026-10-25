@@ -35,7 +35,7 @@ profile/version, not whichever interpreter happens to accept an example.
 
 | Construct                             | Primary evidence                                                             | Consequence                                                                                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Omitted `LET`, such as `M=0`          | BASIC-PLUS October 1972, section 3.2; DECsystem-10 March 1974, section 1.4.1 | Valid syntax in those dialects; our current requirement for LET is a limitation.                                    |
+| Omitted `LET`, such as `M=0`          | BASIC-PLUS October 1972, section 3.2; DECsystem-10 March 1974, section 1.4.1 | Valid syntax in those dialects; now accepted for native scalar assignments; arrays remain pending.                  |
 | Adjacent PRINT text and numeric items | BASIC-PLUS section 3.3.2; DECsystem-10 section 6.1                           | The original summary need not be rewritten with semicolons; numeric padding is also part of output behavior.        |
 | `DIM A(64)` and `A(I)`                | BASIC-PLUS section 3.6.2; Dartmouth Fourth Edition sections 1.4/1.7.8        | Arrays are ordinary historical syntax; multidimensional examples also need support.                                 |
 | Compact spacing and `GO TO`           | Dartmouth Fourth Edition, printed page 5 and section 1.7.4                   | `10READA,B` and spaced keywords need profile-aware lexing, not fuzzy corrections.                                   |

@@ -150,6 +150,20 @@ class Parser {
     if (this.atEnd()) {
       this.fail('EXPECTED_STATEMENT', 'Expected a statement after the label');
     }
+    if (command.type === 'IDENTIFIER') {
+      const following = this.tokens[this.index + 1];
+      if (following.type === 'OPERATOR' && following.value === '=') {
+        this.take();
+        return this.assignment(command, command);
+      }
+      // GO stays a variable name. Only the statement-position pair GO TO
+      // is an alias; splitting arbitrary names would change native programs.
+      if (command.value === 'GO' && following.type === 'KEYWORD' && following.value === 'TO') {
+        this.take();
+        this.take();
+        return this.goto(command);
+      }
+    }
     if (command.type !== 'KEYWORD') {
       this.fail('UNSUPPORTED_STATEMENT', `Unsupported statement ${JSON.stringify(command.raw)}`);
     }
@@ -157,10 +171,7 @@ class Parser {
     switch (command.value) {
       case 'LET': {
         const name = this.expect('IDENTIFIER', undefined, 'Expected a variable name after LET');
-        const target = this.node('Variable', name, name, {name: name.value});
-        this.expect('OPERATOR', '=', 'Expected = after the variable name');
-        const expression = this.expression();
-        return this.node('LetStatement', command, expression, {target, expression});
+        return this.assignment(command, name);
       }
       case 'PRINT':
         return this.print(command);
@@ -181,10 +192,8 @@ class Parser {
         const variable = this.loopVariable();
         return this.node('NextStatement', command, variable, {variable});
       }
-      case 'GOTO': {
-        const target = this.jumpTarget();
-        return this.node('GotoStatement', command, target, {target});
-      }
+      case 'GOTO':
+        return this.goto(command);
       case 'IF': {
         const left = this.expression();
         const operator = this.peek();
@@ -261,6 +270,18 @@ class Parser {
 
   comma(): void {
     this.expect('PUNCTUATION', ',', 'Expected , between graphics arguments');
+  }
+
+  assignment(command: Token, name: TokenOf<'IDENTIFIER'>): NodeOf<'LetStatement'> {
+    const target = this.node('Variable', name, name, {name: name.value});
+    this.expect('OPERATOR', '=', 'Expected = after the variable name');
+    const expression = this.expression();
+    return this.node('LetStatement', command, expression, {target, expression});
+  }
+
+  goto(command: Token): NodeOf<'GotoStatement'> {
+    const target = this.jumpTarget();
+    return this.node('GotoStatement', command, target, {target});
   }
 
   print(command: Token) {

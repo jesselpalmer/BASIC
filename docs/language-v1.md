@@ -119,12 +119,12 @@ they are not written in a program.
 
 | Statement        | Form and behavior                                                        |
 | ---------------- | ------------------------------------------------------------------------ |
-| Assignment       | `LET variable = expression`; `LET` is required.                          |
+| Assignment       | `[LET] variable = expression`; `LET` is optional.                        |
 | Output           | `PRINT [expression [; expression]... [;]]`; details below.               |
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
-| Jump             | `GOTO line`; computed targets are not supported.                         |
+| Jump             | `GOTO line` or `GO TO line`; literal targets only.                       |
 | Loop start       | `FOR variable = expression TO expression [STEP expression]`.             |
 | Loop end         | `NEXT variable`; the variable is required.                               |
 | Comment          | `REM [any remaining text]`.                                              |
@@ -137,6 +137,16 @@ they are not written in a program.
 
 Unknown statements, extra arguments, and unconsumed tokens are syntax errors.
 `CLS` and `END` take no operands. Keywords inside strings are ordinary text.
+
+### Assignment and common classic spellings
+
+Scalar assignment accepts either `LET SCORE = 3` or `SCORE = 3`, including
+string variables. `GO TO` is an alias for `GOTO` at statement position; GO
+remains an ordinary variable in `GO=2`, `LET GO=2` and `PRINT GO`.
+These documented spellings are compatible native extensions, not a historical
+profile or permission to guess keywords. PRI, INP, GOT, general keyword splitting
+and compact label/statement text remain unsupported. Source spelling and spans
+are retained; `LIST` and source export do not insert LET or collapse GO TO.
 
 ### Graphics
 
@@ -207,7 +217,7 @@ otherwise, continue to the next numbered line. Both operands are evaluated.
 `THEN` accepts a literal label only, not an inline statement. There is no `ELSE`
 or block `IF`.
 
-`GOTO` always jumps. Complete-program validation checks every literal target,
+`GOTO` and the spaced spelling `GO TO` always jump. Complete-program validation checks every literal target,
 including those in unreachable lines, before executing any statements.
 
 ```bas

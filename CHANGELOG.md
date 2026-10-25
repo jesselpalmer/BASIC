@@ -10,6 +10,9 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Accept scalar assignment with optional LET and the contextual GO TO spelling,
+  preserving GO as a native variable and exact source locations. Test an unchanged
+  classic-game loss/replay path while explicitly retaining its RNG/format blockers.
 - Ship a TypeScript/Bun library and terminal with typed expressions, ABS/INT/RND,
   LET/PRINT/INPUT, IF/THEN/GOTO, nested FOR/NEXT, REM, CLS and END.
 - Add stored-program editing with LIST/RUN/NEW/LOAD/SAVE/EXIT, protected source

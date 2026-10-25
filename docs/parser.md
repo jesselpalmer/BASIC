@@ -70,7 +70,7 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 
 | Statement type   | Additional fields                                                                                                                      |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is required.                                                                             |
+| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is optional.                                                                             |
 | `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
 | `IfStatement`    | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                             |
 | `GotoStatement`  | `target` (`NumberLiteral`).                                                                                                            |
