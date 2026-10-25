@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a complete one-player Pong example with BASIC gameplay, a computer
+  opponent, first-to-three scoring, Space serves, win/loss and restart.
+  Verify collisions, playthroughs, lifecycle and exported-source round trips.
+
 - Add `INKEY$()` and `KEYDOWN(name)` with optional host keyboard capabilities,
   a focused game canvas, a bounded press queue, and an arrow-key marker example.
   Focus, pause, INPUT, and terminal transitions clear queued and held keys.

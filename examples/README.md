@@ -81,6 +81,15 @@ the logical surface. Stop or Escape ends it; Run starts it at the center.
 [Keyboard input](../docs/keyboard.md) requires a browser or custom library host;
 the terminal reports `KEYBOARD_UNAVAILABLE` for keyboard calls.
 
+## Pong
+
+Choose **Pong** in the playground for [pong.bas](pong.bas), a complete game
+against the computer. Press Enter in the start prompt, click or Tab to the
+canvas, then press Space to serve. Hold Up/Down to move your green paddle.
+First to 3 wins; Enter at the result prompt starts a fresh match. Stop or Escape
+ends the run. Export/import preserves the editable BASIC source. See the
+[Pong guide](../docs/pong.md) for controls, focus, restart and supported hosts.
+
 ## File mode and the stored-program editor
 
 `bun start` without a filename opens the stored-program editor. Enter numbered

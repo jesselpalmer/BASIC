@@ -75,6 +75,10 @@ canvas or focus it with Tab and use the arrows. `INKEY$()` reads queued presses;
 `KEYDOWN("UP")` observes held keys. See [keyboard input](docs/keyboard.md) for
 focus rules, logical names, and supported hosts.
 
+Choose **Pong** for a complete game written in BASIC. Enter to start, focus the
+canvas, and press Space to serve; hold Up/Down to play the computer. First to
+3 wins, with a restart prompt after the match. See [playing Pong](docs/pong.md).
+
 ## Installation
 
 Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript

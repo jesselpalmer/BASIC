@@ -14,6 +14,10 @@ the graphics canvas or reach it with Tab and hold an arrow key. Leaving the
 canvas, pausing, INPUT, or ending a run clears queued and held keys. Escape
 remains Stop. See [keyboard input](keyboard.md).
 
+**Pong** loads the complete [one-player BASIC game](pong.md). Enter to start,
+focus the canvas, and press Space to serve; hold Up/Down to move your paddle.
+First to 3 wins; the result offers a fresh match.
+
 From a checkout, run `bun install --frozen-lockfile`, `bun run build:playground`,
 then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
 `dist/playground` contains only static files and can be served by another static

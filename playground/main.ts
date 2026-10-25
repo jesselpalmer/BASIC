@@ -13,6 +13,7 @@ import guess from '../examples/guess.bas' with {type: 'text'};
 import picture from '../examples/picture.bas' with {type: 'text'};
 import bounce from '../examples/bounce.bas' with {type: 'text'};
 import move from '../examples/move.bas' with {type: 'text'};
+import pong from '../examples/pong.bas' with {type: 'text'};
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -55,6 +56,7 @@ const examples: Readonly<Record<string, string>> = {
   picture,
   bounce,
   move,
+  pong,
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
