@@ -1,8 +1,11 @@
-# BASIC 1.0 language reference
+# BASIC native language reference — provisional 1.0
 
-This is the authoritative reference for the implemented **1.0 language**.
+This is the authoritative reference for the **currently implemented native dialect**.
+It is not the final 1.0 compatibility scope. The
+[classic-game roadmap](classic-games-roadmap.md) adds required source-verified
+profiles/features before release; none is implemented by this planning change.
 The [README](../README.md) covers installation and quick starts;
-[terminal editing](terminal.md) documents session workflows. This reference defines the 1.0 contract;
+[terminal editing](terminal.md) documents session workflows. This reference defines current behavior;
 publication status and exact candidate evidence are recorded in the
 [release readiness issue](https://github.com/jesselpalmer/BASIC/issues/109).
 
@@ -14,8 +17,9 @@ Graphics require an optional drawing capability provided by the browser host.
 Keyboard functions similarly require queued or held-key host capabilities;
 the browser captures keys only on its focused game surface.
 
-The [support and compatibility policy](compatibility.md) freezes the public
-language/API boundaries and reserved names for this major version.
+The [support and compatibility policy](compatibility.md) describes current public
+language/API boundaries and reserved names. Final profile/API design must precede
+the 1.0 freeze; current valid native programs must retain their meaning.
 
 ## Programs and source text
 
@@ -35,7 +39,7 @@ language/API boundaries and reserved names for this major version.
   values and filenames retain their original case.
 - `REM` consumes the rest of its line as a comment, without interpreting quotes,
   punctuation, or keywords in that text. An empty comment is valid.
-- There are no colon-separated statements or apostrophe comments in 1.0.
+- There are no colon-separated statements or apostrophe comments in the current native dialect.
 
 The editor retains source text for each stored line. `LIST` and `SAVE` arrange
 lines by numeric label. Runs use an immutable snapshot: later edits affect the
@@ -60,7 +64,7 @@ error. There is no implicit conversion between numbers and strings.
 Unsigned decimal literals have the form `digits[.digits]` or `.digits`; a trailing
 decimal point is also allowed. Examples: `42`, `3.14`, `.5`, `1.`. A sign is a unary
 operator, not part of the literal. Hexadecimal, binary, exponent notation, `NaN`,
-and `Infinity` are outside the 1.0 source grammar.
+and `Infinity` are outside the current native source grammar.
 
 Strings are enclosed in double quotes. Double a quote to include it:
 
@@ -105,7 +109,7 @@ variables; it does not promise to restart the host's random sequence.
 Comparisons appear only in `IF`. Numbers support `=`, `<>`, `<`, `<=`, `>`, `>=`.
 Strings support exact, case-sensitive `=` and `<>`. Mixed types are errors.
 There is no Boolean variable type, comparison-as-value, chained comparison,
-`AND`, `OR`, or `NOT` in 1.0.
+`AND`, `OR`, or `NOT` in the current native dialect.
 
 ## Statements
 
@@ -250,7 +254,7 @@ A loop body includes the statements after its `FOR` through its `NEXT`:
 
 Session commands are unnumbered and case-insensitive. They are available at the
 idle prompt. Numbered statements edit the program; they do not run immediately.
-Only these session commands are accepted in the idle terminal prompt in 1.0.
+Only these session commands are accepted in the idle terminal prompt in the current native dialect.
 
 | Input               | Behavior                                                                     |
 | ------------------- | ---------------------------------------------------------------------------- |
@@ -408,7 +412,9 @@ are separate from the terminal session.
 
 Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, and sound are
-outside this dialect. The [browser playground](playground.md) supports the
+outside the current implementation, but corpus-required features are now
+release blockers under [#114](https://github.com/jesselpalmer/BASIC/issues/114).
+The [browser playground](playground.md) supports the
 [graphics extension](graphics.md); terminal hosts support text programs.
 
 Sources: [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)

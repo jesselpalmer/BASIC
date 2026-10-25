@@ -1,10 +1,14 @@
 # Changelog
 
-## 1.0.0 — prepared release
+## 1.0.0 — unreleased development
 
 The exact candidate, validation and publication status are recorded in
 [release readiness #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The earlier unpublished 0.1.0 preparation was a development milestone.
+The previous READY decision is withdrawn: verified classic-game compatibility
+now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
+The implemented changes below remain available; planned compatibility features
+are not claimed as shipped.
 
 - Ship a TypeScript/Bun library and terminal with typed expressions, ABS/INT/RND,
   LET/PRINT/INPUT, IF/THEN/GOTO, nested FOR/NEXT, REM, CLS and END.
@@ -39,9 +43,11 @@ The earlier unpublished 0.1.0 preparation was a development milestone.
   effects, including duplicate labels, missing targets and unmatched loops.
 - END completes a run without terminating the host. Numbered terminal entries
   edit stored source; use RUN. Legacy library readLine methods remain immediate.
-- This is a limited dialect, not a QBasic/GW-BASIC compatibility release. Arrays,
-  DATA/READ, GOSUB/RETURN, general immediate statements and sound remain outside
-  1.0. Graphics and keyboard calls need their optional host capabilities.
+- The current snapshot remains a limited native dialect. Arrays, DATA/READ,
+  GOSUB/RETURN and other verified classic features are not implemented yet and
+  now block 1.0. General immediate statements and sound remain optional unless
+  the certified corpus establishes a dependency. Graphics and keyboard calls
+  need their optional host capabilities.
 
 See the [language reference](docs/language-v1.md),
 [support/extension and migration policy](docs/compatibility.md),
