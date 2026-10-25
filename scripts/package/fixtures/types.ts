@@ -266,3 +266,16 @@ if (sequenceLine?.statement.type === 'StatementSequence') {
   const invalidLeaf: SimpleStatement = sequenceLine.statement;
   void invalidLeaf;
 }
+
+const literalCall = parseLine('10 GOSUB 100')?.statement;
+if (literalCall?.type === 'GosubStatement') {
+  const label: number = literalCall.target.value;
+  void label;
+  // @ts-expect-error A call target belongs to the immutable parsed snapshot.
+  literalCall.target.value = 200;
+}
+const returnStatement = parseLine('10 RETURN')?.statement;
+if (returnStatement?.type === 'ReturnStatement') {
+  const kind: 'ReturnStatement' = returnStatement.type;
+  void kind;
+}

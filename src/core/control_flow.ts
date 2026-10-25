@@ -11,10 +11,20 @@ interface LoopFrame extends LoopPair {
   readonly step: number;
 }
 
+interface CallFrame {
+  readonly index: number;
+  readonly loops: Map<number, LoopFrame>;
+}
+
+const maxCallDepth = 1024;
+
 /** The cursor and active loops belong to one execution of a prepared snapshot. */
 export class ControlFlow {
   #index = 0;
   #loopFrames = new Map<number, LoopFrame>();
+  #calls: CallFrame[] = [];
+  // Unique across current and suspended contexts, like the shared BASIC values.
+  #activeLoopVariables = new Set<string>();
 
   constructor(
     private readonly prepared: PreparedProgram,
@@ -31,8 +41,10 @@ export class ControlFlow {
     return line;
   }
 
-  clearLoops(): void {
+  clearFrames(): void {
     this.#loopFrames.clear();
+    this.#calls.length = 0;
+    this.#activeLoopVariables.clear();
   }
 
   skipLine(location: Location): void {
@@ -40,6 +52,46 @@ export class ControlFlow {
   }
 
   jump(label: number, location: Location): void {
+    this.#moveTo(this.#target(label, location), location);
+  }
+
+  call(statement: NodeOf<'GosubStatement'>): void {
+    const {target} = statement;
+    const index = this.#target(target.value, target.location);
+    if (this.#calls.length === maxCallDepth) {
+      throw new BasicRuntimeError(
+        'CALL_STACK_LIMIT',
+        `At most ${maxCallDepth} GOSUB calls may be active`,
+        statement.location.start,
+        statement.location.label,
+      );
+    }
+    const loops = new Map<number, LoopFrame>();
+    this.#checkDestination(index, target.location, loops);
+    // The driver already advanced to the real following instruction. Suspend
+    // this map without copying or discarding the caller's live loop frames.
+    this.#calls.push({index: this.#index, loops: this.#loopFrames});
+    this.#loopFrames = loops;
+    this.#index = index;
+  }
+
+  returnFromCall(location: Location): void {
+    const frame = this.#calls.pop();
+    if (!frame) {
+      throw new BasicRuntimeError(
+        'RETURN_WITHOUT_GOSUB',
+        'RETURN has no active GOSUB',
+        location.start,
+        location.label,
+      );
+    }
+    for (const loop of this.#loopFrames.values()) this.#activeLoopVariables.delete(loop.variable);
+    this.#loopFrames.clear();
+    this.#loopFrames = frame.loops;
+    this.#moveTo(frame.index, location);
+  }
+
+  #target(label: number, location: Location): number {
     const index = this.prepared.labelIndices.get(label);
     if (index === undefined) {
       throw new BasicRuntimeError(
@@ -49,19 +101,17 @@ export class ControlFlow {
         location.label,
       );
     }
-    this.#moveTo(index, location);
+    return index;
   }
 
   beginLoop(statement: NodeOf<'ForStatement'>): void {
-    for (const frame of this.#loopFrames.values()) {
-      if (frame.variable === statement.variable.name) {
-        throw new BasicRuntimeError(
-          'LOOP_VARIABLE_ACTIVE',
-          `Loop variable ${frame.variable} is already active`,
-          statement.variable.location.start,
-          statement.location.label,
-        );
-      }
+    if (this.#activeLoopVariables.has(statement.variable.name)) {
+      throw new BasicRuntimeError(
+        'LOOP_VARIABLE_ACTIVE',
+        `Loop variable ${statement.variable.name} is already active`,
+        statement.variable.location.start,
+        statement.location.label,
+      );
     }
     const start = this.#loopNumber(statement.start);
     const limit = this.#loopNumber(statement.end);
@@ -75,11 +125,14 @@ export class ControlFlow {
       );
     }
     this.evaluator.assign(statement.variable, start);
-    // takeLine advances before dispatch, so the current header is index - 1.
+    // Taking an instruction advances before dispatch, so its header is index - 1.
     const pair = this.prepared.pairsByFor.get(this.#index - 1)!;
     if (step > 0 ? start > limit : start < limit)
       this.#moveTo(pair.nextIndex + 1, statement.location);
-    else this.#loopFrames.set(pair.forIndex, {...pair, limit, step});
+    else {
+      this.#loopFrames.set(pair.forIndex, {...pair, limit, step});
+      this.#activeLoopVariables.add(statement.variable.name);
+    }
   }
 
   nextLoop(statement: NodeOf<'NextStatement'>): void {
@@ -106,12 +159,30 @@ export class ControlFlow {
     this.evaluator.assign(statement.variable, value);
     if (frame.step > 0 ? value <= frame.limit : value >= frame.limit)
       this.#moveTo(frame.forIndex + 1, statement.location);
-    else this.#loopFrames.delete(frame.forIndex);
+    else {
+      this.#loopFrames.delete(frame.forIndex);
+      this.#activeLoopVariables.delete(frame.variable);
+    }
   }
 
   #moveTo(index: number, location: Location): void {
+    this.#checkDestination(index, location, this.#loopFrames);
+    for (const [key, frame] of this.#loopFrames) {
+      if (!containsLoopBody(frame, index)) {
+        this.#loopFrames.delete(key);
+        this.#activeLoopVariables.delete(frame.variable);
+      }
+    }
+    this.#index = index;
+  }
+
+  #checkDestination(
+    index: number,
+    location: Location,
+    frames: ReadonlyMap<number, LoopFrame>,
+  ): void {
     for (const pair of this.prepared.loopPairs) {
-      if (containsLoopBody(pair, index) && !this.#loopFrames.has(pair.forIndex)) {
+      if (containsLoopBody(pair, index) && !frames.has(pair.forIndex)) {
         throw new BasicRuntimeError(
           'LOOP_ENTRY',
           `Cannot enter inactive FOR loop for ${pair.variable}`,
@@ -120,10 +191,6 @@ export class ControlFlow {
         );
       }
     }
-    for (const [key, frame] of this.#loopFrames) {
-      if (!containsLoopBody(frame, index)) this.#loopFrames.delete(key);
-    }
-    this.#index = index;
   }
 
   #loopNumber(expression: Expression): number {

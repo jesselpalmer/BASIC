@@ -150,6 +150,8 @@ they are not written in a program.
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
+| Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.         |
+| Return           | `RETURN`; resume at the real instruction following the caller.           |
 | Jump             | `GOTO line` or `GO TO line`; literal targets only.                       |
 | Loop start       | `FOR variable = expression TO expression [STEP expression]`.             |
 | Loop end         | `NEXT variable`; the variable is required.                               |
@@ -193,6 +195,20 @@ approximate, and Stop cancels the pending timer. Use the asynchronous library
 methods; synchronous execution reports `ASYNC_WAIT_REQUIRED`. The browser
 presents buffered drawing before starting the timer. See
 [WAIT and animation](wait.md) for host and debugger contracts.
+
+### GOSUB and RETURN
+
+`GOSUB label` calls a literal numbered line; bare `RETURN` resumes at the real
+following instruction, including on the same physical line. Calls may nest or
+recurse up to 1024 active calls. Variables and arrays remain shared. Caller loop
+frames are suspended across calls; callee loops are discarded on RETURN. Native
+loop entry guards and active-loop-variable ownership remain enforced across
+contexts. Missing targets fail complete validation; unmatched RETURN and excessive
+nesting are located runtime errors. END/Stop/error/exhaustion/replacement release
+all frames. Immediate entry requires a complete program. GOSUB and RETURN remain
+valid scalar/array names outside their contextual statement forms. Computed ON
+lists, GO SUB aliases and historical loop transfers remain unsupported. See the
+[subroutine contract](subroutines.md).
 
 ### PRINT
 
@@ -461,8 +477,8 @@ it, and blank input is harmless. `NEW` and `EXIT` ask before discarding unsaved
 source. The library's legacy `readLine` methods retain immediate execution; they
 are separate from the terminal session.
 
-Historical array defaults/conversions, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
-statements, multiple statements per line, a broad string library, and sound are
+Historical array defaults/conversions, `DATA`/`READ`, computed subroutine dispatch,
+user-defined functions, general immediate statements, a broad string library, and sound are
 outside the current implementation, but corpus-required features are now
 release blockers under [#114](https://github.com/jesselpalmer/BASIC/issues/114).
 The [browser playground](playground.md) supports the

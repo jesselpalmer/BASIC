@@ -302,3 +302,9 @@ than the structural sequence. GOTO targets the first member, false IF skips the
 rest of the numbered line, and END halts before later members. Legacy immediate
 `readLine`/`readLineAsync` reject sequences as PROGRAM_REQUIRED before any member
 effects. See [the sequence contract](statement-sequences.md).
+
+Literal GOSUB/RETURN use the same prepared driver and each cost one statement,
+gate and instruction-budget unit. Locations identify real callee/return positions;
+INPUT/WAIT inside a call preserve the same async ownership and generation rules.
+END/cancel/error/reset clear all call and loop frames. Native call depth is
+bounded at 1024; see [subroutines](subroutines.md).

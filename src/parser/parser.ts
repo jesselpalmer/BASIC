@@ -198,6 +198,16 @@ class Parser {
         this.take();
         return this.assignment(command, command);
       }
+      // Contextual statement forms preserve these existing scalar/array names.
+      if (command.value === 'GOSUB') {
+        this.take();
+        const target = this.jumpTarget();
+        return this.node('GosubStatement', command, target, {target});
+      }
+      if (command.value === 'RETURN') {
+        this.take();
+        return this.node('ReturnStatement', command, command, {});
+      }
       // GO stays a variable name. Only the statement-position pair GO TO
       // is an alias; splitting arbitrary names would change native programs.
       if (command.value === 'GO' && following.type === 'KEYWORD' && following.value === 'TO') {

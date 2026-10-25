@@ -10,6 +10,10 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add contextual native GOSUB/RETURN with same-line and nested returns, shared
+  values, suspended caller loop ownership and bounded call depth. Preserve native
+  names and loop guards; clear frames on all terminal paths. Computed dispatch,
+  historical profiles and full-corpus certification remain pending.
 - Add bounded native colon-separated statements with real instruction positions,
   same-line loops, source-backed false-IF line scope and per-member stepping,
   budgets, cancellation and source columns. Preserve existing single-statement

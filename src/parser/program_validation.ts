@@ -80,7 +80,12 @@ export function validateProgram(
         }
       }
     }
-    if (statement.type !== 'GotoStatement' && statement.type !== 'IfStatement') continue;
+    if (
+      statement.type !== 'GotoStatement' &&
+      statement.type !== 'IfStatement' &&
+      statement.type !== 'GosubStatement'
+    )
+      continue;
     if (!labels.has(statement.target.value)) {
       throw new BasicSyntaxError(
         'MISSING_TARGET',
