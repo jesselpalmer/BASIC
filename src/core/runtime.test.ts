@@ -413,7 +413,7 @@ describe('runtime and preflight failures', () => {
   it.each([
     '10 ABS "-3.14"',
     '10 INT "-1.6"',
-    '10 PRINT "a" "b"',
+    '10 PRINT 1 2',
     '10 PRINT ;1',
     '10 END 1',
     '10 CLS 1',

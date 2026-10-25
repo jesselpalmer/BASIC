@@ -16,7 +16,9 @@ explicit native numeric/string arrays are supported; subroutines and historical
 profiles remain pending. See the [array contract](docs/arrays.md) for limits.
 The new scope does not claim general QBasic or GW-BASIC compatibility.
 Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
-these native extensions preserve existing names and execution semantics. The browser
+these native extensions preserve existing names and execution semantics. Native PRINT
+also accepts adjacent items when a neighboring item is a string, such as
+`PRINT "Score: " SCORE`; see [PRINT adjacency](docs/print-adjacency.md). The browser
 also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 

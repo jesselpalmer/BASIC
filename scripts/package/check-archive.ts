@@ -88,7 +88,11 @@ export async function checkArchive(root: string, archive: string): Promise<void>
     cpSync(join(root, 'scripts/package/fixtures'), join(consumer, 'scripts/package/fixtures'), {
       recursive: true,
     });
-    for (const harness of ['library-acceptance.ts', 'array-acceptance.ts']) {
+    for (const harness of [
+      'library-acceptance.ts',
+      'array-acceptance.ts',
+      'output-acceptance.ts',
+    ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
     await checkLibraryConsumers(consumer, installed);

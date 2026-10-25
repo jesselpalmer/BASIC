@@ -93,6 +93,8 @@ mutable language state. Reset does not rewind the host's random sequence.
 
 `PRINT` evaluates items left to right, joins displayed values without added
 spaces, and appends one newline unless a trailing semicolon suppresses it.
+Separators may be omitted between string-involved items; expression parsing and
+the one-write-per-statement contract remain unchanged. See [adjacency](print-adjacency.md).
 Blank `PRINT` emits a newline; numbers use JavaScript's finite string
 representation, including displaying negative zero as `0`. All items evaluate
 before one host write, so a failing item prevents output from that statement.

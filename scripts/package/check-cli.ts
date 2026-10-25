@@ -43,7 +43,7 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
       '90 IF TOTAL=6 THEN 120',
       '100 PRINT "wrong total"',
       '110 GO TO 140',
-      '120 PRINT NAME$;": ";TOTAL',
+      '120 PRINT NAME$ ": "TOTAL',
       '130 GOTO 150',
       '140 PRINT "must not run"',
       '150 END',
