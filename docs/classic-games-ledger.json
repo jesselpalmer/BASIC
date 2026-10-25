@@ -1,0 +1,3965 @@
+{
+  "schemaVersion": 1,
+  "upstream": {
+    "repository": "maurymarkowitz/101-BASIC-Computer-Games",
+    "commit": "45f75052be3f436f2e575f58d4aa611484268227"
+  },
+  "nativeBaselineCommit": "201b52422edc75c518703874a459b6a83eef5726",
+  "inventoryCount": 108,
+  "searchIndexNotice": "Feature labels are conservative textual observations, not complete parsing, dialect certification or a guarantee that no other features are used. README dialect hints are not verified profiles.",
+  "missingBookListings": ["BUNNY", "SNOOPY"],
+  "entries": [
+    {
+      "file": "1check.bas",
+      "sha256": "87b6ea841f5e6ff0af0718ef3f4f905c992535455afd5d3400b1e2946c30d04f",
+      "bytes": 2042,
+      "physicalLines": 86,
+      "bookReference": {
+        "title": "1CHECK",
+        "referencePage": 163,
+        "dialectHint": "unknown, uses USING",
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 164
+      },
+      "role": "listing",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [68],
+        "formatted-output": [74]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"DIM\"",
+        "label": 68,
+        "line": 16,
+        "column": 4,
+        "offset": 669
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ],
+      "reviewRecord": "classic-source-review.md#1check"
+    },
+    {
+      "file": "23mtch.bas",
+      "sha256": "6406621c19cfac9961d0b4fa36ba50d322f4697648b1021fe99cace6ef9d8896",
+      "bytes": 1211,
+      "physicalLines": 44,
+      "bookReference": {
+        "title": "23MTCH",
+        "referencePage": 226,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 227
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "printed-system-identified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [340, 390, 430, 460, 520]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"GO\"",
+        "label": 340,
+        "line": 27,
+        "column": 5,
+        "offset": 762
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ],
+      "printedSystem": "EduSystem 30",
+      "reviewRecord": "classic-source-review.md#23mtch"
+    },
+    {
+      "file": "3dplot.bas",
+      "sha256": "37a24eff0b3ff254479d22e0318800342d4a19deecfd8c46ee6c9f108a95d01a",
+      "bytes": 260,
+      "physicalLines": 14,
+      "bookReference": {
+        "title": "3D PLOT",
+        "referencePage": 216,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "defined-functions": [5]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"DEF\"",
+        "label": 5,
+        "line": 1,
+        "column": 3,
+        "offset": 2
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "aceydu.bas",
+      "sha256": "686b00f4ca413243877764e9bec6d3318831884bfa8bc8ffab07749b6e1142c4",
+      "bytes": 2151,
+      "physicalLines": 94,
+      "bookReference": {
+        "title": "ACEYDU",
+        "referencePage": 13,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 160,
+        "line": 12,
+        "column": 10,
+        "offset": 532
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "amazin.bas",
+      "sha256": "bb31020296c2d58888623373ad5da26d2095c6fa60aa4d959a4b733df3bd73ad",
+      "bytes": 3517,
+      "physicalLines": 189,
+      "bookReference": {
+        "title": "AMAZIN",
+        "referencePage": 15,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100],
+        "arrays": [110],
+        "spaced-jump": [
+          141, 172, 202, 222, 232, 333, 412, 482, 520, 553, 622, 660, 692, 730, 752, 770, 780, 812,
+          851, 873, 902, 931, 952, 973, 991, 1000, 1021, 1052
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"RANDOMIZE\"",
+        "label": 100,
+        "line": 1,
+        "column": 5,
+        "offset": 4
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "animal.bas",
+      "sha256": "166ceaf64af188b7937f0d1902d5a5d537051030ac45a23619b1d8bead3777a4",
+      "bytes": 2222,
+      "physicalLines": 68,
+      "bookReference": {
+        "title": "ANIMAL",
+        "referencePage": 17,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [500],
+        "file-or-program-services": [550],
+        "integer-suffix": [550, 1050, 1350, 1400, 2200, 3000],
+        "data": [1050, 1100],
+        "defined-functions": [3000]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"&\"",
+        "label": 100,
+        "line": 1,
+        "column": 5,
+        "offset": 4
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "awari.bas",
+      "sha256": "710941bd1b5d71b56d6b4cec2b50a892d078b59893d7f00ce168f49b1fa46125",
+      "bytes": 1916,
+      "physicalLines": 69,
+      "bookReference": {
+        "title": "AWARI",
+        "referencePage": 19,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "data": [5, 10, 15],
+        "arrays": [10],
+        "gosub": [35, 40, 60, 70, 140, 200, 505, 515, 525, 815]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 10,
+        "line": 2,
+        "column": 24,
+        "offset": 31
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bagels.bas",
+      "sha256": "032c831d2d037bcad31a0621bcc5b766119957c58d2e617fa88c4e3d5319cf53",
+      "bytes": 2132,
+      "physicalLines": 77,
+      "bookReference": {
+        "title": "BAGLES",
+        "referencePage": 22,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [30],
+        "randomization": [40],
+        "string-change": [250]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 40,
+        "line": 7,
+        "column": 13,
+        "offset": 330
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "banner.bas",
+      "sha256": "526a9eaa9840ee50392ec9fdc9c8553f18075d36fa0c47f46438a9dd96347ee0",
+      "bytes": 4502,
+      "physicalLines": 99,
+      "bookReference": {
+        "title": "BANNER",
+        "referencePage": 24,
+        "dialectHint": "EduSystem 50",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [190],
+        "gosub": [
+          260, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510,
+          520, 530, 540, 550, 560, 570, 580, 585, 590, 595, 600, 605, 610, 615, 620, 625, 630, 635
+        ],
+        "data": [260, 980]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 200,
+        "line": 11,
+        "column": 42,
+        "offset": 459
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "basbal.bas",
+      "sha256": "0cf3efbea619a50b2ab913b0304cabc5e25a5e2c0d90250c343ab71b0293a8bc",
+      "bytes": 2124,
+      "physicalLines": 50,
+      "bookReference": {
+        "title": "BASBAL",
+        "referencePage": 26,
+        "dialectHint": "EduSystem 15/30/35, uses CHAIN",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [100],
+        "data": [110, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390],
+        "gosub": [220],
+        "file-or-program-services": [580]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"1TO19\"",
+        "label": 110,
+        "line": 2,
+        "column": 10,
+        "offset": 40
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "basbl1.bas",
+      "sha256": "2c3ac95029628b46505d33f55925e630e542a43d5c27d9ac09b3662a2e6de7c4",
+      "bytes": 5519,
+      "physicalLines": 138,
+      "bookReference": {
+        "title": "BASBAL",
+        "referencePage": 26,
+        "dialectHint": "EduSystem 15/30/35, uses CHAIN",
+        "evidence": "companion of BASBAL; exact printed listing page still unverified"
+      },
+      "role": "companion",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [100],
+        "gosub": [150, 420, 730, 920, 980, 1070, 1080, 1100, 1140, 1160, 1180, 1220, 1320],
+        "file-or-program-services": [1460]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 110,
+        "line": 2,
+        "column": 15,
+        "offset": 27
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "basket.bas",
+      "sha256": "9ac96c11530e6770bacc369c658201bb569189bb965719b5e5f2d5cd2288e622",
+      "bytes": 5225,
+      "physicalLines": 205,
+      "bookReference": {
+        "title": "BASKET",
+        "referencePage": 29,
+        "dialectHint": "Dartmouth?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [10],
+        "spaced-jump": [
+          410, 460, 500, 1036, 1043, 1085, 1120, 1137, 1150, 1170, 1188, 1195, 1240, 1245, 1265,
+          1280, 1303, 1355, 1400, 1430, 1450, 1530, 1620, 1640, 1710, 2040, 3012, 3090, 3130, 3170,
+          3175, 3230, 3320, 3550, 3610, 3810, 4080, 4110, 5005, 5030, 5110, 5140, 8020
+        ],
+        "gosub": [
+          1046, 1075, 1187, 1260, 1304, 1345, 1520, 3015, 3080, 3220, 3540, 4040, 5015, 5130, 7010
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"70PRINT\\\"\"; expected 1 through 65535",
+        "label": null,
+        "line": 7,
+        "column": 1,
+        "offset": 318
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "batnum.bas",
+      "sha256": "c66b9a6302d7ca27f199eecf1a3e75a017d99365159d641bb60f94c1c63d6a7f",
+      "bytes": 2093,
+      "physicalLines": 89,
+      "bookReference": {
+        "title": "BATNUM",
+        "referencePage": 32,
+        "dialectHint": "Dartmouth?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [550, 570],
+        "spaced-jump": [590, 900, 930, 1050]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_TOKEN",
+        "message": "Unexpected token \",\"",
+        "label": 440,
+        "line": 25,
+        "column": 12,
+        "offset": 796
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "battle.bas",
+      "sha256": "e45ce84b72af6e7d23e95e1b59e401cfd1097e928b6b86ac9e6683a47bb4c56b",
+      "bytes": 4033,
+      "physicalLines": 163,
+      "bookReference": {
+        "title": "BATTLE",
+        "referencePage": 34,
+        "dialectHint": "HP?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [40],
+        "square-subscripts": [
+          40, 120, 150, 160, 190, 200, 210, 240, 260, 270, 290, 310, 340, 350, 360, 390, 400, 410,
+          420, 430, 460, 470, 490, 500, 510, 520, 550, 560, 590, 600, 610, 640, 660, 670, 690, 710,
+          740, 750, 760, 770, 800, 810, 820, 830, 840, 870, 880, 900, 910, 920, 930, 950, 970, 1130,
+          1140, 1150, 1250, 1290, 1340, 1360, 1370, 1380, 1390, 1420, 1470, 1500, 1510, 1530
+        ],
+        "matrix": [50, 1050, 1060, 1110, 1120],
+        "logical-operators": [390, 410, 480, 500, 800, 820, 890, 910, 1190, 1200]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"[\"",
+        "label": 40,
+        "line": 4,
+        "column": 9,
+        "offset": 176
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bingo.bas",
+      "sha256": "21527387120cf5a39b0c5af41471b49806d76c715ab55cf15f93e30d475c2993",
+      "bytes": 4447,
+      "physicalLines": 191,
+      "bookReference": {
+        "title": "BINGO",
+        "referencePage": 36,
+        "dialectHint": "DECsystem 10",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100],
+        "arrays": [190, 200],
+        "data": [210, 220],
+        "matrix": [210],
+        "gosub": [1170, 1190],
+        "spaced-jump": [1410]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNTERMINATED_STRING",
+        "message": "Unterminated string",
+        "label": 600,
+        "line": 46,
+        "column": 10,
+        "offset": 905
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "blkjac.bas",
+      "sha256": "99b3cc055a32dd67949635f7130f5ff4f1d8f14e00dd813616baad6d090adaf4",
+      "bytes": 7859,
+      "physicalLines": 333,
+      "bookReference": {
+        "title": "BLKJAC",
+        "referencePage": 39,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [165],
+        "arrays": [210, 230],
+        "gosub": [
+          350, 380, 400, 420, 435, 490, 500, 595, 740, 750, 755, 800, 865, 890, 1035, 1040, 1190,
+          1335, 1365
+        ],
+        "formatted-output": [1425]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"115.\"; expected 1 through 65535",
+        "label": null,
+        "line": 21,
+        "column": 1,
+        "offset": 832
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "blkjak.bas",
+      "sha256": "7f1a2e9c60e540534ab1aebacb8784e380a8b83a8e542649981d685278eecbac",
+      "bytes": 2245,
+      "physicalLines": 101,
+      "bookReference": {
+        "title": "BLKJAK",
+        "referencePage": 42,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [9],
+        "arrays": [10],
+        "gosub": [100, 106, 119, 200, 204, 217, 768, 786]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 6,
+        "line": 2,
+        "column": 8,
+        "offset": 68
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "boat.bas",
+      "sha256": "7b2adca706bf02ce937112654d66cccbe17e8798265ef95800d74724a6307f94",
+      "bytes": 4063,
+      "physicalLines": 119,
+      "bookReference": {
+        "title": "BOAT",
+        "referencePage": 43,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [120, 220, 530],
+        "spaced-jump": [300, 690, 800, 840, 880, 920, 970]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"820PRINT\\\"\"; expected 1 through 65535",
+        "label": null,
+        "line": 92,
+        "column": 1,
+        "offset": 2903
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bomber.bas",
+      "sha256": "5feb712d2e6c7f02ba588787d1baa25fd55746eeb6c087d95aaac845b8ce3702",
+      "bytes": 2811,
+      "physicalLines": 57,
+      "bookReference": {
+        "title": "BOMBER",
+        "referencePage": 45,
+        "dialectHint": "Unclear, supports ELSE",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5],
+        "logical-operators": [20, 40, 120, 230, 345]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 5,
+        "line": 1,
+        "column": 9,
+        "offset": 8
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bounce.bas",
+      "sha256": "a5010e3085220dfef1cf9d19c6c4a520c382c5e53df5d2076b11b3ad92c1b672",
+      "bytes": 1234,
+      "physicalLines": 53,
+      "bookReference": {
+        "title": "BOUNCE",
+        "referencePage": 47,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [90],
+        "spaced-jump": [430]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 200,
+        "line": 23,
+        "column": 13,
+        "offset": 631
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bowl.bas",
+      "sha256": "0d906f680f09fcacc4d3dd22c57258174b7236a715c84c694d73e1aeda79885f",
+      "bytes": 2403,
+      "physicalLines": 100,
+      "bookReference": {
+        "title": "BOWL",
+        "referencePage": 48,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [270],
+        "matrix": [1890, 2430],
+        "logical-operators": [5220, 5490, 5760, 6030]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 630,
+        "line": 7,
+        "column": 10,
+        "offset": 245
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "boxing.bas",
+      "sha256": "b39ff371808b5234ee9f9a134d9935bcc27d5b827cbfa1f73b0522d080e53b95",
+      "bytes": 3141,
+      "physicalLines": 142,
+      "bookReference": {
+        "title": "BOXING",
+        "referencePage": 50,
+        "dialectHint": "generic DEC",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [
+          222, 300, 330, 400, 440, 490, 510, 565, 590, 602, 670, 710, 760, 800, 910, 940, 954, 1000,
+          1030, 1050, 1070
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"J\"",
+        "label": 2,
+        "line": 2,
+        "column": 3,
+        "offset": 55
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bug.bas",
+      "sha256": "491b8690fecb9165e231c3b29ec9fda9d064461841a7e47c06221aba788eb0c9",
+      "bytes": 5738,
+      "physicalLines": 255,
+      "bookReference": {
+        "title": "BUG",
+        "referencePage": 52,
+        "dialectHint": "HP?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [40],
+        "square-subscripts": [40],
+        "logical-operators": [1630, 1670],
+        "gosub": [1870, 2240]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"[\"",
+        "label": 40,
+        "line": 4,
+        "column": 10,
+        "offset": 103
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "buleye.bas",
+      "sha256": "0524ba20134afa28d0198f240acee89dc3868e87c0034fafe2565ca1ffe496ba",
+      "bytes": 1461,
+      "physicalLines": 36,
+      "bookReference": {
+        "title": "BULEYE",
+        "referencePage": 57,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [20],
+        "arrays": [100],
+        "logical-operators": [180]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 20,
+        "line": 2,
+        "column": 28,
+        "offset": 58
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bull.bas",
+      "sha256": "0d4de8f7cb5663bbcc49967c673da7baaaef6172f733f9185d9f0798c35c5a6f",
+      "bytes": 4866,
+      "physicalLines": 189,
+      "bookReference": {
+        "title": "BULL",
+        "referencePage": 59,
+        "dialectHint": "generic DEC",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [10, 450],
+        "randomization": [200],
+        "data": [463, 470],
+        "gosub": [600, 640, 730, 780, 1030],
+        "defined-functions": [1390, 1920]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 1390,
+        "line": 127,
+        "column": 61,
+        "offset": 3350
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "bullcow.bas",
+      "sha256": "f1184f9024a977b2c86057a136dace7d8ec0fab63b05425547702f3525031165",
+      "bytes": 1711,
+      "physicalLines": 60,
+      "bookReference": {
+        "title": "BULCOW",
+        "referencePage": 55,
+        "dialectHint": "Dartmouth?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [5, 45, 68, 420],
+        "arrays": [10],
+        "randomization": [15]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 15,
+        "line": 3,
+        "column": 13,
+        "offset": 56
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "buzzwd.bas",
+      "sha256": "db72b73ff978a030486616fd961f70bae322935e05b14782b808951261ce42ce",
+      "bytes": 2792,
+      "physicalLines": 124,
+      "bookReference": {
+        "title": "BUZZWD",
+        "referencePage": 63,
+        "dialectHint": "EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [710, 1010, 1070, 1130],
+        "file-or-program-services": [1310]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"1THEN\"",
+        "label": 350,
+        "line": 27,
+        "column": 10,
+        "offset": 905
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "calndr.bas",
+      "sha256": "c42b11a6afdcda9815b2d91d8b1a379a615451f7bdf47153d0175fcf01f422ef",
+      "bytes": 1470,
+      "physicalLines": 55,
+      "bookReference": {
+        "title": "CALNDR",
+        "referencePage": 65,
+        "dialectHint": "EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "square-subscripts": [130],
+        "data": [160, 620]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"'\"",
+        "label": 110,
+        "line": 2,
+        "column": 5,
+        "offset": 41
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "canam.bas",
+      "sha256": "fc32ec9902ad8532eee9ae54c6fc6094d56488fb5fd3d3fc5918d1df44a90726",
+      "bytes": 18259,
+      "physicalLines": 416,
+      "bookReference": {
+        "title": "CAN-AM",
+        "referencePage": 67,
+        "dialectHint": "Dartmouth",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "string-change": [670, 690, 970, 1000],
+        "data": [710, 720, 750, 780, 790, 800, 810, 820, 830, 1490, 1500],
+        "matrix": [790, 810, 820, 1200, 2050, 2830, 2880, 3230, 3340],
+        "logical-operators": [
+          850, 1120, 1970, 2170, 2410, 2420, 2940, 2980, 3210, 3350, 3820, 3950, 3980, 4220, 4240,
+          4250
+        ],
+        "gosub": [900, 1230, 2070, 2340, 2350, 3630],
+        "randomization": [1050],
+        "scientific-literals": [1780],
+        "defined-functions": [2310],
+        "file-or-program-services": [2340, 2350, 3280]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"'\"",
+        "label": 100,
+        "line": 1,
+        "column": 5,
+        "offset": 4
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "change.bas",
+      "sha256": "658c2681bf1ca9afa4d57a263e6758165ba390d561f76ee6a92fd53e915e1b13",
+      "bytes": 1050,
+      "physicalLines": 26,
+      "bookReference": {
+        "title": "CHANGE",
+        "referencePage": 72,
+        "dialectHint": "EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [30, 100, 380]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 4,
+        "line": 3,
+        "column": 8,
+        "offset": 128
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "checkr.bas",
+      "sha256": "cbb1a2b6f8bc971fef162e8de67ba67af25a6c61a55cbc38559928afb93c26b4",
+      "bytes": 4127,
+      "physicalLines": 192,
+      "bookReference": {
+        "title": "CHECKR",
+        "referencePage": 73,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [800, 1000],
+        "data": [1100, 1400, 1800, 1900],
+        "gosub": [3200, 3400, 4100, 5100, 6200, 7500, 8600, 12100, 13700, 13900]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"1TO8\"",
+        "label": 1200,
+        "line": 12,
+        "column": 12,
+        "offset": 474
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "chemst.bas",
+      "sha256": "94f3d0dc79464473276d21de6e338488c7e84b6feac17364dd71ce93637634c5",
+      "bytes": 983,
+      "physicalLines": 25,
+      "bookReference": {
+        "title": "CHEMST",
+        "referencePage": 76,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [180, 250]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_TOKEN",
+        "message": "Unexpected token \"\\\"LITERS OF KRYPTOCYANIC ACID. HOW MUCH WATER\\\"\"",
+        "label": 120,
+        "line": 9,
+        "column": 12,
+        "offset": 424
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "chief.bas",
+      "sha256": "4077ac9c2aaa02df410442637336e21a2a0c753d88df2cb1c49b559f972286f8",
+      "bytes": 1488,
+      "physicalLines": 49,
+      "bookReference": {
+        "title": "CHIEF",
+        "referencePage": 77,
+        "dialectHint": "EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 310,
+        "line": 32,
+        "column": 10,
+        "offset": 1061
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "chomp.bas",
+      "sha256": "03500272496fb39a1aacc0137c44000f08804698d43a0387cb16265b6ac27a55",
+      "bytes": 2532,
+      "physicalLines": 101,
+      "bookReference": {
+        "title": "CHOMP",
+        "referencePage": 78,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [220],
+        "arrays": [350]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"F\"",
+        "label": 160,
+        "line": 8,
+        "column": 5,
+        "offset": 241
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "civilw.bas",
+      "sha256": "526d1c18665055c871c46f1deea1548834f6e14fbc46f82a35100c0ab0bdf045",
+      "bytes": 7795,
+      "physicalLines": 241,
+      "bookReference": {
+        "title": "CIVILW",
+        "referencePage": 80,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "logical-operators": [5],
+        "data": [100, 670, 672, 674, 676, 678, 680, 682, 684, 686, 688, 690, 692, 694, 696],
+        "gosub": [115, 555],
+        "spaced-jump": [840, 890, 940, 990, 1040]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 1,
+        "line": 1,
+        "column": 10,
+        "offset": 9
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "craps.bas",
+      "sha256": "ba7e4bbc68a2061278844188f64dce6594e68e5e43c0d75bd748fdecd57d208c",
+      "bytes": 2625,
+      "physicalLines": 110,
+      "bookReference": {
+        "title": "CRAPS",
+        "referencePage": 83,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [80],
+        "spaced-jump": [217, 680],
+        "file-or-program-services": [1120]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 90,
+        "line": 2,
+        "column": 17,
+        "offset": 29
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "cube.bas",
+      "sha256": "d17aa56fbd9fbc27dd6ba3a8a46605d2674b196d461b15e7a72444ca5be42ae0",
+      "bytes": 3896,
+      "physicalLines": 158,
+      "bookReference": {
+        "title": "CUBE",
+        "referencePage": 85,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [
+          990, 1020, 1040, 1090, 1110, 1140, 1160, 1190, 1210, 1240, 1260, 1290, 1310, 1340, 1360,
+          1390, 1490, 1520, 1525
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"0THEN500\"",
+        "label": 480,
+        "line": 39,
+        "column": 10,
+        "offset": 1570
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "diamnd.bas",
+      "sha256": "d8da61641ee23354bcc763ab2d69002fe4e68dce31829c2a6d8ac99023d162fb",
+      "bytes": 526,
+      "physicalLines": 30,
+      "bookReference": {
+        "title": "DIAMND",
+        "referencePage": 87,
+        "dialectHint": "BASIC-8/EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 5,
+        "line": 3,
+        "column": 10,
+        "offset": 99
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "dice.bas",
+      "sha256": "b5d6fa09957b1f5eb780226c3e150dc6651a12e571290494adce94c0dea06e85",
+      "bytes": 646,
+      "physicalLines": 27,
+      "bookReference": {
+        "title": "DICE",
+        "referencePage": 89,
+        "dialectHint": "BASIC-8/EduSystem",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [10]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 110,
+        "line": 11,
+        "column": 10,
+        "offset": 346
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "digits.bas",
+      "sha256": "260c8a3d4fe9850736db416b5320e18bc5011962c0b181586d916f6e308ac2fa",
+      "bytes": 2073,
+      "physicalLines": 75,
+      "bookReference": {
+        "title": "DIGITS",
+        "referencePage": 91,
+        "dialectHint": "BASIC-PLUS?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "data": [360, 370],
+        "arrays": [380],
+        "matrix": [400, 420, 440]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 340,
+        "line": 14,
+        "column": 10,
+        "offset": 582
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "dogs.bas",
+      "sha256": "ea02dfddd89f54826a125b943526a691a16b8aa93886e42a0f01cece084278b9",
+      "bytes": 6119,
+      "physicalLines": 218,
+      "bookReference": {
+        "title": "DOGS",
+        "referencePage": 93,
+        "dialectHint": "EduSystem 50",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [10, 15, 20],
+        "file-or-program-services": [35, 40, 70, 75, 80, 240, 445, 975, 980, 990, 1085],
+        "randomization": [70, 450, 515],
+        "gosub": [220, 910],
+        "data": [235, 755, 1010, 1015],
+        "spaced-jump": [985]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 35,
+        "line": 7,
+        "column": 17,
+        "offset": 180
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "even.bas",
+      "sha256": "1d83a93a9c29e4cb912985bf043d8bbaa82f4619fbef921579f5bd4a00fecc92",
+      "bytes": 2939,
+      "physicalLines": 125,
+      "bookReference": {
+        "title": "EVEN",
+        "referencePage": 96,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [20],
+        "spaced-jump": [570, 600]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"DIM\"",
+        "label": 20,
+        "line": 3,
+        "column": 4,
+        "offset": 26
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "even1.bas",
+      "sha256": "de131e03bc803d2924ef5aba12abb2136cc38d7c2bd7efb41ac9b4d772bb7ae2",
+      "bytes": 1930,
+      "physicalLines": 68,
+      "bookReference": {
+        "title": "EVEN1",
+        "referencePage": 98,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [20],
+        "randomization": [20]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 1,
+        "line": 1,
+        "column": 49,
+        "offset": 48
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "fipfop.bas",
+      "sha256": "ce41c81c5db270e429a891d8b0883b63bf1af3838f0911518ab7669a5b619f1e",
+      "bytes": 1887,
+      "physicalLines": 75,
+      "bookReference": {
+        "title": "FIPFOP",
+        "referencePage": 99,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [180],
+        "arrays": [260],
+        "spaced-jump": [300, 470, 500, 580, 700, 770]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"&\"",
+        "label": 100,
+        "line": 11,
+        "column": 5,
+        "offset": 284
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "footbl.bas",
+      "sha256": "433f309826eaa8c444e6dff222972502e862cca9f1b029b974ff363a1da94553",
+      "bytes": 8115,
+      "physicalLines": 375,
+      "bookReference": {
+        "title": "FOOTBL",
+        "referencePage": 101,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "defined-functions": [360],
+        "arrays": [370, 470],
+        "data": [390, 410, 500, 520, 3670, 3680, 3690, 3700, 3710, 3720],
+        "randomization": [420],
+        "gosub": [
+          560, 630, 680, 780, 790, 840, 930, 1070, 1190, 1260, 1310, 1380, 1440, 1630, 1650, 1710,
+          1730, 1790, 1820, 2090, 2210, 2220, 2250, 2280, 2360, 2480, 2700, 2810, 2840, 2860, 2940,
+          3580
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 650,
+        "line": 66,
+        "column": 48,
+        "offset": 1834
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "fotbal.bas",
+      "sha256": "8727a43082b4a914da0be60759d4ed3eecbcd826009ad2219ac6b9ca0530be46",
+      "bytes": 7211,
+      "physicalLines": 181,
+      "bookReference": {
+        "title": "FOOTBAL",
+        "referencePage": 104,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100, 920, 1485, 1645, 1680],
+        "arrays": [120, 130],
+        "data": [300, 1770, 1780],
+        "gosub": [725, 770, 810, 910, 1100, 1170, 1195, 1240, 1390, 1742, 1750]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 145,
+        "line": 15,
+        "column": 10,
+        "offset": 585
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "furs.bas",
+      "sha256": "7d9789125f689112f191bef023024f1601456e2ee61e3bfa622c17aad64c8a0b",
+      "bytes": 5728,
+      "physicalLines": 171,
+      "bookReference": {
+        "title": "FURS",
+        "referencePage": 106,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [1],
+        "randomization": [2],
+        "gosub": [15, 18, 22, 310, 1125, 1141, 1152, 1221, 1226, 1232, 1239, 1295, 1303, 1311],
+        "data": [315, 332, 2000],
+        "spaced-jump": [350, 504, 513, 1116, 1190, 1222, 1225, 1233, 1240, 1293, 1304, 1312, 1425]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 1175,
+        "line": 82,
+        "column": 35,
+        "offset": 2883
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "golf.bas",
+      "sha256": "e6eb8ea402a4fab51cdd62de4d42ca33ced97c74fd0efcc9fd886ffe66f15fce",
+      "bytes": 3545,
+      "physicalLines": 135,
+      "bookReference": {
+        "title": "GOLF",
+        "referencePage": 109,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100],
+        "arrays": [110, 380, 390, 430, 440],
+        "data": [350, 360, 370, 410]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"100RANDOMIZE\"; expected 1 through 65535",
+        "label": null,
+        "line": 1,
+        "column": 1,
+        "offset": 0
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "gomoko.bas",
+      "sha256": "d935a714e8df553a8faf9c2ee54467759cfb15cc5dac9aff3bba5610cc10c072",
+      "bytes": 1975,
+      "physicalLines": 50,
+      "bookReference": {
+        "title": "GOMOKO",
+        "referencePage": 110,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [330, 540, 610, 680, 710]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 10,
+        "line": 1,
+        "column": 9,
+        "offset": 8
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "guess.bas",
+      "sha256": "d7f8c25bdd3ad6885ba33159b16701ff2f18371db2ad04e2478a4c73d4c78ce8",
+      "bytes": 772,
+      "physicalLines": 37,
+      "bookReference": {
+        "title": "GUESS",
+        "referencePage": 113,
+        "dialectHint": "EduSystem 20",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [15, 31]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"PRI\"",
+        "label": 1,
+        "line": 1,
+        "column": 3,
+        "offset": 2
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "guner1.bas",
+      "sha256": "e8351c046553c756dcea71fba92e29ebf5e0b4402ea2839a7460c8f960eb937c",
+      "bytes": 2310,
+      "physicalLines": 88,
+      "bookReference": {
+        "title": "GUNER1",
+        "referencePage": 116,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [110],
+        "randomization": [120],
+        "gosub": [660]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"DIM\"",
+        "label": 110,
+        "line": 2,
+        "column": 5,
+        "offset": 34
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "gunner.bas",
+      "sha256": "a3b0b9efc0d6c83e7854d1c23ad6f85aa9ca80b521c906cd1b2eadefc4452ecb",
+      "bytes": 1907,
+      "physicalLines": 58,
+      "bookReference": {
+        "title": "GUNNER",
+        "referencePage": 115,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [90],
+        "spaced-jump": [220, 240, 260, 280, 300, 310, 360],
+        "gosub": [322, 445, 491]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 170,
+        "line": 10,
+        "column": 44,
+        "offset": 516
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hang.bas",
+      "sha256": "58f4fbda78a8a1530cf5c196a88fcb3552f0b23f1619c09a51f81af0ebc34054",
+      "bytes": 3311,
+      "physicalLines": 77,
+      "bookReference": {
+        "title": "HANG",
+        "referencePage": 118,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [30],
+        "randomization": [40],
+        "data": [110, 150, 700, 710, 720, 730, 740, 750, 760, 770, 780]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"&\"",
+        "label": 25,
+        "line": 4,
+        "column": 4,
+        "offset": 169
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hello.bas",
+      "sha256": "ecdff1f5efea72a13e84f49dd23ff3f7f82c220070409bfb63acce5ddd952ebf",
+      "bytes": 3412,
+      "physicalLines": 89,
+      "bookReference": {
+        "title": "HELLO",
+        "referencePage": 120,
+        "dialectHint": "EduSystem 25",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [
+          35, 60, 70, 80, 105, 138, 145, 150, 160, 180, 225, 230, 255, 275, 300, 335, 350, 360, 370
+        ],
+        "logical-operators": [65, 148, 163, 235, 340]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 20,
+        "line": 3,
+        "column": 7,
+        "offset": 82
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hex.bas",
+      "sha256": "e51501edcd3abfb50dc9e3534aaa4d230a52fe97003059a26dd280323ec82d38",
+      "bytes": 4201,
+      "physicalLines": 80,
+      "bookReference": {
+        "title": "HEX",
+        "referencePage": 122,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "integer-suffix": [
+          30, 100, 105, 110, 120, 190, 200, 210, 230, 300, 310, 320, 410, 420, 430, 440, 500, 510,
+          520, 2010, 2015, 2020, 2025, 2030, 2035, 2060, 2070
+        ],
+        "defined-functions": [100, 105],
+        "arrays": [110],
+        "randomization": [110],
+        "gosub": [190, 320],
+        "logical-operators": [310, 430, 2015, 2025, 2035, 2070]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"!\"",
+        "label": 1,
+        "line": 1,
+        "column": 3,
+        "offset": 2
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hi-lo.bas",
+      "sha256": "9d579faa15340c3b2eccae30ccfe3f0bb1ec0530b47e150617e5de7201337608",
+      "bytes": 934,
+      "physicalLines": 26,
+      "bookReference": {
+        "title": "HI-LO",
+        "referencePage": 124,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [90]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 170,
+        "line": 9,
+        "column": 8,
+        "offset": 401
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hi-q.bas",
+      "sha256": "08f884e5330f7ef500cb523372604000cc43bb6c7fd4b10c06df61bf2b821b14",
+      "bytes": 3379,
+      "physicalLines": 133,
+      "bookReference": {
+        "title": "HI-Q",
+        "referencePage": 126,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [3],
+        "gosub": [65, 190, 200, 210],
+        "data": [77, 79, 81, 1618]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 4,
+        "line": 2,
+        "column": 35,
+        "offset": 54
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hmrabi.bas",
+      "sha256": "65f7cdc1e4808344492e4dd7ceaba4a5f46e4f714a7c69d7ea0dbb146fcb3ab8",
+      "bytes": 4189,
+      "physicalLines": 119,
+      "bookReference": {
+        "title": "HMRABI",
+        "referencePage": 128,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [90],
+        "gosub": [323, 343, 421, 446, 452, 511, 521, 531]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 88,
+        "line": 4,
+        "column": 52,
+        "offset": 221
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hockey.bas",
+      "sha256": "5f5d0fc906aa547a760b0318eec5621fa7c5f84a3013c90e7b43ae17e9893ca2",
+      "bytes": 5578,
+      "physicalLines": 229,
+      "bookReference": {
+        "title": "HOCKEY",
+        "referencePage": 130,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"\\\\700\"; expected 1 through 65535",
+        "label": null,
+        "line": 69,
+        "column": 1,
+        "offset": 1709
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "horses.bas",
+      "sha256": "cbc3fed02ad1c86fc00f8d6a2f7428ffd4fa748a789542bf775be4e5adf0035d",
+      "bytes": 3230,
+      "physicalLines": 114,
+      "bookReference": {
+        "title": "HORSES",
+        "referencePage": 133,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [1],
+        "randomization": [2],
+        "gosub": [8, 172],
+        "data": [9, 301],
+        "spaced-jump": [
+          26, 31, 56, 72, 74, 76, 78, 80, 82, 84, 164, 166, 220, 222, 224, 226, 228, 230, 232, 245
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 2,
+        "line": 2,
+        "column": 13,
+        "offset": 61
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "hurkle.bas",
+      "sha256": "0844c09f09d41a89b86af8be947bfec6b0769b1cecb65604075644be0e6b7c5e",
+      "bytes": 1264,
+      "physicalLines": 49,
+      "bookReference": {
+        "title": "HURKLE",
+        "referencePage": 135,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [105],
+        "gosub": [360],
+        "spaced-jump": [470, 540, 650, 700],
+        "data": [670, 680]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 530,
+        "line": 34,
+        "column": 18,
+        "offset": 951
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "kinema.bas",
+      "sha256": "2e132c859ae75104ca48afcc371a831bb726e86b4b3677e6d0e042c1da3ea81b",
+      "bytes": 758,
+      "physicalLines": 36,
+      "bookReference": {
+        "title": "KINEMA",
+        "referencePage": 137,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [117, 124, 136]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 115,
+        "line": 7,
+        "column": 8,
+        "offset": 128
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "king.bas",
+      "sha256": "a03d3f1b189d0d8b6bc0293a64e5cadb7e09c192937687f3278386044e2fdb91",
+      "bytes": 9173,
+      "physicalLines": 287,
+      "bookReference": {
+        "title": "KING",
+        "referencePage": 138,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [6],
+        "data": [310]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 310,
+        "line": 59,
+        "column": 31,
+        "offset": 2168
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "letter.bas",
+      "sha256": "cd8b98f301030f3dacde48a8315861befcd113fe8cfe9bcaf318b35db1015568",
+      "bytes": 787,
+      "physicalLines": 24,
+      "bookReference": {
+        "title": "LETTER",
+        "referencePage": 141,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [90]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 100,
+        "line": 2,
+        "column": 33,
+        "offset": 45
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "life.bas",
+      "sha256": "a3ae4a6be0b627b26a72b6b66c3809afad3b5e6efecc36d836c3cd5f6956f113",
+      "bytes": 1779,
+      "physicalLines": 65,
+      "bookReference": {
+        "title": "LIFE",
+        "referencePage": 143,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "integer-suffix": [
+          2, 3, 10, 40, 50, 60, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 200, 210, 215,
+          220, 225, 230, 250, 253, 256, 260, 261, 262, 264, 266, 268, 270, 280, 290, 295, 296, 299,
+          301, 303, 305, 307, 309, 500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 610, 620, 630,
+          635
+        ],
+        "arrays": [10],
+        "file-or-program-services": [20],
+        "spaced-jump": [30, 70, 253, 256, 600, 640],
+        "logical-operators": [550, 590]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"%\"",
+        "label": 2,
+        "line": 2,
+        "column": 16,
+        "offset": 50
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "life2.bas",
+      "sha256": "047474f16b61cac8e57fb573ef9c783c5c5eabe6f8eed13ac7bcee610f6a9dde",
+      "bytes": 1944,
+      "physicalLines": 79,
+      "bookReference": {
+        "title": "LIFE-2",
+        "referencePage": 146,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [1],
+        "data": [3, 4, 10, 13, 14],
+        "gosub": [110, 535, 559, 560, 580]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"1TO18\"",
+        "label": 10,
+        "line": 4,
+        "column": 9,
+        "offset": 133
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "litqz.bas",
+      "sha256": "7a5413791f32b84ab360d4a842aeb30b8c479ff302c9bc220a1cb50f85d95c8b",
+      "bytes": 1694,
+      "physicalLines": 46,
+      "bookReference": {
+        "title": "LITQZ",
+        "referencePage": 148,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 12,
+        "line": 3,
+        "column": 9,
+        "offset": 71
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "mathd.bas",
+      "sha256": "0bd1003eeffa08a8d6dd35ef125de3e067611bcbee9c913c593f80e7217efe9e",
+      "bytes": 1728,
+      "physicalLines": 68,
+      "bookReference": {
+        "title": "MATHD",
+        "referencePage": 151,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"RANDOMIZE\"",
+        "label": 100,
+        "line": 17,
+        "column": 5,
+        "offset": 776
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "mnopfl.bas",
+      "sha256": "5d3e6957d28e52c3cc705d1b2718409a5949b38678c609cd032e8bcc00bc3b0b",
+      "bytes": 3919,
+      "physicalLines": 104,
+      "bookReference": {
+        "title": "MNOPLY",
+        "referencePage": 153,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "companion of MNOPLY; exact printed listing page still unverified"
+      },
+      "role": "companion",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [20, 30],
+        "file-or-program-services": [20, 30, 300],
+        "integer-suffix": [20, 30, 42],
+        "data": [
+          42, 52, 62, 72, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128,
+          130, 132, 134, 136, 138, 140, 142, 144, 146, 148, 150, 152, 154, 156, 158, 160, 162, 164,
+          166, 168, 170, 172, 174, 176, 178, 200, 202, 204, 206, 208, 210, 212, 214, 216, 218, 220,
+          222, 224, 226, 228, 230, 232, 234, 236, 238, 250, 252, 254, 256, 258, 260, 262, 264, 266,
+          268, 280, 282, 284, 286, 288, 290, 292, 294, 296, 298
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"!\"",
+        "label": 1,
+        "line": 1,
+        "column": 4,
+        "offset": 3
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "mnoply.bas",
+      "sha256": "91e158274c3b57c62531e80de8e9a8582e48e67aa62e4bcb1175115ad163f2a8",
+      "bytes": 8015,
+      "physicalLines": 158,
+      "bookReference": {
+        "title": "MNOPLY",
+        "referencePage": 153,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [3, 7, 10],
+        "integer-suffix": [
+          3, 7, 8, 9, 10, 102, 117, 202, 217, 1016, 2004, 2010, 2011, 2012, 2018, 2019, 2020, 2027,
+          3156, 3158, 3160, 3172, 3174, 3200, 3202, 3204, 3206, 3208, 3210, 3212, 3214, 3250, 3251,
+          3252, 3253, 3254, 3255, 3256, 3257, 3258, 3259, 3260, 3261, 3262, 3263, 3264, 3265, 4102,
+          4104, 4106, 4108, 4110, 4112, 4114, 4116, 4118, 4120, 4402, 4408, 4410, 4414, 4416, 30004,
+          30006
+        ],
+        "file-or-program-services": [7, 10, 30013],
+        "defined-functions": [9],
+        "gosub": [102, 202, 3100, 3150, 4404, 4406, 4418, 4420],
+        "randomization": [1000, 4100, 4400],
+        "logical-operators": [
+          1002, 1003, 1004, 1005, 1006, 1007, 1009, 1010, 1011, 1012, 1013, 1014, 2002, 2006, 2008,
+          2019, 2020, 3200, 3202, 3204, 3206, 3208, 3210, 3212, 3214, 4102, 4104, 4106, 4108, 4110,
+          4112, 4114, 4116, 4118, 4120, 4402, 4404, 4406, 4408, 4410, 4412, 4414, 4416, 4418, 4420
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"!\"",
+        "label": 1,
+        "line": 1,
+        "column": 3,
+        "offset": 2
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "mugwump.bas",
+      "sha256": "55d681394e56370b0dc89dd00d806fad3dc6fd22247ac17b71ccdb891aac47d3",
+      "bytes": 1578,
+      "physicalLines": 56,
+      "bookReference": {
+        "title": "MUGWMP",
+        "referencePage": 156,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5],
+        "arrays": [10],
+        "gosub": [240]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"^\"",
+        "label": 380,
+        "line": 30,
+        "column": 22,
+        "offset": 920
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "nicoma.bas",
+      "sha256": "bf6a70bf29ee28019e9f9107a18a5ad8998a2317793318de6af472854f6f6a04",
+      "bytes": 811,
+      "physicalLines": 31,
+      "bookReference": {
+        "title": "NICOMA",
+        "referencePage": 158,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"SLEEP\"",
+        "label": 90,
+        "line": 12,
+        "column": 4,
+        "offset": 385
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "nim.bas",
+      "sha256": "3531bb430a0e0f28cd8421d0d1fd54f94589a191804b6a74d37c1f914ee46298",
+      "bytes": 3895,
+      "physicalLines": 93,
+      "bookReference": {
+        "title": "NIM",
+        "referencePage": 160,
+        "dialectHint": "EduSystem 30?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [190],
+        "arrays": [200],
+        "spaced-jump": [
+          210, 215, 230, 235, 260, 270, 285, 295, 310, 315, 350, 355, 365, 370, 380, 465, 470, 545,
+          555
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 120,
+        "line": 5,
+        "column": 39,
+        "offset": 260
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "number.bas",
+      "sha256": "ac9327a25a1dde2c233dba8a09711ce1af537f93d362cc01fb8842d313d0e5e6",
+      "bytes": 932,
+      "physicalLines": 36,
+      "bookReference": {
+        "title": "NUMBER",
+        "referencePage": 162,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [35, 45, 55, 65, 85]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 2,
+        "line": 2,
+        "column": 8,
+        "offset": 45
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "orbit.bas",
+      "sha256": "9e707f971337ed97c139904cd0b861ff6025a9236b17ef0fbb27036683cde9a8",
+      "bytes": 3722,
+      "physicalLines": 97,
+      "bookReference": {
+        "title": "ORBIT",
+        "referencePage": 165,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"RANDOMIZE\"",
+        "label": 5,
+        "line": 1,
+        "column": 3,
+        "offset": 2
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "pizza.bas",
+      "sha256": "8121dd57f5348872774e2e3173ee0b4ef09199636facc4880513dea1113d45cf",
+      "bytes": 2345,
+      "physicalLines": 65,
+      "bookReference": {
+        "title": "PIZZA",
+        "referencePage": 167,
+        "dialectHint": null,
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [10],
+        "integer-suffix": [10],
+        "randomization": [20],
+        "data": [150, 180, 200, 220]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"%\"",
+        "label": 10,
+        "line": 1,
+        "column": 9,
+        "offset": 8
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "poet.bas",
+      "sha256": "42905382b7d0c768bc20165affd6c624b79d7b7d6eff39568033f8876d8c1217",
+      "bytes": 1412,
+      "physicalLines": 34,
+      "bookReference": {
+        "title": "POET",
+        "referencePage": 171,
+        "dialectHint": "EduSystem ?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [90]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 112,
+        "line": 10,
+        "column": 52,
+        "offset": 410
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "poetry.bas",
+      "sha256": "a4ed3577292f2a8b136c0f3af3c5419c29f03dd9dddce8c244ac64864aac6636",
+      "bytes": 5028,
+      "physicalLines": 232,
+      "bookReference": {
+        "title": "POETRY",
+        "referencePage": 169,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [
+          100, 130, 180, 230, 280, 330, 390, 430, 510, 560, 610, 650, 700, 750, 790, 840, 880, 930,
+          980, 1030, 1080, 1130, 1180, 1230, 1270, 1290, 1380, 1420, 1460, 1500, 1540, 1580, 1610,
+          1630, 1650, 1670, 1690, 1710, 1730, 1740, 1760, 1780, 1800, 1820, 1840, 1860, 1880, 1900,
+          1920, 1940, 1960, 1980, 2000, 2020, 2040, 2060, 2080, 2100, 2120, 2140, 2160, 2180, 2190,
+          2210, 2230, 2250, 2270, 2290, 2300, 2320
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"GO\"",
+        "label": 100,
+        "line": 1,
+        "column": 5,
+        "offset": 4
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "poker.bas",
+      "sha256": "fc75579fb88b14d99f74333ef1bc1a7a9f762b1736414c6a9312ddb180414fd3",
+      "bytes": 6663,
+      "physicalLines": 409,
+      "bookReference": {
+        "title": "POKER",
+        "referencePage": 172,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [1],
+        "defined-functions": [2, 3],
+        "randomization": [13],
+        "gosub": [
+          19, 24, 28, 31, 59, 62, 63, 93, 97, 101, 113, 134, 141, 144, 145, 152, 154, 158, 163, 187,
+          189, 246, 315, 344, 372, 376
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"1DIMA(15),B(10)\"; expected 1 through 65535",
+        "label": null,
+        "line": 1,
+        "column": 1,
+        "offset": 0
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "qubic.bas",
+      "sha256": "7f68add855095e1df24621adb60a58b47dc0481736c7e1822d06f6f710740ed2",
+      "bytes": 5606,
+      "physicalLines": 236,
+      "bookReference": {
+        "title": "QUBIC",
+        "referencePage": 174,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [20],
+        "data": [
+          22, 26, 1500, 1510, 1520, 1521, 1522, 1523, 1524, 1525, 1527, 1529, 1532, 1534, 1536,
+          1538, 1540, 1542, 1544, 1546, 1548, 1550
+        ],
+        "gosub": [85, 110, 214, 226, 231, 241, 295, 389, 470, 492, 1227, 1395, 1630, 1770]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"0\"; expected 1 through 65535",
+        "label": null,
+        "line": 1,
+        "column": 1,
+        "offset": 0
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "queen.bas",
+      "sha256": "0e943c3da6547ae5a888fcdfc4848f3e466c907245655642bc36e141f06c7ed3",
+      "bytes": 4303,
+      "physicalLines": 167,
+      "bookReference": {
+        "title": "QUEEN",
+        "referencePage": 178,
+        "dialectHint": "unknown, line 99999",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [9],
+        "arrays": [10],
+        "data": [12, 14, 15, 16, 17, 18, 19, 20, 21],
+        "gosub": [28, 30],
+        "spaced-jump": [29, 180, 235, 295, 310, 330, 2155, 3220, 3370, 3440, 3580]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"99999\"; expected 1 through 65535",
+        "label": null,
+        "line": 167,
+        "column": 1,
+        "offset": 4293
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "reverse.bas",
+      "sha256": "e52d0bafedfdc5040b9fe0997a38c41553f6b1669b5b9821b651b3c249ecdd7a",
+      "bytes": 1844,
+      "physicalLines": 56,
+      "bookReference": {
+        "title": "REVERSE",
+        "referencePage": 178,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [120],
+        "arrays": [130],
+        "gosub": [190, 320, 460]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 100,
+        "line": 1,
+        "column": 10,
+        "offset": 9
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "rocket.bas",
+      "sha256": "401d6665afacbccb1a4486607bce33ad2e023522534e8bdffc63d9321e96d38c",
+      "bytes": 1799,
+      "physicalLines": 35,
+      "bookReference": {
+        "title": "ROCKET",
+        "referencePage": 180,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "scientific-literals": [15, 71],
+        "gosub": [35, 38, 73, 81, 83]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 3,
+        "line": 2,
+        "column": 27,
+        "offset": 85
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "rocksp.bas",
+      "sha256": "6c777ca8abec29f04c3d3588ba03301f7e0eb27d9e39621b2489f5a3d6f3cb6b",
+      "bytes": 1058,
+      "physicalLines": 33,
+      "bookReference": {
+        "title": "ROCKSP",
+        "referencePage": 188,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 9,
+        "line": 6,
+        "column": 58,
+        "offset": 242
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "rockt1.bas",
+      "sha256": "1b238c24de29206c8b1b086bc4fedbef63e3173e3c578315e2c425ae0d0f9f15",
+      "bytes": 2498,
+      "physicalLines": 67,
+      "bookReference": {
+        "title": "ROCKT1",
+        "referencePage": 183,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 455,
+        "line": 29,
+        "column": 8,
+        "offset": 1437
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "rockt2.bas",
+      "sha256": "6c3ce66235382828551cc02217557935041138e732e74d298fe384f9e90aae5d",
+      "bytes": 6400,
+      "physicalLines": 244,
+      "bookReference": {
+        "title": "ROCKT2",
+        "referencePage": 185,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "scientific-literals": [70, 800, 845, 880, 885, 890]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_NUMBER",
+        "message": "Invalid decimal literal \"8.84361E\"",
+        "label": 70,
+        "line": 16,
+        "column": 11,
+        "offset": 333
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "roulet.bas",
+      "sha256": "9f4ed131e1cf0b5f3ed0852d9e2068f52ac38c626d4277c1cfc5854e71a8aff7",
+      "bytes": 8997,
+      "physicalLines": 343,
+      "bookReference": {
+        "title": "ROULET",
+        "referencePage": 189,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [
+          1110, 1290, 1870, 1980, 2030, 2110, 2220, 2270, 2350, 2470, 2590, 2720, 2770, 3720, 3760,
+          3990, 4040
+        ],
+        "spaced-jump": [
+          1120, 1300, 1880, 1940, 1990, 2040, 2120, 2180, 2230, 2280, 2360, 2430, 2480, 2520, 2600,
+          2680, 2730, 2780, 2930, 2940, 2950, 2960, 2970, 3300, 3320, 3340, 3360, 3380, 3400, 3420,
+          3440, 3460, 3480, 3500, 3520, 3580, 3670, 3740, 3770, 3960, 4010, 4050, 4290, 4390, 4410,
+          4430, 4520, 4540, 4560, 4630, 4700, 4730
+        ],
+        "randomization": [2890]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNTERMINATED_STRING",
+        "message": "Unterminated string",
+        "label": 1030,
+        "line": 3,
+        "column": 12,
+        "offset": 64
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "rusrou.bas",
+      "sha256": "4243d3c6759e9a2b78133ba26ccd1bedd65cad74332a4eed10607daa2f61b8be",
+      "bytes": 611,
+      "physicalLines": 21,
+      "bookReference": {
+        "title": "RUSROU",
+        "referencePage": 192,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 10,
+        "line": 3,
+        "column": 9,
+        "offset": 76
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "salvo.bas",
+      "sha256": "df137be3b45d8b1c5c0031384c2b42b1efa6fa01de02a8aa824edb586eeb5a62",
+      "bytes": 6186,
+      "physicalLines": 327,
+      "bookReference": {
+        "title": "SALVO",
+        "referencePage": 193,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [1040],
+        "gosub": [1260, 3020],
+        "defined-functions": [1270, 1280],
+        "data": [3030, 3220, 3240]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"1040DIMA(10,10),B(10,10),C(7),D(7),E(12),F(12),G(12),H(12),K(10,10)\"; expected 1 through 65535",
+        "label": null,
+        "line": 5,
+        "column": 1,
+        "offset": 138
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "salvo1.bas",
+      "sha256": "d8a8ec52b2ee352567dcf37c74d6e744aa7d2d09d1f13965852945aef1c8801f",
+      "bytes": 2658,
+      "physicalLines": 93,
+      "bookReference": {
+        "title": "SALVO1",
+        "referencePage": 195,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [250],
+        "arrays": [260]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 220,
+        "line": 14,
+        "column": 17,
+        "offset": 665
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "slots.bas",
+      "sha256": "9a2972829e96bf7046386656e253bbdda8c29d95f922e25087ee6cdae238a1d7",
+      "bytes": 1381,
+      "physicalLines": 49,
+      "bookReference": {
+        "title": "SLOTS",
+        "referencePage": 196,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100],
+        "arrays": [110],
+        "spaced-jump": [450, 480]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 470,
+        "line": 38,
+        "column": 14,
+        "offset": 972
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "spcwar.bas",
+      "sha256": "5b64b09daf9eb56abcbab41366d7280eb81806431e2580ef132212a3048693e0",
+      "bytes": 18001,
+      "physicalLines": 539,
+      "bookReference": {
+        "title": "SPACWR",
+        "referencePage": 210,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [170],
+        "arrays": [260],
+        "defined-functions": [360],
+        "matrix": [450, 910, 2400],
+        "logical-operators": [820, 1440, 1470, 1480, 1940, 2420, 2890, 2980, 4140],
+        "gosub": [
+          1010, 1030, 1070, 1130, 1170, 1200, 1240, 1260, 1520, 1710, 1780, 1850, 2110, 2650, 2750,
+          3040, 3100, 3250, 3320, 3390, 3430, 3620, 3760, 3950, 4180, 5430
+        ],
+        "formatted-output": [2471, 4435, 4445, 4455, 4465, 4475, 4485, 4495, 4505, 4515, 4520, 4795]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 180,
+        "line": 6,
+        "column": 54,
+        "offset": 295
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "splat.bas",
+      "sha256": "94d5d9057ecb2b7eaf34662846f73ff4164461acad25bce04220add47f550c99",
+      "bytes": 4918,
+      "physicalLines": 122,
+      "bookReference": {
+        "title": "SPLAT",
+        "referencePage": 205,
+        "dialectHint": "EduSystem ?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "file-or-program-services": [30, 2046],
+        "integer-suffix": [30, 40, 2046],
+        "arrays": [40],
+        "randomization": [55]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"%\"",
+        "label": 30,
+        "line": 1,
+        "column": 31,
+        "offset": 30
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "stars.bas",
+      "sha256": "dbb5dfd36512e1507df85806e478644e004ca5033a12c5ade944406028c6c005",
+      "bytes": 1531,
+      "physicalLines": 56,
+      "bookReference": {
+        "title": "STARS",
+        "referencePage": 207,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [130]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"RANDOMIZE\"",
+        "label": 130,
+        "line": 4,
+        "column": 5,
+        "offset": 118
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "stock.bas",
+      "sha256": "ff2381445047818a8cba6fca236fc053e8372cae3f36c8bb0f0881aae661967d",
+      "bytes": 7234,
+      "physicalLines": 234,
+      "bookReference": {
+        "title": "STOCK",
+        "referencePage": 209,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [110],
+        "randomization": [113],
+        "gosub": [280, 720],
+        "spaced-jump": [397, 600, 616, 660, 810, 917, 922, 927, 966]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNKNOWN_FUNCTION",
+        "message": "Unknown function TAB",
+        "label": 109,
+        "line": 10,
+        "column": 12,
+        "offset": 569
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "synonm.bas",
+      "sha256": "81e0671eda626980ff0e80f59cb81d82426c46ffac1bbcd60e7cce6a6da1747e",
+      "bytes": 1875,
+      "physicalLines": 52,
+      "bookReference": {
+        "title": "SYNONM",
+        "referencePage": 212,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [10],
+        "randomization": [70],
+        "data": [150, 190, 210, 500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 600]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 20,
+        "line": 3,
+        "column": 17,
+        "offset": 117
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "target.bas",
+      "sha256": "77722dad803a11c54db7088b0961e0cf609e0091cdb7a94e732069c39f9bd30b",
+      "bytes": 2271,
+      "physicalLines": 45,
+      "bookReference": {
+        "title": "TARGET",
+        "referencePage": 214,
+        "dialectHint": "EduSystem ?",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [100]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 100,
+        "line": 1,
+        "column": 8,
+        "offset": 7
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "tictac.bas",
+      "sha256": "0d6a0a6ab2edc7e7f02efd1ae9cd844d9b4fa1cc3080fefc0d4b22051fd8bed2",
+      "bytes": 4549,
+      "physicalLines": 226,
+      "bookReference": {
+        "title": "TICTAC",
+        "referencePage": 218,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [150, 160, 230, 240],
+        "data": [180, 2150],
+        "gosub": [400, 430, 450, 540, 730, 800],
+        "spaced-jump": [
+          480, 600, 640, 740, 790, 810, 900, 930, 960, 990, 1010, 1030, 1320, 1410, 1430, 1480,
+          1500, 1580, 1600, 1620, 1640, 1940, 1960, 1980, 2020, 2050, 2120, 2140
+        ],
+        "file-or-program-services": [2160]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"650LET\"; expected 1 through 65535",
+        "label": null,
+        "line": 58,
+        "column": 1,
+        "offset": 1168
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "tower.bas",
+      "sha256": "f2fb365ff612428885857284d191ffb99b31536cd092680bf2d852d2e47997f1",
+      "bytes": 3841,
+      "physicalLines": 122,
+      "bookReference": {
+        "title": "TOWER",
+        "referencePage": 221,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [110],
+        "gosub": [470, 1000]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 180,
+        "line": 10,
+        "column": 35,
+        "offset": 158
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "train.bas",
+      "sha256": "f534b3620919f7c3d233d141266ecf2f500a21efce157ea7d19d49ce454f1239",
+      "bytes": 596,
+      "physicalLines": 21,
+      "bookReference": {
+        "title": "TRAIN",
+        "referencePage": 223,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [5]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 4,
+        "line": 1,
+        "column": 43,
+        "offset": 42
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "trap.bas",
+      "sha256": "a7b881e91d474194732766ee4f6bc42ba6d6af76d8e4fb122fd2a1f9a1380b23",
+      "bytes": 1292,
+      "physicalLines": 46,
+      "bookReference": {
+        "title": "TRAP",
+        "referencePage": 224,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "gosub": [250]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"G\"",
+        "label": 10,
+        "line": 1,
+        "column": 5,
+        "offset": 4
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "ugly.bas",
+      "sha256": "c997e855a77950506b28ad377bc1ade974c9c645d2754c5a53c0eaa05933b6f9",
+      "bytes": 1765,
+      "physicalLines": 99,
+      "bookReference": {
+        "title": "UGLY",
+        "referencePage": 228,
+        "dialectHint": "BASIC-8",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "randomization": [9]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \"\\\\\"",
+        "label": 6,
+        "line": 2,
+        "column": 6,
+        "offset": 30
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "war.bas",
+      "sha256": "2b691983456b0ce787c5d6175e58f2a5096d10031bed71ac87dd704d4df2d401",
+      "bytes": 2018,
+      "physicalLines": 66,
+      "bookReference": {
+        "title": "WAR",
+        "referencePage": 230,
+        "dialectHint": "generic",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "spaced-jump": [170, 330, 480, 520, 600],
+        "arrays": [230],
+        "data": [250, 660, 670, 680, 690],
+        "randomization": [270]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"GO\"",
+        "label": 170,
+        "line": 13,
+        "column": 5,
+        "offset": 531
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "war2.bas",
+      "sha256": "ebfdb104dfdf10e1f660ba029f3be6a69e36b31d4c58d2e5b0f65966503ebe74",
+      "bytes": 3017,
+      "physicalLines": 124,
+      "bookReference": {
+        "title": "WAR-2",
+        "referencePage": 232,
+        "dialectHint": "EduSystem 30",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {},
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"PRI\"",
+        "label": 2,
+        "line": 2,
+        "column": 3,
+        "offset": 22
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "wekday.bas",
+      "sha256": "450f5c887db233b65807a778aa3bfe45bab446be9be29720910bc587ade36588",
+      "bytes": 3377,
+      "physicalLines": 142,
+      "bookReference": {
+        "title": "WEKDAY",
+        "referencePage": 234,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "defined-functions": [170, 190],
+        "arrays": [180],
+        "data": [220, 1330],
+        "gosub": [960, 990, 1080]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"120PRINT\"; expected 1 through 65535",
+        "label": null,
+        "line": 2,
+        "column": 1,
+        "offset": 11
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "word.bas",
+      "sha256": "29732d86fed02d5af956e4800c2359f0b16cf176d94efca2a017771d43fc0776",
+      "bytes": 1564,
+      "physicalLines": 61,
+      "bookReference": {
+        "title": "WORD",
+        "referencePage": 236,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "arrays": [5],
+        "randomization": [20],
+        "data": [35, 40, 70, 530, 540],
+        "string-change": [100, 180, 275, 277, 300]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNEXPECTED_CHARACTER",
+        "message": "Unexpected character \":\"",
+        "label": 2,
+        "line": 1,
+        "column": 8,
+        "offset": 7
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "yahtze.bas",
+      "sha256": "52f24c5eb310a323168ba0f77064424050704765096ee49d0d1e3dda3cd16391",
+      "bytes": 13594,
+      "physicalLines": 558,
+      "bookReference": {
+        "title": "YAHTZE",
+        "referencePage": 238,
+        "dialectHint": "BASIC-PLUS",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "string-change": [1040],
+        "arrays": [1060],
+        "randomization": [1120],
+        "spaced-jump": [
+          1170, 1190, 1210, 1230, 1440, 1460, 1607, 1750, 1770, 1840, 1860, 1880, 1920, 1960, 2020,
+          2190, 2210, 2310, 2330, 2350, 2390, 2430, 2490, 2660, 2675, 2690, 2840, 2890, 2930, 2980,
+          3020, 3070, 3110, 3160, 3190, 3250, 3290, 3340, 3380, 3430, 3510, 3560, 3580, 3610, 3650,
+          3720, 3810, 3860, 3880, 3930, 3945, 3960, 4100, 4140, 4180, 4220, 4260, 4300, 4340, 4380,
+          4420, 4460, 4500, 4540, 4580, 4620, 4700, 4800, 4820, 4850, 4910, 4950, 4970, 5570, 5690,
+          5890, 5910, 5930, 5950, 5970, 5990, 6010, 6030, 6050, 6070, 6090, 6110, 6130
+        ],
+        "gosub": [
+          1180, 1220, 1450, 1605, 1760, 1850, 2050, 2200, 2320, 2520, 2670, 2680, 3870, 3940, 3950,
+          4630
+        ]
+      },
+      "firstNativeDiagnostic": {
+        "code": "UNSUPPORTED_STATEMENT",
+        "message": "Unsupported statement \"A\"",
+        "label": 1000,
+        "line": 1,
+        "column": 6,
+        "offset": 5
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    },
+    {
+      "file": "zoop.bas",
+      "sha256": "63840e940c2a780ad04ba4a731ec2f9b7456504919d2b06bbd6eba59218f1683",
+      "bytes": 1048,
+      "physicalLines": 23,
+      "bookReference": {
+        "title": "ZOOP",
+        "referencePage": 243,
+        "dialectHint": "EduSystem 15/30/35",
+        "evidence": "upstream README; attribution not certified"
+      },
+      "role": "listing",
+      "sourceStatus": "unresolved",
+      "dialectStatus": "unverified",
+      "verifiedDialect": null,
+      "observedFeatureLabels": {
+        "file-or-program-services": [240, 310]
+      },
+      "firstNativeDiagnostic": {
+        "code": "INVALID_LABEL",
+        "message": "Invalid line label \"100PRINT\\\\PRINT\\\"READY\\\"\\\\\\\"PRINT\"; expected 1 through 65535",
+        "label": null,
+        "line": 1,
+        "column": 1,
+        "offset": 0
+      },
+      "behaviorStatus": "not-run",
+      "blockers": [
+        "source-certification",
+        "dialect-certification",
+        "required-features",
+        "behavioral-acceptance"
+      ]
+    }
+  ]
+}

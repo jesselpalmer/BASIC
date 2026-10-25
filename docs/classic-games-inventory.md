@@ -1,6 +1,10 @@
 # Pinned classic-game inventory
 
 This is the initial **research baseline**, not a certified compatibility matrix.
+The [structured source ledger](classic-games-ledger.json) records all files,
+book/dialect hints and explicit unresolved statuses. The
+[source review records](classic-source-review.md) add inspected scan evidence;
+the [dialect design](dialect-design.md) defines implementation boundaries.
 [Roadmap](classic-games-roadmap.md) and [source audit #115](https://github.com/jesselpalmer/BASIC/issues/115)
 own dialect/validity decisions and behavioral oracles.
 
