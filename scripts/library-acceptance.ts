@@ -35,6 +35,7 @@ export const libraryAcceptanceCases = [
   'scientific literals and powers execute corpus formulas with bounded failures',
   'statement sequences preserve positions, line scope and preflight validation',
   'literal subroutines preserve caller loops, shared values and real return positions',
+  'native data pools preserve corpus literals, sequential reads and fresh cursors',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -375,6 +376,53 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
         '10 DIM GOSUB(0),RETURN(0):GOSUB=1:RETURN=2:GOSUB(0)=3:RETURN(0)=4:PRINT GOSUB;RETURN;GOSUB(0);RETURN(0)',
       );
       assert.equal(output.join(''), '1234\n');
+    },
+  );
+  await check(
+    'native data pools preserve corpus literals, sequential reads and fresh cursors',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/data/probe.bas'),
+        'utf8',
+      );
+      const expected = 'corners=1:43:4:\\AFISH\nreset=1:49\n';
+      const {basic, output} = setup();
+      basic.run(api.parseProgram(source));
+      await basic.runAsync();
+      assert.equal(output.join(''), expected + expected);
+      output.length = 0;
+      basic.reset('10 READ A,B:RESTORE:READ C:PRINT A;B;C:END\n20 DATA 2,3');
+      basic.step();
+      assert.deepEqual(basic.variables, [
+        {name: 'A', value: 2},
+        {name: 'B', value: 3},
+      ]);
+      assert.equal(basic.state.nextLocation?.start.column, 13);
+      while (basic.status !== 'halted') basic.step();
+      assert.equal(output.join(''), '232\n');
+      const io = setup(['4'], {wait: () => Promise.resolve()});
+      await io.basic.runAsync('10 READ A:INPUT N:WAIT 0:READ B:PRINT A;B:END\n20 DATA 2,3');
+      assert.equal(io.output.join(''), '23\n');
+      output.length = 0;
+      assert.throws(() => basic.run('10 PRINT "never":END:READ M(0)'), api.BasicSyntaxError);
+      assert.deepEqual(output, []);
+      basic.run();
+      assert.equal(output.join(''), '232\n');
+      for (const [text, code] of [
+        ['10 READ A,B\n20 DATA 1', 'OUT_OF_DATA'],
+        ['10 READ A\n20 DATA "1"', 'TYPE_MISMATCH'],
+        ['10 DIM A(0):READ A(1)\n20 DATA 2', 'ARRAY_BOUNDS'],
+      ])
+        assert.throws(
+          () => basic.run(text),
+          (error: unknown) =>
+            error instanceof api.BasicRuntimeError && error.diagnostic.code === code,
+        );
+      assert.throws(() => api.parseLine('10 DATA 1:PRINT 2'), api.BasicSyntaxError);
+      assert.throws(() => basic.run('10 RESTORE 20'), api.BasicSyntaxError);
+      output.length = 0;
+      basic.run(source);
+      assert.equal(output.join(''), expected);
     },
   );
   await check('public evaluator values and diagnostics', () => {

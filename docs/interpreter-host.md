@@ -195,7 +195,8 @@ See the [terminal session guide](terminal.md). The existing
 available as legacy library adapters: they parse one numbered line, execute it
 immediately, and share variables across entries. They do not edit terminal source.
 
-`IF`, `GOTO`, `FOR`, and `NEXT` require a complete prepared program and report
+`DIM`, `DATA`, `READ`, `RESTORE`, `IF`, `GOTO`, `GOSUB`, `RETURN`, `FOR`, and `NEXT`
+require a complete prepared program and report
 `PROGRAM_REQUIRED` in this adapter. Use `run`/`runAsync`/`reset` for control flow.
 Immediate entries run in arrival order; duplicate numeric labels fail. Blank
 fragments do nothing, and `END` or an error blocks later entries until reset.

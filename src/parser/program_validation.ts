@@ -7,6 +7,7 @@ import {pairLoops} from '../core/loops.ts';
 import {validateArrays} from '../core/array_declarations.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {programInstructions} from '../core/instructions.ts';
+import {dataItems} from '../core/data.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
@@ -35,6 +36,7 @@ export function validateProgram(
     }
     labels.add(line.label);
   }
+  dataItems(lines);
   for (const {statement} of programInstructions(lines)) {
     validateKeyboardArguments(statement);
     if (statement.type === 'PrintUsingStatement') {

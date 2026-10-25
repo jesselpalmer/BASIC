@@ -148,6 +148,9 @@ they are not written in a program.
 | Output           | `PRINT [items] [;]`; expression/separator rules below.                   |
 | Formatted output | `PRINT USING template, value [, value ...] [;]`; integer subset below.   |
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
+| Program data     | `DATA literal [, literal ...]`; final statement on its physical line.    |
+| Read data        | `READ target [, target ...]`; numeric/string scalars or DIM arrays.      |
+| Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.      |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
 | Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.         |
@@ -209,6 +212,28 @@ all frames. Immediate entry requires a complete program. GOSUB and RETURN remain
 valid scalar/array names outside their contextual statement forms. Computed ON
 lists, GO SUB aliases and historical loop transfers remain unsupported. See the
 [subroutine contract](subroutines.md).
+
+### DATA, READ, and RESTORE
+
+`DATA` contains finite signed decimal/scientific literals or quoted strings.
+It must be the final statement on a physical line; commas separate values,
+while quoted commas/colons/backslashes and doubled quotes stay literal text.
+Empty quoted strings are valid; omitted fields, unquoted strings, expressions,
+comments and targeted RESTORE are unsupported. DATA/READ/RESTORE remain valid
+variable and array names outside their contextual statement forms.
+
+Preparation collects all DATA in numeric line order, including after END and
+behind skipped branches. Executing DATA is inert and costs one statement.
+READ assigns scalar/array targets left to right using native typed assignment,
+with no string/number conversion. Earlier successful assignments affect later
+array indices. Exhaustion reports OUT_OF_DATA at the unsatisfied target; failed
+targets remain unchanged and earlier successful writes remain visible.
+Bare RESTORE rewinds the cursor without clearing variables or frames. Calls,
+loops, INPUT/WAIT and stepping share the cursor; fresh runs start from zero.
+All three statements require complete programs in the library.
+
+Each DATA/READ list permits at most 4096 entries; the program pool permits 262144. See the [data contract](data-statements.md) for source evidence, native
+limits, validation, historical conversion differences and feature provenance.
 
 ### PRINT
 

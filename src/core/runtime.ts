@@ -2,6 +2,7 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {Evaluator} from './evaluator.ts';
+import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
@@ -38,6 +39,7 @@ export default class Basic {
   readonly #graphics = new GraphicsState();
   #prepared: PreparedProgram;
   #controlFlow: ControlFlow;
+  #data: DataReader;
   #status: RunStatus = 'ready';
   #current: Instruction | null = null;
   #diagnostic: Readonly<Diagnostic> | null = null;
@@ -57,6 +59,7 @@ export default class Basic {
     this.#host = Object.freeze(createHost(host));
     this.#evaluator = new Evaluator(this.#host, {dialect: this.#dialect});
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
+    this.#data = new DataReader(this.#prepared.dataItems);
   }
 
   get host(): Readonly<Host> {
@@ -110,6 +113,7 @@ export default class Basic {
       this.#evaluator.reset(candidate.arrayDeclarations);
       this.#prepared = candidate;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
+      this.#data = new DataReader(this.#prepared.dataItems);
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -476,6 +480,9 @@ export default class Basic {
       if (
         this.#immediate &&
         (statement.type === 'DimStatement' ||
+          statement.type === 'DataStatement' ||
+          statement.type === 'ReadStatement' ||
+          statement.type === 'RestoreStatement' ||
           statement.type === 'IfStatement' ||
           statement.type === 'GotoStatement' ||
           statement.type === 'GosubStatement' ||
@@ -485,12 +492,18 @@ export default class Basic {
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'DIM, IF, GOTO, GOSUB, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, DATA, READ, RESTORE, IF, GOTO, GOSUB, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
       }
       switch (statement.type) {
+        case 'ReadStatement':
+          this.#data.read(statement, this.#evaluator);
+          break;
+        case 'RestoreStatement':
+          this.#data.restore();
+          break;
         case 'ForStatement':
           this.#controlFlow.beginLoop(statement);
           break;
@@ -553,6 +566,7 @@ export default class Basic {
           break;
         case 'RemStatement':
         case 'DimStatement':
+        case 'DataStatement':
           break;
         case 'EndStatement':
           this.#halt();

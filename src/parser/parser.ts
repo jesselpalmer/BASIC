@@ -21,6 +21,7 @@ import {expressionType} from '../core/comparison.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {maxLineStatements} from '../core/instructions.ts';
+import {maxDataListItems} from '../core/data.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -199,6 +200,18 @@ class Parser {
         return this.assignment(command, command);
       }
       // Contextual statement forms preserve these existing scalar/array names.
+      if (command.value === 'DATA') {
+        this.take();
+        return this.data(command);
+      }
+      if (command.value === 'READ') {
+        this.take();
+        return this.read(command);
+      }
+      if (command.value === 'RESTORE') {
+        this.take();
+        return this.node('RestoreStatement', command, command, {});
+      }
       if (command.value === 'GOSUB') {
         this.take();
         const target = this.jumpTarget();
@@ -329,6 +342,57 @@ class Parser {
     this.expect('OPERATOR', '=', 'Expected = after the variable name');
     const expression = this.expression();
     return this.node('LetStatement', command, expression, {target, expression});
+  }
+
+  data(command: Token): NodeOf<'DataStatement'> {
+    const items: (NodeOf<'NumberLiteral'> | NodeOf<'StringLiteral'>)[] = [];
+    for (;;) {
+      if (items.length === maxDataListItems)
+        this.fail('DATA_LIMIT', `DATA permits at most ${maxDataListItems} items`);
+      const first = this.peek();
+      if (first.type === 'STRING') {
+        this.take();
+        items.push(this.node('StringLiteral', first, first, {value: first.value, raw: first.raw}));
+      } else {
+        let sign = '';
+        if (this.at('OPERATOR', '+') || this.at('OPERATOR', '-')) sign = this.take().raw;
+        const number = this.expect(
+          'NUMBER',
+          undefined,
+          'Expected a numeric or quoted DATA literal',
+        );
+        items.push(
+          this.node('NumberLiteral', first, number, {
+            value: sign === '-' ? -number.value : number.value,
+            raw: this.source.slice(
+              first.start.offset - this.offset,
+              number.end.offset - this.offset,
+            ),
+          }),
+        );
+      }
+      if (!this.at('PUNCTUATION', ',')) break;
+      this.take();
+    }
+    if (!this.atEnd())
+      this.fail(
+        'INVALID_DATA',
+        'DATA must be the last statement on its line and contain only literals',
+      );
+    return this.node('DataStatement', command, items.at(-1)!, {items});
+  }
+
+  read(command: Token): NodeOf<'ReadStatement'> {
+    const targets: NodeFields['ReadStatement']['targets'][number][] = [];
+    for (;;) {
+      if (targets.length === maxDataListItems)
+        this.fail('DATA_LIMIT', `READ permits at most ${maxDataListItems} targets`);
+      const name = this.expect('IDENTIFIER', undefined, 'Expected a variable or array after READ');
+      targets.push(this.reference(name));
+      if (!this.at('PUNCTUATION', ',')) break;
+      this.take();
+    }
+    return this.node('ReadStatement', command, targets.at(-1)!, {targets});
   }
 
   dimension(command: Token): NodeOf<'DimStatement'> {
