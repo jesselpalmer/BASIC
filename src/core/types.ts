@@ -247,6 +247,10 @@ export interface NodeFields {
   CircleStatement: {readonly x: Expression; readonly y: Expression; readonly radius: Expression};
   ClsStatement: Record<never, never>;
   EndStatement: Record<never, never>;
+  StatementSequence: {
+    readonly statements: readonly SimpleStatement[];
+    readonly separators: readonly Location[];
+  };
   Line: {
     /** Omitted only in legacy caller-supplied trees; omission means native. */
     readonly dialect?: Dialect;
@@ -274,7 +278,7 @@ export type Expression = Nodes<
 export type AssignmentTarget = NodeOf<'Variable'> | NodeOf<'ArrayReference'>;
 export type ArrayDeclaration = NodeOf<'ArrayDeclaration'>;
 export type Comparison = NodeOf<'Comparison'>;
-export type Statement = Nodes<
+export type SimpleStatement = Nodes<
   | 'DimStatement'
   | 'LetStatement'
   | 'InputStatement'
@@ -293,6 +297,7 @@ export type Statement = Nodes<
   | 'ClsStatement'
   | 'EndStatement'
 >;
+export type Statement = SimpleStatement | NodeOf<'StatementSequence'>;
 export type GraphicsStatement = Extract<
   Statement,
   {type: 'ColorStatement' | 'PsetStatement' | 'LineStatement' | 'CircleStatement'}

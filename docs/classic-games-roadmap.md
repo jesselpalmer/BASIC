@@ -134,6 +134,12 @@ retaining native finite doubles. Extracted formula tests do not certify whole
 games. Historical intrinsic names, defaults, RNG and profile precision remain
 open; existing SQR/EXP scalar and array names are preserved.
 
+The [native statement/instruction slice](statement-sequences.md) for #118 adds
+colon sequences with physical statement positions, same-line loops, line-entry
+jumps and source-backed false-IF line scope. Inline THEN/ELSE, historical
+backslashes/modifiers and GOSUB/RETURN remain separate work. AWARI sequence
+probes explicitly add native keyword whitespace and are not whole-game passes.
+
 ## Delivery order and tickets
 
 All listed feature tickets are P1 / High release blockers when required by the

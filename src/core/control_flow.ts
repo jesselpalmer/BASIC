@@ -3,7 +3,8 @@ import type {Evaluator} from './evaluator.ts';
 import {containsLoopBody} from './loops.ts';
 import type {LoopPair} from './loops.ts';
 import type {PreparedProgram} from './prepared_program.ts';
-import type {Expression, Location, NodeOf, ParsedLine} from './types.ts';
+import type {Expression, Location, NodeOf} from './types.ts';
+import type {Instruction} from './instructions.ts';
 
 interface LoopFrame extends LoopPair {
   readonly limit: number;
@@ -20,18 +21,22 @@ export class ControlFlow {
     private readonly evaluator: Evaluator,
   ) {}
 
-  get nextLine(): ParsedLine | undefined {
-    return this.prepared.program.lines[this.#index];
+  get nextInstruction(): Instruction | undefined {
+    return this.prepared.instructions[this.#index];
   }
 
-  takeLine(): ParsedLine | undefined {
-    const line = this.nextLine;
+  takeInstruction(): Instruction | undefined {
+    const line = this.nextInstruction;
     if (line) this.#index++;
     return line;
   }
 
   clearLoops(): void {
     this.#loopFrames.clear();
+  }
+
+  skipLine(location: Location): void {
+    this.#moveTo(this.prepared.instructions[this.#index - 1].nextLineIndex, location);
   }
 
   jump(label: number, location: Location): void {

@@ -9,6 +9,8 @@ import {readInput} from './input.ts';
 import {formatPrintUsing} from './print_using.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
+import {programInstructions} from './instructions.ts';
+import type {Instruction} from './instructions.ts';
 import type {PreparedProgram} from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine} from '../parser/parser.ts';
@@ -18,7 +20,6 @@ import type {
   LanguageOptions,
   Host,
   InputOptions,
-  ParsedLine,
   Program,
   RunResult,
   RunOptions,
@@ -38,7 +39,7 @@ export default class Basic {
   #prepared: PreparedProgram;
   #controlFlow: ControlFlow;
   #status: RunStatus = 'ready';
-  #current: ParsedLine | null = null;
+  #current: Instruction | null = null;
   #diagnostic: Readonly<Diagnostic> | null = null;
   #executing = false;
   #immediate = false;
@@ -85,7 +86,7 @@ export default class Basic {
       currentLocation: this.#current?.statement.location ?? null,
       nextLocation:
         active && !this.#immediate
-          ? (this.#controlFlow.nextLine?.statement.location ?? null)
+          ? (this.#controlFlow.nextInstruction?.statement.location ?? null)
           : null,
       diagnostic: this.#diagnostic,
     });
@@ -153,7 +154,7 @@ export default class Basic {
     try {
       this.#checkAbort(controller.signal);
       while (this.#status === 'ready' || this.#status === 'running') {
-        const line = this.#controlFlow.nextLine;
+        const line = this.#controlFlow.nextInstruction;
         if (line && executed === instructionLimit) {
           this.#current = line;
           throw new BasicRuntimeError(
@@ -203,7 +204,7 @@ export default class Basic {
             statementsSinceYield = 0;
           } catch (cause) {
             if (generation !== this.#generation || controller.signal.aborted) throw abortError();
-            const next = this.#controlFlow.nextLine!;
+            const next = this.#controlFlow.nextInstruction!;
             this.#current = next;
             throw new BasicRuntimeError(
               'SCHEDULER_FAILED',
@@ -249,13 +250,13 @@ export default class Basic {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     if (this.#immediate)
       throw new Error('Call reset before stepping a program after immediate input');
-    const line = this.#controlFlow.takeLine();
+    const line = this.#controlFlow.takeInstruction();
     if (!line) {
       this.#halt();
       return this.state;
     }
     this.#execute(line);
-    if (!this.#controlFlow.nextLine) {
+    if (!this.#controlFlow.nextInstruction) {
       this.#halt();
     }
     return this.state;
@@ -269,19 +270,19 @@ export default class Basic {
   async #stepAsync(signal?: AbortSignal): Promise<RunResult> {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     this.#checkAbort(signal);
-    const line = this.#controlFlow.nextLine;
+    const line = this.#controlFlow.nextInstruction;
     if (
       this.#immediate ||
       (line?.statement.type !== 'InputStatement' && line?.statement.type !== 'WaitStatement')
     )
       return this.#step();
     const generation = this.#generation;
-    this.#controlFlow.takeLine();
+    this.#controlFlow.takeInstruction();
     await this.#executeSuspension(line, line.statement, signal);
     if (generation !== this.#generation) throw abortError();
     this.#checkAbort(signal);
     this.#status = 'running';
-    if (!this.#controlFlow.nextLine) {
+    if (!this.#controlFlow.nextInstruction) {
       this.#halt();
     }
     return this.state;
@@ -313,7 +314,7 @@ export default class Basic {
     return this.state;
   }
 
-  #prepareImmediate(source: string, options: SourceOptions): ParsedLine | null {
+  #prepareImmediate(source: string, options: SourceOptions): Instruction | null {
     this.#assertAvailable();
     if (this.#status === 'halted' || this.#status === 'error') return null;
     if (!this.#immediate && this.#status === 'running') {
@@ -331,11 +332,19 @@ export default class Basic {
           line.label,
         );
       }
+      if (line.statement.type === 'StatementSequence') {
+        throw new BasicRuntimeError(
+          'PROGRAM_REQUIRED',
+          'Statement sequences require a complete program; use run or runAsync',
+          line.statement.location.start,
+          line.label,
+        );
+      }
       this.#usedLabels.add(line.label);
       this.#prepared = this.#emptyProgram;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
       this.#immediate = true;
-      return line;
+      return programInstructions([line])[0];
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -381,7 +390,7 @@ export default class Basic {
   }
 
   async #executeSuspension(
-    line: ParsedLine,
+    line: Instruction,
     statement: NodeOf<'InputStatement'> | NodeOf<'WaitStatement'>,
     signal?: AbortSignal,
   ): Promise<void> {
@@ -458,7 +467,7 @@ export default class Basic {
     this.#status = 'halted';
   }
 
-  #execute(line: ParsedLine): void {
+  #execute(line: Instruction): void {
     this.#current = line;
     this.#status = 'running';
     this.#executing = true;
@@ -492,6 +501,7 @@ export default class Basic {
         case 'IfStatement':
           if (this.#evaluator.compare(statement.condition))
             this.#controlFlow.jump(statement.target.value, statement.target.location);
+          else this.#controlFlow.skipLine(statement.location);
           break;
         case 'WaitStatement':
           throw new BasicRuntimeError(
@@ -548,7 +558,7 @@ export default class Basic {
     }
   }
 
-  #callHost(callback: 'write' | 'clear', line: ParsedLine, text = ''): void {
+  #callHost(callback: 'write' | 'clear', line: Instruction, text = ''): void {
     try {
       if (callback === 'write') this.host.write(text);
       else this.host.clear();

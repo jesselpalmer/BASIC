@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {existsSync, mkdirSync, realpathSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync} from 'node:fs';
 import {delimiter, dirname, join} from 'node:path';
 import metadata from '../../package.json' with {type: 'json'};
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
@@ -57,6 +57,32 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
   assert.equal(statements.stderr, '');
+  const sequence = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/sequences/probe.bas')],
+  });
+  assert.equal(sequence.stdout, 'take=4:0\nsum=9\nafter empty\ncounter=7\n1:2:done\n');
+  assert.equal(sequence.stderr, '');
+  const storedSequence = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: '10 A=1:A=A+2:PRINT A:END\nLIST\nRUN\nSAVE "sequence-saved.bas"\nEXIT\n',
+  });
+  assert.ok(storedSequence.stdout.includes('10 A=1:A=A+2:PRINT A:END'));
+  assert.ok(storedSequence.stdout.includes('3\n'));
+  assert.equal(storedSequence.stderr, '');
+  assert.equal(
+    readFileSync(join(consumer, 'sequence-saved.bas'), 'utf8'),
+    '10 A=1:A=A+2:PRINT A:END',
+  );
+  const loadedSequence = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "sequence-saved.bas"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.ok(loadedSequence.stdout.includes('10 A=1:A=A+2:PRINT A:END'));
+  assert.ok(loadedSequence.stdout.includes('3\n'));
+  assert.equal(loadedSequence.stderr, '');
   const numeric = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/numeric/formulas.bas')],

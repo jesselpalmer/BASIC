@@ -292,3 +292,13 @@ Graphics hosts may implement the optional `draw(command: GraphicsCommand)`
 capability. Existing text-only hosts require no changes; executed drawing
 statements report `GRAPHICS_UNAVAILABLE` when it is absent. See the
 [graphics contract](graphics.md) for commands, palette, rounding and lifecycle.
+
+### Multiple statements on a numbered line
+
+Colon-separated members execute through the same prepared instruction driver.
+`step()`/`stepAsync()` advance one member, preserving distinct physical columns
+under a shared label. Gates, instruction limits and yields count members rather
+than the structural sequence. GOTO targets the first member, false IF skips the
+rest of the numbered line, and END halts before later members. Legacy immediate
+`readLine`/`readLineAsync` reject sequences as PROGRAM_REQUIRED before any member
+effects. See [the sequence contract](statement-sequences.md).

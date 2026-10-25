@@ -1,5 +1,6 @@
 import {BasicSyntaxError} from './diagnostic.ts';
 import {expressionType} from './comparison.ts';
+import {lineStatements} from './instructions.ts';
 import type {ArrayDeclaration, Location, NodeOf, ParsedLine} from './types.ts';
 
 const maxArrays = 256;
@@ -55,9 +56,9 @@ export function arrayShapes(declarations: readonly ArrayDeclaration[]): readonly
 
 export function arrayDeclarations(lines: readonly ParsedLine[]): readonly ArrayDeclaration[] {
   return Object.freeze(
-    lines.flatMap(({statement}) =>
-      statement.type === 'DimStatement' ? statement.declarations : [],
-    ),
+    lines
+      .flatMap(lineStatements)
+      .flatMap((statement) => (statement.type === 'DimStatement' ? statement.declarations : [])),
   );
 }
 

@@ -33,6 +33,7 @@ export const libraryAcceptanceCases = [
   'native integer PRINT USING preserves names, alignment, and errors',
   'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
   'scientific literals and powers execute corpus formulas with bounded failures',
+  'statement sequences preserve positions, line scope and preflight validation',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -286,6 +287,46 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       assert.equal(input.output.join(''), 'Invalid number; please enter a finite decimal.\n400\n');
       basic.run('10 DIM EXP(0)\n20 EXP=2\n30 EXP(0)=3\n40 PRINT EXP^EXP(0)');
       assert.deepEqual(output, ['8\n']);
+    },
+  );
+  await check(
+    'statement sequences preserve positions, line scope and preflight validation',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/sequences/probe.bas'),
+        'utf8',
+      );
+      const expected = 'take=4:0\nsum=9\nafter empty\ncounter=7\n1:2:done\n';
+      const {basic, output} = setup();
+      const program = api.parseProgram(source);
+      assert.equal(program.lines[1].statement.type, 'StatementSequence');
+      basic.reset(program);
+      basic.step();
+      basic.step();
+      assert.equal(basic.state.nextLocation?.label, 20);
+      assert.equal(basic.state.nextLocation?.start.column, 13);
+      assert.equal(basic.run(program).status, 'halted');
+      assert.equal(output.join(''), expected);
+      output.length = 0;
+      await basic.runAsync();
+      assert.equal(output.join(''), expected);
+      output.length = 0;
+      assert.throws(() => basic.run('10 PRINT "never":END:GOTO 90'), api.BasicSyntaxError);
+      assert.deepEqual(output, []);
+      basic.run();
+      assert.equal(output.join(''), expected);
+      const input = setup(['4'], {wait: () => Promise.resolve()});
+      await input.basic.runAsync('10 INPUT N:WAIT 0:PRINT N+1');
+      assert.equal(input.output.join(''), '5\n');
+      const limited = setup();
+      await assert.rejects(
+        limited.basic.runAsync('10 PRINT 1:PRINT 2:END', {instructionLimit: 1}),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError &&
+          error.diagnostic.code === 'INSTRUCTION_LIMIT' &&
+          error.diagnostic.column === 12,
+      );
+      assert.deepEqual(limited.output, ['1\n']);
     },
   );
   await check('public evaluator values and diagnostics', () => {

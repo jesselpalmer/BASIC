@@ -201,7 +201,7 @@ describe('tokenizer', () => {
     },
   );
 
-  it.each([':', "'", '@', '_', '$', '\u00a0', '\r', '\v', '🙂'])(
+  it.each(["'", '@', '_', '$', '\u00a0', '\r', '\v', '🙂'])(
     'locates unsupported character %s',
     (character) => {
       expect(diagnostic(`10 PRINT "x" ${character}`)).toMatchObject({

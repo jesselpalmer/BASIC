@@ -27,6 +27,7 @@ export type {
   Token,
   Expression,
   Statement,
+  SimpleStatement,
   ParsedLine,
   Program,
 } from './core/types.ts';
