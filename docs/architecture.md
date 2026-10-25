@@ -6,7 +6,7 @@ protects an invariant, not simply when it reduces a line count.
 
 ## Public entrypoints and language reference
 
-The [language and session contract](language-v0.1.md) is the authoritative syntax
+The [language and session contract](language-v1.md) is the authoritative syntax
 reference. The API guides explain how hosts prepare and execute that language.
 
 | Entry                           | Contract                                                                                                                                                                                                 |

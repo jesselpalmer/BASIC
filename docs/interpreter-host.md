@@ -1,6 +1,6 @@
 # Interpreter, stepping, and terminal lifecycle
 
-The [language and session contract](language-v0.1.md) is the syntax reference;
+The [language and session contract](language-v1.md) is the syntax reference;
 the [architecture guide](architecture.md) maps public entrypoints and module
 ownership. This guide describes the `Basic` API and host lifecycle.
 

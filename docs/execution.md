@@ -1,6 +1,6 @@
 # Responsive execution
 
-The [language and session contract](language-v0.1.md) defines program behavior.
+The [language and session contract](language-v1.md) defines program behavior.
 This guide describes the library's scheduling and cancellation controls.
 
 `Basic.runAsync(source?, options?)` executes short batches and yields to the host

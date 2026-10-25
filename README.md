@@ -2,15 +2,24 @@
 
 # BASIC
 
-A small line-numbered BASIC interpreter for Bun, with a terminal editor and an
-embeddable TypeScript API. The v0.1.0 release candidate implements expressions,
-variables, input, branching, loops, and stored-program editing and persistence.
+A small line-numbered BASIC interpreter with a Bun terminal editor, an
+embeddable TypeScript API, and a static browser playground. BASIC 1.0 includes
+expressions, input, branching, loops, saved programs, graphics, animation and
+keyboard controls, with a complete Pong game written in BASIC.
 
-The [v0.1 language reference](docs/language-v0.1.md) is the complete supported
-dialect. This is a deliberately limited text-programming language, without
+The [1.0 language reference](docs/language-v1.md) is the complete supported
+dialect. This is a deliberately limited dialect, without
 QBasic or GW-BASIC compatibility, arrays, subroutines, or sound. The browser
 also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
+
+## Supported environments
+
+The TypeScript package and terminal require Bun >=1.4.4. Linux and macOS are
+validated in CI using Bun 1.4.4; Node.js alone is unsupported; Windows execution is not a validated 1.0 target. The desktop browser playground is tested with the pinned Playwright
+Chromium on Linux/macOS. Other browsers and mobile input are not validated targets.
+The static playground needs only an HTTP server; it has no application backend.
+See [support and compatibility](docs/compatibility.md) for the 1.0 contract.
 
 ## Quick start
 
@@ -28,7 +37,7 @@ bun start game.bas
 Source and tests use strict TypeScript. Bun runs the source directly; no build
 step is required. `bin/basic` starts the CLI while `src/index.ts` exports the
 interpreter, parser, evaluator, and public types without opening a terminal. The core and
-parser contain no Bun-specific runtime APIs, allowing future browser hosts.
+parser contain no Bun-specific runtime APIs and are shared by the browser host.
 
 CI checks the frozen lockfile and runs the same `bun run check` command: formatting,
 strict types, typed lint, coverage, shuffled test order, and packed installations
@@ -59,6 +68,17 @@ is required. Edits restore locally after reload; import and export `.bas` files
 to move programs between the browser and terminal. See the
 [playground guide](docs/playground.md) for controls and tests.
 
+The reviewed `BASIC-playground-1.0.0.tar.gz` archive identified in #109 runs
+without a checkout or Bun installation. Extract it and serve the versioned
+directory with a static HTTP server, for example:
+
+```sh
+tar -xzf BASIC-playground-1.0.0.tar.gz
+python3 -m http.server 8000 --directory BASIC-playground-1.0.0
+```
+
+Open `http://127.0.0.1:8000`. Any equivalent static server can serve those files.
+
 Choose **A little landscape** to try graphics. `COLOR`, `PSET`, `LINE`, and
 `CIRCLE` use a 16-color palette; `CLS` clears text and drawing. The canvas scales
 on screen while BASIC coordinates stay fixed. Graphics statements need a browser
@@ -81,7 +101,7 @@ canvas, and press Space to serve; hold Up/Down to play the computer. First to
 
 ## Installation
 
-Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript
+Requires **Bun 1.4.4 or newer** on your `PATH`; the package ships TypeScript
 source and needs no build step. Node.js alone is not a supported runtime. From
 a checkout, install the `basic` command with:
 
@@ -89,19 +109,25 @@ a checkout, install the `basic` command with:
 bun install -g .
 ```
 
-Alternatively, prepare and install a local release archive:
+Alternatively, download the reviewed npm archive identified in
+[release readiness #109](https://github.com/jesselpalmer/BASIC/issues/109),
+verify its recorded checksum, and install that file:
 
 ```bash
-bun pm pack --filename node-basic-lang-0.1.0.tgz --ignore-scripts
-bun install --global ./node-basic-lang-0.1.0.tgz
+bun install --global ./node-basic-lang-1.0.0.tgz
 ```
+
+To prepare candidate archives from a clean checkout, follow the
+[release checklist](docs/release-checklist.md).
 
 Ensure Bun's global executable directory is on your `PATH`. The package name is
 `node-basic-lang`; its command is `basic`. This candidate does not publish or tag
 a release. The public npm registry (`https://registry.npmjs.org/`) is the intended
 publication destination; local installation does not require registry publication.
-The existing registry release is the earlier JavaScript implementation, so
-`bun install --global node-basic-lang` does not install this unpublished candidate.
+Until 1.0 is published, the unversioned registry install may still resolve to
+the older JavaScript implementation. Validate and install the exact local archive
+when reviewing this candidate. See [1.0 release notes](docs/release-notes-1.0.md)
+and the [support and compatibility policy](docs/compatibility.md).
 
 ## Executing files
 
@@ -178,7 +204,7 @@ each `run(source)` starts fresh. Source is fully validated before any output,
 then executed in numeric label order. The default host discards output; provide the
 callbacks you need. See [the host API](docs/interpreter-host.md) for lifecycle,
 async input, randomness, and current limitations. These exports are available in
-the candidate without building.
+the package without building.
 
 ## Errors and interruption
 
@@ -202,19 +228,20 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 
 ## Supported commands
 
-| Statement                                       | Behavior                                                                                                      |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `LET name = expression`                         | Assign a number, or a string to a name ending in `$`.                                                         |
-| `INPUT ["prompt";] name`                        | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
-| `WAIT milliseconds`                             | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
-| `IF left comparison right THEN line`            | Jump when one comparison is true; otherwise continue to the next line.                                        |
-| `GOTO line`                                     | Jump to an existing literal line label.                                                                       |
-| `FOR variable = start TO end [STEP expression]` | Enter an inclusive numeric loop; the default step is 1.                                                       |
-| `NEXT variable`                                 | Increment the matching loop variable and repeat or finish the loop.                                           |
-| `PRINT [expression [; expression]... [;]]`      | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
-| `CLS`                                           | Ask the host to clear the display.                                                                            |
-| `REM [text]`                                    | Ignore the rest of the line.                                                                                  |
-| `END`                                           | Complete the run and return to the host. End of program also completes normally.                              |
+| Statement                                                 | Behavior                                                                                                      |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `LET name = expression`                                   | Assign a number, or a string to a name ending in `$`.                                                         |
+| `INPUT ["prompt";] name`                                  | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
+| `WAIT milliseconds`                                       | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
+| `IF left comparison right THEN line`                      | Jump when one comparison is true; otherwise continue to the next line.                                        |
+| `GOTO line`                                               | Jump to an existing literal line label.                                                                       |
+| `FOR variable = start TO end [STEP expression]`           | Enter an inclusive numeric loop; the default step is 1.                                                       |
+| `NEXT variable`                                           | Increment the matching loop variable and repeat or finish the loop.                                           |
+| `PRINT [expression [; expression]... [;]]`                | Join values without added spaces; a trailing semicolon suppresses the newline. Blank `PRINT` emits a newline. |
+| `COLOR n`, `PSET x,y`, `LINE x1,y1,x2,y2`, `CIRCLE x,y,r` | Draw on the fixed canvas through an optional graphics host.                                                   |
+| `CLS`                                                     | Ask the host to clear the display.                                                                            |
+| `REM [text]`                                              | Ignore the rest of the line.                                                                                  |
+| `END`                                                     | Complete the run and return to the host. End of program also completes normally.                              |
 
 Labels must be decimal integers from 1 through 65535, followed by a space or
 tab. Leading zeros are allowed: `010` and `10` identify the same line. Leading
@@ -226,7 +253,9 @@ concatenates two strings. There is no automatic conversion between strings and
 numbers, and reading an undefined variable is an error.
 
 `ABS(x)` returns a number's absolute value, `INT(x)` floors toward negative
-infinity, and `RND()` returns a host-provided number in `[0, 1)`. Double a quote
+infinity, and `RND()` returns a host-provided number in `[0, 1)`. `INKEY$()` reads a queued
+logical key and `KEYDOWN(name)` returns 1 or 0 for held keys through optional
+keyboard host capabilities. Double a quote
 inside a string (`10 print "She said ""hello""."`); backslashes and whitespace
 remain literal. Malformed syntax, incompatible values, division by zero, and
 non-finite numbers produce source-located errors. The terminal also implements
@@ -237,7 +266,7 @@ The [parser API](docs/parser.md) builds immutable programs sorted by numeric
 label, with syntax trees for supported statements and expressions.
 It is available separately through `parseLine`, `parseProgram`, and
 `validateProgram`. The separate [evaluator API](docs/evaluator.md) adds typed
-variables, arithmetic, string concatenation, and `ABS`, `INT`, and `RND` function
+variables, arithmetic, string concatenation, and `ABS`, `INT`, `RND`, `INKEY$`, and `KEYDOWN` function
 calls over parsed expressions. `Basic` and the CLI use this same parser/evaluator
 and statement runtime. `basic.reset(sourceOrProgram)` prepares a fresh snapshot
 without executing; `basic.step()` executes one statement and returns immutable

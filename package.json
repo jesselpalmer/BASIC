@@ -1,6 +1,6 @@
 {
   "name": "node-basic-lang",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A small line-numbered BASIC interpreter for Bun",
   "main": "./src/index.ts",
   "scripts": {
@@ -17,7 +17,9 @@
     "format": "bun ./node_modules/prettier/bin/prettier.cjs --write . bin/basic",
     "format:check": "bun ./node_modules/prettier/bin/prettier.cjs --check . bin/basic",
     "test:coverage": "bun test --coverage && bun ./scripts/check-coverage.ts",
-    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test:coverage && bun run test:order && bun run test:package"
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test:coverage && bun run test:order && bun run test:package",
+    "build:release": "bun ./scripts/build-release.ts",
+    "test:release": "bun ./scripts/test-release.ts"
   },
   "repository": "git+https://github.com/jesselpalmer/BASIC.git",
   "engines": {

@@ -44,7 +44,7 @@ it('edits incrementally, lists numeric order, and runs fresh snapshots repeatedl
   ]);
   expect(await repl.start()).toBe(0);
   expect(output).toEqual([
-    'BASIC 0.1.0\n',
+    'BASIC 1.0.0\n',
     '10 GOTO 20\n20 FOR I=2 TO 1 STEP -1\n25 PRINT I\n30 NEXT I\n',
     '2\n',
     '1\n',
@@ -121,7 +121,7 @@ it.each(['prompt', 'NEW', 'EXIT'])('recovers all unsaved source on EOF at %s', a
   expect(errors).toEqual([
     'Unsaved program at EOF; copy the source below before closing:\n10 PRINT "first"\n20 PRINT "last"\n',
   ]);
-  expect(output).toEqual(['BASIC 0.1.0\n', 'Have a great day :)\n']);
+  expect(output).toEqual(['BASIC 1.0.0\n', 'Have a great day :)\n']);
 });
 
 it('handles clean EOF, empty NEW, and deletion back to a clean program', async () => {
@@ -499,5 +499,5 @@ it('does not report cancellation after a save has crossed its commit boundary', 
   expect(await s.repl.start()).toBe(0);
   expect(contents.get('file.bas')).toBe('10 END');
   expect(s.errors).toEqual([]);
-  expect(s.output).toEqual(['BASIC 0.1.0\n', 'Have a great day :)\n']);
+  expect(s.output).toEqual(['BASIC 1.0.0\n', 'Have a great day :)\n']);
 });

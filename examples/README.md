@@ -102,4 +102,4 @@ Ctrl+C interrupts a running program, including busy loops, INPUT and WAIT.
 File mode exits with status 130; the editor retains source and returns to its
 prompt. For library execution use `runAsync` with an instruction budget when
 termination is required. See the [host API](../docs/interpreter-host.md) and
-[language contract](../docs/language-v0.1.md).
+[language contract](../docs/language-v1.md).
