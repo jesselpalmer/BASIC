@@ -10,6 +10,10 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add scientific E/e literals in source and numeric INPUT, and left-associative
+  powers with explicit precedence/domain/overflow rules. Preserve existing numeric
+  names and verify extracted corpus formulas across installed and browser paths.
+  Historical intrinsics, profiles, randomness and full-game certification remain open.
 - Add contextual native PRINT USING with bounded single-pass integer # fields,
   exact alignment and atomic writes. Preserve USING scalar/array names. Test the
   separately reviewed one-byte 1CHECK correction through moves/retry/replay/exit;

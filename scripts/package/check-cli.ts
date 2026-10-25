@@ -57,6 +57,23 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
   assert.equal(statements.stderr, '');
+  const numeric = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/numeric/formulas.bas')],
+  });
+  assert.equal(
+    numeric.stdout,
+    'constants=0.001:0.000884361\nheight=16\ndistance=13\npowers=-4:64:0.0625\n',
+  );
+  assert.equal(numeric.stderr, '');
+  writeFileSync(file, '10 INPUT N\n20 PRINT N^2');
+  const scientificInput = runProcess({
+    cwd: consumer,
+    args: [executable, file],
+    input: '1e+\n-2e1\n',
+  });
+  assert.equal(scientificInput.stdout, '? Invalid number; please enter a finite decimal.\n? 400\n');
+  assert.equal(scientificInput.stderr, '');
   const board = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/arrays/board.bas')],

@@ -1,5 +1,6 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
+import {signedNumericLiteral} from './numeric_literal.ts';
 import type {BasicValue, Host, NodeOf} from './types.ts';
 
 export async function readInput(
@@ -42,7 +43,7 @@ export async function readInput(
     if (statement.target.name.endsWith('$')) return text;
     const decimal = text.replace(/^[ \t]+|[ \t]+$/g, '');
     const value = Number(decimal);
-    if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(decimal) && Number.isFinite(value)) return value;
+    if (signedNumericLiteral.test(decimal) && Number.isFinite(value)) return value;
     host.write('Invalid number; please enter a finite decimal.\n');
   }
 }

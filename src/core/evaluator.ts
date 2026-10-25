@@ -55,6 +55,13 @@ function binary(node: NodeOf<'BinaryExpression'>, left: BasicValue, right: Basic
       if (b === 0) fail('DIVISION_BY_ZERO', 'Cannot divide by zero', location);
       result = a / b;
       break;
+    case '^':
+      if (a === 0 && b < 0)
+        fail('DIVISION_BY_ZERO', 'Cannot raise zero to a negative power', location);
+      if (a < 0 && !Number.isInteger(b))
+        fail('NUMERIC_DOMAIN', 'A negative base requires an integer exponent', location);
+      result = Math.pow(a, b);
+      break;
     default:
       fail('UNSUPPORTED_OPERATOR', `Unsupported operator ${node.operator}`, location);
   }

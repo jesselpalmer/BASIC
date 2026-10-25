@@ -128,6 +128,12 @@ scripted path with exact numbered/piece boards, illegal/legal moves, retry/repla
 and normal exit. Historical number spacing and dialect certification still block
 a complete compatibility pass; the full 108-file scope is unchanged.
 
+The [native numeric expression slice](numeric-expressions.md) for #123 adds
+scientific literals and powers using the documented arithmetic grouping while
+retaining native finite doubles. Extracted formula tests do not certify whole
+games. Historical intrinsic names, defaults, RNG and profile precision remain
+open; existing SQR/EXP scalar and array names are preserved.
+
 ## Delivery order and tickets
 
 All listed feature tickets are P1 / High release blockers when required by the

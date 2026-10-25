@@ -52,11 +52,13 @@ describe('program statements', () => {
     expect(output.join('')).toBe('Hello, world!\n\n0 0.5 AB\n');
   });
 
-  it('allows exponent display for finite results while retaining decimal-only source', () => {
+  it('allows finite exponent display and scientific source literals', () => {
     const {basic, output} = setup();
     basic.run('10 PRINT ' + '9'.repeat(30) + '*10');
     expect(output).toEqual([`${Number('9'.repeat(30)) * 10}\n`]);
-    expect(() => basic.run('10 PRINT 1e3')).toThrow(BasicSyntaxError);
+    basic.run('10 PRINT 1e3');
+    expect(output[1]).toBe('1000\n');
+    expect(() => basic.run('10 PRINT 1e+')).toThrow(BasicSyntaxError);
   });
 
   it('delegates CLS without resetting variables and leaves REM inert', () => {

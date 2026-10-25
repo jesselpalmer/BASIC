@@ -32,6 +32,7 @@ export const libraryAcceptanceCases = [
   'string-involved PRINT adjacency preserves expressions, names, and atomic writes',
   'native integer PRINT USING preserves names, alignment, and errors',
   'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
+  'scientific literals and powers execute corpus formulas with bounded failures',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -253,6 +254,39 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check(
     'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
     () => runNativeCheckerAcceptance(api),
+  );
+  await check(
+    'scientific literals and powers execute corpus formulas with bounded failures',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/numeric/formulas.bas'),
+        'utf8',
+      );
+      const expected = 'constants=0.001:0.000884361\nheight=16\ndistance=13\npowers=-4:64:0.0625\n';
+      const {basic, output} = setup();
+      const program = api.parseProgram(source);
+      assert.equal(basic.run(program).status, 'halted');
+      assert.equal(output.join(''), expected);
+      output.length = 0;
+      await basic.runAsync();
+      assert.equal(output.join(''), expected);
+      assert.throws(() => basic.run('10 PRINT 1e+'), api.BasicSyntaxError);
+      output.length = 0;
+      basic.run();
+      assert.equal(output.join(''), expected);
+      output.length = 0;
+      assert.throws(
+        () => basic.run('10 PRINT "partial";2^1e300'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'NON_FINITE_NUMBER',
+      );
+      assert.deepEqual(output, []);
+      const input = setup(['1e+', '-2e1']);
+      await input.basic.runAsync('10 INPUT N\n20 PRINT N^2');
+      assert.equal(input.output.join(''), 'Invalid number; please enter a finite decimal.\n400\n');
+      basic.run('10 DIM EXP(0)\n20 EXP=2\n30 EXP(0)=3\n40 PRINT EXP^EXP(0)');
+      assert.deepEqual(output, ['8\n']);
+    },
   );
   await check('public evaluator values and diagnostics', () => {
     const evaluator = new api.Evaluator({random: () => 0.41});

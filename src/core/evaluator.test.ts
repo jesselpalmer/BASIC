@@ -210,7 +210,7 @@ describe('expression evaluation', () => {
 
   it('fails clearly for unsupported constructed operators and functions', () => {
     for (const [source, field, value, code] of [
-      ['1+2', 'operator', '^', 'UNSUPPORTED_OPERATOR'],
+      ['1+2', 'operator', '**', 'UNSUPPORTED_OPERATOR'],
       ['-1', 'operator', '~', 'UNSUPPORTED_OPERATOR'],
       ['ABS(1)', 'name', 'SQRT', 'UNKNOWN_FUNCTION'],
     ]) {
