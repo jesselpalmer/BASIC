@@ -10,6 +10,11 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add bounded native colon-separated statements with real instruction positions,
+  same-line loops, source-backed false-IF line scope and per-member stepping,
+  budgets, cancellation and source columns. Preserve existing single-statement
+  ASTs and exact source; reject immediate sequences before effects. Historical
+  inline branches, backslashes and full-corpus certification remain pending.
 - Add scientific E/e literals in source and numeric INPUT, and left-associative
   powers with explicit precedence/domain/overflow rules. Preserve existing numeric
   names and verify extracted corpus formulas across installed and browser paths.

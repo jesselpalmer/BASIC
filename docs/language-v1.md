@@ -23,7 +23,8 @@ the 1.0 freeze; current valid native programs must retain their meaning.
 
 ## Programs and source text
 
-- A program has one statement per numbered line. Labels are decimal integers
+- A program has one or more colon-separated statements per numbered line.
+  Labels are decimal integers
   from **1 through 65535**. Leading zeros are allowed and do not change identity:
   `010` and `10` name the same line. Labels such as `10abc`, `1.5`, `-10`, `0`,
   and `65536` are errors.
@@ -39,7 +40,12 @@ the 1.0 freeze; current valid native programs must retain their meaning.
   values and filenames retain their original case.
 - `REM` consumes the rest of its line as a comment, without interpreting quotes,
   punctuation, or keywords in that text. An empty comment is valid.
-- There are no colon-separated statements or apostrophe comments in the current native dialect.
+- Colon sequences preserve each member's physical source span and execute one
+  statement at a time. GOTO enters the target line at its first statement; END
+  stops the run immediately. A false IF skips the rest of its physical line.
+  Strings, REM text and USING templates retain literal colons. Empty/trailing
+  separators, apostrophe comments and backslash separators are unsupported.
+  See [statement sequences](statement-sequences.md) for limits and details.
 
 The editor retains source text for each stored line. `LIST` and `SAVE` arrange
 lines by numeric label. Runs use an immutable snapshot: later edits affect the

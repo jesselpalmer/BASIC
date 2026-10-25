@@ -1,5 +1,5 @@
 import {BasicSyntaxError} from './diagnostic.ts';
-import type {ParsedLine} from './types.ts';
+import type {Instruction} from './instructions.ts';
 
 export interface LoopPair {
   readonly forIndex: number;
@@ -8,7 +8,7 @@ export interface LoopPair {
 }
 
 /** Pair lexical structures in numeric program order, without executing values. */
-export function pairLoops(lines: readonly ParsedLine[]): LoopPair[] {
+export function pairLoops(lines: readonly Instruction[]): LoopPair[] {
   const stack: number[] = [];
   const pairs: LoopPair[] = [];
   for (let index = 0; index < lines.length; index++) {

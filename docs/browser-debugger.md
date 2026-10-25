@@ -89,3 +89,8 @@ becomes `STATEMENT_GATE_FAILED` at the blocked statement, retaining its cause.
 Invalid gate types reject before replacing runtime state. Existing scheduler and
 `yieldEvery` behavior is unchanged: the gate does not replace the host task
 scheduler, and a busy loop still yields to browser events every configured batch.
+
+Colon-separated statements each receive their own Step and debugger gate. The
+next-statement readout includes the physical column so same-line steps can be
+distinguished; the source view continues to highlight the original physical line.
+INPUT/WAIT completion resumes at the following instruction even on the same line.

@@ -106,7 +106,7 @@ class Scanner {
         const operator = ['<=', '>=', '<>'].includes(pair) ? pair : character;
         this.index += operator.length;
         this.emit('OPERATOR', start, operator);
-      } else if ('();,'.includes(character)) {
+      } else if ('();,:'.includes(character)) {
         const start = this.position();
         this.index++;
         this.emit('PUNCTUATION', start, character);

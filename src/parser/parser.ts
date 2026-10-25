@@ -13,12 +13,14 @@ import type {
   NodeOf,
   Expression,
   Statement,
+  SimpleStatement,
   ComparisonOperator,
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
+import {maxLineStatements} from '../core/instructions.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -83,6 +85,10 @@ class Parser {
     return this.at('NEWLINE') || this.at('EOF');
   }
 
+  atStatementEnd() {
+    return this.atEnd() || this.at('PUNCTUATION', ':');
+  }
+
   fail(code: string, message: string, token = this.peek()): never {
     throw new BasicSyntaxError(code, message, token.start, this.label);
   }
@@ -137,7 +143,7 @@ class Parser {
       }
       const label = this.expect('LABEL', undefined, 'Expected a line label');
       this.label = label.value;
-      const statement = this.statement();
+      const statement = this.sequence();
       if (!this.atEnd()) {
         this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(this.peek().raw)}`);
       }
@@ -154,9 +160,28 @@ class Parser {
     return lines;
   }
 
-  statement(): Statement {
+  sequence(): Statement {
+    const statements: SimpleStatement[] = [this.statement()];
+    const separators: Location[] = [];
+    while (this.at('PUNCTUATION', ':')) {
+      const colon = this.take();
+      if (statements.length === maxLineStatements)
+        this.fail(
+          'STATEMENT_LIMIT',
+          `A line permits at most ${maxLineStatements} statements`,
+          colon,
+        );
+      separators.push(this.location(colon));
+      statements.push(this.statement());
+    }
+    return statements.length === 1
+      ? statements[0]
+      : this.node('StatementSequence', statements[0], statements.at(-1)!, {statements, separators});
+  }
+
+  statement(): SimpleStatement {
     const command = this.peek();
-    if (this.atEnd()) {
+    if (this.atStatementEnd()) {
       this.fail('EXPECTED_STATEMENT', 'Expected a statement after the label');
     }
     if (command.type === 'IDENTIFIER') {
@@ -366,7 +391,7 @@ class Parser {
     const separators: Location[] = [];
     let trailingSemicolon = false;
     let last: Token | Expression = command;
-    if (!this.atEnd()) {
+    if (!this.atStatementEnd()) {
       let adjacent = false;
       for (;;) {
         const first = this.peek();
@@ -397,7 +422,7 @@ class Parser {
         adjacent = false;
         last = this.take();
         separators.push(this.location(last));
-        if (this.atEnd()) {
+        if (this.atStatementEnd()) {
           trailingSemicolon = true;
           break;
         }
@@ -413,7 +438,12 @@ class Parser {
     // syntax from ordinary PRINT, including USING arrays and adjacent items.
     for (let index = this.index + 1; ; index++) {
       const token = this.tokens[index];
-      if (token.type === 'NEWLINE' || token.type === 'EOF') return false;
+      if (
+        token.type === 'NEWLINE' ||
+        token.type === 'EOF' ||
+        (token.type === 'PUNCTUATION' && token.value === ':')
+      )
+        return false;
       if (token.type !== 'PUNCTUATION') continue;
       if (token.value === '(') depth++;
       else if (token.value === ')') {

@@ -25,7 +25,9 @@ import {
   type ArraySnapshot,
   type ArrayDeclaration,
   type AssignmentTarget,
+  type Location,
   type Expression,
+  type SimpleStatement,
 } from 'node-basic-lang';
 const host: Host = {
   write(text: string) {
@@ -251,3 +253,16 @@ const invalidKeyDownHost: Host = {...host, keyDown: () => 1};
 void invalidKey;
 void invalidReadKeyHost;
 void invalidKeyDownHost;
+
+const sequenceLine = parseLine('10 PRINT 1:END');
+if (sequenceLine?.statement.type === 'StatementSequence') {
+  const leaf: SimpleStatement = sequenceLine.statement.statements[0];
+  const separator: Location = sequenceLine.statement.separators[0];
+  void leaf;
+  void separator;
+  // @ts-expect-error Statement members are readonly.
+  sequenceLine.statement.statements[0] = leaf;
+  // @ts-expect-error A sequence cannot contain another sequence.
+  const invalidLeaf: SimpleStatement = sequenceLine.statement;
+  void invalidLeaf;
+}

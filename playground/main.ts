@@ -186,7 +186,7 @@ function renderInspection(state: BrowserState): void {
       ? state.currentLocation
       : null);
   nextLine.textContent = location
-    ? `${state.nextLocation ? 'Next:' : 'Waiting at'} BASIC line ${location.label} (source line ${location.start.line})`
+    ? `${state.nextLocation ? 'Next:' : 'Waiting at'} BASIC line ${location.label} (source line ${location.start.line}, column ${location.start.column})`
     : state.status === 'idle'
       ? 'Run or Step a program to inspect it.'
       : 'No next statement.';
