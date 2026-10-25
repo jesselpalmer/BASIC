@@ -23,6 +23,7 @@ import {maxPrintUsingValues} from '../core/print_using.ts';
 import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets} from '../core/input.ts';
+import {maxDispatchTargets} from '../core/dispatch.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -211,7 +212,9 @@ class Parser {
       }
       if (
         (following.type === 'OPERATOR' && following.value === '=') ||
-        (following.type === 'PUNCTUATION' && following.value === '(')
+        (following.type === 'PUNCTUATION' &&
+          following.value === '(' &&
+          (command.value !== 'ON' || this.parenthesizedAssignment()))
       ) {
         this.take();
         return this.assignment(command, command);
@@ -233,6 +236,10 @@ class Parser {
         this.take();
         const target = this.jumpTarget();
         return this.node('GosubStatement', command, target, {target});
+      }
+      if (command.value === 'ON') {
+        this.take();
+        return this.dispatch(command);
       }
       if (command.value === 'RETURN') {
         this.take();
@@ -532,6 +539,43 @@ class Parser {
   goto(command: Token): NodeOf<'GotoStatement'> {
     const target = this.jumpTarget();
     return this.node('GotoStatement', command, target, {target});
+  }
+
+  dispatch(command: Token): NodeOf<'OnStatement'> {
+    const selector = this.expression();
+    const transfer = this.peek();
+    if (!this.at('KEYWORD', 'GOTO') && !this.at('IDENTIFIER', 'GOSUB'))
+      this.fail('EXPECTED_TOKEN', 'Expected GOTO or GOSUB after the ON selector');
+    this.take();
+    const targets: NodeOf<'NumberLiteral'>[] = [];
+    for (;;) {
+      if (targets.length === maxDispatchTargets)
+        this.fail('DISPATCH_LIMIT', `ON permits at most ${maxDispatchTargets} targets`);
+      targets.push(this.jumpTarget());
+      if (!this.at('PUNCTUATION', ',')) break;
+      this.take();
+    }
+    return this.node('OnStatement', command, targets.at(-1)!, {
+      selector,
+      transfer: transfer.value === 'GOTO' ? 'goto' : 'gosub',
+      targets,
+    });
+  }
+
+  parenthesizedAssignment(): boolean {
+    // ON (expression) GOTO is a grouped selector, whereas ON(indices)=...
+    // remains an existing array assignment. Scan only to the matching close.
+    let depth = 0;
+    for (let i = this.index + 1; ; i++) {
+      const token = this.tokens[i];
+      if (token.type === 'NEWLINE' || token.type === 'EOF') return false;
+      if (token.type !== 'PUNCTUATION') continue;
+      if (token.value === '(') depth++;
+      if (token.value === ')' && --depth === 0) {
+        const following = this.tokens[i + 1];
+        return following.type === 'OPERATOR' && following.value === '=';
+      }
+    }
   }
 
   print(command: Token) {

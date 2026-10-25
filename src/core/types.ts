@@ -216,6 +216,11 @@ export interface NodeFields {
   };
   GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
   GosubStatement: {readonly target: NodeOf<'NumberLiteral'>};
+  OnStatement: {
+    readonly selector: Expression;
+    readonly transfer: 'goto' | 'gosub';
+    readonly targets: readonly NodeOf<'NumberLiteral'>[];
+  };
   ReturnStatement: Record<never, never>;
   DataStatement: {readonly items: readonly (NodeOf<'NumberLiteral'> | NodeOf<'StringLiteral'>)[]};
   ReadStatement: {readonly targets: readonly AssignmentTarget[]};
@@ -301,6 +306,7 @@ export type SimpleStatement = Nodes<
   | 'InlineIfStatement'
   | 'GotoStatement'
   | 'GosubStatement'
+  | 'OnStatement'
   | 'ReturnStatement'
   | 'DataStatement'
   | 'ReadStatement'

@@ -197,7 +197,7 @@ See the [terminal session guide](terminal.md). The existing
 available as legacy library adapters: they parse one numbered line, execute it
 immediately, and share variables across entries. They do not edit terminal source.
 
-`DIM`, `DATA`, `READ`, `RESTORE`, `IF`, `GOTO`, `GOSUB`, `RETURN`, `FOR`, and `NEXT`
+`DIM`, `DATA`, `READ`, `RESTORE`, `IF`, `GOTO`, `GOSUB`, `ON`, `RETURN`, `FOR`, and `NEXT`
 require a complete prepared program and report
 `PROGRAM_REQUIRED` in this adapter. Use `run`/`runAsync`/`reset` for control flow.
 Scalar INPUT lists work through readLineAsync; indexed immediate INPUT reports
@@ -326,3 +326,10 @@ check generation/abort and assign left to right under the synchronous callback
 guard. Numeric/format retries cost no extra statement. Existing InputStatement
 retains its scalar-only target field; new InputTargetsStatement carries indexed
 or multiple targets. See [INPUT target lists](input-targets.md).
+
+Native ON GOTO/GOSUB evaluates one numeric selector, truncates it toward zero and
+selects a one-based literal destination. The selector and transfer cost one
+instruction/gate/budget unit. Out-of-list values fail with DISPATCH_RANGE; all
+literal targets validate before effects. Selected GOSUB shares literal-call
+stack, loop ownership and prepared-continuation rules. See
+[computed dispatch](computed-dispatch.md).

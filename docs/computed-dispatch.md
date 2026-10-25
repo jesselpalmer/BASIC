@@ -1,6 +1,6 @@
 # Native computed dispatch
 
-**Status:** settled next native #57 slice; design recorded before code.
+**Status:** implemented next native #57 slice; design recorded before code.
 Historical profiles, GOTO expression OF lists and whole-game certification remain open.
 
 ## Evidence and native boundary
@@ -17,7 +17,11 @@ Native adds only the unambiguous statement forms `ON expression GOTO label,...`
 and `ON expression GOSUB label,...`. ON and GOSUB remain contextual identifiers;
 existing ON/GOSUB scalar and array assignments/references keep their old ASTs.
 No new reserved words, source rewriting, GO SUB alias, computed literal GOTO,
-ON ERROR, compact lexing or automatic historical profile selection is introduced.
+error trapping, compact lexing or automatic historical profile selection is introduced.
+ERROR remains an ordinary native selector name: `ON ERROR GOTO 20` dispatches
+using that variable and never installs an error handler. Grouped selectors such
+as `ON (X+1) GOTO ...` remain distinct from existing ON-array assignments; the
+matching close followed by `=` identifies an assignment.
 BATTLE 140 and BUG 340/990 use GOTO expression OF lists, a distinct form outside
 this native slice. Do not reinterpret those sources as ON grammar or claim them
 compatible through a normalized probe.
@@ -70,8 +74,10 @@ names, nested and same-line calls, inline conditionals, caller/callee loops,
 stack bounds, gates/budgets, async effects, cancellation and fresh instances.
 Verify immutable source/constructed ASTs and unchanged existing native trees.
 
-An authored BANNER-derived selector probe must name all inserted whitespace and
-new scaffolding. It is neither unchanged-source nor whole-game certification.
+The authored [BANNER-derived selector probe](../scripts/package/fixtures/dispatch/probe.bas)
+names all inserted whitespace and new scaffolding. The source at pinned corpus
+commit `45f75052be3f436f2e575f58d4aa611484268227` has blob
+`0497d5eec6ddb942415ad9439010ee47c66d4be8`; all ten line-305 targets are retained. It is neither unchanged-source nor whole-game certification.
 Verify direct/installed ESM/CommonJS/types/CLI/editor and actual Chromium/extracted
 archives with Linux/macOS checks. #57 remains open for verified historical
 profiles, GOTO expression OF lists and game outcomes; #109 remains NOT READY.

@@ -31,6 +31,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/instructions.ts`                | Bounded sequence/conditional trees, real instruction positions and prepared branch/continuation destinations.        |
 | `core/prepared_program.ts`            | A validated program, flat real instructions and label/loop indexes derived from that exact snapshot.                 |
 | `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
+| `core/dispatch.ts`                    | Bounded immutable ON target validation and one-based truncated selector resolution.                                  |
 | `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                      |
 | `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
@@ -72,7 +73,10 @@ Literal GOSUB saves the real next position and caller loop-map ownership.
 Callees own fresh loop contexts; RETURN drops callee loops and restores caller
 frames while scalar/array values remain shared. An ownership set enforces native
 active-loop-variable rules across suspended calls. Terminal paths clear all
-call/loop frames. See [subroutines](subroutines.md) for limits and guards.
+call/loop frames. Bounded ON GOTO/GOSUB evaluates one selector and sends the
+selected literal through those same transfer owners, adding no synthetic
+instruction. See [computed dispatch](computed-dispatch.md) and
+[subroutines](subroutines.md) for limits and guards.
 Prepared DATA literals belong to the immutable sorted snapshot; a fresh
 DataReader owns the cursor for one execution. Branches and call frames share
 that reader. READ reuses evaluator assignment, advancing after each successful

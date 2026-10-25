@@ -63,6 +63,42 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(subroutine.stdout, 'take=4:0:3\nnested=4\n');
   assert.equal(subroutine.stderr, '');
+  const dispatchExpected =
+    '500\n440\n620\n625\n635\n550\n615\n605\n595\n585\none\nafter\ntwo\none\ntail\n';
+  const dispatch = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/dispatch/probe.bas')],
+  });
+  assert.equal(dispatch.stdout, dispatchExpected);
+  assert.equal(dispatch.stderr, '');
+  const dispatchSource =
+    '10 ON 2 GOSUB 100,200:PRINT "tail":END\n100 PRINT "wrong":RETURN\n200 PRINT "two":RETURN';
+  const storedDispatch = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: dispatchSource + '\nSAVE "dispatch-saved.bas"\nRUN\nEXIT\n',
+  });
+  assert.equal(storedDispatch.stderr, '');
+  assert.ok(storedDispatch.stdout.includes('two\ntail\n'));
+  assert.equal(readFileSync(join(consumer, 'dispatch-saved.bas'), 'utf8'), dispatchSource);
+  const loadedDispatch = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "dispatch-saved.bas"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.equal(loadedDispatch.stderr, '');
+  assert.ok(loadedDispatch.stdout.includes(dispatchSource));
+  assert.ok(loadedDispatch.stdout.includes('two\ntail\n'));
+  writeFileSync(file, '10 ON 1 GOTO 20,999\n20 END');
+  const invalidDispatch = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input:
+      dispatchSource + '\nSAVE "dispatch-recovery.bas"\nLOAD "' + file + '"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.match(invalidDispatch.stderr, /No line label 999/);
+  assert.ok(invalidDispatch.stdout.includes(dispatchSource));
+  assert.ok(invalidDispatch.stdout.includes('two\ntail\n'));
   const conditional = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/conditionals/probe.bas')],

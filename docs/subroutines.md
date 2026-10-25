@@ -1,7 +1,8 @@
 # Literal subroutines
 
-**Status:** implemented first native #57 slice; design recorded before code. Computed
-dispatch, historical profiles and full-corpus gameplay certification remain open.
+**Status:** implemented first native #57 slice; design recorded before code.
+The later [native ON dispatch slice](computed-dispatch.md) shares this call owner.
+Historical profiles and full-corpus gameplay certification remain open.
 
 ## Evidence and grammar
 
@@ -15,8 +16,9 @@ native's fixed bound below is an explicit resource policy, not historical emulat
 Native accepts contextual `GOSUB label` and bare `RETURN`, including as members
 of a colon sequence. Labels use the existing unsigned decimal-integer range
 1..65535; complete validation checks all literal call targets, even after END,
-before effects. Computed expressions/ON lists, `GO SUB`, compact keyword spelling
-and RETURN arguments are not introduced. No new reserved words: GOSUB/RETURN
+before effects. The later [native ON slice](computed-dispatch.md) adds bounded
+selector lists through the same call owner. Computed literal GOSUB expressions,
+`GO SUB`, compact keyword spelling and RETURN arguments remain unsupported. No new reserved words: GOSUB/RETURN
 remain ordinary scalar/array names in assignments, DIM and expressions. Recognize
 the new forms only at statement position after the existing assignment cases.
 Existing valid native source keeps the same AST and meaning.
@@ -79,5 +81,5 @@ Use independent expected traces and clearly label any spacing-normalized AWARI
 call probe; that is neither an unchanged listing nor a full-game compatibility
 pass. Verify direct and installed ESM/CommonJS/types/CLI/editor, actual Chromium
 and the exact extracted static archive, then Linux/macOS CI. #57 stays open for
-computed dispatch, remaining historical semantics and actual whole-game results.
+GOTO expression OF dispatch, remaining historical semantics and actual whole-game results.
 #109 remains NOT READY; no publication is part of this slice.

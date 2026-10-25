@@ -58,6 +58,13 @@ snapshot untouched and subsequent parses start fresh.
 
 ## Syntax trees
 
+`OnStatement` has an expression `selector`, `transfer` (`goto` or `gosub`) and a
+readonly `targets` list of literal-label NumberLiteral nodes. This explicit new
+public union case preserves ordinary ON scalar/array names and supports grouped
+selectors without mistaking them for array assignments. Complete validation
+checks numeric selector type, every target and the inclusive 4096-target bound,
+including dead/unselected clauses. See [computed dispatch](computed-dispatch.md).
+
 `PrintUsingStatement` is distinct from ordinary PRINT. Its `format` and `items`
 are expressions; `separators` records the actual template/value commas and an
 optional terminal semicolon, with `trailingSemicolon` indicating that final

@@ -38,6 +38,7 @@ export const libraryAcceptanceCases = [
   'native data pools preserve corpus literals, sequential reads and fresh cursors',
   'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
   'inline conditionals preserve physical clause scope, nested tests and call continuations',
+  'computed dispatch selects bounded targets and preserves real call continuations',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -527,6 +528,43 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       assert.ok(cancelled instanceof Error);
       assert.equal(cancelled.name, 'AbortError');
       assert.equal(old.output.join(''), 'fresh\n');
+    },
+  );
+  await check(
+    'computed dispatch selects bounded targets and preserves real call continuations',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dirname, 'package/fixtures/dispatch/probe.bas'),
+        'utf8',
+      );
+      const expected =
+        '500\n440\n620\n625\n635\n550\n615\n605\n595\n585\none\nafter\ntwo\none\ntail\n';
+      const {basic, output} = setup();
+      basic.run(api.parseProgram(source));
+      await basic.runAsync();
+      assert.equal(output.join(''), expected + expected);
+      output.length = 0;
+      assert.throws(
+        () => basic.run('10 PRINT "never":ON 1 GOTO 20,999\n20 END'),
+        (error: unknown) =>
+          error instanceof api.BasicSyntaxError && error.diagnostic.code === 'MISSING_TARGET',
+      );
+      assert.deepEqual(output, []);
+      basic.run();
+      assert.equal(output.join(''), expected);
+      const range = setup();
+      assert.throws(
+        () => range.basic.run('10 ON -0.9 GOSUB 20:PRINT "never"\n20 RETURN'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'DISPATCH_RANGE',
+      );
+      assert.deepEqual(range.output, []);
+      const names = setup();
+      names.basic.run('10 DIM ON(1):ON=2:ON(1)=3:PRINT ON;":";ON(1)');
+      assert.equal(names.output.join(''), '2:3\n');
+      const io = setup(['7'], {wait: () => Promise.resolve()});
+      await io.basic.runAsync('10 ON 1 GOSUB 100:PRINT N:END\n100 INPUT N:WAIT 0:RETURN');
+      assert.equal(io.output.join(''), '7\n');
     },
   );
   await check('public evaluator values and diagnostics', () => {
