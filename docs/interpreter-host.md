@@ -47,6 +47,11 @@ The package exports the parser, evaluator, errors, and public types separately.
   executing anything. Reset explicitly to execute again.
 - `status` is read-only. `state`, and the return values of reset/run/step, are
   immutable `RunResult` snapshots. Later execution does not change old results.
+- `arrays` returns detached, immutable `ArraySnapshot` observations separate from
+  scalar `variables`. Array declarations are validated across the complete source
+  before effects; every reset/run allocates fresh cell storage. Stepping DIM is
+  inert after preparation. Immediate DIM requires a complete program. See
+  [native arrays](arrays.md) for declaration/access rules and observation limits.
 
 `runAsync(sourceOrProgram?, {signal, instructionLimit, yieldEvery, scheduler, beforeStatement}?)`,
 `stepAsync({signal}?)`, and

@@ -47,6 +47,16 @@ next run, not an execution already in progress.
 
 ## Values, names, and expressions
 
+Explicit [native arrays](arrays.md) support `DIM A(64), BOARD(7,7), NAMES$(2)`,
+indexed expressions and assignments with optional LET. Bounds are literal,
+nonnegative integers, include zero, and declarations apply to the complete
+program before execution. Numeric/string elements start at 0/empty string;
+scalars keep their existing undefined-name behavior and separate storage.
+Indices must be safe integers within bounds. Native has no implicit dimensions,
+indexed INPUT, `%` arrays, square-bracket access or MAT yet. DIM remains a valid
+scalar name outside its declaration form. See the array contract for resource
+caps, evaluation order, preflight diagnostics and bounded observations.
+
 There are two value types: finite numbers and strings. Numbers use JavaScript's
 IEEE 754 double-precision arithmetic; decimal fractions need not be exact.
 Variables are not initialized implicitly. Reading an undefined name is an error.
@@ -420,7 +430,7 @@ it, and blank input is harmless. `NEW` and `EXIT` ask before discarding unsaved
 source. The library's legacy `readLine` methods retain immediate execution; they
 are separate from the terminal session.
 
-Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
+Historical array defaults/conversions, `DATA`/`READ`, `GOSUB`/`RETURN`, user-defined functions, general immediate
 statements, multiple statements per line, a broad string library, and sound are
 outside the current implementation, but corpus-required features are now
 release blockers under [#114](https://github.com/jesselpalmer/BASIC/issues/114).

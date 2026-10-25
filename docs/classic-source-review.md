@@ -29,6 +29,14 @@ whole-corpus and per-profile gates remain in #109/#114/#115/#116/#129.
 
 ## 1CHECK
 
+The explicit native array slice now has an independently authored board/move
+fixture (`scripts/package/fixtures/arrays/board.bas`) covering the 48-piece start,
+an unchanged illegal move, the 47-piece legal jump and fresh reruns. It is a
+feature oracle, not the raw or corrected listing and not a whole-game pass.
+PRINT USING, adjacent items, historical formatting and profile certification
+remain blockers. The ledger's first-native-diagnostic fields retain their stated
+historical baseline commit rather than pretending to be current parser results.
+
 - Upstream file: `1check.bas`, pinned by the ledger's raw SHA-256.
 - Supplied verbatim by Jesse in this conversation as well as available upstream.
 - Author in the book: David Ahl. Description is printed page 163; the listing and

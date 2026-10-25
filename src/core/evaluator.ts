@@ -1,10 +1,14 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
+import {ArrayStore} from './arrays.ts';
 import {compareValues} from './comparison.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import type {
   BasicValue,
+  ArrayDeclaration,
+  ArraySnapshot,
+  AssignmentTarget,
   Dialect,
   LanguageOptions,
   Comparison,
@@ -63,6 +67,7 @@ type Frame = {node: Expression; ready: boolean};
 export class Evaluator {
   readonly #dialect: Dialect;
   private readonly variables = new Map<string, BasicValue>();
+  private arrays = new ArrayStore();
   private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
   constructor(
@@ -77,8 +82,14 @@ export class Evaluator {
     return this.#dialect;
   }
 
-  reset(): void {
+  reset(declarations: readonly ArrayDeclaration[] = []): void {
+    const arrays = new ArrayStore(declarations);
     this.variables.clear();
+    this.arrays = arrays;
+  }
+
+  snapshotArrays(): readonly ArraySnapshot[] {
+    return this.arrays.snapshot();
   }
 
   snapshotVariables(): readonly VariableSnapshot[] {
@@ -93,7 +104,7 @@ export class Evaluator {
     return compareValues(left, right, condition);
   }
 
-  assign(target: NodeOf<'Variable'>, value: BasicValue): void {
+  assign(target: AssignmentTarget, value: BasicValue): void {
     const name = target.name.toUpperCase();
     if (name.endsWith('$')) {
       if (typeof value !== 'string') {
@@ -103,7 +114,11 @@ export class Evaluator {
       number(value, target.location);
     }
     // Check before writing so a failed assignment preserves the previous value.
-    this.variables.set(name, value);
+    if (target.type === 'ArrayReference') {
+      this.arrays.checkReference(target);
+      const indices = target.indices.map((index) => this.evaluate(index));
+      this.arrays.write(target, indices, value);
+    } else this.variables.set(name, value);
   }
 
   evaluate(expression: Expression): BasicValue {
@@ -129,6 +144,18 @@ export class Evaluator {
           values.push(value);
           break;
         }
+        case 'ArrayReference':
+          if (!ready) {
+            this.arrays.checkReference(node);
+            pending.push({node, ready: true});
+            for (let i = node.indices.length - 1; i >= 0; i--) {
+              pending.push({node: node.indices[i], ready: false});
+            }
+          } else {
+            const indices = values.splice(values.length - node.indices.length);
+            values.push(this.arrays.read(node, indices));
+          }
+          break;
         case 'GroupExpression':
           pending.push({node: node.expression, ready: false});
           break;

@@ -58,6 +58,7 @@ export function expressionType(expression: Expression): ValueType | null {
         values.push('string');
         break;
       case 'Variable':
+      case 'ArrayReference':
         values.push(node.name.endsWith('$') ? 'string' : 'number');
         break;
       case 'GroupExpression':

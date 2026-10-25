@@ -12,7 +12,8 @@ keyboard controls, with a complete Pong game written in BASIC.
 See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The [language reference](docs/language-v1.md) describes current native behavior;
-arrays, subroutines and the historical profiles are not implemented yet.
+explicit native numeric/string arrays are supported; subroutines and historical
+profiles remain pending. See the [array contract](docs/arrays.md) for limits.
 The new scope does not claim general QBasic or GW-BASIC compatibility.
 Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
 these native extensions preserve existing names and execution semantics. The browser

@@ -42,17 +42,26 @@ or provide a program counter. Those belong to the execution loop.
   reads this evaluator's variables without changing them or mutating the tree.
   `RND()` consumes the host's random sequence; `INKEY$()` consumes one queued key. Traversal is iterative, so long
   flat expressions do not consume the JavaScript call stack.
-- `assign(target, value): void` takes a parsed `Variable` node and a number or
+- `assign(target, value): void` takes a parsed `AssignmentTarget` (scalar or indexed) and a number or
   string. Names are case-insensitive. A final `$` requires a string; all other
   names require finite numbers. Checks finish before the stored value changes,
-  so an invalid assignment preserves any previous value.
-- `reset(): void` clears all variables in this evaluator. It does not rewind or
+  so an invalid assignment preserves any previous value. The supplied value is
+  already evaluated; target indices then evaluate left to right, after
+  declaration/rank/type checks and before committing one cell.
+- `reset(declarations?: readonly ArrayDeclaration[]): void` validates/copies explicit
+  array declarations, allocates fresh zero/empty cells, and clears scalars.
+  Omission removes all arrays. A rejected declaration set leaves existing cells
+  and scalars intact. It does not rewind or
   replace the host's random sequence. Other evaluator instances are unaffected.
+- `snapshotArrays(): readonly ArraySnapshot[]` returns detached, frozen metadata
+  and a bounded value prefix, separate from scalar `snapshotVariables`. See the
+  [array contract](arrays.md) for ordering, limits and truncation.
 - `compare(condition: Comparison): boolean` evaluates both operands left to
   right, then applies a numeric comparison or exact string equality/inequality.
   Comparison results are used by `IF`; they do not add a Boolean BASIC value type.
 
-There is no implicit variable initialization or numeric/string conversion.
+Scalars have no implicit initialization; declared array cells start at 0/empty
+string. There is no implicit numeric/string conversion.
 `A` and `A$` are distinct variables. Empty strings and zero are valid values.
 Inputs must be parser-produced expression/variable nodes; this API is not a
 schema validator for arbitrary or deserialized objects. It still rejects

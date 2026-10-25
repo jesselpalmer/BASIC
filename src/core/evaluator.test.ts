@@ -11,6 +11,7 @@ function expression(source: string, options?: SourceOptions): Expression {
 function target(name: string): NodeOf<'Variable'> {
   const statement = parseLine(`20 LET ${name} = 0`)?.statement;
   if (statement?.type !== 'LetStatement') throw new Error('Expected a LET target');
+  if (statement.target.type !== 'Variable') throw new Error('Expected a scalar variable');
   return statement.target;
 }
 

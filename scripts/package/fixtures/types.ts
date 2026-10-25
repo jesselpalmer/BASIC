@@ -22,6 +22,10 @@ import {
   type RunOptions,
   type ExecutionScheduler,
   type VariableSnapshot,
+  type ArraySnapshot,
+  type ArrayDeclaration,
+  type AssignmentTarget,
+  type Expression,
 } from 'node-basic-lang';
 const host: Host = {
   write(text: string) {
@@ -144,9 +148,34 @@ for (const line of program.lines) {
   }
 }
 evaluator.reset();
+const arrayProgram = parseProgram('10 DIM BOARD(1,2)\n20 BOARD(1,2)=7');
+const dimension = arrayProgram.lines[0].statement;
+if (dimension.type === 'DimStatement') {
+  const declarations: readonly ArrayDeclaration[] = dimension.declarations;
+  evaluator.reset(declarations);
+}
+const arrayAssignment = arrayProgram.lines[1].statement;
+if (arrayAssignment.type === 'LetStatement') {
+  const target: AssignmentTarget = arrayAssignment.target;
+  evaluator.assign(target, 7);
+  if (target.type === 'ArrayReference') {
+    const indexExpression: Expression = target.indices[0];
+    void indexExpression;
+  }
+}
+const arraySnapshots: readonly ArraySnapshot[] = basic.arrays;
+const evaluatorArrays: readonly ArraySnapshot[] = evaluator.snapshotArrays();
+void evaluatorArrays;
 
 // These rejected assignments are part of the public contract. A missing error
 // makes TypeScript report an unused @ts-expect-error directive.
+// @ts-expect-error Array observations cannot alter stored values.
+arraySnapshots[0].values[0] = 1;
+// @ts-expect-error Array bounds are immutable.
+arraySnapshots[0].bounds[0] = 2;
+// @ts-expect-error Scalars do not acquire array-valued BASIC values.
+const invalidArrayValue: BasicValue = [1, 2];
+void invalidArrayValue;
 // @ts-expect-error Unsupported historical profiles are not public choices.
 new Basic(host, {dialect: 'basic-plus-1972'});
 // @ts-expect-error Parser options use the same supported dialect set.

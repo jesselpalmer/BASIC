@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
+import {runArrayAcceptance} from './array-acceptance.ts';
 import type * as PublicApi from '../src/index.ts';
 import type {GraphicsCommand, Host, LogicalKey} from '../src/index.ts';
 
@@ -22,6 +23,7 @@ export const libraryAcceptanceCases = [
   'unchanged 23 Matches loss/replay path and explicit native RNG limit',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
+  'explicit arrays execute board moves, enforce bounds, and isolate fresh runs',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -226,6 +228,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       assert.deepEqual(output, ['4\n', '4\n']);
       assert.equal(Reflect.set(basic, 'dialect', 'basic-plus-1972'), false);
     },
+  );
+  await check('explicit arrays execute board moves, enforce bounds, and isolate fresh runs', () =>
+    runArrayAcceptance(
+      api,
+      readFileSync(new URL('./package/fixtures/arrays/board.bas', import.meta.url), 'utf8'),
+    ),
   );
   await check('public evaluator values and diagnostics', () => {
     const evaluator = new api.Evaluator({random: () => 0.41});

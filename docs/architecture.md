@@ -32,6 +32,8 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
 | `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.                |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
+| `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
+| `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
 | `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
 | `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                             |
 | `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization. |

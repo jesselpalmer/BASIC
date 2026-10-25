@@ -81,13 +81,13 @@ Versioning follows semantic compatibility for both programs and consumers:
   requiring a new callback on complete structural hosts, or extending a public
   closed AST/discriminated union in a way that breaks exhaustive consumers
   requires a major version. An explicitly selected dialect can provide
-  incompatible semantics separately. The current snapshot has no selection
-  option; [design #116](https://github.com/jesselpalmer/BASIC/issues/116) must
+  incompatible semantics separately. Explicit language options currently accept
+  only native; [design #116](https://github.com/jesselpalmer/BASIC/issues/116) must
   settle profiles, public types and the final reserved-name policy before 1.0.
 
-Arrays, subroutines, required string/data/control-flow features and verified
-classic profiles are now explicit 1.0 blockers. They are not implemented by this
-planning update. Sound and a play-only exporter remain optional unless a verified
+Explicit [native arrays](arrays.md) are implemented. Historical array policies,
+subroutines, required string/data/control-flow features and verified classic
+profiles remain explicit 1.0 blockers. Sound and a play-only exporter remain optional unless a verified
 corpus dependency changes that decision. #109 records NOT READY until a new
 candidate meets the expanded gates; earlier candidate archives are historical.
 

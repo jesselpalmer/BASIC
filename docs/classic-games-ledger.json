@@ -44,7 +44,26 @@
         "required-features",
         "behavioral-acceptance"
       ],
-      "reviewRecord": "classic-source-review.md#1check"
+      "reviewRecord": "classic-source-review.md#1check",
+      "nativeFeatureEvidence": {
+        "kind": "independently-authored-feature-oracle",
+        "fixture": "scripts/package/fixtures/arrays/board.bas",
+        "scope": "Native arrays: 48-piece board initialization, illegal 1-to-2 leaves 48, legal 1-to-19 clears 1/10 and sets 19 leaving 47; clean reruns. Not the raw or corrected historical listing; no full game pass.",
+        "surfaces": [
+          "direct-library",
+          "installed-esm",
+          "installed-commonjs",
+          "installed-cli",
+          "browser-static"
+        ],
+        "remainingBlockers": [
+          "PRINT USING",
+          "adjacent PRINT items",
+          "historical formatting",
+          "dialect certification",
+          "full raw/corrected game acceptance"
+        ]
+      }
     },
     {
       "file": "23mtch.bas",

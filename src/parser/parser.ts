@@ -159,7 +159,15 @@ class Parser {
     }
     if (command.type === 'IDENTIFIER') {
       const following = this.tokens[this.index + 1];
-      if (following.type === 'OPERATOR' && following.value === '=') {
+      // Like GO, DIM remains an ordinary native name outside this statement form.
+      if (command.value === 'DIM' && following.type === 'IDENTIFIER') {
+        this.take();
+        return this.dimension(command);
+      }
+      if (
+        (following.type === 'OPERATOR' && following.value === '=') ||
+        (following.type === 'PUNCTUATION' && following.value === '(')
+      ) {
         this.take();
         return this.assignment(command, command);
       }
@@ -280,10 +288,70 @@ class Parser {
   }
 
   assignment(command: Token, name: TokenOf<'IDENTIFIER'>): NodeOf<'LetStatement'> {
-    const target = this.node('Variable', name, name, {name: name.value});
+    const target = this.reference(name);
     this.expect('OPERATOR', '=', 'Expected = after the variable name');
     const expression = this.expression();
     return this.node('LetStatement', command, expression, {target, expression});
+  }
+
+  dimension(command: Token): NodeOf<'DimStatement'> {
+    const declarations: NodeOf<'ArrayDeclaration'>[] = [];
+    for (;;) {
+      const name = this.expect('IDENTIFIER', undefined, 'Expected an array name after DIM');
+      this.expect('PUNCTUATION', '(', 'Expected ( after the array name');
+      const bounds: NodeOf<'NumberLiteral'>[] = [];
+      for (;;) {
+        const bound = this.peek();
+        if (
+          bound.type !== 'NUMBER' ||
+          !/^\d+$/.test(bound.raw) ||
+          !Number.isSafeInteger(bound.value)
+        ) {
+          this.fail(
+            'INVALID_DIMENSION',
+            'Expected a nonnegative safe integer literal bound',
+            bound,
+          );
+        }
+        this.take();
+        bounds.push(this.node('NumberLiteral', bound, bound, {value: bound.value, raw: bound.raw}));
+        if (!this.at('PUNCTUATION', ',')) break;
+        if (bounds.length === 2)
+          this.fail('ARRAY_RANK_MISMATCH', 'Arrays support one or two dimensions');
+        this.take();
+      }
+      const close = this.expect('PUNCTUATION', ')', 'Expected closing ) after array bounds');
+      declarations.push(
+        this.node('ArrayDeclaration', name, close, {
+          name: name.value,
+          nameLocation: this.location(name),
+          bounds,
+        }),
+      );
+      if (!this.at('PUNCTUATION', ',')) break;
+      this.take();
+    }
+    return this.node('DimStatement', command, declarations[declarations.length - 1], {
+      declarations,
+    });
+  }
+
+  reference(name: TokenOf<'IDENTIFIER'>): NodeOf<'Variable'> | NodeOf<'ArrayReference'> {
+    if (!this.at('PUNCTUATION', '(')) return this.node('Variable', name, name, {name: name.value});
+    const open = this.take();
+    return this.nested(open, () => {
+      const indices: Expression[] = [this.expression()];
+      if (this.at('PUNCTUATION', ',')) {
+        this.take();
+        indices.push(this.expression());
+      }
+      const close = this.expect('PUNCTUATION', ')', 'Expected closing ) after array indices');
+      return this.node('ArrayReference', name, close, {
+        name: name.value,
+        nameLocation: this.location(name),
+        indices,
+      });
+    });
   }
 
   goto(command: Token): NodeOf<'GotoStatement'> {
@@ -379,10 +447,7 @@ class Parser {
     }
     if (token.type === 'IDENTIFIER') {
       this.take();
-      if (this.at('PUNCTUATION', '(')) {
-        this.fail('UNKNOWN_FUNCTION', `Unknown function ${token.value}`, token);
-      }
-      return this.node('Variable', token, token, {name: token.value});
+      return this.reference(token);
     }
     if (token.type === 'KEYWORD' && functions.has(token.value)) {
       return this.call();

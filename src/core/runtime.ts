@@ -24,6 +24,7 @@ import type {
   RunStatus,
   SourceOptions,
   VariableSnapshot,
+  ArraySnapshot,
   NodeOf,
 } from './types.ts';
 
@@ -72,6 +73,10 @@ export default class Basic {
     return this.#evaluator.snapshotVariables();
   }
 
+  get arrays(): readonly ArraySnapshot[] {
+    return this.#evaluator.snapshotArrays();
+  }
+
   get state(): RunResult {
     const active = this.#status === 'ready' || this.#status === 'running';
     return Object.freeze({
@@ -98,7 +103,10 @@ export default class Basic {
     this.#usedLabels.clear();
     try {
       // A failed candidate leaves both the previous snapshot and its tables intact.
-      if (program !== undefined) this.#prepared = prepareProgram(program, this.#dialect);
+      const candidate =
+        program === undefined ? this.#prepared : prepareProgram(program, this.#dialect);
+      this.#evaluator.reset(candidate.arrayDeclarations);
+      this.#prepared = candidate;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     } catch (error) {
       this.#recordFailure(error);
@@ -457,14 +465,15 @@ export default class Basic {
     try {
       if (
         this.#immediate &&
-        (statement.type === 'IfStatement' ||
+        (statement.type === 'DimStatement' ||
+          statement.type === 'IfStatement' ||
           statement.type === 'GotoStatement' ||
           statement.type === 'ForStatement' ||
           statement.type === 'NextStatement')
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'IF, GOTO, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, IF, GOTO, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
@@ -517,6 +526,7 @@ export default class Basic {
           this.#callHost('clear', line);
           break;
         case 'RemStatement':
+        case 'DimStatement':
           break;
         case 'EndStatement':
           this.#halt();
