@@ -32,12 +32,12 @@ or provide a program counter. Those belong to the execution loop.
 
 ## API and values
 
-- `new Evaluator(host = {})` accepts an optional `random(): number` callback,
+- `new Evaluator(host = {})` accepts optional `random`, `readKey`, and `keyDown` callbacks,
   using the same binding behavior as `createHost`. Methods retain their host
   receiver. The default random source is `Math.random`.
 - `evaluate(expression): BasicValue` returns a finite number or a string. It
   reads this evaluator's variables without changing them or mutating the tree.
-  `RND()` consumes the host's random sequence. Traversal is iterative, so long
+  `RND()` consumes the host's random sequence; `INKEY$()` consumes one queued key. Traversal is iterative, so long
   flat expressions do not consume the JavaScript call stack.
 - `assign(target, value): void` takes a parsed `Variable` node and a number or
   string. Names are case-insensitive. A final `$` requires a string; all other
@@ -74,6 +74,10 @@ Numbers otherwise follow JavaScript's IEEE 754 arithmetic.
   `< 1`. Invalid results fail rather than being clamped or retried. A thrown
   host error is wrapped with the function's source location and retained as
   `error.cause`.
+
+- `INKEY$()` returns one queued logical key or the empty string.
+- `KEYDOWN(name)` takes a string and returns numeric 1 or 0 for the held key.
+  Both require optional host capabilities; see [keyboard input](keyboard.md).
 
 Arity is checked before evaluating any arguments, so `ABS(RND(), RND())` fails
 without consuming randomness. A failed evaluation leaves variables usable for

@@ -75,6 +75,12 @@ either program. Drawing requires a graphics host: these examples report
 `GRAPHICS_UNAVAILABLE` in the terminal. [WAIT](../docs/wait.md) itself also works
 in text-only Bun programs, with approximate timing and cancellable timers.
 
+Choose **Arrow-key marker** for [move.bas](move.bas). Run it, then click or
+Tab to the canvas and hold the arrow keys. Its radius-four marker stays inside
+the logical surface. Stop or Escape ends it; Run starts it at the center.
+[Keyboard input](../docs/keyboard.md) requires a browser or custom library host;
+the terminal reports `KEYBOARD_UNAVAILABLE` for keyboard calls.
+
 ## File mode and the stored-program editor
 
 `bun start` without a filename opens the stored-program editor. Enter numbered

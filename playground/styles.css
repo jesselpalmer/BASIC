@@ -612,3 +612,14 @@ select {
     padding: 12px;
   }
 }
+
+#graphics:focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+.graphics-help {
+  margin: 16px;
+  color: #667269;
+  font-size: 12px;
+  line-height: 1.6;
+}

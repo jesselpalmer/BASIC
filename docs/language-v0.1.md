@@ -10,6 +10,8 @@ and graphics programs. It does not claim QBasic, GW-BASIC, or another BASIC's
 compatibility.
 The terminal, embeddable API, and browser use the same parser and runtime.
 Graphics require an optional drawing capability provided by the browser host.
+Keyboard functions similarly require queued or held-key host capabilities;
+the browser captures keys only on its focused game surface.
 
 ## Programs and source text
 
@@ -84,6 +86,13 @@ zero and every non-finite numeric result are errors. No JavaScript `eval` is use
 | `ABS(x)` | One numeric argument; returns its absolute value.                                                      |
 | `INT(x)` | One numeric argument; floors toward negative infinity. `INT(-1.6)` is `-2`.                            |
 | `RND()`  | No arguments; returns a number `>= 0` and `< 1`. The host supplies randomness so tests can control it. |
+
+`INKEY$()` consumes one queued logical key or returns `""`;
+`KEYDOWN(name)` returns numeric 1 or 0 for a held logical key. The latter
+requires a string name, case-insensitively from `A`..`Z`, `0`..`9`, `UP`, `DOWN`,
+`LEFT`, `RIGHT`, `ENTER`, and `SPACE`. Escape remains Stop. See the
+[keyboard contract](keyboard.md) for focus, queue limits, host capabilities
+and diagnostics. Both functions are reserved and require keyboard support.
 
 Parentheses are required in all function calls. Unknown functions, wrong arity,
 and wrong argument types are errors. The runtime starts each run with fresh

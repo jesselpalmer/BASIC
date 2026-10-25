@@ -1,4 +1,4 @@
-import type {ParsedLine, Program} from '../core/types.ts';
+import type {NodeOf, ParsedLine, Program, Statement} from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
@@ -27,6 +27,7 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
     labels.add(line.label);
   }
   for (const {statement} of lines) {
+    validateKeyboardArguments(statement);
     if (statement.type === 'WaitStatement' && expressionType(statement.duration) === 'string') {
       throw new BasicSyntaxError(
         'TYPE_MISMATCH',
@@ -122,4 +123,32 @@ export function freezeTree<T>(root: T): T {
     Object.freeze(value);
   }
   return root;
+}
+
+// Inspect every expression position without executing it. Traversal includes
+// nested calls and remains iterative for the same flat trees as evaluation.
+function validateKeyboardArguments(statement: Statement): void {
+  const pending: unknown[] = [statement];
+  const visited = new Set<object>();
+  while (pending.length) {
+    const value = pending.pop();
+    if (value === null || typeof value !== 'object' || visited.has(value)) continue;
+    visited.add(value);
+    if ('type' in value && value.type === 'CallExpression') {
+      const call = value as NodeOf<'CallExpression'>;
+      if (
+        call.name === 'KEYDOWN' &&
+        call.arguments.length === 1 &&
+        expressionType(call.arguments[0]) === 'number'
+      ) {
+        throw new BasicSyntaxError(
+          'TYPE_MISMATCH',
+          'KEYDOWN requires a string key name',
+          call.arguments[0].location.start,
+          call.location.label,
+        );
+      }
+    }
+    for (const child of Object.values(value)) pending.push(child);
+  }
 }

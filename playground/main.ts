@@ -1,5 +1,6 @@
 import {BrowserSession, type BrowserState} from '../src/browser/session.ts';
 import {Transcript} from '../src/browser/transcript.ts';
+import {GameKeyboard} from '../src/browser/game_keyboard.ts';
 import {createCanvasRenderer, GRAPHICS_WIDTH, GRAPHICS_HEIGHT} from '../src/browser/graphics.ts';
 import {
   BrowserDocument,
@@ -11,6 +12,7 @@ import timesTable from '../examples/times-table.bas' with {type: 'text'};
 import guess from '../examples/guess.bas' with {type: 'text'};
 import picture from '../examples/picture.bas' with {type: 'text'};
 import bounce from '../examples/bounce.bas' with {type: 'text'};
+import move from '../examples/move.bas' with {type: 'text'};
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -52,10 +54,18 @@ const examples: Readonly<Record<string, string>> = {
   guess,
   picture,
   bounce,
+  move,
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
 canvas.height = GRAPHICS_HEIGHT;
+const keyboard = new GameKeyboard({
+  surface: canvas,
+  window,
+  document,
+  hasFocus: () => document.hasFocus() && document.activeElement === canvas,
+  isHidden: () => document.hidden,
+});
 const context = canvas.getContext('2d');
 const graphics = context ? createCanvasRenderer(context) : null;
 element('graphics-unavailable').hidden = graphics !== null;
@@ -205,6 +215,7 @@ function renderInspection(state: BrowserState): void {
 }
 
 function stateChanged(state: BrowserState): void {
+  keyboard.update(state);
   inspectionState = state;
   if (status.textContent !== statusLabels[state.status])
     status.textContent = statusLabels[state.status];
@@ -239,6 +250,8 @@ const session = new BrowserSession({
   write,
   clear,
   present,
+  readKey: () => keyboard.readKey(),
+  keyDown: (key) => keyboard.keyDown(key),
   draw: graphics
     ? (command) => {
         graphics.draw(command);
@@ -259,6 +272,7 @@ function runProgram(paused = false): void {
   const request = ++runRequest;
   void session.run(documentModel.source, {paused}).catch((error: unknown) => {
     if (request !== runRequest) return;
+    keyboard.dispose();
     diagnostic.textContent = `Playground error: ${error instanceof Error ? error.message : String(error)}`;
     diagnostic.hidden = false;
   });

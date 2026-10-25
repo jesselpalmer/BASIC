@@ -19,7 +19,7 @@ import {freezeTree, validateProgram} from './program_validation.ts';
 export {validateProgram} from './program_validation.ts';
 import {tokenize} from './tokenizer.ts';
 
-const functions = new Set(['ABS', 'INT', 'RND']);
+const functions = new Set(['ABS', 'INT', 'RND', 'INKEY$', 'KEYDOWN']);
 const maxNesting = 256;
 const comparisonOperators = new Set(['=', '<>', '<', '<=', '>', '>=']);
 

@@ -9,6 +9,11 @@ which uses the [graphics statements](graphics.md) and 16-color canvas.
 surface using cancellable [WAIT timing](wait.md). Stop or Escape ends it;
 rerunning resets its position and velocity.
 
+**Arrow-key marker** loads [move.bas](../examples/move.bas). Run it, then click
+the graphics canvas or reach it with Tab and hold an arrow key. Leaving the
+canvas, pausing, INPUT, or ending a run clears queued and held keys. Escape
+remains Stop. See [keyboard input](keyboard.md).
+
 From a checkout, run `bun install --frozen-lockfile`, `bun run build:playground`,
 then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
 `dist/playground` contains only static files and can be served by another static
