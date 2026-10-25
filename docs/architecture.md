@@ -36,6 +36,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
+| `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                         |
 | `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
 | `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                             |
 | `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization. |
@@ -66,6 +67,10 @@ Callees own fresh loop contexts; RETURN drops callee loops and restores caller
 frames while scalar/array values remain shared. An ownership set enforces native
 active-loop-variable rules across suspended calls. Terminal paths clear all
 call/loop frames. See [subroutines](subroutines.md) for limits and guards.
+Prepared DATA literals belong to the immutable sorted snapshot; a fresh
+DataReader owns the cursor for one execution. Branches and call frames share
+that reader. READ reuses evaluator assignment, advancing after each successful
+target; RESTORE rewinds only the cursor. See [data](data-statements.md).
 
 The Program, its Lines, prepared indexes and runtime/evaluator instance share an
 explicit immutable dialect. The public host-first constructors retain their

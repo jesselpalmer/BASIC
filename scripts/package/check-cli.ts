@@ -63,6 +63,33 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(subroutine.stdout, 'take=4:0:3\nnested=4\n');
   assert.equal(subroutine.stderr, '');
+  const data = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/data/probe.bas')],
+  });
+  assert.equal(data.stdout, 'corners=1:43:4:\\AFISH\nreset=1:49\n');
+  assert.equal(data.stderr, '');
+  const dataSource = '10 READ N,S$:PRINT N;S$:RESTORE:READ N:PRINT N:END\n20 DATA -2,"a,:b"';
+  const storedData = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: dataSource + '\nSAVE "data-saved.bas"\nRUN\nRUN\nEXIT\n',
+  });
+  assert.equal(storedData.stderr, '');
+  assert.equal(readFileSync(join(consumer, 'data-saved.bas'), 'utf8'), dataSource);
+  assert.equal(storedData.stdout.split('-2a,:b\n-2\n').length - 1, 2);
+  const loadedData = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: 'LOAD "data-saved.bas"\nLIST\nRUN\nEXIT\n',
+  });
+  assert.equal(loadedData.stderr, '');
+  assert.ok(loadedData.stdout.includes(dataSource));
+  assert.ok(loadedData.stdout.includes('-2a,:b\n-2\n'));
+  writeFileSync(file, '10 READ A,B\n20 DATA 1');
+  const exhausted = runProcess({cwd: consumer, args: [executable, file], expectedStatus: 1});
+  assert.equal(exhausted.stdout, '');
+  assert.match(exhausted.stderr, /exhausted the DATA pool/);
   const storedCalls = runProcess({
     cwd: consumer,
     args: [executable],

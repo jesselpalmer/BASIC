@@ -177,6 +177,13 @@ freeze the public closed AST/reserved-word/host contract before these decisions.
 
 ## Release evidence
 
+The [native DATA/READ/RESTORE slice](data-statements.md) now provides ordered
+literal pools, scalar/array target lists and a fresh run-owned cursor shared
+across calls, with bounded preparation and explicit exhaustion. Its authored
+probe retains unchanged QUBIC/ANIMAL DATA lines. This is partial #122 progress;
+historical coercion/unquoted strings/profile rules and whole-game behavior remain
+pending. No AWARI data is supplied or inferred, and #109 remains NOT READY.
+
 The corpus gate must verify behavior through direct library use, installed
 ESM/CommonJS and public types, file/terminal CLI round trips, and actual browser
 import/run/input/export/reload. Run the browser against the exact extracted

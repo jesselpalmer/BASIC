@@ -279,3 +279,38 @@ if (returnStatement?.type === 'ReturnStatement') {
   const kind: 'ReturnStatement' = returnStatement.type;
   void kind;
 }
+
+const dataStatement = parseLine('10 DATA 1,"x"')?.statement;
+if (dataStatement?.type === 'DataStatement') {
+  const value: BasicValue = dataStatement.items[0].value;
+  void value;
+  const invalidData: (typeof dataStatement.items)[number] = {
+    // @ts-expect-error Data items retain literal types, not arbitrary expressions.
+    type: 'Variable',
+    name: 'A',
+    location: dataStatement.location,
+  };
+  void invalidData;
+  // @ts-expect-error Prepared data lists are immutable.
+  dataStatement.items[0] = dataStatement.items[1];
+}
+const readStatement = parseLine('10 READ A,S$(0)')?.statement;
+if (readStatement?.type === 'ReadStatement') {
+  const target: AssignmentTarget = readStatement.targets[0];
+  void target;
+  const invalidRead: (typeof readStatement.targets)[number] = {
+    // @ts-expect-error READ accepts assignment targets, not values.
+    type: 'NumberLiteral',
+    value: 1,
+    raw: '1',
+    location: readStatement.location,
+  };
+  void invalidRead;
+  // @ts-expect-error Read targets belong to the immutable snapshot.
+  readStatement.targets[0] = target;
+}
+const restoreStatement = parseLine('10 RESTORE')?.statement;
+if (restoreStatement?.type === 'RestoreStatement') {
+  const kind: 'RestoreStatement' = restoreStatement.type;
+  void kind;
+}

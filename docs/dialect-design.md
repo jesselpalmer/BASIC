@@ -164,6 +164,12 @@ Snapshots of arrays must be detached, bounded views with dimensions/count and an
 explicit truncation indicator. Do not copy a huge matrix at every statement or
 smuggle arrays into the existing scalar VariableSnapshot value type.
 
+The first [native data contract](data-statements.md) adds literal DATA pools,
+READ scalar/array lists and bare RESTORE without reserving existing names.
+Native typed assignment remains strict. BASIC-PLUS's target-dependent ASCII
+conversion, unquoted data and profile-specific RESTORE remain separate work;
+native feature probes do not certify those historical semantics.
+
 Existing Host callbacks remain sufficient for grammar/math changes. Add file,
 clock/randomization or terminal capabilities only for concrete verified needs;
 all are bounded and fail clearly when absent. A PRINT cursor is run-owned logical

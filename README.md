@@ -12,9 +12,12 @@ keyboard controls, with a complete Pong game written in BASIC.
 See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The [language reference](docs/language-v1.md) describes current native behavior;
-explicit native numeric/string arrays, colon sequences and literal GOSUB/RETURN
+explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
+and typed DATA/READ/RESTORE
 are supported; historical profiles remain pending. See the [array contract](docs/arrays.md)
 and [subroutine contract](docs/subroutines.md) for native limits and semantics.
+The [data contract](docs/data-statements.md) covers ordered pools, target lists,
+RESTORE and explicit exhaustion errors.
 The new scope does not claim general QBasic or GW-BASIC compatibility.
 Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
 these native extensions preserve existing names and execution semantics. Native PRINT

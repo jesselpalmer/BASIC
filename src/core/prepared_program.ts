@@ -3,6 +3,7 @@ import {pairLoops} from './loops.ts';
 import {validateDialect} from './dialect.ts';
 import {arrayDeclarations} from './array_declarations.ts';
 import {programInstructions} from './instructions.ts';
+import {dataItems} from './data.ts';
 import type {Instruction} from './instructions.ts';
 import type {LoopPair} from './loops.ts';
 import type {ArrayDeclaration, Dialect, Program} from './types.ts';
@@ -12,6 +13,7 @@ export interface PreparedProgram {
   readonly program: Program;
   readonly instructions: readonly Instruction[];
   readonly arrayDeclarations: readonly ArrayDeclaration[];
+  readonly dataItems: ReturnType<typeof dataItems>;
   readonly labelIndices: ReadonlyMap<number, number>;
   readonly loopPairs: readonly LoopPair[];
   readonly pairsByFor: ReadonlyMap<number, LoopPair>;
@@ -30,6 +32,7 @@ export function prepareProgram(source: string | Program, dialect: Dialect): Prep
     program,
     instructions,
     arrayDeclarations: arrayDeclarations(program.lines),
+    dataItems: dataItems(program.lines),
     labelIndices: new Map(
       instructions.flatMap((instruction, index) =>
         instruction.ordinal === 0 ? [[instruction.label, index] as const] : [],
