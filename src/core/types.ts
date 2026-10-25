@@ -29,7 +29,7 @@ export interface InputOptions {
 /** Resolve to resume execution; yield to a host task and release owned resources on abort. */
 export type ExecutionScheduler = (signal: AbortSignal) => Promise<void>;
 export interface RunOptions extends InputOptions {
-  /** Nonnegative safe integer; counts executed statements, including INPUT and END. */
+  /** Nonnegative safe integer; counts executed statements, including INPUT, WAIT, and END. */
   instructionLimit?: number;
   /** Positive safe integer; statements per batch (default 256). */
   yieldEvery?: number;
@@ -62,6 +62,8 @@ export interface Host {
   clear(): void;
   /** Optional graphics capability; clip primitives to the logical surface in bounded work. */
   draw?(command: GraphicsCommand): void;
+  /** Suspend for a normalized duration; honor cancellation to release owned timers. */
+  wait(milliseconds: number, options?: InputOptions): Promise<void>;
   /** Return untrimmed text, or null at EOF. Honor the signal to release input resources. */
   readLine(prompt?: string, options?: InputOptions): Promise<string | null>;
   /** Return a finite number in [0, 1). */
@@ -154,6 +156,7 @@ export interface NodeFields {
     readonly trailingSemicolon: boolean;
   };
   RemStatement: {readonly text: string};
+  WaitStatement: {readonly duration: Expression};
   ColorStatement: {readonly color: Expression};
   PsetStatement: {readonly x: Expression; readonly y: Expression};
   LineStatement: {
@@ -192,6 +195,7 @@ export type Statement = Nodes<
   | 'NextStatement'
   | 'PrintStatement'
   | 'RemStatement'
+  | 'WaitStatement'
   | 'ColorStatement'
   | 'PsetStatement'
   | 'LineStatement'

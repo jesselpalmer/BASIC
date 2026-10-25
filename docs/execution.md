@@ -31,7 +31,7 @@ The exported `RunOptions` extends `InputOptions`:
 
 | Option             | Default                | Contract                                                                         |
 | ------------------ | ---------------------- | -------------------------------------------------------------------------------- |
-| `signal`           | absent                 | Abort the run during computation, scheduling, or INPUT.                          |
+| `signal`           | absent                 | Abort the run during computation, scheduling, INPUT, or WAIT.                    |
 | `instructionLimit` | unlimited              | Nonnegative safe integer; reject before executing a statement beyond this count. |
 | `yieldEvery`       | `256`                  | Positive safe integer; number of statements per batch.                           |
 | `scheduler`        | cancellable timer task | `(signal: AbortSignal) => Promise<void>`; resolve to resume the next batch.      |
@@ -43,7 +43,7 @@ but does not let host events run. No yield is scheduled after END, the last
 statement, or an exhausted instruction budget. Schedulers run between statements; they can never interrupt a single
 expression evaluation or a synchronous host callback.
 
-Every executed statement counts once, including REM, END, and INPUT. Numeric
+Every executed statement counts once, including REM, END, INPUT, and WAIT. Numeric
 INPUT retries, time spent waiting, and scheduler yields do not consume additional
 instructions. A zero budget permits an empty program and stops before the first
 statement of a nonempty program. A finite program using exactly its budget
@@ -57,7 +57,7 @@ Non-Error failures are normalized. Callers can recover with a fresh run.
 
 ## Cancellation and replacement
 
-`basic.cancel()` halts execution and aborts pending input or scheduling. The old
+`basic.cancel()` halts execution and aborts pending input, WAIT, or scheduling. The old
 `runAsync()` rejects with `AbortError`; attach a rejection handler when starting
 work that may be cancelled. External abort has the same halted result.
 Cancellation settles even if a custom scheduler ignores its signal or never
@@ -81,3 +81,11 @@ Synchronous `run()` cannot yield to timers/signals and has no instruction-limit
 option. Use `runAsync()` for untrusted or possibly infinite programs, with an
 instruction budget when termination is required. This is cooperative scheduling,
 not a sandbox or a hard real-time responsiveness guarantee.
+
+`WAIT milliseconds` suspends within one statement using the host's cancellable
+`wait` capability; `scheduler` still controls batch boundaries independently.
+Completing WAIT starts a fresh batch, since that statement already yielded.
+It does not reset the total instruction count or bypass its limit.
+The default WAIT timer yields even for zero. Positive fractions round upward;
+durations outside 0..2147483647 are rejected before a timer starts. See
+[WAIT and animation](wait.md) for rendering and host behavior.

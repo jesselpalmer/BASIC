@@ -61,8 +61,8 @@ Numeric validation and retry messages come from the core; string input retains
 spaces. A valid submission changes status to `running` before execution resumes, unless
 the debugger has paused the pending request.
 
-`stop()` cancels pending input or execution, publishes `stopped`, and lets the
-run promise settle without requiring input or an injected scheduler to cooperate.
+`stop()` cancels pending input, WAIT, or execution, publishes `stopped`, and lets the
+run promise settle without requiring input, an injected timer, or a scheduler to cooperate.
 Stopping an idle or terminal session is harmless. A replacement run explicitly
 owns all subsequent view effects; late work from its predecessor cannot change
 output or state. There are no persistent external listeners to dispose: each
@@ -77,12 +77,19 @@ View exceptions reject the affected run with the original exception and leave an
 Handle the run promise in the application. A callback failure while submitting
 also throws to the submit caller. A later run can recover with a working view.
 
-Optional constructor options are `random`, `scheduler`, and `yieldEvery`, useful
+Optional constructor options are `random`, `scheduler`, `yieldEvery`, and `wait`, useful
 for deterministic testing. Defaults use `Math.random` and the core's cancellable
 browser timer scheduler, yielding every 256 statements. An already resolved
 promise used as a scheduler does not yield to browser input events; production
 hosts should retain the default or provide a real task boundary. This adapter
 does not impose a statement limit: a busy BASIC loop continues until stopped.
+
+An optional synchronous `present()` view callback flushes buffered output before
+each WAIT timer starts. It has the same receiver and reentrancy rules as other
+view callbacks. WAIT keeps browser status `running`, without requesting input;
+its snapshots identify the waiting statement. The `wait(milliseconds, {signal})`
+option controls statement timing independently of the batch scheduler. The
+default is the shared cancellable timer. See [WAIT and animation](wait.md).
 
 The adapter tests execute the repository's greeting, times-table, and guessing
 examples through this shared path, alongside cancellation, retry, diagnostics,

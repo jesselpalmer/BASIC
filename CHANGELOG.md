@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add cooperative `WAIT` with bounded millisecond durations, cancellable host
+  timers, async stepping, and a downloadable bouncing-ball example. The browser
+  uploads the complete buffered frame before waiting; Stop and reruns release
+  pending timers.
+
 - Add Pause, Continue, Step, and read-only variable/source inspection using the
   shared runtime's statement boundary gate.
 - Add a fixed 320×200 browser canvas, 16-color palette, `COLOR`, `PSET`, `LINE`,

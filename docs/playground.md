@@ -5,6 +5,9 @@ application server. The editor starts with the real greeting example; the exampl
 picker also includes the repository's times-table and guessing-game programs.
 **A little landscape** loads the downloadable [picture example](../examples/picture.bas),
 which uses the [graphics statements](graphics.md) and 16-color canvas.
+**Bouncing ball** loads [bounce.bas](../examples/bounce.bas), which animates that
+surface using cancellable [WAIT timing](wait.md). Stop or Escape ends it;
+rerunning resets its position and velocity.
 
 From a checkout, run `bun install --frozen-lockfile`, `bun run build:playground`,
 then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
@@ -28,7 +31,9 @@ source line and column, and the BASIC line number when available.
 
 Use **Step** to start a fresh program one statement at a time. **Pause** stops at
 the next statement boundary; **Continue** resumes the same run. A stepped INPUT
-still needs a valid answer before it completes. The **Inspect execution** panel
+still needs a valid answer before it completes. A stepped WAIT completes its
+timer before pausing at the next statement; Continue does not restart the timer.
+The **Inspect execution** panel
 highlights the next BASIC line in the fixed running source and shows read-only
 variable values. It displays up to 200 variables with a visible limit notice;
 the runtime's snapshot API retains the complete set. See the

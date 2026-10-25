@@ -22,18 +22,18 @@ are implementation modules, not additional public package entrypoints. See the
 
 ## Source and execution
 
-| Owner                                 | Responsibility                                                                                                      |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                      |
-| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry. |
-| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                        |
-| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                |
-| `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                              |
-| `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.               |
-| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                    |
-| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                       |
-| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                            |
-| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules and scheduling policy, with operation-specific error normalization.                         |
+| Owner                                 | Responsibility                                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                       |
+| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.  |
+| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                         |
+| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                 |
+| `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                               |
+| `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.                |
+| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
+| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
+| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                             |
+| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization. |
 
 Parsing a line permits incomplete forward targets and loop pairs for editing.
 Validating a complete program checks every statement before effects, including

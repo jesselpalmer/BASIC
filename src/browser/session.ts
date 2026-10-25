@@ -1,10 +1,11 @@
 import Basic from '../core/runtime.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
-import {defaultScheduler} from '../core/scheduling.ts';
+import {defaultScheduler, defaultWait} from '../core/scheduling.ts';
 import type {
   Diagnostic,
   ExecutionScheduler,
   GraphicsCommand,
+  Host,
   Location,
   VariableSnapshot,
 } from '../core/types.ts';
@@ -14,7 +15,7 @@ export type BrowserStatus =
 
 export interface BrowserState {
   readonly status: BrowserStatus;
-  /** True while execution is gated, including a single step awaiting INPUT. */
+  /** True while execution is gated, including a single step awaiting INPUT or WAIT. */
   readonly isPaused: boolean;
   /** The exact source snapshot used by this run, independent of editor changes. */
   readonly source: string;
@@ -28,6 +29,8 @@ export interface BrowserView {
   write(text: string): void;
   clear(): void;
   draw?(command: GraphicsCommand): void;
+  /** Present buffered text and drawing synchronously before a WAIT timer starts. */
+  present?(): void;
   /** Keep this bound submit callback with the displayed prompt; stale calls return false. */
   requestInput(prompt: string, submit: (text: string) => boolean): void;
   stateChanged(state: BrowserState): void;
@@ -37,6 +40,8 @@ export interface BrowserSessionOptions {
   random?: () => number;
   scheduler?: ExecutionScheduler;
   yieldEvery?: number;
+  /** Override timing for a controlled host; honor cancellation and yield to a task. */
+  wait?: Host['wait'];
 }
 
 export interface BrowserRunOptions {
@@ -86,12 +91,13 @@ export class BrowserSession {
 
   async run(source: string, options: BrowserRunOptions = {}): Promise<BrowserState> {
     this.#assertOutsideCallback();
-    const {yieldEvery = 256, scheduler = defaultScheduler} = this.#options;
+    const {yieldEvery = 256, scheduler = defaultScheduler, wait = defaultWait} = this.#options;
     let optionError: TypeError | null = null;
     if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
       optionError = new TypeError('yieldEvery must be a positive safe integer');
     else if (typeof scheduler !== 'function')
       optionError = new TypeError('scheduler must be a function');
+    else if (typeof wait !== 'function') optionError = new TypeError('wait must be a function');
     if (optionError) {
       if (!this.#execution) this.#state = Object.freeze({...this.#state, status: 'error', source});
       throw optionError;
@@ -105,6 +111,11 @@ export class BrowserSession {
         readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
         random: this.#options.random,
         draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
+        wait: (milliseconds, options) => {
+          this.#publish(execution, 'running');
+          this.#callView(execution, () => this.#view.present?.());
+          return wait(milliseconds, options);
+        },
       }),
       state: Object.freeze({
         status: 'running',
@@ -169,7 +180,7 @@ export class BrowserSession {
     return this.#state;
   }
 
-  /** Pause at the next statement boundary without cancelling input or loop state. */
+  /** Pause at the next statement boundary without cancelling input, timers, or loop state. */
   pause(): BrowserState {
     this.#assertOutsideCallback();
     const execution = this.#execution;
@@ -200,7 +211,7 @@ export class BrowserSession {
     return this.#state;
   }
 
-  /** Execute one statement; INPUT completes only after a valid answer arrives. */
+  /** Execute one statement; INPUT and WAIT retain ownership until their async work completes. */
   step(): BrowserState {
     this.#assertOutsideCallback();
     const execution = this.#execution;

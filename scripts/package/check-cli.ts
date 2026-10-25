@@ -57,6 +57,10 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
   assert.equal(statements.stderr, '');
+  writeFileSync(file, '10 WAIT 0\n20 WAIT .1\n30 PRINT "waited"');
+  const waited = runProcess({cwd: consumer, args: [executable, file]});
+  assert.equal(waited.stdout, 'waited\n');
+  assert.equal(waited.stderr, '');
   for (const {example, answer, expected} of [
     {
       example: 'times-table.bas',
@@ -95,6 +99,10 @@ async function checkOpenInputAndInterrupts({
   });
   if (process.platform === 'win32') return;
   for (const {source, marker} of [
+    {
+      source: '10 PRINT "started"\n20 WAIT 2147483647\n30 PRINT "must not finish"',
+      marker: 'started\n',
+    },
     {source: '10 INPUT "Answer"; N\n20 PRINT "skipped"', marker: 'Answer? '},
     {source: '10 PRINT "started"\n20 GOTO 20\n40 PRINT "must not finish"', marker: 'started\n'},
     {
@@ -146,6 +154,16 @@ function checkFileFailures({consumer, executable, file}: CliContext): void {
       source: '10 PRINT 1/0\n20 PRINT "skipped"',
       stdout: '',
       stderr: 'Line 10, column 11: Cannot divide by zero\n',
+    },
+    {
+      source: '10 WAIT 2147483648',
+      stdout: '',
+      stderr: 'Line 10, column 9: WAIT duration must be from 0 through 2147483647 milliseconds\n',
+    },
+    {
+      source: '10 WAIT -1',
+      stdout: '',
+      stderr: 'Line 10, column 9: WAIT duration must be from 0 through 2147483647 milliseconds\n',
     },
     {
       source: '10 PSET 1,2',

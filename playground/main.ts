@@ -10,6 +10,7 @@ import greeting from '../examples/greeting.bas' with {type: 'text'};
 import timesTable from '../examples/times-table.bas' with {type: 'text'};
 import guess from '../examples/guess.bas' with {type: 'text'};
 import picture from '../examples/picture.bas' with {type: 'text'};
+import bounce from '../examples/bounce.bas' with {type: 'text'};
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -50,6 +51,7 @@ const examples: Readonly<Record<string, string>> = {
   'times-table': timesTable,
   guess,
   picture,
+  bounce,
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
@@ -133,6 +135,15 @@ function renderTranscript(): void {
   if (followsOutput) scroll.scrollTop = scroll.scrollHeight;
 }
 
+function present(): void {
+  // Cancel the queued upload: this complete frame must precede the WAIT task,
+  // including WAIT 0, rather than race the next frame's CLS and drawing.
+  if (pendingFrame !== null) {
+    cancelAnimationFrame(pendingFrame);
+    renderTranscript();
+  }
+}
+
 function write(text: string): void {
   transcript.append(text);
   // At most one pending callback and one bounded buffer, even when a program PRINTs rapidly.
@@ -158,9 +169,12 @@ const statusLabels: Record<BrowserState['status'], string> = {
 
 function renderInspection(state: BrowserState): void {
   const location =
-    state.nextLocation ?? (state.status === 'waiting' ? state.currentLocation : null);
+    state.nextLocation ??
+    (state.status === 'waiting' || state.status === 'running' || state.status === 'paused'
+      ? state.currentLocation
+      : null);
   nextLine.textContent = location
-    ? `${state.status === 'waiting' ? 'Waiting at' : 'Next:'} BASIC line ${location.label} (source line ${location.start.line})`
+    ? `${state.nextLocation ? 'Next:' : 'Waiting at'} BASIC line ${location.label} (source line ${location.start.line})`
     : state.status === 'idle'
       ? 'Run or Step a program to inspect it.'
       : 'No next statement.';
@@ -224,6 +238,7 @@ function stateChanged(state: BrowserState): void {
 const session = new BrowserSession({
   write,
   clear,
+  present,
   draw: graphics
     ? (command) => {
         graphics.draw(command);

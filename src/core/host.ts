@@ -1,3 +1,4 @@
+import {defaultWait} from './scheduling.ts';
 import type {Host} from './types.ts';
 export type {Host} from './types.ts';
 
@@ -14,6 +15,7 @@ export function createHost(overrides: Partial<Host> = {}): Host {
     write: bind('write', () => {}),
     clear: bind('clear', () => {}),
     ...(overrides.draw === undefined ? {} : {draw: bind('draw', undefined)}),
+    wait: bind('wait', defaultWait),
     readLine: bind('readLine', () =>
       Promise.reject(new Error('Input is not supported by this host')),
     ),

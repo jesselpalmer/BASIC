@@ -65,6 +65,11 @@ on screen while BASIC coordinates stay fixed. Graphics statements need a browser
 or library host with drawing support; the terminal reports an unsupported-host
 diagnostic.
 
+Choose **Bouncing ball** to animate that surface with `WAIT milliseconds`.
+Stop or Escape ends the animation; rerunning starts it fresh. WAIT also works
+in text-only Bun programs. See [timing and animation](docs/wait.md) for duration
+limits, approximate timing, cancellation, and debugger behavior.
+
 ## Installation
 
 Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript
@@ -192,6 +197,7 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `LET name = expression`                         | Assign a number, or a string to a name ending in `$`.                                                         |
 | `INPUT ["prompt";] name`                        | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
+| `WAIT milliseconds`                             | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
 | `IF left comparison right THEN line`            | Jump when one comparison is true; otherwise continue to the next line.                                        |
 | `GOTO line`                                     | Jump to an existing literal line label.                                                                       |
 | `FOR variable = start TO end [STEP expression]` | Enter an inclusive numeric loop; the default step is 1.                                                       |
@@ -260,10 +266,11 @@ answers receive a retry message. EOF during input fails with a source location;
 Ctrl+C cancels the run and returns to the interactive editor. In file mode it
 exits with code 130.
 
-For library programs with `INPUT`, use `await basic.runAsync(source, {signal})`.
+For library programs with `INPUT` or `WAIT`, use `await basic.runAsync(source, {signal})`.
 `stepAsync` and `readLineAsync` are also available, and `basic.cancel()` stops a
-pending input or a yielding run. The existing synchronous methods remain available for programs
-without input; executing `INPUT` through them reports `ASYNC_INPUT_REQUIRED`.
+pending input, WAIT, or a yielding run. The existing synchronous methods remain available for programs
+without these asynchronous statements; executing them synchronously reports
+`ASYNC_INPUT_REQUIRED` or `ASYNC_WAIT_REQUIRED`, respectively.
 The [runtime API](docs/interpreter-host.md) documents waiting, cancellation, and
 safe replacement of an active run.
 

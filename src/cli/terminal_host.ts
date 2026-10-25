@@ -1,3 +1,4 @@
+import {defaultWait} from '../core/scheduling.ts';
 import {abortError} from '../core/cancellation.ts';
 import {createInterface, cursorTo, clearScreenDown} from 'node:readline';
 import type {Interface} from 'node:readline';
@@ -39,6 +40,7 @@ export default class TerminalHost implements Host {
   write = (text: string): boolean => (this.#output ?? process.stdout).write(text);
   writeError = (text: string): boolean => (this.#errorOutput ?? process.stderr).write(text);
   random = Math.random;
+  wait = defaultWait;
   clear = (): void => {
     const stream = this.#output ?? process.stdout;
     if (stream.isTTY) {

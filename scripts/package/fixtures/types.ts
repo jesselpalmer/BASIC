@@ -23,6 +23,11 @@ const host: Host = {
     void text;
   },
   clear() {},
+  wait(milliseconds, options) {
+    void milliseconds;
+    void options?.signal;
+    return Promise.resolve();
+  },
   readLine() {
     return Promise.resolve(null);
   },
@@ -133,6 +138,9 @@ variables[0] = {name: 'N', value: 1};
 variables[0].value = 1;
 // @ts-expect-error Statement gates return void or a promise.
 void basic.runAsync(program, {beforeStatement: () => 'continue'});
+// @ts-expect-error Hosts must supply asynchronous waits.
+const invalidWaitHost: Host = {...host, wait: () => {}};
+void invalidWaitHost;
 // @ts-expect-error Hosts must supply asynchronous input.
 const invalidHost: Host = {...host, readLine: () => 'answer'};
 // @ts-expect-error BASIC has no boolean value type.

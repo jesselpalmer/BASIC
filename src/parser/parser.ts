@@ -218,6 +218,10 @@ class Parser {
         const comment = this.expect('COMMENT', undefined, 'Expected comment');
         return this.node('RemStatement', command, comment, {text: comment.value});
       }
+      case 'WAIT': {
+        const duration = this.expression();
+        return this.node('WaitStatement', command, duration, {duration});
+      }
       case 'COLOR': {
         const color = this.expression();
         return this.node('ColorStatement', command, color, {color});

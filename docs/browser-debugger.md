@@ -16,6 +16,13 @@ normally after the answer. Pausing a waiting INPUT preserves its request-bound
 submit callback; answering while paused completes that INPUT but does not execute
 the next statement. Stopping or replacing a run invalidates its old callbacks.
 
+WAIT is also one asynchronous statement. Step waits for its timer, then pauses
+before the next statement. Pause during WAIT keeps its timer running; Step can
+complete that current statement, and Continue resumes after the same timer.
+Neither command restarts the delay. Stop or replacement cancels it. Browser
+status remains `running` during a stepped WAIT; no input field appears. See
+[timing and animation](wait.md).
+
 Locations and variable observations always belong to the immutable source
 snapshot captured when the run started. Editing the source field cannot relocate
 an active run's statement. Locations retain physical lines and offsets even when
