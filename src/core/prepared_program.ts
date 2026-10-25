@@ -1,7 +1,8 @@
 import {parseProgram, validateProgram} from '../parser/parser.ts';
 import {pairLoops} from './loops.ts';
+import {validateDialect} from './dialect.ts';
 import type {LoopPair} from './loops.ts';
-import type {Program} from './types.ts';
+import type {Dialect, Program} from './types.ts';
 
 /** A snapshot and its derived lookup tables always travel together. */
 export interface PreparedProgram {
@@ -12,8 +13,12 @@ export interface PreparedProgram {
   readonly pairsByNext: ReadonlyMap<number, LoopPair>;
 }
 
-export function prepareProgram(source: string | Program): PreparedProgram {
-  const program = typeof source === 'string' ? parseProgram(source) : validateProgram(source.lines);
+export function prepareProgram(source: string | Program, dialect: Dialect): PreparedProgram {
+  if (typeof source !== 'string') validateDialect(source.dialect, dialect);
+  const program =
+    typeof source === 'string'
+      ? parseProgram(source, {dialect})
+      : validateProgram(source.lines, {dialect});
   const loopPairs = pairLoops(program.lines);
   return {
     program,

@@ -32,9 +32,12 @@ or provide a program counter. Those belong to the execution loop.
 
 ## API and values
 
-- `new Evaluator(host = {})` accepts optional `random`, `readKey`, and `keyDown` callbacks,
+- `new Evaluator(host = {}, {dialect = 'native'} = {})` accepts optional `random`, `readKey`, and `keyDown` callbacks,
   using the same binding behavior as `createHost`. Methods retain their host
   receiver. The default random source is `Math.random`.
+  The read-only `dialect` getter exposes the copied instance selection. Only native
+  is currently supported; unknown selections throw `TypeError` before evaluation.
+  Passing options does not enable historical defaults or change RNG behavior.
 - `evaluate(expression): BasicValue` returns a finite number or a string. It
   reads this evaluator's variables without changing them or mutating the tree.
   `RND()` consumes the host's random sequence; `INKEY$()` consumes one queued key. Traversal is iterative, so long

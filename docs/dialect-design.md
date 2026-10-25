@@ -2,8 +2,9 @@
 
 **Status:** shared design decisions and the first verified grammar slice, for
 #116. Implementation is incremental; no historical profile is enabled today.
-The optional-LET/contextual-GO-TO native slice below is implemented; the remaining
-profile/API/persistence design is still pending.
+The optional-LET/contextual-GO-TO native slice and native API context below are
+implemented. Historical policies and terminal/browser profile persistence remain
+pending.
 Unresolved dialect rules remain feature/release blockers, not native fallbacks.
 The [source review](classic-source-review.md) records the evidence already checked.
 
@@ -68,8 +69,26 @@ Neither this table nor a guessed README dialect settles those details.
 
 ## Carry one immutable language context
 
-Before activating a historical profile, add a frozen, validated language context
-at these boundaries:
+The core now carries a validated, immutable native context at these boundaries.
+`Dialect` currently accepts only `'native'`; this deliberately exposes no partial
+historical profile. `LanguageOptions` supplies an optional dialect, and
+`SourceOptions` also retains fragment coordinates. Unknown or conflicting context
+throws `TypeError`, rather than a source diagnostic, before program effects.
+
+- `parseLine(source, options?)`, `parseProgram(source, options?)` and
+  `validateProgram(lines, options?)` return frozen snapshots explicitly tagged
+  `dialect: 'native'` on Programs and Lines, including empty Programs.
+- `new Basic(host?, options?)` and `new Evaluator(host?, options?)` copy the
+  selection into private instance state exposed through a read-only `dialect`
+  getter. Mutating the options object cannot alter their selection.
+- Preparing a supplied Program validates both its root and every Line's metadata,
+  including unreachable lines. Legacy missing metadata means native. A rejected
+  replacement preserves the previous prepared snapshot for an explicit rerun.
+- Immediate source-coordinate options may repeat the instance's dialect but
+  cannot change it. Program preparation and immediate execution use that same
+  context; there is no mutable global selection.
+
+When historical profiles are activated, preserve these contracts:
 
 - `parseLine`/`parseProgram`/`validateProgram`: explicit options, default native.
   Parsed snapshots carry profile identity. Validate caller-supplied trees against
@@ -153,7 +172,9 @@ A CHAIN resolver is supplied by the host and may not start arbitrary processes.
 2. Implement the unambiguous native optional-LET/GO-TO slice in #117, with exact
    source spans, unchanged native names/errors, malformed-source rejection and
    installed consumer acceptance. Record partial real-program paths honestly.
-3. Activate a historical profile only after its accepted native-like forms have
+3. Carry explicit native context through the core first; the API foundation is
+   implemented, while terminal/browser document profiles remain pending. Activate
+   a historical profile only after its accepted native-like forms have
    correct historical behavior or explicit unsupported-feature errors. Complete
    1CHECK's BASIC-PLUS-compatible forms through #58/#119/#120 with the reviewed
    transcription correction and real board/replay oracles.

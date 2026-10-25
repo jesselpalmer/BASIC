@@ -24,17 +24,17 @@ const nextProgram = validateProgram(candidate);
 
 ## Parsing and validation boundaries
 
-- `parseLine(source, {line = 1, offset = 0} = {})` checks one numbered statement's
+- `parseLine(source, {line = 1, offset = 0, dialect = 'native'} = {})` checks one numbered statement's
   lexical/statement syntax and returns a frozen `Line`. Blank input returns
   `null`. Multiple numbered statements and bare labels are rejected; the stored
   editor handles bare-label deletion before statement parsing. It neither
   checks another line's labels nor assigns variables. Supplied fragments begin
   at column 1; the options retain an original physical line and absolute offset.
-- `parseProgram(source)` tokenizes/parses the complete source, ignores blank
+- `parseProgram(source, {dialect = 'native'} = {})` tokenizes/parses the complete source, ignores blank
   lines, rejects duplicate labels, and returns a `Program` with lines sorted by
   numeric label. It checks every line, including lines after `END`, without
   executing any of them. `010` and `10` are duplicate labels.
-- `validateProgram(lines)` is the separate whole-program validation boundary.
+- `validateProgram(lines, {dialect = 'native'} = {})` is the separate whole-program validation boundary.
   Pass an array of parsed `Line` nodes, excluding blank-edit `null` results. It
   checks duplicate labels, resolves every literal jump target, checks statically
   known comparison type mismatches, copies and sorts the candidate, pairs loops,
@@ -58,10 +58,19 @@ snapshot untouched and subsequent parses start fresh.
 
 ## Syntax trees
 
-The root is `{type: 'Program', lines}`. Each `Line` has `label`, `statement`,
-`source`, and `location`. `source` preserves the physical line's original text,
+The root is `{type: 'Program', dialect: 'native', lines}`. Each `Line` has
+`dialect`, `label`, `statement`, `source`, and `location`. `source` preserves the physical line's original text,
 including leading/trailing spaces, without its LF/CRLF ending. Sorting leaves
 physical positions unchanged.
+
+`Dialect`, `LanguageOptions`, and `SourceOptions` are public types. Only `'native'`
+is supported; historical profile names are rejected rather than silently falling
+back. Missing metadata in a legacy caller-supplied Line or Program means native;
+new snapshots always include it. Validation checks all Line metadata, and runtime
+preparation also checks Program metadata. Unknown/conflicting metadata or options
+throw `TypeError`, including on empty source or unreachable lines. This context
+check does not make validation a general schema validator for arbitrary ASTs.
+See the [dialect design](dialect-design.md) for the historical profile plan.
 
 Every line, statement, and expression has a `location` containing `label`,
 `start`, and `end`. Positions follow the [tokenizer convention](tokenizer.md):

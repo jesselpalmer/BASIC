@@ -28,7 +28,12 @@ basic.run(); // Starts the loaded program again with fresh variables.
 CommonJS consumers on Bun can use `const {Basic} = require('node-basic-lang')`.
 The package exports the parser, evaluator, errors, and public types separately.
 
-- `new Basic(host = {})` creates an empty runtime in `ready` state.
+- `new Basic(host = {}, {dialect = 'native'} = {})` creates an empty runtime in
+  `ready` state. Its read-only `dialect` selection is copied at construction.
+  Only native is currently supported. Program and Line metadata must agree with
+  the instance; legacy missing metadata means native. Unsupported metadata/options
+  throw `TypeError` before BASIC effects; a rejected replacement keeps the previous
+  loaded snapshot available for rerun. This is not a historical compatibility mode.
 - `reset(sourceOrProgram?)` clears variables, current location, diagnostics, and
   control-flow state, then prepares a program without executing it. Source is
   parsed and fully validated; a `Program` candidate is copied, validated, sorted,
@@ -52,6 +57,10 @@ synchronous methods stay synchronous; reaching `INPUT` through them throws
 still contain unreachable input after `END`.
 Executing WAIT synchronously similarly reports `ASYNC_WAIT_REQUIRED`; see
 [WAIT and animation](wait.md) for timing, range, host and cancellation rules.
+
+The immediate `readLine`/`readLineAsync` options may include `dialect`, which must
+match the instance; they cannot change its language during execution. Source
+coordinates, cancellation and scheduling retain their existing behavior.
 
 Each result contains:
 

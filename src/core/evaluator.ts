@@ -1,9 +1,12 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {createHost} from './host.ts';
+import {validateDialect} from './dialect.ts';
 import {compareValues} from './comparison.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import type {
   BasicValue,
+  Dialect,
+  LanguageOptions,
   Comparison,
   Expression,
   Host,
@@ -58,11 +61,20 @@ type Frame = {node: Expression; ready: boolean};
 
 /** Evaluates parser-produced expressions; each instance owns its variables. */
 export class Evaluator {
+  readonly #dialect: Dialect;
   private readonly variables = new Map<string, BasicValue>();
   private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
-  constructor(host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {}) {
+  constructor(
+    host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
+    options: LanguageOptions = {},
+  ) {
+    this.#dialect = validateDialect(options.dialect);
     this.host = createHost(host);
+  }
+
+  get dialect(): Dialect {
+    return this.#dialect;
   }
 
   reset(): void {

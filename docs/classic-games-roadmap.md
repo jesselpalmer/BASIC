@@ -110,6 +110,10 @@ own source/design gate is settled; unrelated unresolved programs remain release
 blockers. Do not require an unsupported interpreter to certify its own inputs.
 Native optional LET and GO TO are the first unambiguous grammar extensions;
 historical semantic changes still require explicit verified profiles.
+The core now carries explicit native dialect metadata through parsed Lines,
+Programs, prepared snapshots and immutable runtime/evaluator selections. Unsupported
+context fails before effects, and legacy trees remain native. Historical profile
+semantics and terminal/browser document persistence are still open in #116.
 
 ## Delivery order and tickets
 

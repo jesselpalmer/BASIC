@@ -10,6 +10,9 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Carry explicit native dialect context through parser snapshots, preparation and
+  runtime/evaluator instances. Reject unsupported metadata before effects while
+  preserving legacy native trees. Historical profiles remain unavailable.
 - Accept scalar assignment with optional LET and the contextual GO TO spelling,
   preserving GO as a native variable and exact source locations. Test an unchanged
   classic-game loss/replay path while explicitly retaining its RNG/format blockers.

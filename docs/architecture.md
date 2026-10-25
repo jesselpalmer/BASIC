@@ -29,6 +29,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                         |
 | `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                 |
 | `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                               |
+| `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
 | `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.                |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
@@ -52,6 +53,12 @@ Prepared indexes and mutable execution state have different lifetimes. Replace
 the prepared program atomically after validation. Reset execution state on every
 new run; never reuse loop frames or variable values accidentally across runs.
 Every branch, loop repeat, and loop skip follows the same destination rules.
+
+The Program, its Lines, prepared indexes and runtime/evaluator instance share an
+explicit immutable dialect. The public host-first constructors retain their
+existing defaults; language options are a separate second argument. Native is
+the only supported profile today. Legacy trees without metadata remain native,
+and unsupported declarations fail before effects. See [dialect context](dialect-design.md).
 
 ## Async execution ownership
 
