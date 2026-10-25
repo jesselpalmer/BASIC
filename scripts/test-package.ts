@@ -43,6 +43,7 @@ try {
     'examples/greeting.bas',
     'examples/guess.bas',
     'examples/times-table.bas',
+    'examples/pong.bas',
   ]) {
     assert.ok(existsSync(join(installed, file)), `Missing packaged file: ${file}`);
   }

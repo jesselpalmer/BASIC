@@ -25,6 +25,7 @@ export const libraryAcceptanceCases = [
   'graphics primitives and unsupported host diagnostics',
   'cooperative WAIT, stepping, and cancellation',
   'logical keyboard input and unsupported hosts',
+  'packaged Pong starts, renders, cancels and reruns',
   'stepping, reset, and instance isolation',
   'source-located syntax and runtime failures',
   'arithmetic and string failures preserve diagnostics and allow recovery',
@@ -283,6 +284,65 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     }
     assert.throws(() => basic.run('10 END\n20 PRINT KEYDOWN(1)'), api.BasicSyntaxError);
   });
+  await check('packaged Pong starts, renders, cancels and reruns', async () => {
+    const source = fixture('pong.bas');
+    let presented!: () => void;
+    const commands: GraphicsCommand[] = [];
+    const prompts: string[] = [];
+    const basic = new api.Basic({
+      write: () => {},
+      clear: () => {
+        commands.length = 0;
+      },
+      draw: (command) => commands.push(command),
+      readLine: (prompt = '') => {
+        prompts.push(prompt);
+        return Promise.resolve('');
+      },
+      random: () => 0.25,
+      keyDown: () => false,
+      wait: (milliseconds) => {
+        assert.equal(milliseconds, 16);
+        presented();
+        // No external resource is allocated; cancellation must still settle the run.
+        return new Promise<void>(() => {});
+      },
+    });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const controller = new AbortController();
+      const frame = new Promise<void>((resolve) => {
+        presented = resolve;
+      });
+      const running = basic.runAsync(source, {signal: controller.signal, instructionLimit: 1000});
+      const cancelled = running.catch((error: unknown) => error);
+      await frame;
+      assert.ok(
+        commands.some(
+          (command) =>
+            command.kind === 'circle' &&
+            command.x === 160 &&
+            command.y === 100 &&
+            command.radius === 3,
+        ),
+      );
+      assert.ok(
+        commands.some(
+          (command) => command.kind === 'line' && command.x1 === 16 && command.x2 === 16,
+        ),
+      );
+      assert.ok(
+        commands.some(
+          (command) => command.kind === 'line' && command.x1 === 303 && command.x2 === 303,
+        ),
+      );
+      controller.abort();
+      const result: unknown = await cancelled;
+      assert.ok(result instanceof Error && result.name === 'AbortError');
+      assert.equal(basic.status, 'halted');
+    }
+    assert.equal(prompts.length, 2);
+  });
+
   await check('stepping, reset, and instance isolation', () => {
     const first = setup();
     const second = setup();
