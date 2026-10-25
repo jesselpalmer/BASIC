@@ -175,6 +175,18 @@ integrate it before dependent calls/functions/loop work. Keep PRs small, merge
 dependencies first, review the integrated tree and require green checks. Do not
 freeze the public closed AST/reserved-word/host contract before these decisions.
 
+## Profile implementation prerequisites
+
+The [historical activation design](profile-activation.md) identifies compact
+lexing, short names and physical spans alongside the required runtime support
+matrix. Native loop completion/reentry, defaults, formatting and RNG behavior
+must not become historical behavior merely because tokenization succeeds.
+The [intrinsic-resolution design](intrinsic-resolution.md) prevents new math or
+string functions from taking over currently valid native scalar/array names.
+It records primary numeric error-continuation rules and blob-pinned independent
+formula oracles. These are designs for #116/#117/#123, with #59/#125 integration;
+no historical profile or additional intrinsic is enabled and #109 is NOT READY.
+
 ## Release evidence
 
 The [native inline conditional slice](inline-conditionals.md) adds statement/

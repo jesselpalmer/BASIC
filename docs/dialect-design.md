@@ -6,6 +6,11 @@ The optional-LET/contextual-GO-TO native slice and native API context below are
 implemented. Historical policies and terminal/browser profile persistence remain
 pending.
 Unresolved dialect rules remain feature/release blockers, not native fallbacks.
+The [activation contract](profile-activation.md) records the closed support and
+lexical conformance gates before exposing a historical selection. The
+[intrinsic-resolution contract](intrinsic-resolution.md) preserves existing
+native scalar/array names and separates historical signatures, result typing and
+continued numeric-error behavior from native evaluation.
 The [source review](classic-source-review.md) records the evidence already checked.
 
 ## Preserve meaning before broadening syntax
