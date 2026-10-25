@@ -104,6 +104,10 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 Blank `PRINT` has no items/separators and `trailingSemicolon: false`. Semicolon
 locations include a trailing semicolon when present. Empty items, leading
 semicolons, comma-based output zones, and trailing unconsumed tokens are errors.
+String-involved adjacent items need no separator; `separators` still contains
+only physical semicolons, with no synthetic entry for an omitted separator.
+Expressions remain greedy, and numeric-only adjacency stays invalid. See
+[adjacent PRINT items](print-adjacency.md).
 
 | Expression type                   | Additional fields                                                |
 | --------------------------------- | ---------------------------------------------------------------- |

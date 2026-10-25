@@ -130,7 +130,7 @@ they are not written in a program.
 | Statement        | Form and behavior                                                        |
 | ---------------- | ------------------------------------------------------------------------ |
 | Assignment       | `[LET] variable = expression`; `LET` is optional.                        |
-| Output           | `PRINT [expression [; expression]... [;]]`; details below.               |
+| Output           | `PRINT [items] [;]`; expression/separator rules below.                   |
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
@@ -179,6 +179,14 @@ presents buffered drawing before starting the timer. See
 [WAIT and animation](wait.md) for host and debugger contracts.
 
 ### PRINT
+
+Adjacent complete expressions may omit a semicolon when either immediately
+neighboring item has string type: `PRINT "YOU MADE" M "JUMPS"`, `PRINT A$ B$`,
+or `PRINT "value=" A(1)`. Parse each expression greedily: `PRINT 1 -2` is still
+subtraction, and an identifier followed by parentheses is still array access,
+even with whitespace. Numeric-only `PRINT 1 2` remains invalid; use semicolons.
+This native extension adds no numeric padding, zones or historical profile.
+See [adjacent items](print-adjacency.md) for source/AST rules and examples.
 
 Evaluate expressions left to right. A semicolon joins their displayed values
 without inserting a space. By default, append one newline; a trailing semicolon

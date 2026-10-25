@@ -16,6 +16,7 @@ import type {
   ComparisonOperator,
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
+import {expressionType} from '../core/comparison.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
@@ -365,10 +366,34 @@ class Parser {
     let trailingSemicolon = false;
     let last: Token | Expression = command;
     if (!this.atEnd()) {
+      let adjacent = false;
       for (;;) {
+        const first = this.peek();
         last = this.expression();
+        if (
+          adjacent &&
+          expressionType(items[items.length - 1]) !== 'string' &&
+          expressionType(last) !== 'string'
+        ) {
+          this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(first.raw)}`, first);
+        }
         items.push(last);
-        if (!this.at('PUNCTUATION', ';')) break;
+        if (!this.at('PUNCTUATION', ';')) {
+          const next = this.peek();
+          // Operators still belong to the current expression; only a new
+          // unsigned primary can start another top-level PRINT item.
+          if (
+            next.type !== 'NUMBER' &&
+            next.type !== 'STRING' &&
+            next.type !== 'IDENTIFIER' &&
+            !(next.type === 'KEYWORD' && functions.has(next.value)) &&
+            !this.at('PUNCTUATION', '(')
+          )
+            break;
+          adjacent = true;
+          continue;
+        }
+        adjacent = false;
         last = this.take();
         separators.push(this.location(last));
         if (this.atEnd()) {

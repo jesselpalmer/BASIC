@@ -33,7 +33,8 @@ The explicit native array slice now has an independently authored board/move
 fixture (`scripts/package/fixtures/arrays/board.bas`) covering the 48-piece start,
 an unchanged illegal move, the 47-piece legal jump and fresh reruns. It is a
 feature oracle, not the raw or corrected listing and not a whole-game pass.
-PRINT USING, adjacent items, historical formatting and profile certification
+Native string-involved adjacent PRINT items are now accepted. PRINT USING,
+historical formatting and profile certification
 remain blockers. The ledger's first-native-diagnostic fields retain their stated
 historical baseline commit rather than pretending to be current parser results.
 
