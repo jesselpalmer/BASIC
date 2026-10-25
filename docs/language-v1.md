@@ -72,9 +72,12 @@ error. There is no implicit conversion between numbers and strings.
 ### Literals
 
 Unsigned decimal literals have the form `digits[.digits]` or `.digits`; a trailing
-decimal point is also allowed. Examples: `42`, `3.14`, `.5`, `1.`. A sign is a unary
-operator, not part of the literal. Hexadecimal, binary, exponent notation, `NaN`,
-and `Infinity` are outside the current native source grammar.
+decimal point is also allowed. An optional E/e exponent has an optional sign and
+one or more digits: `1E-3`, `8.84361E-04`, `.5e+2`, `1.e2`. A leading sign is a
+unary operator. Hexadecimal, binary, `NaN`, `Infinity` and incomplete exponents
+are outside the native grammar. Conversion uses finite IEEE doubles: overflow
+rejects, while subnormal values and underflow to zero are permitted. Labels,
+jump targets and DIM bounds still require plain decimal integers.
 
 Strings are enclosed in double quotes. Double a quote to include it:
 
@@ -91,13 +94,19 @@ lines. An unterminated string is a syntax error.
 | Precedence, highest first      | Meaning                             | Associativity     |
 | ------------------------------ | ----------------------------------- | ----------------- |
 | Parentheses and function calls | Group or evaluate a built-in        | Explicit grouping |
+| `^`                            | Numeric exponentiation              | Left              |
 | Unary `+`, `-`                 | Numeric identity and negation       | Right             |
 | `*`, `/`                       | Numeric multiplication and division | Left              |
 | `+`, `-`                       | Numeric addition and subtraction    | Left              |
 
 Binary `+` also concatenates **two strings**. All other arithmetic requires two
 numbers. `"Score: " + 3` is an error; use `PRINT "Score: "; 3` instead. Division by
-zero and every non-finite numeric result are errors. No JavaScript `eval` is used.
+zero and every non-finite numeric result are errors. Powers bind before unary
+minus: `-2^2` is `-4`, `(-2)^2` is `4`, and `2^3^2` is `64`. A sign after `^`
+applies to that operand: `2^-2^2` is `0.0625`. Negative bases require integer
+exponents; zero to a negative power errors, and native `0^0` is `1`. See the
+[numeric contract](numeric-expressions.md) for domains and limits. No JavaScript
+`eval` is used.
 
 | Function | Contract                                                                                               |
 | -------- | ------------------------------------------------------------------------------------------------------ |

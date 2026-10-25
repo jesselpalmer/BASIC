@@ -112,7 +112,7 @@ describe('typed input and prompts', () => {
     },
   );
 
-  it.each(['-3.14', '+3.14', '-0', '0', '.5', '1.', '001.20', ' \t-.5\t '])(
+  it.each(['-3.14', '+3.14', '-0', '0', '.5', '1.', '001.20', ' \t-.5\t ', '1e2', '-8.84361E-04'])(
     'accepts complete finite signed decimal %s',
     async (text) => {
       const {basic, output, prompts} = scripted([text]);
@@ -130,7 +130,7 @@ describe('typed input and prompts', () => {
     '1.2.3',
     '0x10',
     '0b10',
-    '1e2',
+    '1e+',
     'Infinity',
     'NaN',
     '9'.repeat(400),

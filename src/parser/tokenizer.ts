@@ -8,8 +8,8 @@ import type {
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {reservedWords} from '../dictionaries/reserved_words.ts';
+import {numericLiteral} from '../core/numeric_literal.ts';
 
-const decimal = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
 const digit = (character: string | undefined) => /[0-9]/.test(character ?? '');
 const letter = (character: string | undefined) => /[A-Za-z]/.test(character ?? '');
 
@@ -100,7 +100,7 @@ class Scanner {
         this.readNumber();
       } else if (letter(character)) {
         this.readName();
-      } else if ('+-*/=<>'.includes(character)) {
+      } else if ('+-*/^=<>'.includes(character)) {
         const start = this.position();
         const pair = this.source.slice(this.index, this.index + 2);
         const operator = ['<=', '>=', '<>'].includes(pair) ? pair : character;
@@ -161,10 +161,18 @@ class Scanner {
     const start = this.position();
     const beginning = this.index;
     // Consume the whole numeric-looking word, never a valid prefix of 12oops.
-    while (/[A-Za-z0-9.$]/.test(this.source[this.index] ?? '')) this.index++;
+    while (this.index < this.source.length) {
+      const character = this.source[this.index];
+      if (
+        /[A-Za-z0-9.$]/.test(character) ||
+        ((character === '+' || character === '-') && /[Ee]/.test(this.source[this.index - 1]))
+      )
+        this.index++;
+      else break;
+    }
     const raw = this.source.slice(beginning, this.index);
     const value = Number(raw);
-    if (!decimal.test(raw) || !Number.isFinite(value)) {
+    if (!numericLiteral.test(raw) || !Number.isFinite(value)) {
       this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
     }
     this.emit('NUMBER', start, value);

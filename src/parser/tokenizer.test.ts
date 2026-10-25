@@ -131,7 +131,7 @@ describe('tokenizer', () => {
     });
   });
 
-  it.each(['12oops', '1e2', '1e+2', '0x10', '0b10', '1.2.3', '..5', '.', '12$', '9'.repeat(400)])(
+  it.each(['12oops', '1e', '1e+', '0x10', '0b10', '1.2.3', '..5', '.', '12$', '9'.repeat(400)])(
     'rejects malformed or non-finite decimal %s',
     (literal) => {
       expect(diagnostic(`10 PRINT ${literal}`)).toMatchObject({

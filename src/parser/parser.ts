@@ -512,6 +512,36 @@ class Parser {
         argument,
       });
     }
+    return this.power();
+  }
+
+  power(): Expression {
+    // Equal-precedence powers associate left; a sign after ^ applies only to
+    // its operand. Recursing through unary() here would make 2^-2^2 group wrong.
+    let left = this.primary();
+    while (this.at('OPERATOR', '^')) {
+      const operator = this.take();
+      const right = this.powerOperand();
+      left = this.node('BinaryExpression', left, right, {
+        operator: '^',
+        operatorLocation: this.location(operator),
+        left,
+        right,
+      });
+    }
+    return left;
+  }
+
+  powerOperand(): Expression {
+    if (this.at('OPERATOR', '+') || this.at('OPERATOR', '-')) {
+      const operator = this.take();
+      const argument = this.nested(operator, () => this.powerOperand());
+      return this.node('UnaryExpression', operator, argument, {
+        operator: operator.value as string,
+        operatorLocation: this.location(operator),
+        argument,
+      });
+    }
     return this.primary();
   }
 

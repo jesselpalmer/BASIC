@@ -31,6 +31,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/prepared_program.ts`            | A validated program and the label/loop lookup tables derived from that exact snapshot.                               |
 | `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.     |
 | `core/control_flow.ts`                | Instruction position, active loop frames, and destination rules shared by jumps and loop transitions.                |
+| `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
