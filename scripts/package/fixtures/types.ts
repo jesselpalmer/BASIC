@@ -8,6 +8,7 @@ import {
   Evaluator,
   type BasicValue,
   type GraphicsCommand,
+  type LogicalKey,
   type Host,
   type Program,
   type RunResult,
@@ -35,6 +36,16 @@ const host: Host = {
     return 0.5;
   },
 };
+const key: LogicalKey = 'UP';
+const keyboardHost: Host = {
+  ...host,
+  readKey: () => 'A',
+  keyDown(value) {
+    const logical: LogicalKey = value;
+    return logical === key;
+  },
+};
+new Basic(keyboardHost).run('10 PRINT INKEY$();KEYDOWN("UP")');
 const command: GraphicsCommand = {kind: 'circle', x: 160, y: 100, radius: 20, color: 14};
 const graphicsHost: Host = {
   ...host,
@@ -156,3 +167,13 @@ void basic.stepAsync({signal: 'abort'});
 void invalidHost;
 void invalidValue;
 void invalidOperator;
+
+// @ts-expect-error Escape is reserved for the host Stop control.
+const invalidKey: LogicalKey = 'ESCAPE';
+// @ts-expect-error Reading a queued key is synchronous.
+const invalidReadKeyHost: Host = {...host, readKey: () => Promise.resolve('A')};
+// @ts-expect-error Held-state callbacks return a boolean, not BASIC's numeric value.
+const invalidKeyDownHost: Host = {...host, keyDown: () => 1};
+void invalidKey;
+void invalidReadKeyHost;
+void invalidKeyDownHost;

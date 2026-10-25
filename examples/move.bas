@@ -1,0 +1,23 @@
+10 REM Click the canvas or Tab to it, then hold arrow keys to move
+20 REM Escape or Stop ends the program; Run starts at the center
+30 LET X = 160
+40 LET Y = 100
+50 COLOR 14
+60 CLS
+70 CIRCLE X,Y,4
+80 WAIT 16
+90 LET X = X + 3 * (KEYDOWN("RIGHT") - KEYDOWN("LEFT"))
+100 LET Y = Y + 3 * (KEYDOWN("DOWN") - KEYDOWN("UP"))
+110 IF X < 4 THEN 200
+120 IF X > 315 THEN 220
+130 IF Y < 4 THEN 240
+140 IF Y > 195 THEN 260
+150 GOTO 60
+200 LET X = 4
+210 GOTO 130
+220 LET X = 315
+230 GOTO 130
+240 LET Y = 4
+250 GOTO 60
+260 LET Y = 195
+270 GOTO 60

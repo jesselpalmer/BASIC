@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type * as PublicApi from '../src/index.ts';
-import type {GraphicsCommand, Host} from '../src/index.ts';
+import type {GraphicsCommand, Host, LogicalKey} from '../src/index.ts';
 
 type Api = Pick<
   typeof PublicApi,
@@ -24,6 +24,7 @@ export const libraryAcceptanceCases = [
   'times-table example',
   'graphics primitives and unsupported host diagnostics',
   'cooperative WAIT, stepping, and cancellation',
+  'logical keyboard input and unsupported hosts',
   'stepping, reset, and instance isolation',
   'source-located syntax and runtime failures',
   'arithmetic and string failures preserve diagnostics and allow recovery',
@@ -251,6 +252,36 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       return true;
     });
     assert.equal((await new api.Basic().runAsync('10 WAIT 0')).status, 'halted');
+  });
+  await check('logical keyboard input and unsupported hosts', async () => {
+    const keys: LogicalKey[] = ['A', 'LEFT'];
+    const observations: LogicalKey[] = [];
+    const {basic, output} = setup([], {
+      readKey: () => keys.shift() ?? '',
+      keyDown(key) {
+        observations.push(key);
+        return key === 'LEFT';
+      },
+    });
+    basic.run('10 LET KEY$=INKEY$()\n20 PRINT KEY$;KEYDOWN(INKEY$());KEYDOWN("up");INKEY$()');
+    assert.deepEqual(output, ['A10\n']);
+    assert.deepEqual(observations, ['LEFT', 'UP']);
+    assert.equal((await basic.runAsync('10 PRINT INKEY$()')).status, 'halted');
+    assert.deepEqual(output, ['A10\n', '\n']);
+    const unsupported = new api.Basic();
+    assert.equal(unsupported.run('10 END\n20 PRINT INKEY$()').status, 'halted');
+    for (const expression of ['INKEY$()', 'KEYDOWN("UP")']) {
+      assert.throws(
+        () => unsupported.run(`10 PRINT ${expression}`),
+        (error: unknown) => {
+          assert.ok(error instanceof api.BasicRuntimeError);
+          assert.equal(error.diagnostic.code, 'KEYBOARD_UNAVAILABLE');
+          assert.equal(error.diagnostic.column, 10);
+          return true;
+        },
+      );
+    }
+    assert.throws(() => basic.run('10 END\n20 PRINT KEYDOWN(1)'), api.BasicSyntaxError);
   });
   await check('stepping, reset, and instance isolation', () => {
     const first = setup();

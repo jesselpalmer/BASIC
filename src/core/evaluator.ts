@@ -1,6 +1,7 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {createHost} from './host.ts';
 import {compareValues} from './comparison.ts';
+import {readKey, keyDown} from './keyboard.ts';
 import type {
   BasicValue,
   Comparison,
@@ -58,9 +59,9 @@ type Frame = {node: Expression; ready: boolean};
 /** Evaluates parser-produced expressions; each instance owns its variables. */
 export class Evaluator {
   private readonly variables = new Map<string, BasicValue>();
-  private readonly host: Pick<Host, 'random'>;
+  private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
-  constructor(host: Partial<Pick<Host, 'random'>> = {}) {
+  constructor(host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {}) {
     this.host = createHost(host);
   }
 
@@ -150,7 +151,11 @@ export class Evaluator {
         case 'CallExpression':
           if (!ready) {
             const arity =
-              node.name === 'RND' ? 0 : node.name === 'ABS' || node.name === 'INT' ? 1 : null;
+              node.name === 'RND' || node.name === 'INKEY$'
+                ? 0
+                : node.name === 'ABS' || node.name === 'INT' || node.name === 'KEYDOWN'
+                  ? 1
+                  : null;
             if (arity === null)
               fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
             if (node.arguments.length !== arity) {
@@ -164,6 +169,10 @@ export class Evaluator {
             for (let i = node.arguments.length - 1; i >= 0; i--) {
               pending.push({node: node.arguments[i], ready: false});
             }
+          } else if (node.name === 'INKEY$') {
+            values.push(readKey(this.host, node.nameLocation));
+          } else if (node.name === 'KEYDOWN') {
+            values.push(keyDown(this.host, values.pop()!, node.nameLocation));
           } else if (node.name === 'RND') {
             values.push(this.nextRandom(node.nameLocation));
           } else {

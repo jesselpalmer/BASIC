@@ -79,8 +79,10 @@ export function expressionType(expression: Expression): ValueType | null {
         break;
       case 'NumberLiteral':
       case 'UnaryExpression':
-      case 'CallExpression':
         values.push('number');
+        break;
+      case 'CallExpression':
+        values.push(node.name === 'INKEY$' ? 'string' : 'number');
     }
   }
   return values[0];

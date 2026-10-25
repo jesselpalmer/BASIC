@@ -15,6 +15,8 @@ export function createHost(overrides: Partial<Host> = {}): Host {
     write: bind('write', () => {}),
     clear: bind('clear', () => {}),
     ...(overrides.draw === undefined ? {} : {draw: bind('draw', undefined)}),
+    ...(overrides.readKey === undefined ? {} : {readKey: bind('readKey', undefined)}),
+    ...(overrides.keyDown === undefined ? {} : {keyDown: bind('keyDown', undefined)}),
     wait: bind('wait', defaultWait),
     readLine: bind('readLine', () =>
       Promise.reject(new Error('Input is not supported by this host')),

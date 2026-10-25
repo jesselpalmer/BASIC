@@ -9,6 +9,8 @@ export const reservedWords = new Set([
   'GOTO',
   'IF',
   'INPUT',
+  'INKEY$',
+  'KEYDOWN',
   'INT',
   'LET',
   'LINE',

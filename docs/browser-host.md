@@ -95,3 +95,12 @@ The adapter tests execute the repository's greeting, times-table, and guessing
 examples through this shared path, alongside cancellation, retry, diagnostics,
 callback failure, and stale-event lifecycle cases. The browser application owns
 its own editor, bounded output rendering, event wiring, and browser build.
+
+Optional view methods `readKey()` and `keyDown(key)` adapt independent queued
+and held-key capabilities. Their receivers and application exceptions follow
+the same rules as drawing callbacks. Missing methods leave the corresponding
+core capability unsupported. The view owns focus, queue limits, held state and
+cleanup: the playground uses its scoped GameKeyboard binding. A custom view
+should release resources even if a rendering callback fails; such failures
+can reject with an error state without another stateChanged callback. See
+[keyboard input](keyboard.md) for logical names and lifecycle policy.

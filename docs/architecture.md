@@ -130,6 +130,10 @@ and async ownership; see [browser debugging](browser-debugger.md).
 `src/browser/document.ts` owns exact editable source, local storage outcomes,
 and replacement generations. Running state never becomes the editable document.
 `src/browser/transcript.ts` bounds retained output independently of rendering.
+`src/browser/keyboard.ts` owns the bounded logical-key queue and held-key set;
+`src/browser/game_keyboard.ts` owns focus, visibility, and run-scoped event
+registrations. Neither moves focus. The playground updates the binding at every
+state transition and disposes it when a current run rejects unexpectedly.
 `playground/main.ts` owns DOM events, localStorage/File/Blob boundaries, focus,
 and one pending animation frame. The static Bun build imports these portable
 modules directly; it does not bundle CLI or REPL modules. See the

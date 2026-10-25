@@ -39,6 +39,7 @@
                 <option value="guess">Guess the number</option>
                 <option value="picture">A little landscape</option>
                 <option value="bounce">Bouncing ball</option>
+                <option value="move">Arrow-key marker</option>
               </select>
             </label>
           </div>
@@ -115,10 +116,21 @@
           <span class="graphics-size">320 × 200 logical pixels</span>
         </div>
         <div class="graphics-surface">
-          <canvas id="graphics" width="320" height="200" aria-label="BASIC graphics output">
+          <canvas
+            id="graphics"
+            width="320"
+            height="200"
+            tabindex="0"
+            aria-label="BASIC graphics output"
+            aria-describedby="keyboard-help"
+          >
             Graphics output needs a browser with Canvas support.
           </canvas>
         </div>
+        <p id="keyboard-help" class="graphics-help">
+          For keyboard programs, click the canvas or Tab to it, then use the arrow keys. Escape
+          stops the program. Leaving the canvas releases held keys.
+        </p>
         <p id="graphics-unavailable" role="status" hidden>
           Graphics are unavailable in this browser. Text programs still work.
         </p>

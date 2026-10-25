@@ -70,6 +70,11 @@ Stop or Escape ends the animation; rerunning starts it fresh. WAIT also works
 in text-only Bun programs. See [timing and animation](docs/wait.md) for duration
 limits, approximate timing, cancellation, and debugger behavior.
 
+Choose **Arrow-key marker** to try held-key controls. Run it, then click the
+canvas or focus it with Tab and use the arrows. `INKEY$()` reads queued presses;
+`KEYDOWN("UP")` observes held keys. See [keyboard input](docs/keyboard.md) for
+focus rules, logical names, and supported hosts.
+
 ## Installation
 
 Requires **Bun 1.4.4 or newer** on your `PATH`; the candidate ships TypeScript

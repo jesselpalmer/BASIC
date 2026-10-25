@@ -171,6 +171,16 @@ function checkFileFailures({consumer, executable, file}: CliContext): void {
       stderr: 'Line 10, column 4: Graphics are not supported by this host\n',
     },
     {
+      source: '10 PRINT INKEY$()',
+      stdout: '',
+      stderr: 'Line 10, column 10: Keyboard input is not supported by this host\n',
+    },
+    {
+      source: '10 PRINT KEYDOWN("UP")',
+      stdout: '',
+      stderr: 'Line 10, column 10: Keyboard input is not supported by this host\n',
+    },
+    {
       source: '10 COLOR 2',
       stdout: '',
       stderr: 'Line 10, column 4: Graphics are not supported by this host\n',

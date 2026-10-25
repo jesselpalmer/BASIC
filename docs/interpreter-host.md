@@ -196,6 +196,11 @@ is a frozen callback object; caller-owned host instances remain mutable.
 | `wait(milliseconds, {signal})` | Promise completing a WAIT; default is a cancellable timer task. Receives validated, rounded milliseconds.                                        |
 | `random()`                     | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
 
+Optional `readKey()` and `keyDown(key)` capabilities supply queued and held-key
+input. They are independent of text INPUT; missing capabilities fail clearly.
+See [keyboard input](keyboard.md) for the exported `LogicalKey` type, host
+return values, ownership, source diagnostics, and browser focus policy.
+
 Input callbacks serve both the terminal prompt and BASIC `INPUT`. Async
 write/clear results are unsupported. `runAsync` also yields to host tasks every
 256 statements by default. Its `RunOptions` accepts an instruction limit, batch

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add `INKEY$()` and `KEYDOWN(name)` with optional host keyboard capabilities,
+  a focused game canvas, a bounded press queue, and an arrow-key marker example.
+  Focus, pause, INPUT, and terminal transitions clear queued and held keys.
+
 - Add cooperative `WAIT` with bounded millisecond durations, cancellable host
   timers, async stepping, and a downloadable bouncing-ball example. The browser
   uploads the complete buffered frame before waiting; Stop and reruns release

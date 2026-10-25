@@ -7,6 +7,7 @@ import type {
   GraphicsCommand,
   Host,
   Location,
+  LogicalKey,
   VariableSnapshot,
 } from '../core/types.ts';
 
@@ -31,6 +32,8 @@ export interface BrowserView {
   draw?(command: GraphicsCommand): void;
   /** Present buffered text and drawing synchronously before a WAIT timer starts. */
   present?(): void;
+  readKey?(): LogicalKey | '';
+  keyDown?(key: LogicalKey): boolean;
   /** Keep this bound submit callback with the displayed prompt; stale calls return false. */
   requestInput(prompt: string, submit: (text: string) => boolean): void;
   stateChanged(state: BrowserState): void;
@@ -104,12 +107,16 @@ export class BrowserSession {
     }
     this.stop();
     const draw = this.#view.draw?.bind(this.#view);
+    const readKey = this.#view.readKey?.bind(this.#view);
+    const keyDown = this.#view.keyDown?.bind(this.#view);
     const execution: Execution = {
       basic: new Basic({
         write: (text) => this.#callView(execution, () => this.#view.write(text)),
         clear: () => this.#callView(execution, () => this.#view.clear()),
         readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
         random: this.#options.random,
+        readKey: readKey ? () => this.#callView(execution, readKey) : undefined,
+        keyDown: keyDown ? (key) => this.#callView(execution, () => keyDown(key)) : undefined,
         draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
         wait: (milliseconds, options) => {
           this.#publish(execution, 'running');
@@ -337,10 +344,10 @@ export class BrowserSession {
     if (this.#execution === execution) this.#state = execution.state;
   }
 
-  #callView(execution: Execution, callback: () => void): void {
+  #callView<T>(execution: Execution, callback: () => T): T {
     this.#callbackDepth++;
     try {
-      callback();
+      return callback();
     } catch (error) {
       execution.callbackFailure = {error};
       throw error;

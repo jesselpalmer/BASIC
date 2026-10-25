@@ -1,4 +1,48 @@
 export type BasicValue = number | string;
+/** Portable logical keys, independent of physical layouts and historical scan codes. */
+export type LogicalKey =
+  | 'A'
+  | 'B'
+  | 'C'
+  | 'D'
+  | 'E'
+  | 'F'
+  | 'G'
+  | 'H'
+  | 'I'
+  | 'J'
+  | 'K'
+  | 'L'
+  | 'M'
+  | 'N'
+  | 'O'
+  | 'P'
+  | 'Q'
+  | 'R'
+  | 'S'
+  | 'T'
+  | 'U'
+  | 'V'
+  | 'W'
+  | 'X'
+  | 'Y'
+  | 'Z'
+  | '0'
+  | '1'
+  | '2'
+  | '3'
+  | '4'
+  | '5'
+  | '6'
+  | '7'
+  | '8'
+  | '9'
+  | 'UP'
+  | 'DOWN'
+  | 'LEFT'
+  | 'RIGHT'
+  | 'ENTER'
+  | 'SPACE';
 /** A copied, immutable observation of an explicitly assigned variable. */
 export interface VariableSnapshot {
   readonly name: string;
@@ -62,6 +106,10 @@ export interface Host {
   clear(): void;
   /** Optional graphics capability; clip primitives to the logical surface in bounded work. */
   draw?(command: GraphicsCommand): void;
+  /** Consume one queued logical key; return an empty string when no key is queued. */
+  readKey?(): LogicalKey | '';
+  /** Observe a supported logical key without consuming queued input. */
+  keyDown?(key: LogicalKey): boolean;
   /** Suspend for a normalized duration; honor cancellation to release owned timers. */
   wait(milliseconds: number, options?: InputOptions): Promise<void>;
   /** Return untrimmed text, or null at EOF. Honor the signal to release input resources. */
