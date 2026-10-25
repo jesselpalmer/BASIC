@@ -2,6 +2,9 @@ export {default as Basic} from './basic.ts';
 export {createHost} from './core/host.ts';
 export {parseLine, parseProgram, validateProgram} from './parser/parser.ts';
 export type {
+  Dialect,
+  LanguageOptions,
+  SourceOptions,
   BasicValue,
   LogicalKey,
   VariableSnapshot,

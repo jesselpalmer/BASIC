@@ -391,8 +391,8 @@ describe('program snapshots', () => {
   });
 
   it('accepts an empty program', () => {
-    expect(parseProgram('\n \t\r\n')).toEqual({type: 'Program', lines: []});
-    expect(validateProgram([])).toEqual({type: 'Program', lines: []});
+    expect(parseProgram('\n \t\r\n')).toEqual({type: 'Program', dialect: 'native', lines: []});
+    expect(validateProgram([])).toEqual({type: 'Program', dialect: 'native', lines: []});
   });
 
   it('handles long flat expressions without recursive copying/freezing', () => {

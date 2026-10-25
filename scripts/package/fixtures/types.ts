@@ -6,6 +6,10 @@ import {
   BasicSyntaxError,
   BasicRuntimeError,
   Evaluator,
+  validateProgram,
+  type Dialect,
+  type LanguageOptions,
+  type SourceOptions,
   type BasicValue,
   type GraphicsCommand,
   type LogicalKey,
@@ -57,6 +61,20 @@ const graphicsHost: Host = {
 graphicsHost.draw?.(command);
 const program: Program = parseProgram('10 PRINT 1');
 const basic = new Basic(host);
+const dialect: Dialect = basic.dialect;
+const language: LanguageOptions = {dialect};
+const fragmentOptions: SourceOptions = {...language, line: 4, offset: 80};
+const fragment = parseLine('10 PRINT 4', fragmentOptions);
+const configured = new Basic(host, language);
+const configuredEvaluator = new Evaluator(host, language);
+const configuredProgram = parseProgram('10 PRINT 4', language);
+const programDialect: Dialect | undefined = configuredProgram.dialect;
+if (fragment) validateProgram([fragment], language);
+// Older callers can still construct native programs without metadata.
+const legacyProgram: Program = {type: 'Program', lines: program.lines};
+configured.run(legacyProgram);
+void configuredEvaluator.dialect;
+void programDialect;
 basic.reset(program);
 const result: RunResult = basic.step();
 const label: number | null = result.currentLocation?.label ?? null;
@@ -129,6 +147,22 @@ evaluator.reset();
 
 // These rejected assignments are part of the public contract. A missing error
 // makes TypeScript report an unused @ts-expect-error directive.
+// @ts-expect-error Unsupported historical profiles are not public choices.
+new Basic(host, {dialect: 'basic-plus-1972'});
+// @ts-expect-error Parser options use the same supported dialect set.
+parseProgram('10 END', {dialect: 'basic-plus-1972'});
+// @ts-expect-error Validation cannot silently choose an unknown profile.
+validateProgram([], {dialect: 'basic-plus-1972'});
+// @ts-expect-error Evaluator configuration cannot select an unknown profile.
+new Evaluator(host, {dialect: 'basic-plus-1972'});
+// @ts-expect-error Instance language is immutable after construction.
+basic.dialect = 'native';
+// @ts-expect-error Evaluator language is immutable after construction.
+configuredEvaluator.dialect = 'native';
+// @ts-expect-error Prepared program language metadata is readonly.
+configuredProgram.dialect = 'native';
+// @ts-expect-error Parsed line language metadata is readonly.
+if (fragment) fragment.dialect = 'native';
 // @ts-expect-error Graphics commands are readonly.
 command.color = 1;
 const invalidGraphicsHost: Host = {

@@ -1,5 +1,7 @@
 import type {
   SourceOptions,
+  LanguageOptions,
+  Dialect,
   ParsedLine,
   Program,
   Token,
@@ -14,6 +16,7 @@ import type {
   ComparisonOperator,
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
+import {validateDialect} from '../core/dialect.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -37,11 +40,13 @@ export function parseLine(source: string, options: SourceOptions = {}): ParsedLi
   return lines.length === 0 ? null : freezeTree(lines[0]);
 }
 
-export function parseProgram(source: string): Program {
-  return validateProgram(new Parser(source).parse());
+export function parseProgram(source: string, options: LanguageOptions = {}): Program {
+  const dialect = validateDialect(options.dialect);
+  return validateProgram(new Parser(source, {dialect}).parse(), {dialect});
 }
 
 class Parser {
+  readonly dialect: Dialect;
   readonly source: string;
   readonly offset: number;
   readonly tokens: Token[];
@@ -49,7 +54,8 @@ class Parser {
   lineStart: number;
   label: number | null;
   depth: number;
-  constructor(source: string, {line = 1, offset = 0}: SourceOptions = {}) {
+  constructor(source: string, {line = 1, offset = 0, dialect}: SourceOptions = {}) {
+    this.dialect = validateDialect(dialect);
     this.source = source;
     this.offset = offset;
     this.tokens = tokenize(source, {line, offset});
@@ -136,6 +142,7 @@ class Parser {
       const end = this.peek().start.offset - this.offset;
       lines.push(
         this.node('Line', label, statement, {
+          dialect: this.dialect,
           label: label.value,
           source: this.source.slice(this.lineStart, end),
           statement,

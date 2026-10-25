@@ -1,4 +1,5 @@
-import type {NodeOf, ParsedLine, Program, Statement} from '../core/types.ts';
+import type {LanguageOptions, NodeOf, ParsedLine, Program, Statement} from '../core/types.ts';
+import {validateDialect} from '../core/dialect.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
@@ -10,12 +11,17 @@ function isArray(value: unknown): value is readonly unknown[] {
 
 // Whole-program checks stay separate from single-line editing so incomplete
 // forward targets and loops can remain in an editor candidate.
-export function validateProgram(lines: readonly ParsedLine[]): Program {
+export function validateProgram(
+  lines: readonly ParsedLine[],
+  options: LanguageOptions = {},
+): Program {
+  const dialect = validateDialect(options.dialect);
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
   }
   const labels = new Set();
   for (const line of lines) {
+    validateDialect(line.dialect, dialect);
     if (labels.has(line.label)) {
       throw new BasicSyntaxError(
         'DUPLICATE_LABEL',
@@ -80,9 +86,11 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
   }
   // Clone before freezing: a snapshot never freezes or retains caller-owned
   // arrays/nodes, and a failed candidate cannot modify an existing program.
-  const snapshot = copyTree(lines).sort((a, b) => a.label - b.label);
+  const snapshot = copyTree(lines)
+    .map((line) => ({...line, dialect}))
+    .sort((a, b) => a.label - b.label);
   pairLoops(snapshot);
-  return freezeTree({type: 'Program', lines: snapshot});
+  return freezeTree({type: 'Program', dialect, lines: snapshot});
 }
 
 // ASTs contain only plain objects, arrays, and primitives. Copy iteratively so

@@ -21,6 +21,7 @@ export const libraryAcceptanceCases = [
   'common classic spellings preserve native names and execution',
   'unchanged 23 Matches loss/replay path and explicit native RNG limit',
   'public parser snapshots and diagnostics',
+  'explicit native context rejects unsupported program metadata before effects',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -189,6 +190,43 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       },
     );
   });
+  await check(
+    'explicit native context rejects unsupported program metadata before effects',
+    async () => {
+      const options = {dialect: 'native'} as const;
+      const output: string[] = [];
+      const basic = new api.Basic({write: (text) => output.push(text)}, options);
+      const evaluator = new api.Evaluator({}, options);
+      const program = api.parseProgram('10 VALUE=4\n20 PRINT VALUE', options);
+      assert.equal(program.dialect, 'native');
+      assert.equal(program.lines[0].dialect, 'native');
+      assert.equal(basic.dialect, 'native');
+      assert.equal(evaluator.dialect, 'native');
+      const legacy = {
+        type: 'Program' as const,
+        lines: program.lines.map(({dialect, ...line}) => {
+          assert.equal(dialect, 'native');
+          return line;
+        }),
+      };
+      const validated = api.validateProgram(legacy.lines, options);
+      assert.equal(validated.dialect, 'native');
+      assert.equal(validated.lines[0].dialect, 'native');
+      basic.run(legacy);
+      const foreign = {...program, dialect: 'basic-plus-1972'} as unknown as PublicApi.Program;
+      assert.throws(() => basic.run(foreign), TypeError);
+      await assert.rejects(basic.runAsync(foreign), TypeError);
+      const mixed = {
+        ...program,
+        lines: [{...program.lines[0], dialect: 'basic-plus-1972'}, program.lines[1]],
+      } as unknown as PublicApi.Program;
+      assert.throws(() => basic.run(mixed), TypeError);
+      assert.deepEqual(output, ['4\n']);
+      basic.run();
+      assert.deepEqual(output, ['4\n', '4\n']);
+      assert.equal(Reflect.set(basic, 'dialect', 'basic-plus-1972'), false);
+    },
+  );
   await check('public evaluator values and diagnostics', () => {
     const evaluator = new api.Evaluator({random: () => 0.41});
     const assignment = api.parseLine('10 LET SECRET = INT(RND()*100)+1');

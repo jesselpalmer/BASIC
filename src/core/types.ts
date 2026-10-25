@@ -61,7 +61,12 @@ export interface Location {
   readonly start: Position;
   readonly end: Position;
 }
-export interface SourceOptions {
+/** Historical profiles are unavailable until their semantics are implemented. */
+export type Dialect = 'native';
+export interface LanguageOptions {
+  dialect?: Dialect;
+}
+export interface SourceOptions extends LanguageOptions {
   /** Starting physical line (default 1); a fragment always begins at column 1. */
   line?: number;
   /** Starting UTF-16 offset in the original source (default 0). */
@@ -216,7 +221,13 @@ export interface NodeFields {
   CircleStatement: {readonly x: Expression; readonly y: Expression; readonly radius: Expression};
   ClsStatement: Record<never, never>;
   EndStatement: Record<never, never>;
-  Line: {readonly label: number; readonly source: string; readonly statement: Statement};
+  Line: {
+    /** Omitted only in legacy caller-supplied trees; omission means native. */
+    readonly dialect?: Dialect;
+    readonly label: number;
+    readonly source: string;
+    readonly statement: Statement;
+  };
 }
 export type NodeOf<K extends keyof NodeFields> = {
   readonly type: K;
@@ -258,5 +269,7 @@ export type GraphicsStatement = Extract<
 export type ParsedLine = NodeOf<'Line'>;
 export interface Program {
   readonly type: 'Program';
+  /** Omitted only in legacy caller-supplied trees; omission means native. */
+  readonly dialect?: Dialect;
   readonly lines: readonly ParsedLine[];
 }

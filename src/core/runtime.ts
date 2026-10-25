@@ -4,6 +4,7 @@ import {ControlFlow} from './control_flow.ts';
 import {Evaluator} from './evaluator.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
+import {validateDialect} from './dialect.ts';
 import {readInput} from './input.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
@@ -12,6 +13,8 @@ import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine} from '../parser/parser.ts';
 import type {
   Diagnostic,
+  Dialect,
+  LanguageOptions,
   Host,
   InputOptions,
   ParsedLine,
@@ -24,13 +27,13 @@ import type {
   NodeOf,
 } from './types.ts';
 
-const emptyProgram = prepareProgram('');
-
 export default class Basic {
+  readonly #dialect: Dialect;
+  readonly #emptyProgram: PreparedProgram;
   readonly #host: Host;
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
-  #prepared: PreparedProgram = emptyProgram;
+  #prepared: PreparedProgram;
   #controlFlow: ControlFlow;
   #status: RunStatus = 'ready';
   #current: ParsedLine | null = null;
@@ -44,14 +47,21 @@ export default class Basic {
   // An async driver owns stepping until its promise settles, including yields.
   #activeRun: AbortController | null = null;
 
-  constructor(host: Partial<Host> = {}) {
+  constructor(host: Partial<Host> = {}, options: LanguageOptions = {}) {
+    this.#dialect = validateDialect(options.dialect);
+    this.#emptyProgram = prepareProgram('', this.#dialect);
+    this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    this.#evaluator = new Evaluator(this.#host);
+    this.#evaluator = new Evaluator(this.#host, {dialect: this.#dialect});
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
   }
 
   get host(): Readonly<Host> {
     return this.#host;
+  }
+
+  get dialect(): Dialect {
+    return this.#dialect;
   }
 
   get status(): RunStatus {
@@ -88,7 +98,7 @@ export default class Basic {
     this.#usedLabels.clear();
     try {
       // A failed candidate leaves both the previous snapshot and its tables intact.
-      if (program !== undefined) this.#prepared = prepareProgram(program);
+      if (program !== undefined) this.#prepared = prepareProgram(program, this.#dialect);
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     } catch (error) {
       this.#recordFailure(error);
@@ -301,7 +311,8 @@ export default class Basic {
       throw new Error('Call reset before mixing program steps and immediate input');
     }
     try {
-      const line = parseLine(source, options);
+      if (options.dialect !== undefined) validateDialect(options.dialect, this.#dialect);
+      const line = parseLine(source, {...options, dialect: this.#dialect});
       if (!line) return null;
       if (this.#usedLabels.has(line.label)) {
         throw new BasicSyntaxError(
@@ -312,7 +323,7 @@ export default class Basic {
         );
       }
       this.#usedLabels.add(line.label);
-      this.#prepared = emptyProgram;
+      this.#prepared = this.#emptyProgram;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
       this.#immediate = true;
       return line;
