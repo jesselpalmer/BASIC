@@ -21,8 +21,10 @@ Construction allocates one 256,000-byte `ImageData` and initializes it to opaque
 black. A caller must flush to present that initial frame. Clear or run replacement
 can therefore be combined with subsequent drawing in one frame, with no visible
 intermediate clear. The browser host decides when to flush: for example, one
-animation frame per batch, or before INPUT, pause, or completion. A future WAIT
-implementation can flush before yielding without changing rasterization.
+animation frame per batch, or before INPUT, pause, or completion. The playground
+also flushes synchronously before starting every WAIT timer, cancelling its
+queued render so the next frame cannot overwrite the pending one first. See
+[WAIT and animation](wait.md).
 
 Set the canvas's intrinsic width and height to the exported `GRAPHICS_WIDTH` and
 `GRAPHICS_HEIGHT` **before** constructing the renderer. Changing either intrinsic

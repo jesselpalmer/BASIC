@@ -25,4 +25,5 @@ export const reservedWords = new Set([
   'STEP',
   'THEN',
   'TO',
+  'WAIT',
 ]);

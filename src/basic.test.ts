@@ -53,7 +53,13 @@ describe('Basic host boundary', () => {
     program.run('10 CLS\n20 PRINT "hello"');
     expect(receiver.output).toEqual(['answer:hello\n']);
     expect(receiver.clears).toBe(1);
-    expect(Object.keys(program.host).sort()).toEqual(['clear', 'random', 'readLine', 'write']);
+    expect(Object.keys(program.host).sort()).toEqual([
+      'clear',
+      'random',
+      'readLine',
+      'wait',
+      'write',
+    ]);
   });
 
   it.each(['write', 'clear'] as const)('recovers after an injected %s failure', (callback) => {

@@ -105,6 +105,7 @@ they are not written in a program.
 | Assignment       | `LET variable = expression`; `LET` is required.                          |
 | Output           | `PRINT [expression [; expression]... [;]]`; details below.               |
 | Input            | `INPUT ["prompt";] variable`; one target only.                           |
+| Wait             | `WAIT expression`; yield for a duration in milliseconds.                 |
 | Conditional jump | `IF expression comparison expression THEN line`.                         |
 | Jump             | `GOTO line`; computed targets are not supported.                         |
 | Loop start       | `FOR variable = expression TO expression [STEP expression]`.             |
@@ -129,6 +130,16 @@ The complete syntax, diagnostics, palette and optional host capability are
 defined in the [graphics contract](graphics.md). Hosts without drawing support,
 including the terminal, report `GRAPHICS_UNAVAILABLE` at an executed graphics
 statement.
+
+### WAIT
+
+`WAIT expression` requires a finite number from 0 through 2147483647, inclusive.
+Positive fractions round upward to whole milliseconds; zero still yields to a
+host task. Negative or larger values report `INVALID_WAIT_DURATION`. Timing is
+approximate, and Stop cancels the pending timer. Use the asynchronous library
+methods; synchronous execution reports `ASYNC_WAIT_REQUIRED`. The browser
+presents buffered drawing before starting the timer. See
+[WAIT and animation](wait.md) for host and debugger contracts.
 
 ### PRINT
 

@@ -58,23 +58,33 @@ Your random secret and feedback can differ. Run the command again for a new game
 the attempt count starts at zero. The automated acceptance test fixes the random
 value at `0.41` and checks the exact playthrough above, then a fresh one-guess win.
 
-## File mode and the current REPL
+## Browser drawing and animation
 
-`bun start` without a filename opens the current immediate-entry REPL. Numbered
-statements execute as you enter them, in entry order; they are not stored for a
-later `RUN`. Variables persist until `END` or an error resets the current run.
-Stored-program commands such as `RUN`, `LOAD`, and `LIST` are not implemented yet
-([#42](https://github.com/jesselpalmer/BASIC/issues/42)). A blank line or EOF closes
-the REPL.
+Build and serve the [playground](../docs/playground.md):
 
-Use file mode for the guessing game: `IF` and `GOTO` require a complete program
-and report `PROGRAM_REQUIRED` in the immediate-entry REPL. While `INPUT` is
-waiting, the next line is the program's answer, even if it says `RUN` or `EXIT`.
+```sh
+bun run build:playground
+bun run serve:playground
+```
 
-Ctrl+C cancels pending terminal input and exits the CLI with status 130. Busy
-programs do not yet yield to timers or reliably handle Ctrl+C; instruction limits
-and busy-loop cancellation remain work for
-[#41](https://github.com/jesselpalmer/BASIC/issues/41). When developing an unfinished
-loop through the library, use a bounded number of `step()` calls. See the
-[host API](../docs/interpreter-host.md) and
-[language contract](../docs/language-v0.1.md) for current behavior and future targets.
+At `http://127.0.0.1:3000`, choose **A little landscape** for
+[picture.bas](picture.bas), or **Bouncing ball** for [bounce.bas](bounce.bas).
+The ball reverses before its outline would leave the logical 320 × 200 canvas.
+Stop or Escape ends the animation; Run starts it fresh. You can edit or export
+either program. Drawing requires a graphics host: these examples report
+`GRAPHICS_UNAVAILABLE` in the terminal. [WAIT](../docs/wait.md) itself also works
+in text-only Bun programs, with approximate timing and cancellable timers.
+
+## File mode and the stored-program editor
+
+`bun start` without a filename opens the stored-program editor. Enter numbered
+source, or `LOAD "examples/guess.bas"`, then `RUN`. `LIST`, `SAVE`, `NEW`, and
+`EXIT` manage source; see the [terminal guide](../docs/terminal.md). Each RUN
+starts fresh variables without discarding the stored source. During BASIC
+`INPUT`, the next line is the program's answer, even if it says `RUN` or `EXIT`.
+
+Ctrl+C interrupts a running program, including busy loops, INPUT and WAIT.
+File mode exits with status 130; the editor retains source and returns to its
+prompt. For library execution use `runAsync` with an instruction budget when
+termination is required. See the [host API](../docs/interpreter-host.md) and
+[language contract](../docs/language-v0.1.md).

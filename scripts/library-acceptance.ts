@@ -23,6 +23,7 @@ export const libraryAcceptanceCases = [
   'guessing game and fresh rerun',
   'times-table example',
   'graphics primitives and unsupported host diagnostics',
+  'cooperative WAIT, stepping, and cancellation',
   'stepping, reset, and instance isolation',
   'source-located syntax and runtime failures',
   'arithmetic and string failures preserve diagnostics and allow recovery',
@@ -199,6 +200,57 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
         return true;
       },
     );
+  });
+  await check('cooperative WAIT, stepping, and cancellation', async () => {
+    const durations: number[] = [];
+    const {basic, output} = setup([], {
+      wait(milliseconds) {
+        durations.push(milliseconds);
+        return Promise.resolve();
+      },
+    });
+    await basic.runAsync('10 WAIT .1\n20 WAIT 0\n30 PRINT "waited"');
+    assert.deepEqual(durations, [1, 0]);
+    assert.deepEqual(output, ['waited\n']);
+    basic.reset('10 WAIT 2\n20 PRINT "after step"');
+    const stepped = await basic.stepAsync();
+    assert.equal(stepped.currentLocation?.label, 10);
+    assert.equal(stepped.nextLocation?.label, 20);
+    assert.deepEqual(output, ['waited\n']);
+    basic.step();
+    let ready!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    let release!: () => void;
+    let signal: AbortSignal | undefined;
+    const pending = new api.Basic({
+      wait(_ms, options) {
+        signal = options?.signal;
+        ready();
+        return new Promise<void>((resolve) => {
+          release = resolve;
+        });
+      },
+    });
+    const old = pending.runAsync('10 WAIT 2147483647\n20 PRINT "old"');
+    const rejected = assert.rejects(old, {name: 'AbortError'});
+    await entered;
+    pending.run('30 END');
+    await rejected;
+    assert.equal(signal?.aborted, true);
+    const current = pending.state;
+    release();
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(pending.state, current);
+    await assert.rejects(basic.runAsync('10 WAIT 2147483648'), (error: unknown) => {
+      assert.ok(error instanceof api.BasicRuntimeError);
+      assert.equal(error.diagnostic.code, 'INVALID_WAIT_DURATION');
+      assert.equal(error.diagnostic.column, 9);
+      return true;
+    });
+    assert.equal((await new api.Basic().runAsync('10 WAIT 0')).status, 'halted');
   });
   await check('stepping, reset, and instance isolation', () => {
     const first = setup();

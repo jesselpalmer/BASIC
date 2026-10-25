@@ -5,6 +5,7 @@ import {Evaluator} from './evaluator.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
 import {readInput} from './input.ts';
+import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
 import type {PreparedProgram} from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
@@ -20,6 +21,7 @@ import type {
   RunStatus,
   SourceOptions,
   VariableSnapshot,
+  NodeOf,
 } from './types.ts';
 
 const emptyProgram = prepareProgram('');
@@ -38,7 +40,7 @@ export default class Basic {
   #usedLabels = new Set<number>();
   // Reset/cancel change this token before old suspended work can touch new state.
   #generation = 0;
-  #pendingInput: AbortController | null = null;
+  #pendingStatement: AbortController | null = null;
   // An async driver owns stepping until its promise settles, including yields.
   #activeRun: AbortController | null = null;
 
@@ -128,6 +130,7 @@ export default class Basic {
     if (signal?.aborted) controller.abort();
     this.#activeRun = controller;
     let executed = 0;
+    let statementsSinceYield = 0;
     try {
       this.#checkAbort(controller.signal);
       while (this.#status === 'ready' || this.#status === 'running') {
@@ -167,13 +170,18 @@ export default class Basic {
         if (generation !== this.#generation) throw abortError();
         this.#checkAbort(controller.signal);
         executed++;
+        // WAIT already yields a task. Begin a fresh batch so the next small
+        // animation frame is not split because of work before that boundary.
+        statementsSinceYield =
+          line?.statement.type === 'WaitStatement' ? 0 : statementsSinceYield + 1;
         if (
           (this.#status === 'ready' || this.#status === 'running') &&
-          executed % yieldEvery === 0 &&
+          statementsSinceYield >= yieldEvery &&
           executed !== instructionLimit
         ) {
           try {
             await yieldExecution(scheduler, controller.signal);
+            statementsSinceYield = 0;
           } catch (cause) {
             if (generation !== this.#generation || controller.signal.aborted) throw abortError();
             const next = this.#controlFlow.nextLine!;
@@ -243,10 +251,14 @@ export default class Basic {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     this.#checkAbort(signal);
     const line = this.#controlFlow.nextLine;
-    if (this.#immediate || line?.statement.type !== 'InputStatement') return this.#step();
+    if (
+      this.#immediate ||
+      (line?.statement.type !== 'InputStatement' && line?.statement.type !== 'WaitStatement')
+    )
+      return this.#step();
     const generation = this.#generation;
     this.#controlFlow.takeLine();
-    await this.#executeInput(line, signal);
+    await this.#executeSuspension(line, line.statement, signal);
     if (generation !== this.#generation) throw abortError();
     this.#checkAbort(signal);
     this.#status = 'running';
@@ -272,8 +284,8 @@ export default class Basic {
     this.#checkAbort(options.signal);
     const generation = this.#generation;
     const line = this.#prepareImmediate(source, options);
-    if (line?.statement.type === 'InputStatement') {
-      await this.#executeInput(line, options.signal);
+    if (line?.statement.type === 'InputStatement' || line?.statement.type === 'WaitStatement') {
+      await this.#executeSuspension(line, line.statement, options.signal);
       if (generation !== this.#generation) throw abortError();
       this.#checkAbort(options.signal);
       this.#status = 'running';
@@ -317,18 +329,20 @@ export default class Basic {
   #assertAvailable(): void {
     this.#assertIdle();
     if (this.#status === 'waiting')
-      throw new Error('Input is already pending; cancel or reset first');
+      throw new Error(
+        `${this.#current?.statement.type === 'WaitStatement' ? 'WAIT' : 'Input'} is already pending; cancel or reset first`,
+      );
     if (this.#activeRun && this.#status !== 'halted' && this.#status !== 'error')
       throw new Error('An async run is active; cancel or reset before stepping or immediate input');
   }
 
   #invalidateExecution(): void {
     this.#generation++;
-    const pending = this.#pendingInput;
+    const pending = this.#pendingStatement;
     const run = this.#activeRun;
     // Release ownership before abort listeners run synchronously. Those callbacks
     // receive the same reentrancy protection as callbacks during a statement.
-    this.#pendingInput = null;
+    this.#pendingStatement = null;
     this.#activeRun = null;
     this.#executing = true;
     try {
@@ -346,42 +360,57 @@ export default class Basic {
     }
   }
 
-  async #executeInput(line: ParsedLine, signal?: AbortSignal): Promise<void> {
-    const statement = line.statement;
-    if (statement.type !== 'InputStatement') throw new TypeError('Expected an INPUT statement');
+  async #executeSuspension(
+    line: ParsedLine,
+    statement: NodeOf<'InputStatement'> | NodeOf<'WaitStatement'>,
+    signal?: AbortSignal,
+  ): Promise<void> {
     const generation = this.#generation;
     const controller = new AbortController();
     const onAbort = () => controller.abort();
     signal?.addEventListener('abort', onAbort, {once: true});
     if (signal?.aborted) controller.abort();
-    this.#pendingInput = controller;
+    this.#pendingStatement = controller;
     this.#current = line;
     this.#status = 'waiting';
     try {
-      const value = await readInput(
-        {
-          readLine: (prompt, options) => {
-            this.#executing = true;
-            try {
-              return this.#host.readLine(prompt, options);
-            } finally {
-              this.#executing = false;
-            }
+      if (statement.type === 'WaitStatement') {
+        // waitFor evaluates and calls the host before its first await, so the
+        // same synchronous callback guard covers both phases of this statement.
+        let pending: Promise<void>;
+        this.#executing = true;
+        try {
+          pending = waitFor(this.#host, this.#evaluator, statement, controller.signal);
+        } finally {
+          this.#executing = false;
+        }
+        await pending;
+      } else {
+        const value = await readInput(
+          {
+            readLine: (prompt, options) => {
+              this.#executing = true;
+              try {
+                return this.#host.readLine(prompt, options);
+              } finally {
+                this.#executing = false;
+              }
+            },
+            write: (text) => {
+              this.#executing = true;
+              try {
+                this.#callHost('write', line, text);
+              } finally {
+                this.#executing = false;
+              }
+            },
           },
-          write: (text) => {
-            this.#executing = true;
-            try {
-              this.#callHost('write', line, text);
-            } finally {
-              this.#executing = false;
-            }
-          },
-        },
-        statement,
-        controller.signal,
-      );
-      if (generation !== this.#generation || controller.signal.aborted) throw abortError();
-      this.#evaluator.assign(statement.target, value);
+          statement,
+          controller.signal,
+        );
+        if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+        this.#evaluator.assign(statement.target, value);
+      }
     } catch (error) {
       if (generation === this.#generation) {
         if (isAbortError(error)) {
@@ -391,7 +420,7 @@ export default class Basic {
       throw error;
     } finally {
       signal?.removeEventListener('abort', onAbort);
-      if (this.#pendingInput === controller) this.#pendingInput = null;
+      if (this.#pendingStatement === controller) this.#pendingStatement = null;
     }
   }
 
@@ -443,6 +472,13 @@ export default class Basic {
           if (this.#evaluator.compare(statement.condition))
             this.#controlFlow.jump(statement.target.value, statement.target.location);
           break;
+        case 'WaitStatement':
+          throw new BasicRuntimeError(
+            'ASYNC_WAIT_REQUIRED',
+            'Use runAsync, stepAsync, or readLineAsync for WAIT',
+            statement.location.start,
+            line.label,
+          );
         case 'InputStatement':
           throw new BasicRuntimeError(
             'ASYNC_INPUT_REQUIRED',

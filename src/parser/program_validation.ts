@@ -27,6 +27,14 @@ export function validateProgram(lines: readonly ParsedLine[]): Program {
     labels.add(line.label);
   }
   for (const {statement} of lines) {
+    if (statement.type === 'WaitStatement' && expressionType(statement.duration) === 'string') {
+      throw new BasicSyntaxError(
+        'TYPE_MISMATCH',
+        'WAIT duration must be numeric',
+        statement.duration.location.start,
+        statement.location.label,
+      );
+    }
     if (
       statement.type === 'ColorStatement' ||
       statement.type === 'PsetStatement' ||

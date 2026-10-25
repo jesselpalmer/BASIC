@@ -46,10 +46,12 @@ The package exports the parser, evaluator, errors, and public types separately.
 `runAsync(sourceOrProgram?, {signal, instructionLimit, yieldEvery, scheduler, beforeStatement}?)`,
 `stepAsync({signal}?)`, and
 `readLineAsync(source, {line, offset, signal}?)` return promises and support
-`INPUT`. Their non-input behavior matches the synchronous methods. The existing
+`INPUT` and `WAIT`. Their other behavior matches the synchronous methods. The existing
 synchronous methods stay synchronous; reaching `INPUT` through them throws
 `ASYNC_INPUT_REQUIRED` before asking the host for a value. A synchronous run may
 still contain unreachable input after `END`.
+Executing WAIT synchronously similarly reports `ASYNC_WAIT_REQUIRED`; see
+[WAIT and animation](wait.md) for timing, range, host and cancellation rules.
 
 Each result contains:
 
@@ -68,7 +70,9 @@ remain mutable and do not affect the active snapshot after preparation.
 
 ## Statements and failures
 
-Implemented statements are `LET`, `INPUT`, `IF/THEN`, `GOTO`, `FOR`/`NEXT`, `PRINT`, `REM`, `CLS`, and `END`.
+Implemented statements are `LET`, `INPUT`, `WAIT`, `IF/THEN`, `GOTO`, `FOR`/`NEXT`,
+`PRINT`, `REM`, `CLS`, `END`, and the optional
+[graphics statements](graphics.md).
 [Expression evaluation](evaluator.md) supplies typed variables, arithmetic,
 string concatenation, and `ABS`, `INT`, and `RND`. Runs and instances never share
 mutable language state. Reset does not rewind the host's random sequence.
@@ -136,7 +140,7 @@ advance instructions. After `halted` or `error`, they retain their no-op behavio
 Reset, cancellation, and replacement runs remain available between callbacks.
 The REPL awaits program input before asking for another editor entry.
 
-`cancel()` aborts pending input or a scheduled batch, halts execution, and returns an immutable state.
+`cancel()` aborts pending input, WAIT, or a scheduled batch, halts execution, and returns an immutable state.
 The outstanding async operation rejects with `AbortError`. A supplied AbortSignal
 has the same effect. Reset or a new run also aborts the previous request and
 invalidates its continuation. The core settles cancellation even if the host
@@ -184,12 +188,13 @@ and statements are not part of the current terminal commands.
 It copies only these callbacks and invokes none during construction. `Basic.host`
 is a frozen callback object; caller-owned host instances remain mutable.
 
-| Callback                     | Contract                                                                                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `write(text)`                | Synchronous exact text output, including newlines. Default discards output.                                                                      |
-| `clear()`                    | Synchronous clear-display request. Default does nothing.                                                                                         |
-| `readLine(prompt, {signal})` | Promise resolving to a complete line without its ending, or null at EOF. Reject with AbortError on cancellation; default rejects as unsupported. |
-| `random()`                   | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
+| Callback                       | Contract                                                                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `write(text)`                  | Synchronous exact text output, including newlines. Default discards output.                                                                      |
+| `clear()`                      | Synchronous clear-display request. Default does nothing.                                                                                         |
+| `readLine(prompt, {signal})`   | Promise resolving to a complete line without its ending, or null at EOF. Reject with AbortError on cancellation; default rejects as unsupported. |
+| `wait(milliseconds, {signal})` | Promise completing a WAIT; default is a cancellable timer task. Receives validated, rounded milliseconds.                                        |
+| `random()`                     | Synchronous finite number >= 0 and < 1. Default is Math.random.                                                                                  |
 
 Input callbacks serve both the terminal prompt and BASIC `INPUT`. Async
 write/clear results are unsupported. `runAsync` also yields to host tasks every
@@ -197,6 +202,9 @@ write/clear results are unsupported. `runAsync` also yields to host tasks every
 size, and injectable `ExecutionScheduler`; these are run options rather than
 required host callbacks. See [responsive execution](execution.md) for limits,
 scheduler cancellation, and diagnostics. Synchronous execution remains blocking.
+
+`Host` includes `wait`; structurally typed complete hosts must provide it.
+`new Basic` and `createHost` accept partial hosts and fill it automatically.
 
 ## Terminal and file adapters
 

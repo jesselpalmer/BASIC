@@ -1,3 +1,4 @@
+import {defaultWait} from '../core/scheduling.ts';
 import {describe, expect, it, jest} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -19,6 +20,7 @@ function scriptedHost(answers: string[]) {
       return Promise.resolve(remaining.shift() ?? null);
     },
     random,
+    wait: defaultWait,
     close,
     clear() {},
     discardEntry() {},
