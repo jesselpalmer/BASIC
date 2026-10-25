@@ -10,6 +10,10 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add explicit native DIM, numeric/string arrays with one or two dimensions,
+  indexed reads/assignments, preflight allocation limits and bounded immutable
+  array observations. Preserve scalar DIM names and separate scalar/array storage.
+  Historical defaults/conversions, indexed INPUT and full 1CHECK support remain pending.
 - Carry explicit native dialect context through parser snapshots, preparation and
   runtime/evaluator instances. Reject unsupported metadata before effects while
   preserving legacy native trees. Historical profiles remain unavailable.
@@ -49,7 +53,7 @@ are not claimed as shipped.
   effects, including duplicate labels, missing targets and unmatched loops.
 - END completes a run without terminating the host. Numbered terminal entries
   edit stored source; use RUN. Legacy library readLine methods remain immediate.
-- The current snapshot remains a limited native dialect. Arrays, DATA/READ,
+- The current snapshot remains a limited native dialect. Historical array rules, DATA/READ,
   GOSUB/RETURN and other verified classic features are not implemented yet and
   now block 1.0. General immediate statements and sound remain optional unless
   the certified corpus establishes a dependency. Graphics and keyboard calls

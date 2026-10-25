@@ -4,6 +4,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
 import {pairLoops} from '../core/loops.ts';
+import {validateArrays} from '../core/array_declarations.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
@@ -90,6 +91,7 @@ export function validateProgram(
     .map((line) => ({...line, dialect}))
     .sort((a, b) => a.label - b.label);
   pairLoops(snapshot);
+  validateArrays(snapshot);
   return freezeTree({type: 'Program', dialect, lines: snapshot});
 }
 

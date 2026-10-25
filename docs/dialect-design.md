@@ -42,19 +42,19 @@ failed parsing. An unknown profile is an option error; an unsupported form in a
 known profile is a source-located feature diagnostic. A valid but unsupported
 program continues to block release. Profiles never grant filesystem access.
 
-| Rule            | Native invariant                                      | Verified historical difference / design consequence                                                                                                                                      |
-| --------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Undefined names | Error                                                 | BASIC-PLUS numeric/string variables initialize to 0/empty string (sections 3.6.2/5.1.2). Profile owns that policy.                                                                       |
-| Names           | Long ASCII names remain distinct                      | BASIC-PLUS 1972's elementary names are a letter with optional digit, plus type suffix. Do not use its tokenizer to reinterpret native names.                                             |
-| Labels          | 1..65535 and label whitespace                         | BASIC-PLUS 1972 documents 1..32767; DECsystem-10 documents five-digit limits. Every profile validates its own source and jump ranges.                                                    |
-| PRINT           | Existing semicolon concatenation and decimal spelling | Historical numeric padding, zones, cursor, precision and USING fields differ. Native text cannot silently acquire padding.                                                               |
-| RIGHT           | Currently unsupported                                 | BASIC-PLUS RIGHT uses a start index; DECsystem-10 RIGHT$ uses a count. Implement separately by selected semantics.                                                                       |
-| RND             | RND(), host sequence                                  | BASIC-PLUS documents bare RND/RND(X), ignored X and repeatable RUN sequences without RANDOMIZE. Preserve native behavior and explicit host ownership.                                    |
-| Arrays          | Currently unsupported                                 | BASIC-PLUS DIM is program-wide, inclusive of 0, supports scalar+array coexistence and implicit upper bound 10. Its allocation prepass must precede effects.                              |
-| Integers        | Finite doubles only                                   | BASIC-PLUS `%` conversion truncates and integer arithmetic is signed 16-bit with mixed-mode rules (chapter 6); do not substitute JS 32-bit behavior.                                     |
-| Power           | Currently unsupported                                 | BASIC-PLUS and DECsystem-10 manuals describe left-associative repeated exponentiation; BASIC-PLUS gives exponentiation precedence over unary minus. Do not import JavaScript precedence. |
-| Loop transfer   | Current lexical loop-frame invariants                 | Empty ranges, GOTO/GOSUB/FN transfers and modifiers need source-backed rules per version; do not invent loop frames.                                                                     |
-| INPUT           | Current whole-line target/retry contract              | Inline prompts are documented in BASIC-PLUS; the reviewed DECsystem-10 INPUT section is not sufficient evidence for that grammar. Lists/line/file input get their own rules.             |
+| Rule            | Native invariant                                       | Verified historical difference / design consequence                                                                                                                                               |
+| --------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Undefined names | Error                                                  | BASIC-PLUS numeric/string variables initialize to 0/empty string (sections 3.6.2/5.1.2). Profile owns that policy.                                                                                |
+| Names           | Long ASCII names remain distinct                       | BASIC-PLUS 1972's elementary names are a letter with optional digit, plus type suffix. Do not use its tokenizer to reinterpret native names.                                                      |
+| Labels          | 1..65535 and label whitespace                          | BASIC-PLUS 1972 documents 1..32767; DECsystem-10 documents five-digit limits. Every profile validates its own source and jump ranges.                                                             |
+| PRINT           | Existing semicolon concatenation and decimal spelling  | Historical numeric padding, zones, cursor, precision and USING fields differ. Native text cannot silently acquire padding.                                                                        |
+| RIGHT           | Currently unsupported                                  | BASIC-PLUS RIGHT uses a start index; DECsystem-10 RIGHT$ uses a count. Implement separately by selected semantics.                                                                                |
+| RND             | RND(), host sequence                                   | BASIC-PLUS documents bare RND/RND(X), ignored X and repeatable RUN sequences without RANDOMIZE. Preserve native behavior and explicit host ownership.                                             |
+| Arrays          | Explicit DIM, safe integer indices and bounded storage | BASIC-PLUS DIM is program-wide, inclusive of 0, supports scalar+array coexistence and implicit upper bound 10. Native shares explicit forms, but does not enable historical defaults/conversions. |
+| Integers        | Finite doubles only                                    | BASIC-PLUS `%` conversion truncates and integer arithmetic is signed 16-bit with mixed-mode rules (chapter 6); do not substitute JS 32-bit behavior.                                              |
+| Power           | Currently unsupported                                  | BASIC-PLUS and DECsystem-10 manuals describe left-associative repeated exponentiation; BASIC-PLUS gives exponentiation precedence over unary minus. Do not import JavaScript precedence.          |
+| Loop transfer   | Current lexical loop-frame invariants                  | Empty ranges, GOTO/GOSUB/FN transfers and modifiers need source-backed rules per version; do not invent loop frames.                                                                              |
+| INPUT           | Current whole-line target/retry contract               | Inline prompts are documented in BASIC-PLUS; the reviewed DECsystem-10 INPUT section is not sufficient evidence for that grammar. Lists/line/file input get their own rules.                      |
 
 Numbers remain `BasicValue` numbers unless a separately reviewed contract changes
 that API. Integer kind/range/mode belongs in runtime semantics, not implicit JS
@@ -137,6 +137,11 @@ The terminal/browser controls and public API changes need their own focused PRs;
 adding a parser option alone does not complete this part of #116 or #129.
 
 ## Shared parser, execution and observations
+
+The first [explicit native array contract](arrays.md) settles #58's native slice
+before implementation. It adopts verified explicit declaration/access forms,
+preserves DIM as an existing scalar name, and separates deliberate native limits
+and integer-index checks from unresolved historical defaults/conversions.
 
 Keep one scanner/parser and evaluator/runtime. A small immutable profile policy
 supplies documented choices to the module owning each rule; no plugin loader,

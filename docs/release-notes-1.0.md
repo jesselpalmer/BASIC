@@ -38,9 +38,10 @@ browser engines and mobile input are not validated targets. Serve the extracted
 playground over HTTP; no application backend or account is required.
 
 The target is the pinned classic collection with verified dialect rules, not
-general QBasic/GW-BASIC compatibility. Arrays, GOSUB/RETURN and corpus-required
-strings/data/formatting/control-flow/host features are now 1.0 blockers; they are
-not present yet. Sound and play-only exports remain optional unless required by
+general QBasic/GW-BASIC compatibility. Explicit native arrays are implemented;
+historical array policies, GOSUB/RETURN and corpus-required
+strings/data/formatting/control-flow/host features remain 1.0 blockers.
+Sound and play-only exports remain optional unless required by
 a verified dependency. The [native language reference](language-v1.md) and
 [support/extension policy](compatibility.md) define the supported contract.
 

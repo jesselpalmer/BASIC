@@ -48,6 +48,14 @@ export interface VariableSnapshot {
   readonly name: string;
   readonly value: BasicValue;
 }
+/** A bounded, detached prefix in rightmost-index-fastest order. */
+export interface ArraySnapshot {
+  readonly name: string;
+  readonly bounds: readonly number[];
+  readonly elementCount: number;
+  readonly values: readonly BasicValue[];
+  readonly truncated: boolean;
+}
 export type ComparisonOperator = '=' | '<>' | '<' | '<=' | '>' | '>=';
 /** Physical source coordinates; line/column are 1-based UTF-16 units, offset is 0-based. */
 export interface Position {
@@ -166,6 +174,17 @@ export interface NodeFields {
   NumberLiteral: {readonly value: number; readonly raw: string};
   StringLiteral: {readonly value: string; readonly raw: string};
   Variable: {readonly name: string};
+  ArrayReference: {
+    readonly name: string;
+    readonly nameLocation: Location;
+    readonly indices: readonly Expression[];
+  };
+  ArrayDeclaration: {
+    readonly name: string;
+    readonly nameLocation: Location;
+    readonly bounds: readonly NodeOf<'NumberLiteral'>[];
+  };
+  DimStatement: {readonly declarations: readonly ArrayDeclaration[]};
   GroupExpression: {readonly expression: Expression};
   UnaryExpression: {
     readonly operator: string;
@@ -198,7 +217,7 @@ export interface NodeFields {
     readonly step: Expression | null;
   };
   NextStatement: {readonly variable: NodeOf<'Variable'>};
-  LetStatement: {readonly target: NodeOf<'Variable'>; readonly expression: Expression};
+  LetStatement: {readonly target: AssignmentTarget; readonly expression: Expression};
   InputStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly target: NodeOf<'Variable'>;
@@ -239,13 +258,17 @@ export type Expression = Nodes<
   | 'NumberLiteral'
   | 'StringLiteral'
   | 'Variable'
+  | 'ArrayReference'
   | 'GroupExpression'
   | 'UnaryExpression'
   | 'BinaryExpression'
   | 'CallExpression'
 >;
+export type AssignmentTarget = NodeOf<'Variable'> | NodeOf<'ArrayReference'>;
+export type ArrayDeclaration = NodeOf<'ArrayDeclaration'>;
 export type Comparison = NodeOf<'Comparison'>;
 export type Statement = Nodes<
+  | 'DimStatement'
   | 'LetStatement'
   | 'InputStatement'
   | 'IfStatement'

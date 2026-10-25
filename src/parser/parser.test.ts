@@ -26,6 +26,8 @@ function shape(node: Expression): Shape {
       return ['string', node.value];
     case 'Variable':
       return ['variable', node.name];
+    case 'ArrayReference':
+      return ['array', node.name, ...node.indices.map(shape)];
     case 'GroupExpression':
       return ['group', shape(node.expression)];
     case 'UnaryExpression':
@@ -61,6 +63,7 @@ describe('expression parsing', () => {
     ['-(2+3)*4', ['*', ['-', ['group', ['+', 2, 3]]], 4]],
     ['int(rnd()*100)+abs(-.5)', ['+', ['INT', ['*', ['RND'], 100]], ['ABS', ['-', 0.5]]]],
     ['"a"+name$+"b"', ['+', ['+', ['string', 'a'], ['variable', 'NAME$']], ['string', 'b']]],
+    ['A(1+2)', ['array', 'A', ['+', 1, 2]]],
   ])('represents precedence and associativity for %s', (source, expected) => {
     const line = parseLine(`10 LET a = ${source}`);
     expect(narrow(line.statement, 'LetStatement').target).toMatchObject({
@@ -197,7 +200,6 @@ describe('statement parsing', () => {
     ['10 PRINT ABS(,1)', 'EXPECTED_EXPRESSION', 14],
     ['10 PRINT ABS(1,)', 'EXPECTED_EXPRESSION', 16],
     ['10 PRINT ABS(1 2)', 'EXPECTED_TOKEN', 16],
-    ['10 PRINT FOO(1)', 'UNKNOWN_FUNCTION', 10],
     ['10 CLS 1', 'UNEXPECTED_TOKEN', 8],
     ['10 END "extra"', 'UNEXPECTED_TOKEN', 8],
     ['10 "PRINT" "x"', 'UNSUPPORTED_STATEMENT', 4],

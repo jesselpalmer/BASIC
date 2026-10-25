@@ -57,6 +57,16 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(statements.stdout, 'Name? Count? Ada: 6\n');
   assert.equal(statements.stderr, '');
+  const board = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/arrays/board.bas')],
+    input: '1\n2\n1\n19\n0\n',
+  });
+  assert.equal(
+    board.stdout,
+    'pieces:48\nFrom? To? illegal\npieces:48\nFrom? To? pieces:47\nFrom? moves:1\n',
+  );
+  assert.equal(board.stderr, '');
   writeFileSync(file, '10 WAIT 0\n20 WAIT .1\n30 PRINT "waited"');
   const waited = runProcess({cwd: consumer, args: [executable, file]});
   assert.equal(waited.stdout, 'waited\n');

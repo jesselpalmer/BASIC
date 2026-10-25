@@ -58,6 +58,17 @@ snapshot untouched and subsequent parses start fresh.
 
 ## Syntax trees
 
+Array syntax adds `DimStatement` with `declarations`, `ArrayDeclaration` with
+`name`, `nameLocation` and literal `bounds`, and `ArrayReference` with `name`,
+`nameLocation` and expression `indices`. `ArrayReference` is an Expression and a
+valid LET target; public `AssignmentTarget` is the scalar/indexed target union.
+These are additions to closed public unions before the 1.0 freeze. INPUT and
+loop variables remain scalar. Ordinary `NAME(...)` syntax is now an array
+reference; built-ins still use CallExpression. Whole-program validation resolves
+all declarations, ranks, statically string indices and resource limits before
+effects, while parseLine permits undeclared/incomplete array edits. See
+[native arrays](arrays.md) for the exact forms and diagnostic rules.
+
 The root is `{type: 'Program', dialect: 'native', lines}`. Each `Line` has
 `dialect`, `label`, `statement`, `source`, and `location`. `source` preserves the physical line's original text,
 including leading/trailing spaces, without its LF/CRLF ending. Sorting leaves
@@ -79,7 +90,7 @@ counting as one source column. Line/statement spans exclude trailing whitespace.
 
 | Statement type   | Additional fields                                                                                                                      |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `LetStatement`   | `target` (`Variable`) and `expression`. `LET` is optional.                                                                             |
+| `LetStatement`   | `target` (`Variable` or `ArrayReference`) and `expression`. `LET` is optional.                                                         |
 | `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
 | `IfStatement`    | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                             |
 | `GotoStatement`  | `target` (`NumberLiteral`).                                                                                                            |
@@ -106,7 +117,8 @@ semicolons, comma-based output zones, and trailing unconsumed tokens are errors.
 Multiplication/division bind more tightly than addition/subtraction; binary
 operators associate left. Unary signs associate right and bind above binary
 operators. Parentheses and calls are explicit nodes. `ABS`, `INT`, and `RND`
-require parentheses; unknown functions and reserved names as variable targets
+require parentheses. Other names with parentheses are array references, checked
+against DIM during whole-program validation. Reserved names as variable targets
 are rejected. Standalone legacy `ABS`/`INT` commands are not parser syntax.
 
 `Comparison` is a separate node, not an expression value. It has `left`/`right`
