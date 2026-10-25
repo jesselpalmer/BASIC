@@ -100,6 +100,17 @@ filesystem or process. Provenance/redistribution evidence must be recorded befor
 full third-party fixtures are bundled; upstream repository metadata has no license,
 while the linked book scan marks public-domain status. These are distinct sources.
 
+## Source and design records
+
+The [structured ledger](classic-games-ledger.json),
+[source review records](classic-source-review.md), and
+[dialect design](dialect-design.md) track the current evidence and decisions.
+All 108 files remain in scope. A verified construct may be implemented after its
+own source/design gate is settled; unrelated unresolved programs remain release
+blockers. Do not require an unsupported interpreter to certify its own inputs.
+Native optional LET and GO TO are the first unambiguous grammar extensions;
+historical semantic changes still require explicit verified profiles.
+
 ## Delivery order and tickets
 
 All listed feature tickets are P1 / High release blockers when required by the
