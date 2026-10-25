@@ -1,71 +1,49 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 — prepared release
 
-- Add a complete one-player Pong example with BASIC gameplay, a computer
-  opponent, first-to-three scoring, Space serves, win/loss and restart.
-  Verify collisions, playthroughs, lifecycle and exported-source round trips.
+The exact candidate, validation and publication status are recorded in
+[release readiness #109](https://github.com/jesselpalmer/BASIC/issues/109).
+The earlier unpublished 0.1.0 preparation was a development milestone.
 
-- Add `INKEY$()` and `KEYDOWN(name)` with optional host keyboard capabilities,
-  a focused game canvas, a bounded press queue, and an arrow-key marker example.
-  Focus, pause, INPUT, and terminal transitions clear queued and held keys.
-
-- Add cooperative `WAIT` with bounded millisecond durations, cancellable host
-  timers, async stepping, and a downloadable bouncing-ball example. The browser
-  uploads the complete buffered frame before waiting; Stop and reruns release
-  pending timers.
-
-- Add Pause, Continue, Step, and read-only variable/source inspection using the
-  shared runtime's statement boundary gate.
-- Add a fixed 320×200 browser canvas, 16-color palette, `COLOR`, `PSET`, `LINE`,
-  and `CIRCLE`, plus a downloadable picture example. Graphics hosts are optional;
-  the terminal reports a source-located unsupported-host error. Rendering work
-  stays bounded even for enormous clipped coordinates.
-
-- Add a static browser playground using the existing parser and runtime, with
-  editable source, actual examples, INPUT, Run/Stop, diagnostics, and bounded
-  output rendering.
-- Preserve local drafts and support protected import and exact `.bas` export.
-  Storage and read failures leave editable work available.
-- Verify the real browser UI on Linux/macOS with Chromium, including infinite
-  loop cancellation, stale input/import isolation, and browser-to-terminal file
-  round trips. The playground builds from a checkout; public hosting is not
-  configured.
-
-## 0.1.0 — release candidate
-
-This candidate prepares the terminal MVP. No registry publication or release tag
-is created by the preparation or validation steps.
-
-- Add typed numeric/string variables, arithmetic and string expressions,
-  `ABS(x)`, `INT(x)`, and host-provided `RND()`.
-- Support `LET`, `PRINT`, `INPUT`, `IF`/`THEN`, `GOTO`, nested `FOR`/`NEXT`,
-  `REM`, `CLS`, and `END`, with numeric line-label execution order.
-- Add stored-program editing with replacement/deletion, `LIST`, `RUN`, `NEW`,
-  `LOAD`, `SAVE`, and `EXIT`; preserve unsaved source after errors and interrupts,
-  confirm destructive actions, and print recovery source at unsaved EOF.
-- Validate complete programs before effects and report source-located errors.
-  Yield asynchronous runs so pending input and busy loops can be interrupted.
-- Provide a quiet embeddable API with synchronous/asynchronous execution,
-  stepping, cancellation, isolated run state, and injected host capabilities.
-- Ship TypeScript source, public types, the installed `basic` command, language
-  and API documentation, and runnable greeting, times-table, and guessing-game
-  examples. Test packed installations and ESM/CommonJS consumers on Bun.
+- Ship a TypeScript/Bun library and terminal with typed expressions, ABS/INT/RND,
+  LET/PRINT/INPUT, IF/THEN/GOTO, nested FOR/NEXT, REM, CLS and END.
+- Add stored-program editing with LIST/RUN/NEW/LOAD/SAVE/EXIT, protected source
+  replacement, recoverable errors, staged file writes and source recovery at EOF.
+- Provide immutable parser/runtime observations, quiet imports, isolated runs,
+  async input/cancellation, instruction budgets, host callbacks and public types.
+- Add a static browser playground using the shared parser/runtime, exact source
+  import/export, local draft recovery, bounded output, Run/Stop/Escape and INPUT.
+- Add Pause/Continue/Step, read-only variable inspection and physical source
+  highlighting through the shared statement gate.
+- Add a fixed 320 × 200 canvas, 16-color palette, COLOR/PSET/LINE/CIRCLE and
+  bounded clipping/rasterization, including enormous offscreen coordinates.
+- Add cooperative WAIT with guarded duration limits and cancellable timers;
+  present complete buffered frames before waiting.
+- Add focused INKEY$/KEYDOWN input with a bounded queue, repeat suppression,
+  modifier-safe release and lifecycle cleanup. Escape remains reserved for Stop.
+- Include greeting, times-table, guessing-game, picture, bouncing-ball,
+  arrow-key marker and complete one-player Pong examples. Pong has BASIC
+  gameplay, Space serves, a computer opponent, scoring, win/loss and restart.
+- Verify installed ESM/CommonJS consumers, public types, local/global CLI,
+  persistence/interruption and actual Chromium UI on Linux/macOS. Release
+  preparation validates the exact npm and versioned static archives separately.
 
 ### Migration from 0.0.10
 
 - Bun >=1.4.4 is required; Node.js alone is not a supported runtime. ESM imports
-  and CommonJS `require` are supported on Bun. There is no build step.
+  and CommonJS require are supported on Bun; the package ships TypeScript source.
 - Replace standalone `10 ABS "-3.14"` with `10 PRINT ABS(-3.14)` and standalone
-  `20 INT "-1.6"` with `20 PRINT INT(-1.6)`. `INT` floors toward negative infinity.
-- Files execute in numeric label order and reject invalid syntax, duplicate
-  labels, missing targets, and unmatched loops before effects, even after `END`.
-- `END` completes a run without terminating the embedding process. Terminal
-  numbered entries edit source; use `RUN` to execute them. Legacy library
-  `readLine` methods remain immediate-entry adapters.
-- This is a limited BASIC dialect, not a QBasic or GW-BASIC compatibility release.
-  Arrays, `DATA`/`READ`, `GOSUB`/`RETURN`, general immediate statements, graphics,
-  sound, and a browser host are outside v0.1.0.
+  `20 INT "-1.6"` with `20 PRINT INT(-1.6)`. INT floors toward negative infinity.
+- Files execute in numeric label order and validate complete source before
+  effects, including duplicate labels, missing targets and unmatched loops.
+- END completes a run without terminating the host. Numbered terminal entries
+  edit stored source; use RUN. Legacy library readLine methods remain immediate.
+- This is a limited dialect, not a QBasic/GW-BASIC compatibility release. Arrays,
+  DATA/READ, GOSUB/RETURN, general immediate statements and sound remain outside
+  1.0. Graphics and keyboard calls need their optional host capabilities.
 
-See the [language reference](docs/language-v0.1.md),
-[terminal guide](docs/terminal.md), and [release checklist](docs/release-checklist.md).
+See the [language reference](docs/language-v1.md),
+[support/extension and migration policy](docs/compatibility.md),
+[release notes](docs/release-notes-1.0.md), and
+[release checklist](docs/release-checklist.md).

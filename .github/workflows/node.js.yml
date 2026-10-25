@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: .bun-version
@@ -26,6 +28,15 @@ jobs:
       - run: bun run check
       - run: bun ./node_modules/@playwright/test/cli.js install --with-deps chromium --only-shell
       - run: bun run test:browser
+      - run: bun run build:release
+      - run: bun run test:release
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.os }}
+          path: dist/release/
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload coverage
         if: ${{ !cancelled() && hashFiles('coverage/lcov.info') != '' }}
         uses: actions/upload-artifact@v7

@@ -2,6 +2,8 @@ import {defineConfig} from '@playwright/test';
 import {resolve} from 'node:path';
 
 const root = resolve(import.meta.dirname, '../..');
+const staticRoot = process.env.BASIC_BROWSER_STATIC_ROOT;
+const shellQuote = (value: string) => "'" + value.replaceAll("'", "'\"'\"'") + "'";
 
 export default defineConfig({
   testDir: import.meta.dirname,
@@ -25,7 +27,9 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'bun run serve:playground',
+    command: staticRoot
+      ? `python3 -m http.server 4173 --bind 127.0.0.1 --directory ${shellQuote(staticRoot)}`
+      : 'bun run serve:playground',
     cwd: root,
     env: {BASIC_PLAYGROUND_PORT: '4173'},
     url: 'http://127.0.0.1:4173',

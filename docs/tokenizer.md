@@ -1,6 +1,6 @@
 # Tokenization and source diagnostics
 
-The [language and session contract](language-v0.1.md) defines supported syntax;
+The [language and session contract](language-v1.md) defines supported syntax;
 recognizing a token alone does not make it an executable statement.
 
 `src/parser/tokenizer.ts` provides the internal, host-independent
