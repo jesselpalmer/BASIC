@@ -22,6 +22,7 @@ import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {maxLineStatements} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
+import {maxInputTargets} from '../core/input.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -284,9 +285,23 @@ class Parser {
           prompt = this.node('StringLiteral', text, text, {value: text.value, raw: text.raw});
           this.expect('PUNCTUATION', ';', 'Expected ; after the INPUT prompt');
         }
-        const name = this.expect('IDENTIFIER', undefined, 'Expected one variable after INPUT');
-        const target = this.node('Variable', name, name, {name: name.value});
-        return this.node('InputStatement', command, target, {prompt, target});
+        const targets: NodeFields['InputTargetsStatement']['targets'][number][] = [];
+        for (;;) {
+          if (targets.length === maxInputTargets)
+            this.fail('INPUT_LIMIT', `INPUT permits at most ${maxInputTargets} targets`);
+          const name = this.expect(
+            'IDENTIFIER',
+            undefined,
+            'Expected a variable or array after INPUT',
+          );
+          targets.push(this.reference(name));
+          if (!this.at('PUNCTUATION', ',')) break;
+          this.take();
+        }
+        const target = targets[0];
+        if (targets.length === 1 && target.type === 'Variable')
+          return this.node('InputStatement', command, target, {prompt, target});
+        return this.node('InputTargetsStatement', command, targets.at(-1)!, {prompt, targets});
       }
       case 'REM': {
         const comment = this.expect('COMMENT', undefined, 'Expected comment');

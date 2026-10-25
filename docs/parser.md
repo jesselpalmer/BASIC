@@ -69,8 +69,9 @@ Array syntax adds `DimStatement` with `declarations`, `ArrayDeclaration` with
 `name`, `nameLocation` and literal `bounds`, and `ArrayReference` with `name`,
 `nameLocation` and expression `indices`. `ArrayReference` is an Expression and a
 valid LET target; public `AssignmentTarget` is the scalar/indexed target union.
-These are additions to closed public unions before the 1.0 freeze. INPUT and
-loop variables remain scalar. Ordinary `NAME(...)` syntax is now an array
+These are additions to closed public unions before the 1.0 freeze. Loop variables
+remain scalar; the [INPUT extension](input-targets.md) also accepts array targets.
+Ordinary `NAME(...)` syntax is now an array
 reference; built-ins still use CallExpression. Whole-program validation resolves
 all declarations, ranks, statically string indices and resource limits before
 effects, while parseLine permits undeclared/incomplete array edits. See
@@ -95,18 +96,19 @@ Every line, statement, and expression has a `location` containing `label`,
 1-based physical lines/columns, 0-based UTF-16 offsets, exclusive ends, and tabs
 counting as one source column. Line/statement spans exclude trailing whitespace.
 
-| Statement type   | Additional fields                                                                                                                      |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `LetStatement`   | `target` (`Variable` or `ArrayReference`) and `expression`. `LET` is optional.                                                         |
-| `InputStatement` | `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`; exactly one target is accepted. |
-| `IfStatement`    | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                             |
-| `GotoStatement`  | `target` (`NumberLiteral`).                                                                                                            |
-| `ForStatement`   | Numeric `variable` (`Variable`), `start`/`end` expressions, and `step` (expression or null for default 1).                             |
-| `NextStatement`  | Numeric `variable` (`Variable`); it is required.                                                                                       |
-| `PrintStatement` | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`.                                                    |
-| `RemStatement`   | `text`, including all whitespace/text after `REM`.                                                                                     |
-| `ClsStatement`   | None. No arguments permitted.                                                                                                          |
-| `EndStatement`   | None. No arguments permitted.                                                                                                          |
+| Statement type          | Additional fields                                                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `LetStatement`          | `target` (`Variable` or `ArrayReference`) and `expression`. `LET` is optional.                                                      |
+| `InputStatement`        | Existing single-scalar form: `target` (`Variable`) and `prompt` (`StringLiteral` or null). An optional literal prompt requires `;`. |
+| `InputTargetsStatement` | New list/indexed form: readonly `targets` (`AssignmentTarget` list) and the same optional literal `prompt`.                         |
+| `IfStatement`           | `condition` (`Comparison`) and `target` (`NumberLiteral`).                                                                          |
+| `GotoStatement`         | `target` (`NumberLiteral`).                                                                                                         |
+| `ForStatement`          | Numeric `variable` (`Variable`), `start`/`end` expressions, and `step` (expression or null for default 1).                          |
+| `NextStatement`         | Numeric `variable` (`Variable`); it is required.                                                                                    |
+| `PrintStatement`        | `items` (expressions), `separators` (semicolon locations), and `trailingSemicolon`.                                                 |
+| `RemStatement`          | `text`, including all whitespace/text after `REM`.                                                                                  |
+| `ClsStatement`          | None. No arguments permitted.                                                                                                       |
+| `EndStatement`          | None. No arguments permitted.                                                                                                       |
 
 Blank `PRINT` has no items/separators and `trailingSemicolon: false`. Semicolon
 locations include a trailing semicolon when present. Empty items, leading

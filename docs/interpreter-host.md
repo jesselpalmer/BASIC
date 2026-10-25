@@ -198,6 +198,8 @@ immediately, and share variables across entries. They do not edit terminal sourc
 `DIM`, `DATA`, `READ`, `RESTORE`, `IF`, `GOTO`, `GOSUB`, `RETURN`, `FOR`, and `NEXT`
 require a complete prepared program and report
 `PROGRAM_REQUIRED` in this adapter. Use `run`/`runAsync`/`reset` for control flow.
+Scalar INPUT lists work through readLineAsync; indexed immediate INPUT reports
+PROGRAM_REQUIRED before asking because DIM requires a complete program.
 Immediate entries run in arrival order; duplicate numeric labels fail. Blank
 fragments do nothing, and `END` or an error blocks later entries until reset.
 
@@ -309,3 +311,10 @@ gate and instruction-budget unit. Locations identify real callee/return position
 INPUT/WAIT inside a call preserve the same async ownership and generation rules.
 END/cancel/error/reset clear all call and loop frames. Native call depth is
 bounded at 1024; see [subroutines](subroutines.md).
+
+INPUT lists retain the same request-bound host readLine callback and cancellation
+ownership. Decode/convert the complete row before committing any targets, then
+check generation/abort and assign left to right under the synchronous callback
+guard. Numeric/format retries cost no extra statement. Existing InputStatement
+retains its scalar-only target field; new InputTargetsStatement carries indexed
+or multiple targets. See [INPUT target lists](input-targets.md).

@@ -9,6 +9,7 @@ const simpleKinds: Record<SimpleStatement['type'], true> = {
   DimStatement: true,
   LetStatement: true,
   InputStatement: true,
+  InputTargetsStatement: true,
   IfStatement: true,
   GotoStatement: true,
   GosubStatement: true,

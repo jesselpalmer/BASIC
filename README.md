@@ -18,6 +18,8 @@ are supported; historical profiles remain pending. See the [array contract](docs
 and [subroutine contract](docs/subroutines.md) for native limits and semantics.
 The [data contract](docs/data-statements.md) covers ordered pools, target lists,
 RESTORE and explicit exhaustion errors.
+Native [INPUT target lists](docs/input-targets.md) accept coordinate pairs and
+explicit array elements, with complete-row retries and preserved single-string input.
 The new scope does not claim general QBasic or GW-BASIC compatibility.
 Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
 these native extensions preserve existing names and execution semantics. Native PRINT
@@ -247,7 +249,7 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 | Statement                                                 | Behavior                                                                                                      |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `[LET] name = expression`                                 | Assign a number, or a string to a name ending in `$`.                                                         |
-| `INPUT ["prompt";] name`                                  | Read a number, or literal text for a `$` name; invalid numeric input retries.                                 |
+| `INPUT ["prompt";] target [, target ...]`                 | Read scalars/array elements; a list retries a complete comma-separated row. Single strings retain raw text.   |
 | `WAIT milliseconds`                                       | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
 | `IF left comparison right THEN line`                      | Jump when one comparison is true; otherwise continue to the next line.                                        |
 | `GOTO line` / `GO TO line`                                | Jump to an existing literal line label.                                                                       |
@@ -314,11 +316,17 @@ Files and REPL entries can now request input:
 ```
 
 The host displays `What is your name? ` (or `? ` without a prompt). String
-answers preserve whitespace and require no quotes. Numeric answers must be
+answers to a single string target preserve whitespace and require no quotes. Numeric answers must be
 complete finite signed decimals, with surrounding spaces/tabs allowed; invalid
 answers receive a retry message. EOF during input fails with a source location;
 Ctrl+C cancels the run and returns to the interactive editor. In file mode it
 exits with code 130.
+
+Use `INPUT X,Y` for a pair in one response, such as `2,3`, or
+`DIM A(2):INPUT I,A(I)` for indexed targets. Lists validate the complete row
+before assigning left to right; quoted fields can contain commas and doubled
+quotes. Short/surplus/malformed rows retry without partial assignment. See the
+[native input contract](docs/input-targets.md) for limits and historical differences.
 
 For library programs with `INPUT` or `WAIT`, use `await basic.runAsync(source, {signal})`.
 `stepAsync` and `readLineAsync` are also available, and `basic.cancel()` stops a

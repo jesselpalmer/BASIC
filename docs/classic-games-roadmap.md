@@ -177,6 +177,12 @@ freeze the public closed AST/reserved-word/host contract before these decisions.
 
 ## Release evidence
 
+The [native INPUT target slice](input-targets.md) adds scalar/array lists,
+whole-row retries and guarded sequential commit while preserving existing
+single-scalar syntax and raw string responses. Its authored probe retains
+unchanged MUGWUMP 290/300. This is partial #121 progress, not a whole-game pass;
+historical continuation/surplus/line/file rules remain open and #109 NOT READY.
+
 The [native DATA/READ/RESTORE slice](data-statements.md) now provides ordered
 literal pools, scalar/array target lists and a fresh run-owned cursor shared
 across calls, with bounded preparation and explicit exhaustion. Its authored

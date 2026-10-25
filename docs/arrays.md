@@ -50,7 +50,10 @@ Native arrays adopt those explicit forms, with the following bounded contract:
   metadata is bounded by the declaration limit. The current browser Variables
   panel remains scalar-only; programs can inspect cells through PRINT.
 
-Indexed INPUT, integer `%` arrays, implicit dimensions, square brackets, MAT,
+The later [INPUT target extension](input-targets.md) now accepts indexed input
+and mixed scalar/array lists through the same rank/bounds/evaluation rules.
+Single indexed strings receive the raw response; lists use explicit field rules.
+Integer `%` arrays, implicit dimensions, square brackets, MAT,
 redimensioning and historical fractional-subscript rules are not enabled by this
 slice. No source correction or historical compatibility pass is implied.
 
