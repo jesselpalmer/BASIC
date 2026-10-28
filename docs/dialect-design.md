@@ -11,6 +11,9 @@ lexical conformance gates before exposing a historical selection. The
 [intrinsic-resolution contract](intrinsic-resolution.md) preserves existing
 native scalar/array names and separates historical signatures, result typing and
 continued numeric-error behavior from native evaluation.
+The [integer/comparison contract](integer-semantics.md) and
+[numeric representation contract](numeric-representation.md) record scan-verified
+conversion, mixed-mode, word/float and continued-error requirements before code.
 The [source review](classic-source-review.md) records the evidence already checked.
 
 ## Preserve meaning before broadening syntax
