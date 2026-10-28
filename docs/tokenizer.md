@@ -7,6 +7,8 @@ recognizing a token alone does not make it an executable statement.
 `tokenize(source, options = {})` function. It performs no execution, filesystem
 access, or JavaScript evaluation. Every call owns its state; tokenizing a failed
 or successful input cannot affect another call.
+The sections below describe the default native policy; the internal historical
+conformance boundary is described separately at the end.
 
 The default input is numbered BASIC source. Blank lines are accepted. The
 tokenizer enforces complete decimal labels in the range 1–65535 and requires a
@@ -30,18 +32,18 @@ columns are 1-based, offsets are 0-based, and `end` is exclusive. Columns and
 offsets count JavaScript UTF-16 code units, so a tab counts as one source column.
 `label` is the current numeric BASIC label, or `null` on unnumbered/blank lines.
 
-| Type          | Value                                                                   |
-| ------------- | ----------------------------------------------------------------------- |
-| `LABEL`       | Numeric label, with original spelling in `raw`.                         |
-| `KEYWORD`     | Uppercase reserved word, including built-ins and session commands.      |
-| `IDENTIFIER`  | Uppercase ASCII name, optionally ending in `$`.                         |
-| `NUMBER`      | Finite unsigned decimal value; `+` and `-` are separate operators.      |
-| `STRING`      | Decoded text: doubled quotes become one quote; other text is unchanged. |
-| `OPERATOR`    | `+`, `-`, `*`, `/`, `=`, `<>`, `<`, `<=`, `>`, or `>=`.                 |
-| `PUNCTUATION` | `(`, `)`, `;`, or `,`. Recognition does not imply a valid statement.    |
-| `COMMENT`     | Everything after `REM` until the line ending, including leading spaces. |
-| `NEWLINE`     | `null`; `raw` preserves LF or CRLF, and `end` starts the next line.     |
-| `EOF`         | `null`; zero-width position immediately after the source.               |
+| Type          | Value                                                                     |
+| ------------- | ------------------------------------------------------------------------- |
+| `LABEL`       | Numeric label, with original spelling in `raw`.                           |
+| `KEYWORD`     | Uppercase reserved word, including built-ins and session commands.        |
+| `IDENTIFIER`  | Uppercase ASCII name, optionally ending in `$`.                           |
+| `NUMBER`      | Finite unsigned decimal value; `+` and `-` are separate operators.        |
+| `STRING`      | Decoded text: doubled quotes become one quote; other text is unchanged.   |
+| `OPERATOR`    | `+`, `-`, `*`, `/`, `^`, `=`, `<>`, `<`, `<=`, `>`, or `>=`.              |
+| `PUNCTUATION` | `(`, `)`, `;`, `,`, or `:`. Recognition does not imply a valid statement. |
+| `COMMENT`     | Everything after `REM` until the line ending, including leading spaces.   |
+| `NEWLINE`     | `null`; `raw` preserves LF or CRLF, and `end` starts the next line.       |
+| `EOF`         | `null`; zero-width position immediately after the source.                 |
 
 Spaces and tabs outside strings/comments are skipped. Newlines remain explicit
 statement boundaries. `REM` produces a comment token even for an empty comment.
@@ -57,10 +59,10 @@ commands are reserved names but are rejected as numbered BASIC statements;
 runtime's dispatch determine executable statements. This dictionary is neither
 an unused legacy list nor a promise that every keyword is a statement.
 
-Numeric-looking words must be complete decimal literals. `12oops`, `1e2`,
+Numeric-looking words must be complete decimal/scientific literals. `12oops`, `1e+`,
 `0x10`, `1.2.3`, and non-finite decimal values fail instead of yielding a valid
 numeric prefix. `NaN` and `Infinity` follow the identifier grammar; they are
-never special numeric literals. Colons, apostrophe comments, lone CR, and other
+never special numeric literals. Apostrophe comments, lone CR, and other
 unsupported characters fail outside strings/comments.
 
 ## Errors and current integration
@@ -90,3 +92,13 @@ uses the same parser and statement executor; no legacy command fallback remains.
 
 `bun test` covers token values/boundaries, exact positions, malformed inputs,
 state isolation, interpreter integration, and CLI diagnostics/recovery.
+
+## Internal historical conformance
+
+The internal tokenizer alone also accepts `lexicalPolicy: 'basic-plus-1972-10'`
+for the closed, source-backed subset in [scanner conformance](scanner-conformance.md).
+It reuses the same Scanner and source positions while separating compact labels,
+short names, documented words and E-number boundaries. Unsupported literal modes
+fail explicitly rather than being interpreted under native rules. This internal
+selection is not a public Dialect or parser/runtime option; it enables no game
+execution. The parser and interpreter continue to accept only native context.

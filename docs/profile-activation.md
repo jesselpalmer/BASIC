@@ -1,8 +1,9 @@
 # Historical profile activation and compact lexing
 
-**Status:** design for #116/#117, before implementation. `Dialect` still accepts
-only `native`. No historical scanner, runtime profile, document format or CLI
-option is enabled by this document. #115/#129 remain open and #109 is NOT READY.
+**Status:** design for #116/#117; the first internal scanner-conformance stage is
+implemented in [scanner conformance](scanner-conformance.md). `Dialect` still
+accepts only `native`. No historical runtime profile, document format or CLI
+option is enabled. #115/#129 remain open and #109 is NOT READY.
 
 ## Decision
 
