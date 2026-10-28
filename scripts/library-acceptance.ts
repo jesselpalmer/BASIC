@@ -39,6 +39,7 @@ export const libraryAcceptanceCases = [
   'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
   'inline conditionals preserve physical clause scope, nested tests and call continuations',
   'computed dispatch selects bounded targets and preserves real call continuations',
+  'native intrinsic signatures preserve errors, result types and host evaluation order',
   'public evaluator values and diagnostics',
   'greeting preserves input',
   'guessing game and fresh rerun',
@@ -565,6 +566,68 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       const io = setup(['7'], {wait: () => Promise.resolve()});
       await io.basic.runAsync('10 ON 1 GOSUB 100:PRINT N:END\n100 INPUT N:WAIT 0:RETURN');
       assert.equal(io.output.join(''), '7\n');
+    },
+  );
+  await check(
+    'native intrinsic signatures preserve errors, result types and host evaluation order',
+    () => {
+      const trace: string[] = [];
+      const evaluator = new api.Evaluator({
+        random: () => {
+          trace.push('random');
+          return 0.25;
+        },
+        readKey: () => {
+          trace.push('key');
+          return 'A';
+        },
+        keyDown: (key) => {
+          trace.push('down:' + key);
+          return key === 'A';
+        },
+      });
+      function expression(source: string) {
+        const line = api.parseLine('10 PRINT ' + source)!;
+        assert.equal(line.statement.type, 'PrintStatement');
+        if (line.statement.type !== 'PrintStatement') throw Error('Expected PRINT');
+        return line.statement.items[0];
+      }
+      assert.equal(evaluator.evaluate(expression('INT(ABS(-2.9))+RND()')), 2.25);
+      assert.deepEqual(trace, ['random']);
+      trace.length = 0;
+      assert.equal(evaluator.evaluate(expression('KEYDOWN(INKEY$())')), 1);
+      assert.deepEqual(trace, ['key', 'down:A']);
+      for (const source of ['RND(RND())', 'ABS(RND(),INKEY$())', 'INKEY$(RND())', 'KEYDOWN()']) {
+        trace.length = 0;
+        assert.throws(
+          () => evaluator.evaluate(expression(source)),
+          (error: unknown) =>
+            error instanceof api.BasicRuntimeError &&
+            error.diagnostic.code === 'INVALID_ARGUMENT_COUNT',
+        );
+        assert.deepEqual(trace, []);
+      }
+      trace.length = 0;
+      assert.throws(
+        () => evaluator.evaluate(expression('ABS(INKEY$())+RND()')),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'TYPE_MISMATCH',
+      );
+      assert.deepEqual(trace, ['key']);
+      const unknown = structuredClone(expression('ABS(RND())'));
+      Reflect.set(unknown, 'name', 'toString');
+      trace.length = 0;
+      assert.throws(
+        () => evaluator.evaluate(unknown),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'UNKNOWN_FUNCTION',
+      );
+      assert.deepEqual(trace, []);
+      const {basic, output} = setup();
+      basic.run('10 END\n20 PRINT RND(1)');
+      assert.deepEqual(output, []);
+      basic.run('10 DIM SQR(1):SQR=2:SQR(1)=3:EXP=4:PRINT SQR;SQR(1);EXP');
+      assert.deepEqual(output, ['234\n']);
     },
   );
   await check('public evaluator values and diagnostics', () => {

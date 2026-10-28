@@ -91,6 +91,12 @@ Numbers otherwise follow JavaScript's IEEE 754 arithmetic.
 - `KEYDOWN(name)` takes a string and returns numeric 1 or 0 for the held key.
   Both require optional host capabilities; see [keyboard input](keyboard.md).
 
+An internal immutable signature lookup keeps the five recognized native names,
+arities and result types consistent across parser recognition, inference and
+evaluation. It adds no function, alias or reserved name; SQR/EXP/etc remain native
+scalar/array names. Function implementations stay in this evaluator. See the
+[resolution contract](intrinsic-resolution.md#first-shared-native-signature-slice).
+
 Arity is checked before evaluating any arguments, so `ABS(RND(), RND())` fails
 without consuming randomness. A failed evaluation leaves variables usable for
 subsequent evaluations; it does not roll back random calls already made. The

@@ -34,6 +34,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/dispatch.ts`                    | Bounded immutable ON target validation and one-based truncated selector resolution.                                  |
 | `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                      |
 | `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
+| `core/intrinsics.ts`                  | Immutable native call identities, arities and result types shared by parsing, inference and evaluation.              |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |

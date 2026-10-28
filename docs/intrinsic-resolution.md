@@ -78,6 +78,41 @@ call or scaffold. Do not repair other suspicious source lines to get a whole-gam
 pass. DEF FN, compact spelling, RNG, formatting and other dependencies remain
 separate gates even when an isolated formula succeeds.
 
+## First shared native signature slice
+
+**Status:** implemented; design recorded before code. No historical functions are added.
+
+The current native ABS, INT, RND, INKEY$ and KEYDOWN signatures have one
+internal immutable owner in `core/intrinsics.ts`. An exhaustive canonical-name
+lookup returns the recognized name, arity and result type; unknown names return
+null. Each signature is frozen and carries no implementation callback. The
+lexical reserved-word set remains separate and unchanged.
+
+The parser uses this lookup only where it already recognizes native calls.
+The evaluator uses it for the existing unknown-name and arity checks before
+scheduling argument evaluation. Result-type inference uses its declared
+result type, retaining the existing numeric fallback for unknown constructed
+CallExpression names. No new whole-program call validation is introduced.
+
+Preserve case-sensitive constructed call identities, exact diagnostic codes,
+messages and name spans, and the current distinction between runtime arity/type
+errors and existing keyboard preflight checks. Dead numeric call failures remain
+unexecuted in unchosen clauses; a numeric arity failure after an earlier PRINT
+remains a runtime failure after that output. Valid arguments evaluate once in
+native left-to-right order; the first failure suppresses later host callbacks.
+Existing direct function implementations and the iterative expression driver
+remain in the evaluator. Do not add argument-type metadata until it has a real
+consumer that preserves these error boundaries.
+
+Verify all five calls through parser, inferred result type and evaluator,
+including constructed unknown/prototype-like names, wrong arity before effects,
+keyboard/random traces, native scalar/array names reserved for future functions,
+source locations, dead-code timing, independent instances and deep expressions.
+Compare existing source/AST/value/error behavior against the baseline. Installed
+consumers and browser/archive checks remain required before publishing code.
+This establishes the shared signature prerequisite for #123/#59/#116, not a new
+historical profile or a whole-game pass; #109 remains NOT READY.
+
 ## Resolution contract for implementation
 
 Use the existing immutable dialect carried by parser, Program, prepared snapshot
