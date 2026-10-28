@@ -54,8 +54,11 @@ are separate tokens in this internal policy rather than native doubled-quote
 escaping. REM protects the complete physical remainder. DATA and IMAGE payloads
 are rejected before scanning them as expressions. Single-quote/! forms,
 backslashes, percent types/constants and lowercase historical spellings report
-an explicit unsupported lexical form. Unknown long words and unsupported
-adjacent names are rejected rather than split into arbitrary short variables.
+an explicit unsupported lexical form. Appendix A.2's approximate equality `==`
+also fails explicitly rather than becoming two native equals tokens.
+Unknown long names never become native-style
+identifiers; unsupported adjacent names are rejected. Short-name/delimiter
+composition is admitted only in the lexical clause context described above.
 
 Whitespace inside a lexical word, other quote/escape forms, historical terminal
 continuation encoding, further vocabulary/abbreviations, integer syntax and
