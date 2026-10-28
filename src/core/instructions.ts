@@ -22,6 +22,7 @@ const simpleKinds: Record<SimpleStatement['type'], true> = {
   InlineIfStatement: true,
   GotoStatement: true,
   GosubStatement: true,
+  OnStatement: true,
   ReturnStatement: true,
   DataStatement: true,
   ReadStatement: true,

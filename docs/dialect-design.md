@@ -188,6 +188,12 @@ successors. Existing literal IF ASTs and ELSE names stay intact. Branch-local
 DIM/DATA/FOR/NEXT, modifiers, historical separators and profile certification
 remain separate work rather than being inferred from this native extension.
 
+The [native ON dispatch slice](computed-dispatch.md) adopts BASIC-PLUS §8.2/§8.3
+truncated one-based selectors with range errors, retaining native labels and
+transfer guards. Contextual ON preserves existing scalar/array names. It does
+not enable BATTLE/BUG GOTO expression OF syntax, historical lexing, error
+trapping or any historical profile.
+
 Existing Host callbacks remain sufficient for grammar/math changes. Add file,
 clock/randomization or terminal capabilities only for concrete verified needs;
 all are bounded and fail clearly when absent. A PRINT cursor is run-owned logical

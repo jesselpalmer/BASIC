@@ -78,15 +78,14 @@ export class ControlFlow {
     this.#moveTo(this.#target(label, location), location);
   }
 
-  call(statement: NodeOf<'GosubStatement'>): void {
-    const {target} = statement;
+  call(target: NodeOf<'NumberLiteral'>, location: Location): void {
     const index = this.#target(target.value, target.location);
     if (this.#calls.length === maxCallDepth) {
       throw new BasicRuntimeError(
         'CALL_STACK_LIMIT',
         `At most ${maxCallDepth} GOSUB calls may be active`,
-        statement.location.start,
-        statement.location.label,
+        location.start,
+        location.label,
       );
     }
     const loops = new Map<number, LoopFrame>();

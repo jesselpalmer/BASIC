@@ -154,6 +154,7 @@ they are not written in a program.
 | Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.          |
 | Wait             | `WAIT expression`; yield for a duration in milliseconds.                     |
 | Conditional      | `IF comparison THEN branch [ELSE branch]`; a label or inline statement.      |
+| Computed branch  | `ON expression GOTO/GOSUB label [, label ...]`; one-based truncated index.   |
 | Subroutine call  | `GOSUB line`; literal target, shared values, bounded call stack.             |
 | Return           | `RETURN`; resume at the real instruction following the caller.               |
 | Jump             | `GOTO line` or `GO TO line`; literal targets only.                           |
@@ -199,6 +200,22 @@ approximate, and Stop cancels the pending timer. Use the asynchronous library
 methods; synchronous execution reports `ASYNC_WAIT_REQUIRED`. The browser
 presents buffered drawing before starting the timer. See
 [WAIT and animation](wait.md) for host and debugger contracts.
+
+### Computed dispatch
+
+`ON expression GOTO label,...` and `ON expression GOSUB label,...` evaluate the
+numeric selector once, truncate toward zero and require an index from 1 through
+the list length. An out-of-list index reports DISPATCH_RANGE; it never falls
+through. Each list has 1..4096 literal targets in native range 1..65535; every
+target must exist before execution, including unselected/dead targets. Duplicate
+targets are valid. Selection and transfer cost one instruction. GOSUB saves the
+prepared continuation, including inline-clause scope and same-line returns.
+
+ON/GOSUB/ERROR remain ordinary native scalar/array names. ON-array assignments
+and grouped selectors are distinct: a matching `)` followed by `=` identifies
+assignment. Native `ON ERROR GOTO ...` uses ERROR as a selector variable and
+installs no error handler. GO SUB, ON ... GO TO, GOTO expression OF lists, compact
+spelling and historical profiles remain unsupported. See [the native contract](computed-dispatch.md).
 
 ### GOSUB and RETURN
 
@@ -532,8 +549,8 @@ it, and blank input is harmless. `NEW` and `EXIT` ask before discarding unsaved
 source. The library's legacy `readLine` methods retain immediate execution; they
 are separate from the terminal session.
 
-Historical array defaults/conversions, `DATA`/`READ`, computed subroutine dispatch,
-user-defined functions, general immediate statements, a broad string library, and sound are
+Historical array defaults/conversions and DATA conversion rules, GOTO expression
+OF dispatch, user-defined functions, general immediate statements, a broad string library, and sound are
 outside the current implementation, but corpus-required features are now
 release blockers under [#114](https://github.com/jesselpalmer/BASIC/issues/114).
 The [browser playground](playground.md) supports the

@@ -349,3 +349,19 @@ if (literalIf?.type === 'IfStatement') {
   const targetKind: 'NumberLiteral' = literalIf.target.type;
   void targetKind;
 }
+
+const dispatch = parseLine('10 ON 2 GOSUB 100,200')?.statement;
+if (dispatch?.type === 'OnStatement') {
+  const selector: Expression = dispatch.selector;
+  const mode: 'goto' | 'gosub' = dispatch.transfer;
+  const literalKind: 'NumberLiteral' = dispatch.targets[0].type;
+  void selector;
+  void mode;
+  void literalKind;
+  // @ts-expect-error Target lists belong to immutable parsed snapshots.
+  dispatch.targets[0] = dispatch.targets[1];
+  // @ts-expect-error A target's value is immutable.
+  dispatch.targets[0].value = 300;
+  // @ts-expect-error Computed dispatch supports only jump/call modes.
+  dispatch.transfer = 'return';
+}

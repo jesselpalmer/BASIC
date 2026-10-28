@@ -1,6 +1,7 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
+import {dispatchTarget} from './dispatch.ts';
 import {Evaluator} from './evaluator.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
@@ -510,13 +511,14 @@ export default class Basic {
           statement.type === 'InlineIfStatement' ||
           statement.type === 'GotoStatement' ||
           statement.type === 'GosubStatement' ||
+          statement.type === 'OnStatement' ||
           statement.type === 'ReturnStatement' ||
           statement.type === 'ForStatement' ||
           statement.type === 'NextStatement')
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'DIM, DATA, READ, RESTORE, IF, GOTO, GOSUB, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, DATA, READ, RESTORE, IF, GOTO, GOSUB, ON, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
@@ -538,8 +540,14 @@ export default class Basic {
           this.#controlFlow.jump(statement.target.value, statement.target.location);
           break;
         case 'GosubStatement':
-          this.#controlFlow.call(statement);
+          this.#controlFlow.call(statement.target, statement.location);
           break;
+        case 'OnStatement': {
+          const target = dispatchTarget(statement, this.#evaluator.evaluate(statement.selector));
+          if (statement.transfer === 'goto') this.#controlFlow.jump(target.value, target.location);
+          else this.#controlFlow.call(target, statement.location);
+          break;
+        }
         case 'ReturnStatement':
           this.#controlFlow.returnFromCall(statement.location);
           break;

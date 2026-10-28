@@ -252,6 +252,7 @@ program; an idle Ctrl+C discards only the unfinished entry. See
 | `INPUT ["prompt";] target [, target ...]`                 | Read scalars/array elements; a list retries a complete comma-separated row. Single strings retain raw text.   |
 | `WAIT milliseconds`                                       | Yield the async run for 0..2147483647 ms; positive fractions round upward.                                    |
 | `IF comparison THEN branch [ELSE branch]`                 | Select a literal label or inline statement; nested IF and IF ... GOTO are supported.                          |
+| `ON expression GOTO/GOSUB line [, line ...]`              | Truncate a numeric selector to a one-based list index; out-of-list values are errors.                         |
 | `GOTO line` / `GO TO line`                                | Jump to an existing literal line label.                                                                       |
 | `FOR variable = start TO end [STEP expression]`           | Enter an inclusive numeric loop; the default step is 1.                                                       |
 | `NEXT variable`                                           | Increment the matching loop variable and repeat or finish the loop.                                           |
@@ -347,6 +348,13 @@ continues into following colon statements. Conditions and selected statements
 each cost one Step/budget unit. ELSE is contextual; existing names remain valid.
 Block IF/ENDIF, comparison-as-value and Boolean expressions remain unsupported,
 as do branch-local DIM/DATA/FOR/NEXT in this native slice.
+
+`ON expression GOTO label,...` and `ON expression GOSUB label,...` select one
+literal target after truncating a numeric selector toward zero. Indexes start at
+1; out-of-list values are errors. Every target validates before execution. ON
+remains an ordinary scalar/array name; GOSUB dispatch saves the same prepared
+return position as a literal call. See [computed dispatch](docs/computed-dispatch.md)
+for the 4096-target bound and native/historical boundary.
 
 Try the [guessing game](examples/guess.bas) from a checkout:
 

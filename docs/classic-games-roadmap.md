@@ -189,6 +189,13 @@ no historical profile or additional intrinsic is enabled and #109 is NOT READY.
 
 ## Release evidence
 
+The [native computed dispatch slice](computed-dispatch.md) adds contextual ON
+GOTO/GOSUB, bounded target lists, truncated one-based selectors and range errors
+through the existing jump/call owners. The authored BANNER305 probe names its
+lexical spaces and new scaffold. This is partial #57 progress: GOTO expression
+OF lists, historical rules/profiles and whole-game outcomes remain open; #109
+is NOT READY.
+
 The [native inline conditional slice](inline-conditionals.md) adds statement/
 literal THEN/ELSE branches, nested IF, IF ... GOTO and physical-last-clause
 continuation, including conditional call returns and native loop guards. Its
