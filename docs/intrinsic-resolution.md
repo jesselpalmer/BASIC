@@ -46,8 +46,9 @@ provides these facts:
 The error table defeats a blanket policy of applying JavaScript Math functions
 and throwing on NaN/Infinity. Exact range, continuation/reporting, precision and
 error-trap interactions need their own contract before implementation. The
-available OCR is unsuitable for settling the exact EXP limit numerals; inspect
-the scan and floating-point appendix rather than copying an OCR bound.
+[scan-verified numeric contract](numeric-representation.md) records the printed
+EXP inequalities and the two system-selected math packages. Exact operational
+thresholds, rounding and continuation state remain activation blockers.
 
 This does not certify DECsystem-10, EduSystem, HP or later BASIC-PLUS rules.
 In particular, the already reviewed BASIC-PLUS table 5-3 and

@@ -92,6 +92,11 @@ and negative conformance cases before activation.
 
 ## Runtime policy must accompany accepted syntax
 
+The [integer/comparison contract](integer-semantics.md) and
+[numeric representation contract](numeric-representation.md) refine this gate with
+scan-verified word conversion, mixed-mode literals, float-package configuration
+and observable continued-error requirements. Neither activates a profile.
+
 The native implementation has several incompatible behaviors even for syntax
 shared with BASIC-PLUS. Native undefined scalar reads fail; numeric output is
 compact; arrays require DIM; RND() delegates to the host; string equality compares
