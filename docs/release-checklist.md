@@ -56,6 +56,15 @@ controls, examples, game outcomes, focus, cancellation, replacement, persistence
 import/export and bounded resources. Tests and percentages complement recorded
 end-user observations; neither substitutes for them.
 
+`test:release` is complete only when the command exits zero and prints the final
+`RELEASE_VALIDATED` manifest after package and extracted-browser acceptance. Its
+command-level completion guard will hold a failure exit status until the entire
+workflow, including cleanup, fulfills; it will retain a pre-existing failure
+status. An unresolved Promise alone need not keep a Bun process alive. Partial
+browser output or an exit without the final manifest is incomplete validation,
+not release evidence. The guard changes exit reporting, not event-loop lifetime
+or browser behavior.
+
 ## Review the actual artifacts
 
 The release build writes to `dist/release/`:
