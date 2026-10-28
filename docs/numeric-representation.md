@@ -94,9 +94,11 @@ Before activating affected forms:
    policy. Define transcript ordering, code/location, handler entry/RESUME and
    failure of any diagnostic callback before adding host API. A terminal-state
    failure field alone cannot represent a run that continues after an event.
-4. Preserve iterative expression evaluation, left-to-right effects, generation
-   checks and statement accounting. An arithmetic event adds no synthetic BASIC
-   instruction; handler execution must use real instruction positions and bounds.
+4. Preserve native iterative evaluation, left-to-right effects, generation checks
+   and statement accounting. Verify historical observable operand ordering
+   separately; do not inherit it from native by assumption. An arithmetic event
+   adds no synthetic BASIC instruction; handler execution must use real
+   instruction positions and bounds.
 5. Reject unsupported numeric semantics explicitly under the closed profile
    support matrix, including dead expressions before effects. Do not attach a
    historical identity to native arithmetic as an interim fallback.
