@@ -58,12 +58,21 @@ end-user observations; neither substitutes for them.
 
 `test:release` is complete only when the command exits zero and prints the final
 `RELEASE_VALIDATED` manifest after package and extracted-browser acceptance. Its
-command-level completion guard will hold a failure exit status until the entire
-workflow, including cleanup, fulfills; it will retain a pre-existing failure
-status. An unresolved Promise alone need not keep a Bun process alive. Partial
+command-level completion guard makes an unfinished workflow fail on process
+exit, including an explicit zero exit. It preserves prior and new nonzero
+statuses, and detaches only after validation and cleanup settle. An unresolved
+Promise alone need not keep a Bun process alive. Partial
 browser output or an exit without the final manifest is incomplete validation,
 not release evidence. The guard changes exit reporting, not event-loop lifetime
 or browser behavior.
+
+Extracted-browser acceptance also requires a fresh per-run JSON completion
+certificate from Playwright's `onEnd`. A zero child exit alone is insufficient.
+The certificate must report a passed run, no global errors, a nonempty unique
+plan, and exactly one passed result for every test expecting success. Missing,
+truncated, interrupted, skipped, retried or failed results reject validation.
+The test count comes from the actual plan, rather than a hardcoded milestone
+count. The temporary certificate is removed with the extracted artifact.
 
 ## Review the actual artifacts
 
