@@ -3,6 +3,7 @@ import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {ArrayStore} from './arrays.ts';
 import {compareValues} from './comparison.ts';
+import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import type {
   BasicValue,
@@ -196,18 +197,13 @@ export class Evaluator {
           break;
         case 'CallExpression':
           if (!ready) {
-            const arity =
-              node.name === 'RND' || node.name === 'INKEY$'
-                ? 0
-                : node.name === 'ABS' || node.name === 'INT' || node.name === 'KEYDOWN'
-                  ? 1
-                  : null;
-            if (arity === null)
+            const signature = nativeIntrinsic(node.name);
+            if (signature === null)
               fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
-            if (node.arguments.length !== arity) {
+            if (node.arguments.length !== signature.arity) {
               fail(
                 'INVALID_ARGUMENT_COUNT',
-                `${node.name} expects ${arity} argument(s)`,
+                `${signature.name} expects ${signature.arity} argument(s)`,
                 node.nameLocation,
               );
             }

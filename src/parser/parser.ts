@@ -18,6 +18,7 @@ import type {
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
+import {nativeIntrinsic} from '../core/intrinsics.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
@@ -29,7 +30,6 @@ import {freezeTree, validateProgram} from './program_validation.ts';
 export {validateProgram} from './program_validation.ts';
 import {tokenize} from './tokenizer.ts';
 
-const functions = new Set(['ABS', 'INT', 'RND', 'INKEY$', 'KEYDOWN']);
 const maxNesting = 256;
 const comparisonOperators = new Set(['=', '<>', '<', '<=', '>', '>=']);
 
@@ -605,7 +605,7 @@ class Parser {
             next.type !== 'NUMBER' &&
             next.type !== 'STRING' &&
             next.type !== 'IDENTIFIER' &&
-            !(next.type === 'KEYWORD' && functions.has(next.value)) &&
+            !(next.type === 'KEYWORD' && nativeIntrinsic(next.value) !== null) &&
             !this.at('PUNCTUATION', '(')
           )
             break;
@@ -784,7 +784,7 @@ class Parser {
       this.take();
       return this.reference(token);
     }
-    if (token.type === 'KEYWORD' && functions.has(token.value)) {
+    if (token.type === 'KEYWORD' && nativeIntrinsic(token.value) !== null) {
       return this.call();
     }
     if (this.at('PUNCTUATION', '(')) {

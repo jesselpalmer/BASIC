@@ -1,4 +1,5 @@
 import {BasicRuntimeError} from './diagnostic.ts';
+import {nativeIntrinsic} from './intrinsics.ts';
 import type {BasicValue, Comparison, ComparisonOperator, Expression} from './types.ts';
 
 type ValueType = 'number' | 'string';
@@ -83,7 +84,7 @@ export function expressionType(expression: Expression): ValueType | null {
         values.push('number');
         break;
       case 'CallExpression':
-        values.push(node.name === 'INKEY$' ? 'string' : 'number');
+        values.push(nativeIntrinsic(node.name)?.resultType ?? 'number');
     }
   }
   return values[0];

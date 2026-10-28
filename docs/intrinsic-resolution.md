@@ -79,17 +79,17 @@ separate gates even when an isolated formula succeeds.
 
 ## First shared native signature slice
 
-**Status:** settled before code; this slice does not add historical functions.
+**Status:** implemented; design recorded before code. No historical functions are added.
 
-The current native ABS, INT, RND, INKEY$ and KEYDOWN signatures will have one
+The current native ABS, INT, RND, INKEY$ and KEYDOWN signatures have one
 internal immutable owner in `core/intrinsics.ts`. An exhaustive canonical-name
 lookup returns the recognized name, arity and result type; unknown names return
 null. Each signature is frozen and carries no implementation callback. The
 lexical reserved-word set remains separate and unchanged.
 
-The parser will use this lookup only where it already recognizes native calls.
-The evaluator will use it for the existing unknown-name and arity checks before
-scheduling argument evaluation. Result-type inference will use its declared
+The parser uses this lookup only where it already recognizes native calls.
+The evaluator uses it for the existing unknown-name and arity checks before
+scheduling argument evaluation. Result-type inference uses its declared
 result type, retaining the existing numeric fallback for unknown constructed
 CallExpression names. No new whole-program call validation is introduced.
 
