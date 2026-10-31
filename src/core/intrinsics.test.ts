@@ -1,7 +1,11 @@
 import {describe, expect, it} from 'bun:test';
 import {Basic, BasicRuntimeError, Evaluator, parseLine, parseProgram} from '../index.ts';
 import {expressionType} from './comparison.ts';
-import {nativeIntrinsic} from './intrinsics.ts';
+import {
+  historicalNumericIntrinsic,
+  historicalNumericIntrinsicNames,
+  nativeIntrinsic,
+} from './intrinsics.ts';
 import type {BasicValue, Expression, Host, NodeOf, SourceOptions} from './types.ts';
 
 function expression(source: string, options?: SourceOptions): Expression {
@@ -201,5 +205,94 @@ describe('shared native intrinsic signatures', () => {
     expect(two.evaluate(node)).toBe(1.25);
     expect(first.trace).toEqual(['readKey', 'keyDown:A', 'random']);
     expect(second.trace).toEqual(first.trace);
+  });
+});
+
+describe('internal historical numeric intrinsic inventory', () => {
+  const unary = [
+    'ABS',
+    'SGN',
+    'INT',
+    'FIX',
+    'COS',
+    'SIN',
+    'TAN',
+    'ATN',
+    'SQR',
+    'EXP',
+    'LOG10',
+    'LOG',
+  ] as const;
+
+  it('keeps the reviewed vocabulary closed, ordered and immutable', () => {
+    expect(historicalNumericIntrinsicNames).toEqual([...unary, 'PI', 'RND']);
+    expect(Object.isFrozen(historicalNumericIntrinsicNames)).toBe(true);
+    expect(historicalNumericIntrinsicNames.indexOf('LOG10')).toBeLessThan(
+      historicalNumericIntrinsicNames.indexOf('LOG'),
+    );
+    expect(Reflect.set(historicalNumericIntrinsicNames, 0, 'OTHER')).toBe(false);
+  });
+
+  it.each(unary)('records unary %s without making it executable', (name) => {
+    const signature = historicalNumericIntrinsic(name);
+    expect(signature).toEqual({
+      name,
+      forms: [{syntax: 'parenthesized', arity: 1}],
+      resultType: 'number',
+      executable: false,
+    });
+    expect(signature).toBe(historicalNumericIntrinsic(name));
+    expect(Object.isFrozen(signature)).toBe(true);
+    expect(Object.isFrozen(signature?.forms)).toBe(true);
+    expect(Object.isFrozen(signature?.forms[0])).toBe(true);
+  });
+
+  it('records bare PI and both documented RND forms as non-executable', () => {
+    expect(historicalNumericIntrinsic('PI')).toEqual({
+      name: 'PI',
+      forms: [{syntax: 'bare', arity: 0}],
+      resultType: 'number',
+      executable: false,
+    });
+    expect(historicalNumericIntrinsic('RND')).toEqual({
+      name: 'RND',
+      forms: [
+        {syntax: 'bare', arity: 0},
+        {syntax: 'parenthesized', arity: 1},
+      ],
+      resultType: 'number',
+      executable: false,
+    });
+  });
+
+  it.each(['', 'abs', 'LOG1', 'LOG100', 'PI$', 'toString', 'constructor', '__proto__'])(
+    'does not invent a historical identity for %s',
+    (name) => {
+      expect(historicalNumericIntrinsic(name)).toBeNull();
+    },
+  );
+
+  it('does not alter native resolution, parsing, inference or execution', () => {
+    for (const name of historicalNumericIntrinsicNames) {
+      if (name === 'ABS' || name === 'INT' || name === 'RND') continue;
+      expect(nativeIntrinsic(name)).toBeNull();
+    }
+
+    const output: string[] = [];
+    const basic = new Basic({write: (text) => output.push(text)});
+    basic.run(
+      '10 DIM SGN(0),FIX(0),COS(0),SIN(0),TAN(0),ATN(0),SQR(0),EXP(0),LOG(0),LOG10(0),PI(0)\n' +
+        '20 SGN=1:FIX=2:COS=3:SIN=4:TAN=5:ATN=6:SQR=7:EXP=8:LOG=9:LOG10=10:PI=11\n' +
+        '30 PRINT SGN;FIX;COS;SIN;TAN;ATN;SQR;EXP;LOG;LOG10;PI',
+    );
+    expect(output.join('')).toBe('1234567891011\n');
+    expect(expressionType(expression('PI'))).toBe('number');
+    expect(expression('PI').type).toBe('Variable');
+    expect(expression('LOG10(0)').type).toBe('ArrayReference');
+    expect(new Evaluator({random: () => 0.75}).evaluate(expression('RND()'))).toBe(0.75);
+    expect(
+      failure(() => new Evaluator({random: () => 0.75}).evaluate(expression('RND(0)'))).diagnostic
+        .code,
+    ).toBe('INVALID_ARGUMENT_COUNT');
   });
 });

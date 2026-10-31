@@ -26,10 +26,13 @@ Basic/Evaluator configuration cannot select it. Do not export a new package API.
 The historical conformance subset recognizes contiguous uppercase documented
 verbs/delimiters used by the elementary statements: LET, PRINT, INPUT, IF, THEN,
 ELSE, GOTO, GOSUB, RETURN, ON, FOR, TO, STEP, NEXT, DIM, READ, RESTORE, END and
-REM; ABS, INT and RND are recognized expression words. A matched documented word
-has a distinct token span even when adjacent to its operand. This vocabulary is
-closed and not an exhaustive historical keyword table. No match falls back to a
-native long identifier. Short names may have one digit and a `$` suffix.
+REM. The reviewed numeric expression vocabulary is ABS, SGN, INT, FIX, COS, SIN,
+TAN, ATN, SQR, EXP, LOG, LOG10, PI and RND. LOG10 is matched before LOG. These
+function tokens are an immutable inventory only: recognition does not enable
+historical parsing or evaluation. A matched documented word has a distinct token
+span even when adjacent to its operand. This vocabulary is closed and not an
+exhaustive historical keyword table. No match falls back to a native long
+identifier. Short names may have one digit and a `$` suffix.
 
 The scanner retains only lexical clause context: statement starts at labels,
 colons and THEN/ELSE; FOR-header TO/STEP; IF THEN and IF/ON transfers; and open

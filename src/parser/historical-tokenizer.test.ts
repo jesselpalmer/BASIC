@@ -295,6 +295,42 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     ]);
   });
 
+  it('recognizes the reviewed numeric inventory and matches LOG10 before LOG', () => {
+    const source =
+      '10PRINTABS(A);SGN(A);INT(A);FIX(A);COS(A);SIN(A);TAN(A);ATN(A);SQR(A);EXP(A);LOG10(A);LOG(A);PI;RND;RND(A)';
+    const tokens = scan(source);
+    expect(tokens.filter(({type}) => type === 'KEYWORD').map(({value}) => value)).toEqual([
+      'PRINT',
+      'ABS',
+      'SGN',
+      'INT',
+      'FIX',
+      'COS',
+      'SIN',
+      'TAN',
+      'ATN',
+      'SQR',
+      'EXP',
+      'LOG10',
+      'LOG',
+      'PI',
+      'RND',
+      'RND',
+    ]);
+    const log10 = tokens.find(({value}) => value === 'LOG10');
+    expect(log10).toMatchObject({
+      raw: 'LOG10',
+      start: {column: source.indexOf('LOG10') + 1, offset: source.indexOf('LOG10')},
+    });
+  });
+
+  it.each(['LOG100', 'LOG1', 'PI$', 'SQRT(A)', 'SINH(A)'])(
+    'rejects an unsupported intrinsic-like prefix instead of splitting %s',
+    (name) => {
+      failure('10PRINT' + name, 'UNSUPPORTED_LEXICAL_FORM');
+    },
+  );
+
   it.each(['1e2', '1e+2', '.5e-2'])(
     'rejects unsupported lowercase exponent spelling at its physical e: %s',
     (raw) => {
