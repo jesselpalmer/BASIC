@@ -8,6 +8,7 @@ import constants from '../shared/constants.ts';
 import TerminalHost from './terminal_host.ts';
 import NodeProgramFiles from './program_files.ts';
 import type {ProgramFiles} from '../repl/program_files.ts';
+import {decodeSourceDocument} from '../core/source_document.ts';
 
 /** The CLI owns interrupt routing and disposal; the REPL only needs program I/O. */
 export interface CliHost extends ReplHost {
@@ -27,7 +28,10 @@ export async function runFile(
   {signal}: InputOptions = {},
 ): Promise<RunResult> {
   const source = await fs.readFile(filePath, {encoding: 'utf8', signal});
-  return new Basic(host).runAsync(source, {signal});
+  if (!filePath.toLowerCase().endsWith('.basic.json'))
+    return new Basic(host).runAsync(source, {signal});
+  const document = decodeSourceDocument(source);
+  return new Basic(host, {dialect: document.dialect}).runAsync(document.source, {signal});
 }
 
 export async function runCli(

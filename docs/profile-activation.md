@@ -2,8 +2,9 @@
 
 **Status:** design for #116/#117; the first internal scanner-conformance stage is
 implemented in [scanner conformance](scanner-conformance.md). `Dialect` still
-accepts only `native`. No historical runtime profile, document format or CLI
-option is enabled. #115/#129 remain open and #109 is NOT READY.
+accepts only `native`. The portable document/CLI persistence mechanism preserves
+that context without enabling a historical runtime profile or `--dialect`
+option. #115/#129 remain open and #109 is NOT READY.
 
 ## Decision
 
@@ -148,8 +149,8 @@ instructions, with generation/cancellation checks at the existing await sites.
    unsupported semantics fail before a host write, input request, draw or random
    call, including after END and in unchosen branches. Keep every excluded form
    explicit in the profile documentation and corpus ledger.
-4. Carry profile selection through CLI file execution, terminal document state,
-   browser drafts and the planned portable envelope in focused host changes.
+4. Extend the implemented native portable envelope through historical CLI file
+   execution, terminal document state and browser selection only after activation.
    Reuse the atomic source/profile replacement contract in
    [dialect design](dialect-design.md#files-terminal-and-browser); a plain .bas
    export still requires explicit receiving selection. Reject a profile-bearing

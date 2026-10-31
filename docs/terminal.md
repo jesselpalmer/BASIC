@@ -31,8 +31,14 @@ source or marks it saved. Repeated `RUN` starts with fresh variables.
 
 ## File execution and diagnostics
 
-Run `basic "my program.bas"` to execute a file through the same parser/runtime as
-`RUN`, without an editor prompt or banner. Files use numeric label order. Complete
+Run `basic "my program.bas"` to execute plain source, or
+`basic "my program.basic.json"` to execute a
+[portable source document](portable-documents.md), through the same parser/runtime
+as `RUN`, without an editor prompt or banner. The `.basic.json` suffix selects
+the strict versioned envelope. Other filenames remain plain source; the CLI
+never sniffs JSON or infers a dialect. Portable metadata supplies the context
+and must name a profile supported by this build. The CLI reads but never
+rewrites either format. Files use numeric label order. Complete
 validation happens before effects, including unreachable statements; values are
 checked when evaluated. Program output uses stdout, and source-located errors use
 stderr without JavaScript stack traces. Successful completion exits 0; file,

@@ -54,7 +54,7 @@ run; it cannot reinterpret execution already in progress.
 
 ## Terminal ownership
 
-The terminal executes a `.basic.json` argument as a portable document and other
+The terminal now executes a `.basic.json` argument as a portable document and other
 filenames as plain source. Selection is suffix-based, not content sniffing.
 Malformed or unsupported portable metadata and invalid unreachable BASIC fail
 before output or input. File execution is read-only and creates a fresh runtime

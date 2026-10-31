@@ -124,15 +124,15 @@ its bytes. File execution therefore requires an explicit host selection for a
 historical profile, with a planned `--dialect` option; never guess from the name.
 The terminal owns a visible document profile as well as source/baseline/filename.
 
-A portable document format may carry schema version, profile and exact source
-string in one `.basic.json` envelope. It must be a single atomically saved
+A portable document format now carries schema version, profile and exact source
+string in one `.basic.json` envelope. It is a single atomically saved
 artifact; avoid a source/sidecar pair whose writes can disagree. A plain source
 export remains available and clearly states that the receiver must select its
-profile. Unknown envelope versions/profiles fail without replacing work. This
-format is a design decision for the later persistence implementation, not a
-currently accepted file type.
+profile. Unknown envelope versions/profiles fail without replacing work. Version
+one is implemented for native browser drafts/import/export and direct CLI file
+execution; the terminal editor remains source-only.
 
-The browser selection belongs to editable document state. Draft recovery retains
+The browser context belongs to editable document state. Draft recovery retains
 source and profile together, migrating old source-only drafts as native. Example
 metadata states its profile. Importing a plain .bas uses an explicit visible
 selection; importing the portable envelope supplies the stored selection. A
@@ -140,9 +140,9 @@ profile change validates the complete candidate, cancels/invalidates old work as
 needed and applies atomically; failure keeps the current source/profile/baseline.
 Changing a view control cannot reinterpret an in-flight immutable run.
 
-Export/import/reload acceptance must prove both exact text and profile context.
-The terminal/browser controls and public API changes need their own focused PRs;
-adding a parser option alone does not complete this part of #116 or #129.
+Export/import/reload acceptance proves exact text and native context. Activating
+a historical selection remains gated on its complete executable contract;
+adding an envelope identity alone does not complete #116 or #129.
 
 ## Shared parser, execution and observations
 

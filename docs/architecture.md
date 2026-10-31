@@ -36,6 +36,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
 | `core/basic_plus_words.ts`            | Internal pure signed-word conversion, arithmetic and logical conformance; it does not activate a public profile.     |
 | `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.    |
+| `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                         |
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
@@ -155,7 +156,11 @@ is a warning, not a failed save. These operations do not promise power-loss
 recovery or locking against concurrent changes to an approved overwrite target.
 
 `cli/run_cli.ts` supplies the real filesystem capability at the CLI boundary and
-connects these capabilities to file execution and process signals. It accepts a structural host contract; callers need not expose a concrete
+connects these capabilities to file execution and process signals. A
+`.basic.json` argument is decoded as one portable source+dialect atom; every
+other filename remains plain source, with no JSON sniffing or profile inference.
+Each file invocation creates a fresh runtime and validates before host effects.
+It accepts a structural host contract; callers need not expose a concrete
 terminal object's internal buffers or lifecycle fields. `cli/main.ts` and
 `bin/basic` are the process entrypoints. Importing the public library is quiet.
 
@@ -169,8 +174,9 @@ cannot recursively change execution. The debugger suspends the existing async
 driver through its before-statement gate, retaining INPUT, variables, loop frames,
 and async ownership; see [browser debugging](browser-debugger.md).
 
-`src/browser/document.ts` owns exact editable source, local storage outcomes,
-and replacement generations. Running state never becomes the editable document.
+`src/browser/document.ts` owns exact editable source plus dialect, versioned
+local storage outcomes, legacy source-only migration and replacement generations.
+Running state never becomes the editable document.
 `src/browser/transcript.ts` bounds retained output independently of rendering.
 `src/browser/keyboard.ts` owns the bounded logical-key queue and held-key set;
 `src/browser/game_keyboard.ts` owns focus, visibility, and run-scoped event
