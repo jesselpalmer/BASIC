@@ -413,8 +413,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     "PRINT'x'",
     '!comment',
     'PRINT1\\PRINT2',
-    'LETA%=1',
-    'PRINT1%',
     'letA=1',
     'FORWARD=1',
     'INTEGER=2',

@@ -32,7 +32,9 @@ function tokens are an immutable inventory only: recognition does not enable
 historical parsing or evaluation. A matched documented word has a distinct token
 span even when adjacent to its operand. This vocabulary is closed and not an
 exhaustive historical keyword table. No match falls back to a native long
-identifier. Short names may have one digit and a `$` suffix.
+identifier. Short names may have one digit and one `$` or `%` suffix. The
+[integer token contract](integer-token-conformance.md) defines the internal
+integer literal subset and explicit range limitations.
 
 The scanner retains only lexical clause context: statement starts at labels,
 colons and THEN/ELSE; FOR-header TO/STEP; IF THEN and IF/ON transfers; and open
@@ -56,7 +58,7 @@ Double-delimited strings protect their literal payload; adjacent quoted strings
 are separate tokens in this internal policy rather than native doubled-quote
 escaping. REM protects the complete physical remainder. DATA and IMAGE payloads
 are rejected before scanning them as expressions. Single-quote/! forms,
-backslashes, percent types/constants and lowercase historical spellings report
+backslashes, unsupported percent forms and lowercase historical spellings report
 an explicit unsupported lexical form. Appendix A.2's approximate equality `==`
 also fails explicitly rather than becoming two native equals tokens.
 Unknown long names never become native-style
@@ -64,7 +66,7 @@ identifiers; unsupported adjacent names are rejected. Short-name/delimiter
 composition is admitted only in the lexical clause context described above.
 
 Whitespace inside a lexical word, other quote/escape forms, historical terminal
-continuation encoding, further vocabulary/abbreviations, integer syntax and
+continuation encoding, further vocabulary/abbreviations, integer AST integration and
 DATA/image modes still require evidence and implementation. LF/CRLF retain
 physical line boundaries; no joining or source rewriting is introduced. This
 subset must not be offered as a runnable historical selection merely because a
