@@ -57,6 +57,12 @@ In particular, the already reviewed BASIC-PLUS table 5-3 and
 String aliases and edge behavior remain #59 work, rather than entries inferred
 from a numeric function table.
 
+The [string conformance contract](string-conformance.md) records table 5-3
+evidence and an internal pure-helper implementation of the settled byte-string
+subset. These helpers do not resolve calls or activate a historical profile;
+index conversion, continued errors, numeric conversion and runtime integration
+remain separately gated.
+
 ## Pinned corpus observations and independent oracles
 
 All references below use commit

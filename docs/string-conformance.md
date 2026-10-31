@@ -11,16 +11,16 @@ SHA-256 `684b54d7218a2fb581bf324b175c1e37dc609e718218a81a51b22c31a1e936bd`.
 Printed 5-6 (PDF page 72, one-based) is table 5-2; printed 5-13/5-14
 (PDF pages 79/80) are table 5-3. Those pages establish the following subset:
 
-| Operation | Settled behavior |
-| --- | --- |
-| LEN | Counts every character, including trailing blanks. |
-| LEFT | Returns the first N characters. |
-| RIGHT | Returns characters starting at position N through the end. |
-| MID | Returns N2 characters starting at position N1. |
-| ASCII | Returns the code of the first character. |
-| CHR$ | Returns one character for its code. |
-| SPACE$ | Returns N blanks. |
-| INSTR | Searches from position N1 and returns the one-based match position, or zero. |
+| Operation | Settled behavior                                                             |
+| --------- | ---------------------------------------------------------------------------- |
+| LEN       | Counts every character, including trailing blanks.                           |
+| LEFT      | Returns the first N characters.                                              |
+| RIGHT     | Returns characters starting at position N through the end.                   |
+| MID       | Returns N2 characters starting at position N1.                               |
+| ASCII     | Returns the code of the first character.                                     |
+| CHR$      | Returns one character for its code.                                          |
+| SPACE$    | Returns N blanks.                                                            |
+| INSTR     | Searches from position N1 and returns the one-based match position, or zero. |
 
 Table 5-2 lists ASCII 0..127 and explicitly permits character values 128..255
 inside strings. High-bit characters are distinct in comparisons even when a
