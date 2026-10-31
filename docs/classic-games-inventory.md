@@ -8,6 +8,13 @@ the [dialect design](dialect-design.md) defines implementation boundaries.
 [Roadmap](classic-games-roadmap.md) and [source audit #115](https://github.com/jesselpalmer/BASIC/issues/115)
 own dialect/validity decisions and behavioral oracles.
 
+`bun run check:corpus` validates this ledger before the ordinary test and
+packaging gates. It fails closed if the 108-entry accounting, pinned upstream
+or native baseline, schema-v1 blocker states, evidence references, acceptance
+surfaces, fixture identities, Markdown anchors or source table drift. Passing
+this structural gate is not source certification or a behavioral compatibility
+result; the unresolved rows and release blockers below remain authoritative.
+
 - Upstream: [https://github.com/maurymarkowitz/101-BASIC-Computer-Games](https://github.com/maurymarkowitz/101-BASIC-Computer-Games).
 - Exact commit: `45f75052be3f436f2e575f58d4aa611484268227`.
 - Inventory: **108 `.bas` files**, 13,274 physical lines including blanks.
