@@ -253,6 +253,7 @@ describe('browser session', () => {
       status: 'idle',
       isPaused: false,
       source: '',
+      dialect: 'native',
       diagnostic: null,
       currentLocation: null,
       nextLocation: null,
@@ -453,6 +454,22 @@ describe('browser session', () => {
       message: 'scheduler must be a function',
     });
     expect(invalidScheduler.state.status).toBe('error');
+  });
+
+  test('rejects unsupported run context before stopping an active native run', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const active = session.run('10 INPUT N\n20 PRINT N');
+    expect(session.state.status).toBe('waiting');
+    const unsupported = {dialect: 'basic-plus-1972-10'} as unknown as {
+      dialect: 'native';
+    };
+    expect(await rejection(session.run('10 END', unsupported))).toBeInstanceOf(TypeError);
+    expect(session.state.status).toBe('waiting');
+    expect(session.state.source).toBe('10 INPUT N\n20 PRINT N');
+    expect(ui.requests[0].submit('7')).toBe(true);
+    expect((await active).status).toBe('finished');
+    expect(ui.output).toEqual(['7\n']);
   });
 
   test('invalid JavaScript caller input rejects without inventing a BASIC diagnostic', async () => {

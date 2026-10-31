@@ -56,16 +56,20 @@
           ></textarea>
           <div class="document-controls">
             <div class="file-controls" aria-label="Program files">
-              <button id="import-file" class="file-button" type="button">Import .bas</button>
+              <button id="import-file" class="file-button" type="button">Import file</button>
               <input
                 id="file-input"
                 type="file"
-                accept=".bas,text/plain"
+                accept=".bas,.basic.json,text/plain,application/json"
                 aria-label="BASIC file to import"
                 hidden
               />
               <button id="export-file" class="file-button" type="button">Export .bas</button>
+              <button id="export-document" class="file-button" type="button">
+                Export .basic.json
+              </button>
             </div>
+            <p id="document-dialect" class="document-dialect">Dialect: native</p>
             <p id="storage-status" class="storage-status" role="status"></p>
             <p id="file-status" class="file-status" role="status" hidden></p>
           </div>
