@@ -25,7 +25,7 @@ Basic/Evaluator configuration cannot select it. Do not export a new package API.
 
 The historical conformance subset recognizes contiguous uppercase documented
 verbs/delimiters used by the elementary statements: LET, PRINT, INPUT, IF, THEN,
-ELSE, GOTO, GOSUB, RETURN, ON, FOR, TO, STEP, NEXT, DIM, READ, RESTORE, END and
+ELSE, GOTO, GOSUB, RETURN, ON, FOR, TO, STEP, NEXT, DIM, DATA, READ, RESTORE, END and
 REM. The reviewed numeric expression vocabulary is ABS, SGN, INT, FIX, COS, SIN,
 TAN, ATN, SQR, EXP, LOG, LOG10, PI and RND. LOG10 is matched before LOG. These
 function tokens are an immutable inventory only: recognition does not enable
@@ -56,8 +56,10 @@ The eventual profile must apply its separately reviewed representation policy.
 
 Double-delimited strings protect their literal payload; adjacent quoted strings
 are separate tokens in this internal policy rather than native doubled-quote
-escaping. REM protects the complete physical remainder. DATA and IMAGE payloads
-are rejected before scanning them as expressions. Single-quote/! forms,
+escaping. REM protects the complete physical remainder. The separately reviewed
+[DATA source mode](historical-data-scanner.md) preserves DATA fields as text
+tokens for eventual READ conversion. IMAGE payloads are rejected before scanning
+them as expressions. Outside DATA, single-quote/! forms,
 backslashes, unsupported percent forms and lowercase historical spellings report
 an explicit unsupported lexical form. Appendix A.2's approximate equality `==`
 also fails explicitly rather than becoming two native equals tokens.
@@ -67,7 +69,8 @@ composition is admitted only in the lexical clause context described above.
 
 Whitespace inside a lexical word, other quote/escape forms, historical terminal
 continuation encoding, further vocabulary/abbreviations, integer AST integration and
-DATA/image modes still require evidence and implementation. LF/CRLF retain
+IMAGE mode and historical DATA AST/runtime integration still require evidence
+and implementation. LF/CRLF retain
 physical line boundaries; no joining or source rewriting is introduced. This
 subset must not be offered as a runnable historical selection merely because a
 conformance fixture tokenizes.

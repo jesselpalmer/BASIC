@@ -43,6 +43,7 @@ const words: readonly HistoricalWord[] = Object.freeze([
     'FOR',
     'NEXT',
     'DIM',
+    'DATA',
     'READ',
     'RESTORE',
     'END',
@@ -55,7 +56,6 @@ const words: readonly HistoricalWord[] = Object.freeze([
     Object.freeze({word, role: 'function' as const}),
   ),
   ...[
-    'DATA',
     'IMAGE',
     'STOP',
     'CHANGE',

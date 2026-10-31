@@ -15,6 +15,10 @@ import {historicalNumericSpelling} from './historical_numeric.ts';
 const digit = (character: string | undefined) => /[0-9]/.test(character ?? '');
 const letter = (character: string | undefined) => /[A-Za-z]/.test(character ?? '');
 
+const historicalDataFieldLimit = 4096;
+const historicalDataCharacterLimit = 32767;
+const historicalDataPayloadLimit = 262144;
+
 // Positions count UTF-16 code units, matching JavaScript string offsets.
 // End positions are exclusive; tabs count as one source column.
 export function tokenize(
@@ -229,6 +233,66 @@ class Scanner {
     this.fail('UNTERMINATED_STRING', 'Unterminated string', start);
   }
 
+  readHistoricalData() {
+    const newline = this.source.indexOf('\n', this.index);
+    const end =
+      newline === -1
+        ? this.source.length
+        : this.source[newline - 1] === '\r'
+          ? newline - 1
+          : newline;
+    if (end - this.index > historicalDataPayloadLimit)
+      this.fail('DATA_LIMIT', 'Historical DATA payload exceeds the implementation limit');
+    let fields = 0;
+    while (true) {
+      if (fields === historicalDataFieldLimit)
+        this.fail('DATA_LIMIT', 'Historical DATA field count exceeds the implementation limit');
+      let start = this.position();
+      while (this.source[this.index] === ' ') this.index++;
+      const delimiter = this.source[this.index];
+      const quoted = delimiter === '"' || delimiter === "'";
+      let value = '';
+      const append = (character: string) => {
+        const code = character.charCodeAt(0);
+        if (code < 32 || code > 126)
+          this.fail('UNSUPPORTED_LEXICAL_FORM', 'Unsupported historical DATA character');
+        if (value.length === historicalDataCharacterLimit)
+          this.fail('DATA_LIMIT', 'Historical DATA field exceeds the implementation limit');
+        value += character;
+      };
+      if (quoted) {
+        start = this.position();
+        this.index++;
+        while (this.index < end && this.source[this.index] !== delimiter) {
+          append(this.source[this.index]);
+          this.index++;
+        }
+        if (this.index === end) this.fail('UNTERMINATED_STRING', 'Unterminated DATA string', start);
+        this.index++;
+        this.emit('STRING', start, value);
+        while (this.source[this.index] === ' ') this.index++;
+        if (this.index < end && this.source[this.index] !== ',')
+          this.fail('INVALID_DATA', 'Expected a comma or physical line end after DATA string');
+      } else {
+        // Unquoted token spans retain all blanks even though its value ignores them.
+        while (this.index < end && this.source[this.index] !== ',') {
+          const character = this.source[this.index];
+          if ('"\':\\'.includes(character))
+            this.fail('UNSUPPORTED_LEXICAL_FORM', 'Unsupported unquoted historical DATA delimiter');
+          if (character !== ' ') append(character);
+          this.index++;
+        }
+        if (value.length === 0) this.fail('INVALID_DATA', 'Expected a nonempty DATA field', start);
+        this.emit('STRING', start, value);
+      }
+      fields++;
+      if (this.index === end) return;
+      const comma = this.position();
+      this.index++;
+      this.emit('PUNCTUATION', comma, ',');
+    }
+  }
+
   readNumber() {
     const start = this.position();
     const beginning = this.index;
@@ -358,6 +422,7 @@ class Scanner {
       ? 'KEYWORD'
       : 'IDENTIFIER';
     this.emit(type, start, value);
+    if (this.policy.compact && value === 'DATA') this.readHistoricalData();
     if (value === 'REM') {
       const comment = this.position();
       const beginning = this.index;

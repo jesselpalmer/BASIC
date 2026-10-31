@@ -3,6 +3,10 @@
 **Status:** implemented first native #122 slice; design recorded before code.
 Historical profiles and whole-game certification remain pending.
 
+The internal historical scanner has a separate [DATA source mode](historical-data-scanner.md)
+that retains pool fields as text. It does not enable historical parsing, READ
+conversion, pool preparation or a public profile; the native contract below stays typed.
+
 ## Evidence and boundary
 
 [BASIC-PLUS October 1972](https://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf)
