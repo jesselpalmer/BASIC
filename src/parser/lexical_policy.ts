@@ -1,3 +1,5 @@
+import {historicalNumericIntrinsicNames} from '../core/intrinsics.ts';
+
 // Internal scanner conformance is deliberately separate from public Dialect.
 // A token stream alone cannot supply a historical program's runtime semantics.
 export type LexicalPolicy = 'native' | 'basic-plus-1972-10';
@@ -49,7 +51,9 @@ const words: readonly HistoricalWord[] = Object.freeze([
   ...['THEN', 'ELSE', 'TO', 'STEP'].map((word) =>
     Object.freeze({word, role: 'delimiter' as const}),
   ),
-  ...['ABS', 'INT', 'RND'].map((word) => Object.freeze({word, role: 'function' as const})),
+  ...historicalNumericIntrinsicNames.map((word) =>
+    Object.freeze({word, role: 'function' as const}),
+  ),
   ...[
     'DATA',
     'IMAGE',
@@ -84,5 +88,11 @@ const words: readonly HistoricalWord[] = Object.freeze([
 ]);
 
 export function historicalWord(source: string, index: number): HistoricalWord | undefined {
-  return words.find(({word}) => source.startsWith(word, index));
+  return words.find(({word, role}) => {
+    if (!source.startsWith(word, index)) return false;
+    // Intrinsic matching is maximal. A reviewed identity cannot be a prefix of
+    // an unsupported longer spelling such as LOG100, SQRT or SINH.
+    const following = source[index + word.length];
+    return role !== 'function' || following === undefined || !/[A-Za-z0-9$]/.test(following);
+  });
 }

@@ -113,6 +113,31 @@ consumers and browser/archive checks remain required before publishing code.
 This establishes the shared signature prerequisite for #123/#59/#116, not a new
 historical profile or a whole-game pass; #109 remains NOT READY.
 
+## Internal historical numeric inventory
+
+**Status:** implemented as a non-executable conformance boundary. No historical
+call is accepted by the public parser or evaluator.
+
+`core/intrinsics.ts` now owns the closed October 1972 BASIC-PLUS numeric
+inventory established above: unary parenthesized ABS, SGN, INT, FIX, COS, SIN,
+TAN, ATN, SQR, EXP, LOG and LOG10; bare PI; and bare or one-argument RND. Each
+identity, form and form list is immutable, returns numeric type metadata, and is
+explicitly marked non-executable. Unknown, lowercase and prototype-like names
+return no signature.
+
+The internal historical scanner consumes the same ordered names, with LOG10
+before LOG, so its lexical vocabulary cannot drift from this inventory. This
+does not change native reserved words: SQR, EXP, PI and every other future
+historical spelling retain their present scalar/array behavior in native source.
+Native ABS, INT and zero-argument RND continue through their existing signatures
+and evaluator implementations.
+
+Activation still requires the selected public profile, numeric representation,
+continued-error handling and RNG contracts. A token or inventory entry must not
+fall through to JavaScript `Math`, native RND behavior, an ordinary array, or a
+generic unknown-function path under a future historical context. #123/#116 and
+the full-corpus release gates remain open.
+
 ## Resolution contract for implementation
 
 Use the existing immutable dialect carried by parser, Program, prepared snapshot
