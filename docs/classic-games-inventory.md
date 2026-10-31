@@ -142,6 +142,11 @@ result; the unresolved rows and release blockers below remain authoritative.
 
 ## Source-review queue
 
+- **life2.bas:** at labels 510/511, printed page 148/PDF 150 reads `TO5`,
+  while the pinned physical lines 44/45 read `T05` with a digit zero. The
+  ledger records a reviewed source difference and verified listing page;
+  raw identity and all source/dialect/behavioral blockers remain. See the
+  source review's LIFE2 record; no corrected fixture or whole-game pass exists.
 - **23mtch.bas:** printed page 227/PDF 229 has a terminal semicolon at label
   380 that the pinned transcription omits. The sample corroborates continuation
   of the following match-count output on the same line. The ledger records this

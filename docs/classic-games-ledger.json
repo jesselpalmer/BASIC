@@ -2432,10 +2432,11 @@
         "title": "LIFE-2",
         "referencePage": 146,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 148
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
@@ -2457,7 +2458,8 @@
         "dialect-certification",
         "required-features",
         "behavioral-acceptance"
-      ]
+      ],
+      "reviewRecord": "classic-source-review.md#life2"
     },
     {
       "file": "litqz.bas",

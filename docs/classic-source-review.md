@@ -187,6 +187,48 @@ numeric spacing also remains absent. Test/record the blocked branch as well as
 the successful partial path; do not hide it by rewriting RND or removing code.
 A certified EduSystem profile and complete game/formatting checks remain required.
 
+## LIFE2
+
+### Reviewed loop-delimiter differences
+
+- Pinned file: [life2.bas](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/life2.bas).
+- Raw SHA-256: `047474f16b61cac8e57fb573ef9c783c5c5eabe6f8eed13ac7bcee610f6a9dde`;
+  1,944 bytes and 79 physical lines, including the final unterminated line.
+- The description begins on printed page 146. The listing and sample run are
+  on printed page **148**, one-based PDF page **150**, leaf **n149** of the
+  [available book scan](https://archive.org/details/101basiccomputer0000davi/page/n149/mode/1up).
+- The downloaded PDF has SHA-256
+  `c8a7549a649e9b6a99d80cab9ec8e3d78f6a872f127daee617fe692c40b92867`.
+  Its catalog describes 1974, while the pinned repository describes a 1975 third
+  printing. Record the difference without asserting identical editions or its
+  transcription/OCR cause.
+
+At labels **510/511**, physical lines **44/45**, the pinned text is:
+
+```bas
+510 FORJ=1T05
+511 FORK=1T05
+```
+
+The visually inspected printed listing instead reads:
+
+```bas
+510 FORJ=1TO5
+511 FORK=1TO5
+```
+
+Each delimiter's second character is the letter **O** in the scan and the digit
+**0** in the pinned source. The nearby printed assignment zeros use a visibly
+different slashed-zero glyph. This source comparison, rather than a parser
+rejection, establishes reviewed differences at those locations. It does not
+certify every other character, repair other loops, or establish the exact
+original dialect: the README's BASIC-PLUS hint remains unverified.
+
+The ledger retains the unmodified raw identity and all source, dialect, feature,
+and behavioral blockers. No corrected LIFE2 fixture or game pass is introduced.
+The existing conditional feature probe remains a separately authored excerpt;
+it is not evidence that this complete listing executes correctly.
+
 ## Attribution and fixture policy
 
 The [book's archival record](https://archive.org/details/101basiccomputer0000davi)
