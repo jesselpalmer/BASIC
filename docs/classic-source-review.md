@@ -136,6 +136,38 @@ claiming EduSystem compatibility or changing existing native numeric formatting.
 The native name GO must remain available in LET/expressions; no globally reserved
 GO keyword or arbitrary keyword splitting is necessary for this spelling.
 
+### Reviewed output-layout difference
+
+The complete printed listing and adjacent sample on page 227 were reinspected
+from the same PDF identified above (one-based PDF page 229, leaf n228). The
+downloaded PDF again has SHA-256
+`c8a7549a649e9b6a99d80cab9ec8e3d78f6a872f127daee617fe692c40b92867`.
+The catalog describes a 1974 book, while the pinned repository describes a 1975
+third printing. The observation is therefore a reviewed difference between these
+sources, not proof of an OCR error or of a defect in every edition.
+
+At label **380**, the pinned transcription is:
+
+```bas
+380 PRINT "I TOOK";C;"..."
+```
+
+The printed listing has a **semicolon after the closing quote of the last item**.
+That terminal separator is absent from the pinned line. The difference affects
+whether the following output continues on the same line. The printed sample
+corroborates the listing: after a computer turn, its `I TOOK` output and the next
+`THERE ARE NOW` output share a physical line. The quoted spacing around the
+ellipsis also differs visibly; no complete byte-identical transcription or
+automatic correction is inferred from the typography.
+
+This is sufficient for `sourceStatus: reviewed-difference`, with all source,
+dialect, feature and behavioral blockers retained. It does not certify every
+character in the listing or establish EduSystem's complete PRINT semantics.
+The raw fixture remains the exact pinned 1,211 bytes / 44 physical lines with
+SHA-256 `6406621c19cfac9961d0b4fa36ba50d322f4697648b1021fe99cace6ef9d8896`.
+No corrected 23MTCH fixture is introduced, and the partial native regression
+below deliberately continues to exercise the unchanged pinned transcription.
+
 ### Tested partial native path
 
 Seven successive human moves of 1 produce computer moves `1,3,3,3,3,3`, leaving

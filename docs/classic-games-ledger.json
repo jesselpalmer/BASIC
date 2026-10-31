@@ -90,7 +90,7 @@
         "listingPageVerified": 227
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "printed-system-identified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
