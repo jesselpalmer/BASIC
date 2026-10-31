@@ -41,6 +41,51 @@ at literal conversion, each arithmetic operation or intrinsic boundaries.
 Math.fround is not a substitute for this format: IEEE binary32 has different
 exceptional values, exponent boundaries and potentially different rounding rules.
 
+## Implementation evidence and version boundaries
+
+The next reference implementation lead is the archived
+[RSTS-11 V4A-12 DECtape kit](https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/),
+not a later BASIC-PLUS-2 or RSTS/E installation. Its
+[label inventory](https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/labels.txt)
+identifies original distribution tapes `DEC-11-ORTBA-A-UC1`,
+`DEC-11-ORTBA-A-UC2` and `DEC-11-ORTCA-A-UC`. The tape-one inventories list
+`MA2`, `MA2E`, `MA2X`, `MA2EX`, `MA4`, `MA4E`, `MA4X` and `MA4EX` as `.OBJ`
+modules, together with `IN.OBJ`, `OV.OBJ` and other system components. These are
+specific package/binary leads, not reviewed math source or execution results.
+The label inventory dates those objects 22-SEP-72; the separate
+[decoded tape-one directory](https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/rsts01.dta.txt)
+prints Sep 23, 1972. Preserve that discrepancy rather than selecting a date as
+proof of a particular source revision.
+
+The associated
+[System Manager's Guide, DEC-11-ORSMA-B-D](https://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORSMA-B-D_RSTSmgr_73.pdf)
+needs page-level dating. Its cover says January 1973, for V04A, but the inspected
+219-page scan (SHA-256
+`1c958987237e01b86190d114501c116a2145fc860c3749e20944e00d71e583bc`)
+contains replacement leaves. Section 2.7.12, printed 2-30/2-31 (PDF 46/47), is
+dated **February 1975**. It describes the MA2/MA4 packages with or without
+functions and with or without KE11-A EAE acceleration, and distinguishes that
+EAE from the PDP-11/40's KE11-E EIS option. This supplies package-selection
+vocabulary, but those later leaves do not establish October 1972 arithmetic or
+that the variants produce identical results. A CPU/FPP rounding rule alone does
+not identify the software package used by this kit.
+
+Archive names also require inspection: `BASIC_PL.ZIP` in the
+[separate RSTS archive directory](https://bitsavers.trailing-edge.com/bits/DEC/pdp11/rsts/)
+contains `basic_plus_2_v2_1.tpc`; it is not the target BASIC-PLUS implementation.
+The listed `RSTS_8.0_src.zip` contains V8.0 source/tape material, likewise a later
+version. Neither establishes an unchanged V4A implementation.
+
+No kit was built or executed in this review. Before treating it as a numeric
+oracle, pin the actual media and extracted object hashes, identify the monitor
+and selected MA variant, and trace literal conversion separately from arithmetic
+and intrinsics. Record exact stored words and diagnostics for positive and
+negative halfway cases, cancellation to zero, range-boundary neighbors and
+noncanonical exponent-zero words. Distinguish decoded representable endpoints
+from runtime underflow/overflow decision thresholds. The current evidence does
+not resolve rounding/ties, signed zero, exceptional encodings or the exact
+continuation/trap behavior of this installation; #116/#123 remain open.
+
 ## Continued numeric errors
 
 Section 8.4, printed 8-5 (PDF 97), distinguishes termination from errors that
