@@ -142,6 +142,11 @@ result; the unresolved rows and release blockers below remain authoritative.
 
 ## Source-review queue
 
+- **23mtch.bas:** printed page 227/PDF 229 has a terminal semicolon at label
+  380 that the pinned transcription omits. The sample corroborates continuation
+  of the following match-count output on the same line. The ledger records this
+  as a reviewed edition/transcription difference, with no corrected fixture or
+  complete source/dialect certification. See the source review's 23MTCH record.
 - **1check.bas:** visually verified line 74 in the linked book scan, printed
   page 164/PDF 166: comma after B$, versus semicolon in raw upstream. Preserve raw
   and minimally corrected versions separately. Optional LET/arrays/adjacent PRINT
