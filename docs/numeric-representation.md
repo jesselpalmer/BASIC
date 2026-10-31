@@ -34,6 +34,11 @@ Do not choose it from a filename, host CPU, observed values or parse failure.
 The candidate identity in [profile activation](profile-activation.md) remains a
 design identity until the supported configuration and behavior are settled.
 
+The internal [exact floating-word decoder](basic-plus-floating-words.md) preserves
+documented two/four-word patterns as BigInt binary descriptors. It does not
+implement historical literal conversion, arithmetic or a public numeric profile;
+ambiguous exponent-zero encodings remain explicit unsupported outcomes.
+
 Binary64 is neither historical package. Its 53 significant bits cannot preserve
 all four-word values, and its range is much larger. Two-word values can be stored
 in a JavaScript number, but storage alone does not implement historical rounding
