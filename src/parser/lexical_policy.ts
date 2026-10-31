@@ -93,6 +93,6 @@ export function historicalWord(source: string, index: number): HistoricalWord | 
     // Intrinsic matching is maximal. A reviewed identity cannot be a prefix of
     // an unsupported longer spelling such as LOG100, SQRT or SINH.
     const following = source[index + word.length];
-    return role !== 'function' || following === undefined || !/[A-Za-z0-9$]/.test(following);
+    return role !== 'function' || following === undefined || !/[A-Za-z0-9$%]/.test(following);
   });
 }

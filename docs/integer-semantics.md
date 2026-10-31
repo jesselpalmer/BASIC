@@ -1,8 +1,9 @@
 # Historical integer and logical semantics
 
 **Status:** source-backed design for #124/#116, coordinated with #123/#59/#125.
-No integer suffix, logical operator, numeric truth condition or historical profile
-is enabled by this document. Native finite doubles, exact string equality and
+Integer suffixes have internal scanner conformance coverage only; no public
+integer syntax, logical operator, numeric truth condition or historical profile
+is enabled. Native finite doubles, exact string equality and
 comparison-only IF retain their present behavior. #109 remains **NOT READY**.
 
 ## Evidence boundary
@@ -160,6 +161,15 @@ types, CLI/editor and relevant real browser/extracted-archive checks on Linux an
 macOS. Keep the full pinned 108-file corpus gate, independent game oracles and
 source/dialect certification open. A passing integer probe closes no game or
 release gate.
+
+## Internal integer token conformance
+
+The [integer token contract](integer-token-conformance.md) adds internal `%`
+names and digit-only literals through 32767 while preserving raw source spans.
+An immutable spelling descriptor distinguishes integer, unsuffixed whole and
+floating spellings for later AST integration. Magnitudes at or above 32768,
+including the operand of `-32768%`, remain explicitly unsupported pending signed
+literal treatment. This does not settle mixed arithmetic or activate a profile.
 
 ## Internal word conformance slice
 

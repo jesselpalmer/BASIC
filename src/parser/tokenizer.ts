@@ -10,6 +10,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {reservedWords} from '../dictionaries/reserved_words.ts';
 import {numericLiteral} from '../core/numeric_literal.ts';
 import {historicalWord, scannerPolicy, type LexicalPolicy} from './lexical_policy.ts';
+import {historicalNumericSpelling} from './historical_numeric.ts';
 
 const digit = (character: string | undefined) => /[0-9]/.test(character ?? '');
 const letter = (character: string | undefined) => /[A-Za-z]/.test(character ?? '');
@@ -244,8 +245,20 @@ class Scanner {
         else break;
       }
     const raw = this.source.slice(beginning, this.index);
-    const value = Number(raw);
-    if (!numericLiteral.test(raw) || !Number.isFinite(value)) {
+    let value = Number(raw);
+    if (this.policy.compact) {
+      try {
+        value = historicalNumericSpelling(raw).value;
+      } catch (error) {
+        if (error instanceof RangeError)
+          this.fail(
+            'UNSUPPORTED_LEXICAL_FORM',
+            'Historical integer literal range is unsupported',
+            start,
+          );
+        this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
+      }
+    } else if (!numericLiteral.test(raw) || !Number.isFinite(value)) {
       this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
     }
     if (this.policy.compact) {
@@ -270,6 +283,14 @@ class Scanner {
       this.index++;
       if (this.source[this.index] === '+' || this.source[this.index] === '-') this.index++;
       while (digit(this.source[this.index])) this.index++;
+    }
+    if (this.source[this.index] === '%') {
+      this.index++;
+      // A second suffix or numeric continuation cannot become a second token.
+      if (/[0-9.$%]/.test(this.source[this.index] ?? '')) {
+        while (this.index < this.source.length && /[A-Za-z0-9.$%]/.test(this.source[this.index]))
+          this.index++;
+      }
     }
     const following = this.source[this.index];
     if (
@@ -300,7 +321,9 @@ class Scanner {
       } else {
         this.index++;
         if (digit(this.source[this.index])) this.index++;
-        if (this.source[this.index] === '$') this.index++;
+        if (this.source[this.index] === '$' || this.source[this.index] === '%') this.index++;
+        if (this.source[this.index] === '$' || this.source[this.index] === '%')
+          this.fail('UNSUPPORTED_LEXICAL_FORM', 'Expected one historical name suffix', start);
         const nextWord = historicalWord(this.source, this.index);
         if (
           digit(this.source[this.index]) ||
