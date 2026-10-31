@@ -47,6 +47,8 @@ const inputValue = element<HTMLInputElement>('input-value');
 const importButton = element<HTMLButtonElement>('import-file');
 const fileInput = element<HTMLInputElement>('file-input');
 const exportButton = element<HTMLButtonElement>('export-file');
+const exportDocumentButton = element<HTMLButtonElement>('export-document');
+const documentDialect = element('document-dialect');
 const storageStatus = element('storage-status');
 const fileStatus = element('file-status');
 const examples: Readonly<Record<string, string>> = {
@@ -72,10 +74,12 @@ const context = canvas.getContext('2d');
 const graphics = context ? createCanvasRenderer(context) : null;
 element('graphics-unavailable').hidden = graphics !== null;
 graphics?.flush();
-const storageKey = 'basic.playground.source.v1';
+const storageKey = 'basic.playground.document.v1';
+const legacyStorageKey = 'basic.playground.source.v1';
 const documentModel = new BrowserDocument(greeting, {
   // Access storage inside the capability: even reading window.localStorage can fail.
   read: () => window.localStorage.getItem(storageKey),
+  readLegacy: () => window.localStorage.getItem(legacyStorageKey),
   write: (text) => window.localStorage.setItem(storageKey, text),
 });
 const transcript = new Transcript();
@@ -86,6 +90,7 @@ let inspectionState: BrowserState | null = null;
 
 function renderDocumentStatus(): void {
   example.value = Object.keys(examples).find((key) => examples[key] === documentModel.source) ?? '';
+  documentDialect.textContent = `Dialect: ${documentModel.dialect}`;
   const state = documentModel.storageStatus;
   storageStatus.dataset.error = String(state.kind === 'error' || state.kind === 'unavailable');
   switch (state.kind) {
@@ -272,7 +277,8 @@ const session = new BrowserSession({
 
 function runProgram(paused = false): void {
   const request = ++runRequest;
-  void session.run(documentModel.source, {paused}).catch((error: unknown) => {
+  const context = documentModel.context;
+  void session.run(context.source, {paused, dialect: context.dialect}).catch((error: unknown) => {
     if (request !== runRequest) return;
     keyboard.dispose();
     diagnostic.textContent = `Playground error: ${error instanceof Error ? error.message : String(error)}`;
@@ -307,23 +313,26 @@ fileInput.addEventListener('change', () => {
   fileInput.value = '';
   if (!file) return;
   showFileStatus('Reading file…');
-  void documentModel
-    .importSource(() => file.text(), confirmReplacement)
-    .then((result) => {
-      finishReplacement(result, 'File imported.');
-    });
+  const portable = file.name.toLowerCase().endsWith('.basic.json');
+  void documentModel[portable ? 'importDocument' : 'importSource'](
+    () => file.text(),
+    confirmReplacement,
+  ).then((result) => {
+    finishReplacement(result, portable ? 'Portable document imported.' : 'File imported.');
+  });
 });
-exportButton.addEventListener('click', () => {
+
+function download(contents: string, filename: string, type: string): void {
   let url: string | undefined;
   try {
-    url = URL.createObjectURL(new Blob([documentModel.exportSource()], {type: 'text/plain'}));
+    url = URL.createObjectURL(new Blob([contents], {type}));
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'program.bas';
+    link.download = filename;
     document.body.append(link);
     link.click();
     link.remove();
-    showFileStatus('Export requested: program.bas');
+    showFileStatus(`Export requested: ${filename}`);
   } catch (error) {
     showFileStatus(
       `Could not export file: ${error instanceof Error ? error.message : String(error)}`,
@@ -336,6 +345,13 @@ exportButton.addEventListener('click', () => {
       window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
     }
   }
+}
+
+exportButton.addEventListener('click', () => {
+  download(documentModel.exportSource(), 'program.bas', 'text/plain');
+});
+exportDocumentButton.addEventListener('click', () => {
+  download(documentModel.exportDocument(), 'program.basic.json', 'application/json');
 });
 run.addEventListener('click', () => runProgram());
 stop.addEventListener('click', () => session.stop());

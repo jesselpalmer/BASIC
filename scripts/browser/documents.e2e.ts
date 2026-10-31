@@ -11,6 +11,14 @@ async function importFile(page: Page, source: string): Promise<void> {
   });
 }
 
+async function importPortable(page: Page, document: unknown): Promise<void> {
+  await page.locator('#file-input').setInputFiles({
+    name: 'program.basic.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(typeof document === 'string' ? document : JSON.stringify(document)),
+  });
+}
+
 test.beforeEach(async ({page}) => {
   await page.goto('/');
 });
@@ -120,9 +128,12 @@ test('quota failure retains editor contents and preserves the previously stored 
   await expect(page.locator('#source')).toHaveValue('10 PRINT "newer unsaved draft"');
   await page.locator('#run').click();
   await expect(page.locator('#console-output')).toHaveText('newer unsaved draft\n');
-  expect(await page.evaluate(() => localStorage.getItem('basic.playground.source.v1'))).toBe(
-    '10 PRINT "stored draft"',
-  );
+  expect(
+    await page.evaluate(() => {
+      const saved = localStorage.getItem('basic.playground.document.v1');
+      return saved === null ? null : (JSON.parse(saved) as {source?: unknown}).source;
+    }),
+  ).toBe('10 PRINT "stored draft"');
 });
 
 test('failed and stale asynchronous reads cannot overwrite newer edits', async ({page}) => {
@@ -152,4 +163,79 @@ test('failed and stale asynchronous reads cannot overwrite newer edits', async (
   await importFile(page, '10 PRINT "unreadable"');
   await expect(page.locator('#file-status')).toContainText('Could not read file');
   await expect(page.locator('#source')).toHaveValue('10 PRINT "newer edits"');
+});
+
+test('portable document preserves CRLF, context, execution and export through reload', async ({
+  page,
+}) => {
+  const source = '20 END\r\n10 PRINT "portable"\r\n';
+  page.once('dialog', (dialog) => void dialog.accept());
+  await importPortable(page, {
+    format: 'basic-program',
+    version: 1,
+    dialect: 'native',
+    source,
+  });
+  await expect(page.locator('#file-status')).toHaveText('Portable document imported.');
+  await expect(page.locator('#document-dialect')).toHaveText('Dialect: native');
+  await page.locator('#run').click();
+  await expect(page.locator('#console-output')).toHaveText('portable\n');
+  await page.reload();
+  await expect(page.locator('#source')).toHaveValue(source.replaceAll('\r\n', '\n'));
+  await expect(page.locator('#document-dialect')).toHaveText('Dialect: native');
+  const downloaded = page.waitForEvent('download');
+  await page.locator('#export-document').click();
+  const file = await downloaded;
+  expect(file.suggestedFilename()).toBe('program.basic.json');
+  const path = await file.path();
+  expect(JSON.parse(await readFile(path, 'utf8'))).toEqual({
+    format: 'basic-program',
+    version: 1,
+    dialect: 'native',
+    source,
+  });
+});
+
+test('unsupported portable metadata preserves work and an active input run', async ({page}) => {
+  const source = '10 INPUT NAME$\n20 PRINT NAME$';
+  await page.locator('#source').fill(source);
+  await page.locator('#run').click();
+  await expect(page.locator('#input-form')).toBeVisible();
+  await importPortable(page, {
+    format: 'basic-program',
+    version: 1,
+    dialect: 'basic-plus-1972-10',
+    source: '10 PRINT "wrong runtime"',
+  });
+  await expect(page.locator('#file-status')).toContainText('Invalid BASIC program');
+  await expect(page.locator('#source')).toHaveValue(source);
+  await expect(page.locator('#input-form')).toBeVisible();
+  await page.locator('#input-value').fill('Ada');
+  await page.locator('#input-form').press('Enter');
+  await expect(page.locator('#console-output')).toHaveText('Ada\nAda\n');
+});
+
+test('legacy invalid draft migrates once and current envelope remains authoritative', async ({
+  page,
+}) => {
+  const legacy = '10 PRINT "unfinished';
+  await page.evaluate((value) => {
+    localStorage.removeItem('basic.playground.document.v1');
+    localStorage.setItem('basic.playground.source.v1', value);
+  }, legacy);
+  await page.reload();
+  await expect(page.locator('#source')).toHaveValue(legacy);
+  expect(
+    await page.evaluate(() => {
+      const current = localStorage.getItem('basic.playground.document.v1');
+      return current === null ? null : (JSON.parse(current) as {source: string}).source;
+    }),
+  ).toBe(legacy);
+  await page.evaluate(() => {
+    localStorage.setItem('basic.playground.document.v1', '{');
+    localStorage.setItem('basic.playground.source.v1', '10 PRINT "must not restore"');
+  });
+  await page.reload();
+  await expect(page.locator('#source')).not.toHaveValue('10 PRINT "must not restore"');
+  await expect(page.locator('#storage-status')).toContainText('Could not restore');
 });

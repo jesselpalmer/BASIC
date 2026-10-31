@@ -1,8 +1,10 @@
 import Basic from '../core/runtime.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
 import {defaultScheduler, defaultWait} from '../core/scheduling.ts';
+import {validateDialect} from '../core/dialect.ts';
 import type {
   Diagnostic,
+  Dialect,
   ExecutionScheduler,
   GraphicsCommand,
   Host,
@@ -20,6 +22,8 @@ export interface BrowserState {
   readonly isPaused: boolean;
   /** The exact source snapshot used by this run, independent of editor changes. */
   readonly source: string;
+  /** Immutable language context used to prepare this source snapshot. */
+  readonly dialect: Dialect;
   readonly diagnostic: Readonly<Diagnostic> | null;
   readonly currentLocation: Location | null;
   readonly nextLocation: Location | null;
@@ -50,6 +54,8 @@ export interface BrowserSessionOptions {
 export interface BrowserRunOptions {
   /** Prepare and inspect the first statement before executing it. */
   paused?: boolean;
+  /** Defaults to native; unsupported or conflicting context fails before replacing a run. */
+  dialect?: Dialect;
 }
 
 interface Execution {
@@ -74,6 +80,7 @@ export class BrowserSession {
     status: 'idle',
     isPaused: false,
     source: '',
+    dialect: 'native',
     diagnostic: null,
     currentLocation: null,
     nextLocation: null,
@@ -94,6 +101,7 @@ export class BrowserSession {
 
   async run(source: string, options: BrowserRunOptions = {}): Promise<BrowserState> {
     this.#assertOutsideCallback();
+    const dialect = validateDialect(options.dialect);
     const {yieldEvery = 256, scheduler = defaultScheduler, wait = defaultWait} = this.#options;
     let optionError: TypeError | null = null;
     if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
@@ -102,7 +110,8 @@ export class BrowserSession {
       optionError = new TypeError('scheduler must be a function');
     else if (typeof wait !== 'function') optionError = new TypeError('wait must be a function');
     if (optionError) {
-      if (!this.#execution) this.#state = Object.freeze({...this.#state, status: 'error', source});
+      if (!this.#execution)
+        this.#state = Object.freeze({...this.#state, status: 'error', source, dialect});
       throw optionError;
     }
     this.stop();
@@ -110,24 +119,28 @@ export class BrowserSession {
     const readKey = this.#view.readKey?.bind(this.#view);
     const keyDown = this.#view.keyDown?.bind(this.#view);
     const execution: Execution = {
-      basic: new Basic({
-        write: (text) => this.#callView(execution, () => this.#view.write(text)),
-        clear: () => this.#callView(execution, () => this.#view.clear()),
-        readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
-        random: this.#options.random,
-        readKey: readKey ? () => this.#callView(execution, readKey) : undefined,
-        keyDown: keyDown ? (key) => this.#callView(execution, () => keyDown(key)) : undefined,
-        draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
-        wait: (milliseconds, options) => {
-          this.#publish(execution, 'running');
-          this.#callView(execution, () => this.#view.present?.());
-          return wait(milliseconds, options);
+      basic: new Basic(
+        {
+          write: (text) => this.#callView(execution, () => this.#view.write(text)),
+          clear: () => this.#callView(execution, () => this.#view.clear()),
+          readLine: (prompt = '', {signal} = {}) => this.#readLine(execution, prompt, signal!),
+          random: this.#options.random,
+          readKey: readKey ? () => this.#callView(execution, readKey) : undefined,
+          keyDown: keyDown ? (key) => this.#callView(execution, () => keyDown(key)) : undefined,
+          draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
+          wait: (milliseconds, options) => {
+            this.#publish(execution, 'running');
+            this.#callView(execution, () => this.#view.present?.());
+            return wait(milliseconds, options);
+          },
         },
-      }),
+        {dialect},
+      ),
       state: Object.freeze({
         status: 'running',
         isPaused: false,
         source,
+        dialect,
         diagnostic: null,
         currentLocation: null,
         nextLocation: null,
@@ -336,6 +349,7 @@ export class BrowserSession {
       isPaused:
         execution.paused && (status === 'paused' || status === 'running' || status === 'waiting'),
       source: execution.state.source,
+      dialect: execution.state.dialect,
       diagnostic,
       currentLocation: state.currentLocation,
       nextLocation: state.nextLocation,

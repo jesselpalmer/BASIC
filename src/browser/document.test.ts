@@ -1,14 +1,21 @@
 import {expect, it, jest} from 'bun:test';
 import {BrowserDocument, type DocumentStorage} from './document.ts';
+import {decodeSourceDocument, encodeSourceDocument} from '../core/source_document.ts';
 
 function fixture(restored: string | null = null) {
   const storage = {
-    read: jest.fn(() => restored),
-    write: jest.fn<(source: string) => void>(),
+    read: jest.fn(() => (restored === null ? null : encodeSourceDocument(restored))),
+    write: jest.fn<(document: string) => void>(),
   };
   const document = new BrowserDocument('10 PRINT "initial"', storage);
   const confirm = jest.fn(() => true);
   return {document, storage, confirm};
+}
+
+function expectSaved(storage: ReturnType<typeof fixture>['storage'], source: string): void {
+  const written = storage.write.mock.calls.at(-1)?.[0];
+  expect(typeof written).toBe('string');
+  expect(decodeSourceDocument(written!)).toMatchObject({source, dialect: 'native'});
 }
 
 function deferred<T>() {
@@ -30,7 +37,7 @@ it('keeps exact incomplete edits, autosaves them, and restores them without vali
   f.document.edit(source);
   expect(f.document.source).toBe(source);
   expect(f.document.exportSource()).toBe(source);
-  expect(f.storage.write).toHaveBeenCalledWith(source);
+  expectSaved(f.storage, source);
   expect(f.document.storageStatus).toEqual({kind: 'saved'});
   const restored = fixture(source);
   expect(restored.document.source).toBe(source);
@@ -94,11 +101,15 @@ it('requires confirmation for autosaved work and preserves everything on cancell
   const before = f.document.storageStatus;
   const result = await f.document.replaceWithExample('10 END', f.confirm);
   expect(result).toEqual({kind: 'cancelled'});
-  expect(f.confirm).toHaveBeenCalledWith({
-    source: '20 PRINT "mine"\r\n',
-    candidate: '10 END',
-    reason: 'example',
-  });
+  expect(f.confirm).toHaveBeenCalledWith(
+    Object.freeze({
+      source: '20 PRINT "mine"\r\n',
+      dialect: 'native',
+      candidate: '10 END',
+      candidateDialect: 'native',
+      reason: 'example',
+    }),
+  );
   expect(f.document.source).toBe('20 PRINT "mine"\r\n');
   expect(f.document.storageStatus).toEqual(before);
   expect(f.storage.write).toHaveBeenCalledTimes(1);
@@ -109,7 +120,7 @@ it('preserves source spelling and ordering when replacing with an approved examp
   const source = '\r\n20 END\r\n10 print "hello"\r\n';
   expect(await f.document.replaceWithExample(source, f.confirm)).toEqual({kind: 'replaced'});
   expect(f.document.source).toBe(source);
-  expect(f.storage.write).toHaveBeenCalledWith(source);
+  expectSaved(f.storage, source);
 });
 
 it('does not ask to replace an empty or identical document', async () => {
@@ -134,12 +145,16 @@ it('imports complete source exactly after confirmation and autosaves it', async 
     kind: 'replaced',
   });
   expect(f.document.exportSource()).toBe(source);
-  expect(f.storage.write).toHaveBeenCalledWith(source);
-  expect(f.confirm).toHaveBeenCalledWith({
-    source: 'incomplete',
-    candidate: source,
-    reason: 'import',
-  });
+  expectSaved(f.storage, source);
+  expect(f.confirm).toHaveBeenCalledWith(
+    Object.freeze({
+      source: 'incomplete',
+      dialect: 'native',
+      candidate: source,
+      candidateDialect: 'native',
+      reason: 'import',
+    }),
+  );
 });
 
 it.each([
@@ -290,4 +305,140 @@ it('invalidates old reads even when a newer import is invalid or cancelled', asy
   second.resolve('30 END');
   expect(await pending).toEqual({kind: 'stale'});
   expect(f.document.source).toBe('current');
+});
+
+it.each(['', '10 PRINT "incomplete\r\n'])(
+  'migrates exact legacy drafts only when the current key is absent: %j',
+  (legacy) => {
+    const storage = {
+      read: jest.fn(() => null),
+      readLegacy: jest.fn(() => legacy),
+      write: jest.fn<(document: string) => void>(),
+    };
+    const document = new BrowserDocument('initial', storage);
+    expect(document.source).toBe(legacy);
+    expect(document.dialect).toBe('native');
+    expect(document.storageStatus).toEqual({kind: 'restored'});
+    expectSaved(storage, legacy);
+  },
+);
+
+it('prefers a current empty draft over legacy source and does not rewrite it', () => {
+  const storage = {
+    read: jest.fn(() => encodeSourceDocument('')),
+    readLegacy: jest.fn(() => 'old source'),
+    write: jest.fn<(document: string) => void>(),
+  };
+  const document = new BrowserDocument('initial', storage);
+  expect(document.source).toBe('');
+  expect(storage.readLegacy).not.toHaveBeenCalled();
+  expect(storage.write).not.toHaveBeenCalled();
+});
+
+it.each(['{', '{"format":"basic-program","version":1,"dialect":"unknown","source":"10 END"}'])(
+  'never falls back to an older draft after current envelope failure: %j',
+  (current) => {
+    const storage = {
+      read: jest.fn(() => current),
+      readLegacy: jest.fn(() => 'valuable legacy source'),
+      write: jest.fn<(document: string) => void>(),
+    };
+    const document = new BrowserDocument('initial', storage);
+    expect(document.source).toBe('initial');
+    expect(document.storageStatus).toMatchObject({kind: 'error', operation: 'restore'});
+    expect(storage.readLegacy).not.toHaveBeenCalled();
+    expect(storage.write).not.toHaveBeenCalled();
+  },
+);
+
+it('preserves legacy work when its migration save fails', () => {
+  const storage: DocumentStorage = {
+    read: () => null,
+    readLegacy: () => '10 PRINT "legacy',
+    write: () => {
+      throw new Error('quota');
+    },
+  };
+  const document = new BrowserDocument('initial', storage);
+  expect(document.source).toBe('10 PRINT "legacy');
+  expect(document.storageStatus).toEqual({kind: 'error', operation: 'save', message: 'quota'});
+});
+
+it('reports a legacy read failure without changing initial source', () => {
+  const storage: DocumentStorage = {
+    read: () => null,
+    readLegacy: () => {
+      throw new Error('legacy storage denied');
+    },
+    write() {},
+  };
+  const document = new BrowserDocument('initial', storage);
+  expect(document.source).toBe('initial');
+  expect(document.storageStatus).toEqual({
+    kind: 'error',
+    operation: 'restore',
+    message: 'legacy storage denied',
+  });
+});
+
+it('imports and exports portable documents with exact source and native context', async () => {
+  const f = fixture('current');
+  const source = '20 END\r\n10 PRINT "portable"\r\n';
+  expect(
+    await f.document.importDocument(
+      () => Promise.resolve(encodeSourceDocument(source, {dialect: 'native'})),
+      f.confirm,
+    ),
+  ).toEqual({kind: 'replaced'});
+  expect(f.document.context).toEqual({
+    format: 'basic-program',
+    version: 1,
+    dialect: 'native',
+    source,
+  });
+  expect(Object.isFrozen(f.document.context)).toBe(true);
+  expect(decodeSourceDocument(f.document.exportDocument())).toEqual(f.document.context);
+});
+
+it.each([
+  '{',
+  '{"format":"basic-program","version":2,"dialect":"native","source":"10 END"}',
+  '{"format":"basic-program","version":1,"dialect":"other","source":"10 END"}',
+  '{\n  "format": "basic-program",\n  "version": 1,\n  "dialect": "native",\n  "source": "10 GOTO 999"\n}\n',
+])('rejects invalid portable imports before confirmation: %j', async (serialized) => {
+  const f = fixture('current');
+  const result = await f.document.importDocument(() => Promise.resolve(serialized), f.confirm);
+  expect(result.kind).toBe('invalid');
+  expect(f.document.source).toBe('current');
+  expect(f.confirm).not.toHaveBeenCalled();
+  expect(f.storage.write).not.toHaveBeenCalled();
+});
+
+it('copies immutable source+dialect context into a replacement confirmation', async () => {
+  const f = fixture('current');
+  let observed: unknown;
+  await f.document.replaceWithExample('10 END', (replacement) => {
+    observed = replacement;
+    expect(Object.isFrozen(replacement)).toBe(true);
+    expect(Reflect.set(replacement, 'candidate', 'changed')).toBe(false);
+    return false;
+  });
+  expect(observed).toMatchObject({
+    source: 'current',
+    dialect: 'native',
+    candidate: '10 END',
+    candidateDialect: 'native',
+  });
+});
+
+it('rejects malformed example context while invalidating older replacement work', async () => {
+  const f = fixture('current');
+  const read = deferred<string>();
+  const older = f.document.importSource(() => read.promise, f.confirm);
+  const unsupported = {dialect: 'basic-plus-1972-10'} as unknown as {dialect: 'native'};
+  expect(await f.document.replaceWithExample('10 END', f.confirm, unsupported)).toMatchObject({
+    kind: 'invalid',
+  });
+  read.resolve('20 END');
+  expect(await older).toEqual({kind: 'stale'});
 });
