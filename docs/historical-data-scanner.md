@@ -13,7 +13,10 @@ DATA, requires DATA to finish its line and forbids trailing comments. Section
 5.3, printed 5-8/5-9 (PDF 74/75), establishes the ASCII text pool, conversion
 when READ chooses a target, single/double quoted values, and ignoring leading,
 embedded and trailing spaces in unquoted values. Section 3.1, printed 3-2
-(PDF 29), explicitly allows an exclamation mark as part of a DATA item.
+(PDF 29), explicitly allows an exclamation mark as part of a DATA item. Section
+5.1.5, printed 5-5 (PDF 71), defines null strings of length zero; combined with
+§5.3's entire quoted string rule, this supports retaining quoted empty text
+without inferring the behavior of omitted or blank unquoted fields.
 
 ## Closed scanner contract
 
@@ -44,7 +47,15 @@ the complete raw physical payload at 262144 UTF-16 units. These are deliberate
 implementation limits, not historical storage limits. Check the payload cap
 before tokenizing fields, field count before beginning an extra field, and
 decoded length before appending more characters. All scans progress monotonically
-with no repeated suffix search. Failure returns no token stream or host effects.
+with no repeated suffix search: one `indexOf` finds each DATA line's end, then
+field scanning advances within that line. This keeps total work linear in source
+length, including many physical DATA lines. Failure returns no token stream or
+host effects. Payload and field-count caps take precedence before reading the
+next field. Within a field, unsupported characters fail at their source location;
+otherwise a decoded-size overflow fails before appending, an unclosed quote
+reports its opener, an empty field reports its beginning, and quoted trailing
+junk reports its first character. Tabs after a closing quote are trailing junk,
+not ignored whitespace.
 
 Verify original manual examples, protected literals, compact preceding statements,
 every raw span, fragment offsets/tabs/CRLF boundaries, malformed lists/quotes,

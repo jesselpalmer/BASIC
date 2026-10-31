@@ -193,7 +193,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
   );
 
   it.each([
-    'DATA',
     'IMAGE',
     'STOP',
     'CHANGE',
@@ -408,7 +407,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
   );
 
   it.each([
-    'DATA0,FORI=0TO12',
     'IMAGE"###"',
     "PRINT'x'",
     '!comment',
@@ -468,7 +466,7 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     const first = scan(source);
     expect(first.length).toBe(50003);
     expect(first.at(-2)).toMatchObject({type: 'KEYWORD', value: 'END'});
-    failure('10DATA"ignored"', 'UNSUPPORTED_LEXICAL_FORM');
+    failure('10IMAGE"ignored"', 'UNSUPPORTED_LEXICAL_FORM');
     expect(scan('10END')).toEqual(scan('10END'));
     expect(tokenize('10 LET A=2')).toEqual(tokenize('10 LET A=2', {lexicalPolicy: 'native'}));
   });
