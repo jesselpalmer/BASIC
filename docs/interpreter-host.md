@@ -144,6 +144,13 @@ Host write/clear failures use `HOST_ERROR`, point at the statement, and retain
 the original thrown value as `error.cause`. The runtime's diagnostic is copied,
 so changing a caught error cannot change its saved state.
 
+Direct CLI file execution selects a portable document only by the
+`.basic.json` suffix. That envelope is decoded before constructing a fresh
+runtime with its dialect; all other names remain plain source. The shared
+runtime still owns complete validation and source coordinates, so JSON
+indentation never shifts an embedded BASIC diagnostic. See
+[portable documents](portable-documents.md).
+
 ## INPUT, waiting, and cancellation
 
 `INPUT ["prompt";] variable` accepts one variable and an optional literal prompt.

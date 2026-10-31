@@ -25,6 +25,41 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
     assert.equal(direct.stdout, 'CLI works\n');
     assert.equal(direct.stderr, '');
   }
+  const portable = join(consumer, 'portable.basic.json');
+  const portableSource = '30 END\r\n10 PRINT "portable"\r\n20 PRINT "CLI"\r\n';
+  writeFileSync(
+    portable,
+    `${JSON.stringify(
+      {format: 'basic-program', version: 1, dialect: 'native', source: portableSource},
+      null,
+      2,
+    )}\n`,
+  );
+  const portableRun = runProcess({cwd: consumer, args: [executable, portable]});
+  assert.equal(portableRun.stdout, 'portable\nCLI\n');
+  assert.equal(portableRun.stderr, '');
+  const savedPortable = JSON.parse(readFileSync(portable, 'utf8')) as {source?: unknown};
+  assert.equal(
+    savedPortable.source,
+    portableSource,
+    'CLI execution must not rewrite portable documents',
+  );
+  writeFileSync(
+    portable,
+    JSON.stringify({
+      format: 'basic-program',
+      version: 1,
+      dialect: 'basic-plus-1972-10',
+      source: '10 PRINT "never"',
+    }),
+  );
+  const unsupportedPortable = runProcess({
+    cwd: consumer,
+    args: [executable, portable],
+    expectedStatus: 1,
+  });
+  assert.equal(unsupportedPortable.stdout, '');
+  assert.match(unsupportedPortable.stderr, /dialect/);
   writeFileSync(file, '10 INPUT "Name"; N$\n20 PRINT "Hello, ";N$');
   const input = runProcess({cwd: consumer, args: [executable, file], input: 'Jesse\n'});
   assert.equal(input.stdout, 'Name? Hello, Jesse\n');
