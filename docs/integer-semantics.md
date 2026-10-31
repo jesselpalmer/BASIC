@@ -160,3 +160,31 @@ types, CLI/editor and relevant real browser/extracted-archive checks on Linux an
 macOS. Keep the full pinned 108-file corpus gate, independent game oracles and
 source/dialect certification open. A passing integer probe closes no game or
 release gate.
+
+## Internal word conformance slice
+
+**Status:** implemented after the design-only contract. `core/basic_plus_words.ts`
+exercises the settled October 1972 word rules without activating a historical
+profile, changing public exports or reserving additional native words. It accepts
+explicitly selected signed words, represented exactly as JavaScript numbers.
+
+The pure boundary validates operands as integers in -32768..32767. Assignment
+conversion rejects nonfinite values, truncates finite fractions toward zero and
+returns an explicit `assignment-boundary` outcome outside the word range. That
+outcome records the unresolved continued-error boundary; it does not silently
+assign zero. Arithmetic add, subtract and multiply use the documented 16-bit
+cycle. In-range division truncates toward zero, while division by zero and the
+exceptional -32768/-1 quotient remain explicit unsupported outcomes. Negating
+-32768 is likewise unsupported until its historical error policy is settled;
+all other word negations are exact.
+
+NOT and the five binary logical operations work on all 16 bits. Relations map
+only an already evaluated Boolean result to -1 or 0, and condition testing treats
+zero as false and every other validated word as true. These helpers do not decide
+where syntax is legal, evaluation order, mixed numeric mode, source diagnostics,
+error continuation or host effects.
+
+The tests independently cover endpoint cycling, truncation signs, all word
+values for complement and negation, all 16 bit positions, non-Boolean patterns,
+malformed constructed operands/operators and immutable unsupported outcomes.
+This slice closes no game, profile or release gate; #124 and #109 remain open.
