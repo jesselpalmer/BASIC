@@ -35,6 +35,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                      |
 | `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                              |
 | `core/basic_plus_words.ts`            | Internal pure signed-word conversion, arithmetic and logical conformance; it does not activate a public profile.     |
+| `core/basic_plus_floating_words.ts`   | Internal exact floating-word decoding; unsupported encodings stay explicit and no public profile is activated.       |
 | `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.             |
 | `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.    |
 | `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                         |
