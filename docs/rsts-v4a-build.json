@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-11-01",
+  "simulator": {
+    "repository": "https://github.com/simh/simh",
+    "commit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+    "archiveSha256": "96323ef3466881e0117661a71ada3c0d77cb1a8749614a23bd3650873f685fec",
+    "build": "make pdp11 USE_NETWORK=0 USE_READER_THREAD=0 USEFUL_PACKAGES= OPTIONAL_PACKAGES= QUIET=1",
+    "localExecutableSha256": "26ebf2a68f1992ff2d40a47d57bbdcb8300791810f903fa87f05157e274fdb71",
+    "cpu": "11/05",
+    "memory": "64K",
+    "clock": "60HZ",
+    "downloadedArchiveSource": "https://codeload.github.com/simh/simh/tar.gz/refs/heads/master",
+    "pinnedArchiveSource": "https://codeload.github.com/simh/simh/tar.gz/698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+    "pinnedArchiveSha256": "5f4ef171c1d5e9458b9eb5c7fbccbc872f615663a2c140c1aa499cdff798db8f",
+    "archiveEquivalence": "all regular-file relative names and bytes identical after removing their enclosing archive root"
+  },
+  "inputs": [
+    {
+      "name": "dos002.dta",
+      "source": "https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/RG_DECtapes/dos002.dta",
+      "bytes": 295936,
+      "sha256": "05c650e3e5d4278f4186b93de2f50374ce75641cec69e3f70570c650b9f25511"
+    },
+    {
+      "name": "rsts00.dta.gz",
+      "source": "https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/rsts00.dta.gz",
+      "bytes": 107160,
+      "sha256": "9a75baeb5d6ecebde36fb3241887dddca644a1c0a8b80ff40fe08b89d83c5924",
+      "decompressedBytes": 295936,
+      "decompressedSha256": "45786f2cda7b411d60e6297e9a17f4c8de91d76deb0f46d1038612fbcd78ea09"
+    },
+    {
+      "name": "rsts01.dta.gz",
+      "source": "https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/rsts01.dta.gz",
+      "bytes": 86233,
+      "sha256": "22281930016962740e3c4adaa2adf53abab23753111aaeedcea828f2bcfec2d4",
+      "decompressedBytes": 295936,
+      "decompressedSha256": "88ffeb6025977cc8bc9fbd46c1f89345a8901886f12166cbcd6b9f5d568a3aae"
+    }
+  ],
+  "mathPackage": {
+    "name": "MA2.OBJ",
+    "containerPayloadSha256": "6d27b8d91ed33666292ef909472365dc19451275de20e56305be0d6d0ef1f303",
+    "precision": 24,
+    "eae": false
+  },
+  "generatedPayloadConvention": "DOS linked payload bytes, excluding links, retaining final padding",
+  "generated": [
+    {
+      "name": "CF.MAC",
+      "bytes": 2040,
+      "sha256": "01760db61e838a45f2702121e658ffa76127fd4f49d700194b43a08640223aa2"
+    },
+    {
+      "name": "DK.OBJ",
+      "bytes": 1530,
+      "sha256": "4aa86a227f4bc6b934f77f0d10232b5b63c9afe617bd053b1973ffd19c2d100d"
+    },
+    {
+      "name": "OV.LDA",
+      "bytes": 16320,
+      "sha256": "6d3624b05fc4a10c12d85121998f13805168c73dad35ef88494a1ee201f7dc83"
+    },
+    {
+      "name": "SY.LDA",
+      "bytes": 59160,
+      "sha256": "e1add1ea800307764a97a0eb8964fb3dca88403825c3e9a500d68eac786cd596"
+    },
+    {
+      "name": "SY.MAP",
+      "bytes": 10200,
+      "sha256": "80ecc648bd11f11227c6e75c418b41d251741fff3bf5d4b2255681d6453da42f"
+    },
+    {
+      "name": "SY.OBJ",
+      "bytes": 7650,
+      "sha256": "a029100cbe32e627806b9b5f2b6e40efcea92480c7d5dd74ddb10273f68f4503"
+    },
+    {
+      "name": "SY.STB",
+      "bytes": 5610,
+      "sha256": "c9eace32130ba53cb409a6ff27e8f2b1ee3205585e8c63b1a3ddc0d677e2566e"
+    },
+    {
+      "name": "TT.OBJ",
+      "bytes": 3570,
+      "sha256": "78d60040b31fe582912c9ab5d618fb84485973a0dd6e5f272431e5cbe8acff01"
+    }
+  ],
+  "linkedImageConvention": "65536 zero bytes, checked absolute-loader records applied in order; holes and unused tail retained as zeros; not a post-boot RAM snapshot",
+  "linkedImages": [
+    {
+      "name": "SY.LDA",
+      "records": 1267,
+      "low": "000000",
+      "highExclusive": "130464",
+      "transfer": "123252",
+      "bytes": 65536,
+      "sha256": "5ca10d4d7d52c0891ddea9df9437323d597d00a1479fedfb7d3cd1b9657b8686"
+    },
+    {
+      "name": "OV.LDA",
+      "records": 330,
+      "low": "000000",
+      "highExclusive": "027624",
+      "transfer": "000001",
+      "bytes": 65536,
+      "sha256": "f73e1df26801801730ad4f6f88018e48361d6b430d7f48361dccc08a96f64af0"
+    }
+  ],
+  "bootIdentification": "RSTS V4A-12 V4A12MA2",
+  "scope": "BASIC execution observations with manual clock enable and absent INIT CUSP; not an I/O-complete installation or public dialect certification",
+  "reconstruction": {
+    "builds": 2,
+    "comparison": "SY/TT/DK objects, SY map/STB/LDA and OV LDA payloads byte-identical to exploratory SY2/TT2/DK2/OV2 aliases; CF before formfeed identical after removing DOS DEL tab-fill bytes; raw CF hashes differ",
+    "rawUnrefreshedDiskBytes": 2494464,
+    "rawUnrefreshedDiskSha256": "aed8aeefc2f98c069274e836d2ee02830464ec80ad526837f2f29d15690d9663"
+  }
+}

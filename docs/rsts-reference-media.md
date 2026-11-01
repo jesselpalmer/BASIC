@@ -60,11 +60,15 @@ before interpreting its directory.
 The readily available [V4B installation/image](https://iamvirtual.ca/PDP-11/RSTS-11/Install.htm)
 is a later system. Its installation log identifies V04B-17 and 1975 object
 dates. It cannot establish unchanged V4A arithmetic merely because it selects
-MA2. No V4A system was linked, booted or numerically probed in this inspection.
+MA2. The tape-one inspection alone did not link or execute V4A. The subsequent
+[selected MA2 reference experiment](rsts-v4a-build.md) now records an assembled,
+linked and booted V4A-12 monitor and 42 repeated conversion-byte/event probes,
+with explicit startup, clock and filesystem limitations. Its build/map/object
+identities are separate from this container manifest.
 
-Next: reproduce a selected V4A configuration, pin the final monitor/link map and
-actual selected MA object, and capture independent exact-word/event oracles for
-literal conversion, intermediate arithmetic, intrinsics and error continuation.
-Until then rounding/ties, signed zero, thresholds and intrinsic accuracy remain
-unresolved. Decoder observations and media identity do not complete #123,
+Next: trace literal conversion and individual arithmetic/intrinsic operations
+against those observations and resolve the installation limitations. The raw
+CVTF$ output bytes must not be confused with native memory-word ordering.
+Complete package policies for rounding/ties, signed zero, thresholds and intrinsic
+accuracy remain unresolved. Decoder observations and media identity do not complete #123,
 activate a profile, change corpus dispositions or make #109 READY.

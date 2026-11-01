@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "build": "rsts-v4a-build.json",
+  "probe": "rsts-v4a-ma2-probe.bas",
+  "probeSha256": "323374bc83667432644fa1ba113316804e4360ead8829892a394d27098b2a4e2",
+  "transcript": "rsts-v4a-ma2-output.txt",
+  "transcriptSha256": "e02c64d31a1905af7a3d9ae8c88fb89fb27af18eaee6bde79c2f9f01a0e01386",
+  "representation": "four decimal ASCII(MID(CVTF$(A),i%,1%)) values, i%=1%..4%; these are conversion-string bytes, not native memory words",
+  "reruns": 2,
+  "observations": [
+    {
+      "id": "one",
+      "expression": "1",
+      "line": 11,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "minus_five",
+      "expression": "-5",
+      "line": 15,
+      "cvtfBytes": [0, 0, 193, 160],
+      "diagnostics": []
+    },
+    {
+      "id": "integer_byte_order",
+      "expression": "16711935.",
+      "line": 19,
+      "cvtfBytes": [0, 255, 76, 127],
+      "diagnostics": []
+    },
+    {
+      "id": "next_one",
+      "expression": "1.00000011920928955078125",
+      "line": 23,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "literal_even_tie",
+      "expression": "1.000000059604644775390625",
+      "line": 27,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "literal_odd_tie",
+      "expression": "1.000000178813934326171875",
+      "line": 31,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "literal_negative_tie",
+      "expression": "-1.000000059604644775390625",
+      "line": 35,
+      "cvtfBytes": [0, 0, 192, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "literal_2p24_plus1",
+      "expression": "16777217.",
+      "line": 39,
+      "cvtfBytes": [0, 1, 76, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "add_even_tie",
+      "expression": "1.+2.^(-24.)",
+      "line": 43,
+      "cvtfBytes": [0, 1, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "add_odd_tie",
+      "expression": "1.+3.*2.^(-24.)",
+      "line": 47,
+      "cvtfBytes": [0, 2, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "subtract_negative_tie",
+      "expression": "-1.-2.^(-24.)",
+      "line": 51,
+      "cvtfBytes": [0, 1, 192, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "subtract_negative_odd",
+      "expression": "-1.-3.*2.^(-24.)",
+      "line": 55,
+      "cvtfBytes": [0, 2, 192, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "cancel",
+      "expression": "1.-1.",
+      "line": 59,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": []
+    },
+    {
+      "id": "negative_zero",
+      "expression": "-0.",
+      "line": 63,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": []
+    },
+    {
+      "id": "zero_literal",
+      "expression": "0.",
+      "line": 67,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": []
+    },
+    {
+      "id": "add_below_tie",
+      "expression": "1.+2.^(-25.)",
+      "line": 71,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "add_above_tie",
+      "expression": "1.+3.*2.^(-25.)",
+      "line": 75,
+      "cvtfBytes": [0, 1, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "mul_tie",
+      "expression": "(1.+2.^(-23.))*(1.+2.^(-1.))",
+      "line": 79,
+      "cvtfBytes": [0, 2, 64, 192],
+      "diagnostics": []
+    },
+    {
+      "id": "divide_third",
+      "expression": "1./3.",
+      "line": 83,
+      "cvtfBytes": [170, 171, 63, 170],
+      "diagnostics": []
+    },
+    {
+      "id": "power_two",
+      "expression": "2.^24.",
+      "line": 87,
+      "cvtfBytes": [0, 0, 76, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "sqrt_negative",
+      "expression": "SQR(-4.)",
+      "line": 91,
+      "cvtfBytes": [0, 0, 65, 0],
+      "diagnostics": [
+        {
+          "message": "IMAGINARY SQUARE ROOTS",
+          "line": 91
+        }
+      ]
+    },
+    {
+      "id": "log_zero",
+      "expression": "LOG(0.)",
+      "line": 95,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "ILLEGAL ARGUMENT IN LOG",
+          "line": 95
+        }
+      ]
+    },
+    {
+      "id": "log_negative",
+      "expression": "LOG(-1.)",
+      "line": 99,
+      "cvtfBytes": [0, 0, 192, 128],
+      "diagnostics": [
+        {
+          "message": "ILLEGAL ARGUMENT IN LOG",
+          "line": 99
+        }
+      ]
+    },
+    {
+      "id": "overflow",
+      "expression": "1.E38*10.",
+      "line": 103,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "FLOATING POINT ERROR",
+          "line": 103
+        }
+      ]
+    },
+    {
+      "id": "underflow",
+      "expression": "1.E-38/10.",
+      "line": 107,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "FLOATING POINT ERROR",
+          "line": 107
+        }
+      ]
+    },
+    {
+      "id": "half_power",
+      "expression": "2.^(-24.)",
+      "line": 111,
+      "cvtfBytes": [0, 0, 52, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "half_division",
+      "expression": "1./16777216.",
+      "line": 115,
+      "cvtfBytes": [0, 0, 52, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "half_bytes",
+      "expression": "CVT$F(CHR$(0)+CHR$(0)+CHR$(52)+CHR$(128))",
+      "line": 119,
+      "cvtfBytes": [0, 0, 52, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "add_half_bytes",
+      "expression": "1.+CVT$F(CHR$(0)+CHR$(0)+CHR$(52)+CHR$(128))",
+      "line": 123,
+      "cvtfBytes": [0, 1, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "subtract_half_below_one",
+      "expression": "1.-1./33554432.",
+      "line": 127,
+      "cvtfBytes": [255, 255, 64, 127],
+      "diagnostics": []
+    },
+    {
+      "id": "add_half_above_minus_one",
+      "expression": "-1.+1./33554432.",
+      "line": 131,
+      "cvtfBytes": [255, 255, 192, 127],
+      "diagnostics": []
+    },
+    {
+      "id": "val_next_one",
+      "expression": "VAL(\"1.00000011920928955078125\")",
+      "line": 135,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "short_next_one",
+      "expression": "1.0000001",
+      "line": 139,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "short_two_ulps",
+      "expression": "1.0000002",
+      "line": 143,
+      "cvtfBytes": [0, 0, 64, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "minimum_pattern",
+      "expression": "CVT$F(CHR$(0)+CHR$(0)+CHR$(0)+CHR$(128))",
+      "line": 147,
+      "cvtfBytes": [0, 0, 0, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "minimum_times_one",
+      "expression": "CVT$F(CHR$(0)+CHR$(0)+CHR$(0)+CHR$(128))*1.",
+      "line": 151,
+      "cvtfBytes": [0, 0, 0, 128],
+      "diagnostics": []
+    },
+    {
+      "id": "minimum_div_two",
+      "expression": "CVT$F(CHR$(0)+CHR$(0)+CHR$(0)+CHR$(128))/2.",
+      "line": 155,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "FLOATING POINT ERROR",
+          "line": 155
+        }
+      ]
+    },
+    {
+      "id": "maximum_pattern",
+      "expression": "CVT$F(CHR$(255)+CHR$(255)+CHR$(127)+CHR$(255))",
+      "line": 159,
+      "cvtfBytes": [255, 255, 127, 255],
+      "diagnostics": []
+    },
+    {
+      "id": "maximum_times_one",
+      "expression": "CVT$F(CHR$(255)+CHR$(255)+CHR$(127)+CHR$(255))*1.",
+      "line": 163,
+      "cvtfBytes": [255, 255, 127, 255],
+      "diagnostics": []
+    },
+    {
+      "id": "maximum_times_two",
+      "expression": "CVT$F(CHR$(255)+CHR$(255)+CHR$(127)+CHR$(255))*2.",
+      "line": 167,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "FLOATING POINT ERROR",
+          "line": 167
+        }
+      ]
+    },
+    {
+      "id": "conversion_overflow",
+      "expression": "CVT$%(CVT%$(32768.))",
+      "line": 171,
+      "cvtfBytes": [0, 0, 0, 0],
+      "diagnostics": [
+        {
+          "message": "INTEGER ERROR",
+          "line": 171
+        }
+      ]
+    },
+    {
+      "id": "half_below_one_operand",
+      "expression": "1./33554432.",
+      "line": 175,
+      "cvtfBytes": [0, 0, 52, 0],
+      "diagnostics": []
+    }
+  ],
+  "transcriptNormalization": "result body only; CRLF to LF; trailing ASCII spaces removed per line; final LF retained",
+  "installations": 2,
+  "reconstructionComparison": "same 42 byte/event records and exact LIST source on the clean period-DOS rebuild; at least two identical final runs per installation"
+}
