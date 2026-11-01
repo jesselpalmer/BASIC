@@ -8,8 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `4f053e655a7c5f3ce64483144494775a6a3dbe80` after
-[PR #162](https://github.com/jesselpalmer/BASIC/pull/162). Native is still the
+Reconciled against main `d2eab744647e8e50164c143ea93fc196c7cc5f4d` after
+[PR #161](https://github.com/jesselpalmer/BASIC/pull/161) and
+[PR #163](https://github.com/jesselpalmer/BASIC/pull/163). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -30,9 +31,12 @@ or replace primary-source review. Counts above are separate evidence dimensions,
 not percentages of release completion. Missing-book BUNNY/SNOOPY entries remain
 separate from the 108-file denominator.
 
-[PR #161](https://github.com/jesselpalmer/BASIC/pull/161), the math-package
-provenance investigation, was still open at this checkpoint. Its checked findings
-are available for review but are not part of the main snapshot above.
+The merged [math-package provenance investigation](numeric-representation.md#implementation-evidence-and-version-boundaries)
+identifies specific implementation leads and version pitfalls. It does not
+resolve package-specific rounding or activate numeric execution. The
+[1CHECK source review](classic-source-review.md#whole-listing-review-and-attribution-limits)
+now covers all85 numbered lines and records unclear punctuation and a printed
+sample discontinuity; source/dialect certification remains open.
 
 ## Compatibility target
 

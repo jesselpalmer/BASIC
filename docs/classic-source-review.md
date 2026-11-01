@@ -79,6 +79,77 @@ silently apply it in the interpreter or count it as an unchanged-source pass.
 Spacing in the format string is preserved from the chosen fixture; the available
 scan has spacing differences, so it is not a byte-identical book transcription.
 
+### Whole-listing review and attribution limits
+
+The complete listing on printed page 164 was visually compared with all **85
+numbered source lines**, from 5 through 999, in the pinned 86-physical-line file.
+The description/author page 163 and listing/sample page 164 are one-based PDF
+165/166 in the same hash-pinned scan above. The review checked labels, variables,
+arithmetic operands, array references, branch targets and loop bounds. It found
+no additional verified arithmetic or control-flow difference in the readable
+text; that is narrower than byte-for-byte source certification.
+
+| Labels  | Reviewed agreement / remaining uncertainty                                                                                                                                                                        |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5-68    | Instruction text, numbered-board introduction and DIM A(64) are present. Quoted spacing/punctuation is not certified byte for byte.                                                                               |
+| 70-98   | Numbering loop, array initialization, central clearing loops, M=0 and GOTO 340 agree. Line72's format spacing differs; line74's comma difference remains the sole applied correction.                             |
+| 100-112 | F/T input and the zero-to-summary branch agree. The line110 prompt separator is comma-like in this scan; its upper dot is not sufficiently clear to assert a further correction.                                  |
+| 118-290 | Coordinate arithmetic, range/diagonal/occupancy checks, illegal-move branch and three-cell update/M increment agree in readable text. Quoted illegal-move spacing remains outside a lossless transcription claim. |
+| 310-410 | Eight-row nested printing loops and return to input agree. Line360's final separator is comma-like; faint-dot uncertainty prevents certifying it as a change from the fixture's semicolon.                        |
+| 490-999 | Sum, M/S summary operands, YES/NO branches and END agree. Line562's prompt separator and literal spacing/punctuation in550/580/610 need a clearer source before a full transcription is claimed.                  |
+
+The uncertain separators at 110/360/562 must not be changed from a comma-like
+scan glyph alone. A cleaner independent reproduction or the original machine
+file is needed to distinguish a comma from a semicolon with a faint upper dot.
+The current corrected fixture still changes **only line74**; it is not a fully
+scan-normalized edition and does not resolve these observations.
+
+The description credits David Ahl at Digital Equipment Corp., Maynard. The
+listing header reads `1CHECK 05:54 PM 25-JUN-73`, and the footer says READY.
+Neither page explicitly identifies a computer, interpreter or version. Author,
+company, timestamp, prompt shape and compatible syntax are attribution leads,
+not proof of BASIC-PLUS, DECsystem-10 or a particular math package. Dialect status
+therefore remains unverified. No complete source/dialect certification follows
+from this label/formula review.
+
+### Printed sample continuity and opening oracle
+
+Read the sample's left column before its right column. Its first seven visible
+moves are `1->19`, `2->20`, `3->21`, `8->22`, `16->30`, `24->38`, `64->46`.
+Each is a legal diagonal jump from the shown opening board and removes one
+piece. Independently applying the described checker rules gives 47, 46, 45, 44,
+43, 42 and 41 pieces, matching the seven printed intermediate boards. After the
+seventh move the board is, by rows from squares1-8 through57-64:
+
+```text
+00011110
+10001100
+11111100
+11000101
+11000111
+11000111
+11111101
+11111110
+```
+
+The next visible input at the top of the right column is `12->26`. Square12 is
+empty in the preceding board: the earlier `3->21` jump cleared it as a midpoint.
+The intervening visible jumps do not refill it. That next printed jump therefore
+cannot follow this prefix as an uninterrupted legal move. This establishes a
+sample discontinuity; it does not establish why or how the sample was assembled.
+
+The sample eventually reports **35 jumps and 13 remaining pieces**, a total
+consistent with 48 initial pieces, but it does not supply a continuous input
+history proving that outcome. Do not fabricate intervening moves, swap the
+counters or use the visible sample alone as a complete replay oracle.
+
+The bounded acceptance extension uses the unchanged one-byte-corrected fixture:
+play those seven opening jumps, attempt 12->26, then enter0/NO. Assert every
+opening board, one illegal move with no mutation, seven jumps/41 pieces and
+normal END999. Run it through direct/installed ESM/CommonJS, CLI and actual
+browser/extracted-static acceptance. Its output is native; this is a verified
+opening-path oracle with an explicit sample gap, not historical certification.
+
 ### Construct evidence
 
 | Used form                                      | BASIC-PLUS October 1972 evidence | Interpretation                                                                                                                  |
@@ -115,8 +186,9 @@ exact historical fractional-subscript conversion still needs stronger evidence;
 this first oracle deliberately uses integral square numbers.
 
 The corrected native path above executes these move/retry/replay checks with
-native output spelling. Remaining: review the rest of the transcription/edition
-differences, certify the dialect and its exact output/subscript rules, and test
+native output spelling. The complete label/formula comparison and printed-sample
+discontinuity are recorded above. Remaining: settle the unclear transcription/
+edition details, certify the dialect and its exact output/subscript rules, and test
 the remaining verified forms and input paths. No full historical compatibility
 pass is recorded yet.
 
