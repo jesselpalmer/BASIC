@@ -27,9 +27,9 @@ The routine trace resolves the apparent conflicting halfway results:
    resulting sign, and normalize left; exact cancellation becomes canonical zero.
 4. Reject a nonzero result normalized below exponent1. Discard the low guard bit
    and increment magnitude if it was set. Propagate a rounding carry into the
-   exponent; exponent256 is overflow. Return numeric event48 without numeric
-   continuation words for a range event. Diagnostic/trap/continuation ownership
-   remains separate.
+   exponent; exponent256 is overflow. Return numeric event48 with separately named
+   continuation words from the [selected monitor trace](ma2-range-continuation.md).
+   Diagnostic/trap control flow remains separate.
 
 This is operation-specific guard/alignment behavior, not exact rational addition
 followed by one universal rounding rule. In particular, arithmetic alignment of a
@@ -48,16 +48,18 @@ Reject an unknown operation before reading operands. Never use an input iterator
 or retain a caller-owned buffer. Supported results contain frozen unsigned
 16-bit word pairs in the decoder's increasing-address order. Zero is `[0,0]`.
 
-Return either a value, an unsupported outcome, or a range event carrying code48
-and overflow/underflow identity, **without numeric continuation words**. No source
-location, host diagnostic, handler transfer or RESUME state is invented here.
-The machine harness stops before executing the trap. Additional actual BASIC
+Return either a value, an unsupported outcome, or a range event carrying code48,
+overflow/underflow identity and frozen `continuationWords`. No source location,
+host diagnostic, handler transfer or RESUME state is invented here.
+The original machine harness stops before executing the trap. Additional actual BASIC
 checks contradicted the initial design assumption that every range continuation
 is zero: maximum-plus-maximum reports FLOATING POINT ERROR and returns nonzero
 CVTF$ bytes `[255,255,0,255]`, while rounding into overflow and the tested tiny
 subtractions return zero. The manual's general zero statement does not resolve
-this operation-path difference. Callers must settle continuation separately;
-they cannot treat a range event as a successfully computed zero.
+this operation-path difference. The subsequent [range trace](ma2-range-continuation.md)
+resolves the selected monitor's completed words by resuming through its original
+TRAP0 handler. Callers must retain the event rather than silently treating its
+continuation as a successful value.
 
 ## Independent acceptance
 

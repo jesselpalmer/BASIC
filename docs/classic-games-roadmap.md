@@ -8,8 +8,8 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `dbde8b9bf41f9f6f426780ba191fd31b0e033818` after
-[PR #166](https://github.com/jesselpalmer/BASIC/pull/166). Native is still the
+Reconciled against main `6c8438de1260bc8bd1fdbad9bda0d52ab2703317` after
+[PR #167](https://github.com/jesselpalmer/BASIC/pull/167). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -47,15 +47,19 @@ observations. Literal conversion and opposite-sign arithmetic differ from a
 single generic rounding rule. Manual clock/startup and filesystem limitations
 remain explicit. The [internal MA2 addition/subtraction component](basic-plus-ma2-addition.md)
 now follows the traced 25-bit guard/alignment behavior and matches496 original
-machine calls. Range events deliberately omit continuation values after six
-additional BASIC probes found a nonzero overflow continuation conflicting with
-the manual's general zero rule. Remaining operations, conversion, diagnostics
-and installation validation still precede public activation.
+machine calls. The prepared [range continuation follow-up](ma2-range-continuation.md)
+resolves the nonzero overflow seen in six additional BASIC probes: the original
+monitor skips an inline status mask and resumes with path-specific words.
+It independently executes598 completed calls, preserving all480 original normal
+results and retaining118 range/control vectors. Events carry separate frozen
+continuation words; BASIC diagnostics/handler state remain execution-owned.
+Remaining operations, conversion and installation validation still precede
+public activation.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #166 and distinguish the prepared
-MA2 addition/subtraction component from remaining profile and release work,
+have also been reconciled through merged #167 and distinguish the prepared
+MA2 range continuation component from remaining profile and release work,
 preserving their earlier plans as historical reference. This repository matrix
 and the owning issue criteria track subsequent deliveries.
 

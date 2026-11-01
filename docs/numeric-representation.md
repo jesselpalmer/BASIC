@@ -130,9 +130,13 @@ expose a selected-build discrepancy: maximum-plus-maximum reports error48 but
 continues with nonzero CVTF$ bytes `[255,255,0,255]`; rounding into overflow and
 the tested tiny subtractions return zero. The error number was independently
 observed through ERR/ERL. Do not generalize earlier zero-result probes to every
-operation path. The internal addition component therefore identifies a range
-event without supplying continuation words. Reconcile this implementation/manual
-difference and handler behavior in #128 before activation.
+operation path. The [selected monitor trace](ma2-range-continuation.md) resolves
+the difference: carry overflow reuses a byte-swapped exponent, while rounding
+overflow passes through a second machine range trap and clears the result.
+The internal addition component preserves the first range event and separately
+attaches the observed continuation words. Diagnostic ordering and BASIC handler
+behavior remain #128 work before activation; machine trap counts are not message
+counts.
 
 A returned zero is not permission to suppress the diagnostic, skip a handler or
 continue with a stale expression stack. Native errors remain fatal with their
