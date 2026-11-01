@@ -17,7 +17,8 @@ are not claimed as shipped.
   cursors, bounded pools and explicit exhaustion.
 - Add native CHANGE string/numeric-array conversion with explicit dimensions,
   byte/count limits, atomic failures and preserved contextual names.
-- Add nonnegative safe-integer `**#` PRINT USING fields with bounded asterisk fill.
+- Add safe-integer `**#` PRINT USING fields with bounded asterisk fill and
+  optional trailing-minus columns for integer/asterisk masks.
 - Extend PRINT USING with fixed-width string fields, typed mixed images and
   bounded atomic output while preserving integer formatting.
 - Preserve exact source/native context in portable `.basic.json` browser

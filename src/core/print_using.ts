@@ -7,7 +7,11 @@ const UNSUPPORTED_CHARACTERS = ".,+-*$^'_&%";
 
 type ImagePart =
   | {readonly literal: string}
-  | {readonly width: number; readonly kind: 'integer' | 'asterisk' | 'string'};
+  | {
+      readonly width: number;
+      readonly kind: 'integer' | 'asterisk' | 'string';
+      readonly trailingMinus?: boolean;
+    };
 
 function fail(code: string, message: string, location: Location): never {
   throw new BasicRuntimeError(code, message, location.start, location.label);
@@ -48,7 +52,9 @@ export function formatPrintUsing(
       while (image[index] === '#') index++;
       if (image[index] === '*')
         fail('UNSUPPORTED_FORMAT', 'PRINT USING asterisks must begin a numeric field', location);
-      parts.push({width: index - start, kind: asterisk ? 'asterisk' : 'integer'});
+      const trailingMinus = image[index] === '-';
+      if (trailingMinus) index++;
+      parts.push({width: index - start, kind: asterisk ? 'asterisk' : 'integer', trailingMinus});
       fieldCount++;
     } else if (image[index] === '!') {
       index++;
@@ -126,13 +132,15 @@ export function formatPrintUsing(
             `PRINT USING value ${valueIndex + 1} must be a safe integer`,
             location,
           );
-        if (part.kind === 'asterisk' && value < 0)
+        if (part.kind === 'asterisk' && value < 0 && !part.trailingMinus)
           fail(
             'UNSUPPORTED_FORMAT_VALUE',
             `PRINT USING value ${valueIndex + 1} requires a trailing sign for asterisk fill`,
             location,
           );
-        const text = String(value === 0 ? 0 : value);
+        const text = part.trailingMinus
+          ? String(Math.abs(value)) + (value < 0 ? '-' : ' ')
+          : String(value === 0 ? 0 : value);
         if (text.length > part.width) {
           fail(
             'FORMAT_OVERFLOW',

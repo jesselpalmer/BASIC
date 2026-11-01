@@ -8,11 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `7a06a8d` after merged PRs
-[#171](https://github.com/jesselpalmer/BASIC/pull/171),
-[#172](https://github.com/jesselpalmer/BASIC/pull/172),
-[#173](https://github.com/jesselpalmer/BASIC/pull/173) and
-[#174](https://github.com/jesselpalmer/BASIC/pull/174). Native is still the only
+Reconciled against main `68f6076` after merged
+[#175](https://github.com/jesselpalmer/BASIC/pull/175) and
+[#176](https://github.com/jesselpalmer/BASIC/pull/176). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -70,11 +68,16 @@ integer binary-string codec, native [INPUT LINE](input-line.md), and
 Historical partial CHANGE failures, terminal terminators, numeric conversion,
 profile activation and full-game evidence remain separately required.
 
-The next independent slices are [asterisk-filled integer USING fields](print-using-asterisks.md)
-and a separate 23 Matches fixture applying only the already reviewed terminal
-semicolon at label 380. The latter preserves raw bytes, quoted spacing and the
-explicit native RND(0) blocker. Neither slice changes source/dialect certification
-or claims a historical-game pass. Each PR carries its own validation evidence.
+[Asterisk-filled integer USING fields](print-using-asterisks.md) and the separate
+23 Matches fixture applying only the reviewed terminal semicolon at label 380
+are now merged. The raw fixture, quoted spacing and explicit native RND(0)
+blocker remain intact; this adds corrected native-path evidence without changing
+source/dialect certification or the historical-pass count.
+
+The next independent slices are native [trailing-minus integer fields](print-using-trailing-minus.md)
+and single-quoted strings/`!` comments in the existing internal historical
+scanner. The latter preserves DATA's comment exception and does not enable
+public historical parsing or execution. Each PR carries its own validation record.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
@@ -191,7 +194,7 @@ limits; issue/PR evidence retains individual validation runs.
 | Context — #116            | Native immutable API/AST context; [portable source envelopes](portable-documents.md) in browser drafts/import/export and CLI file execution; activation/name-resolution designs. | Executable historical support matrix, numeric/host observation contracts and historical selection.                                                            |
 | Lexing — #117             | Native optional LET/GO TO; [internal compact scanner](scanner-conformance.md), integer spelling and DATA source modes.                                                           | Shared historical parser/AST integration, remaining source-backed lexical forms/continuation and runtime activation.                                          |
 | Arrays — #58              | [Native explicit numeric/string arrays](arrays.md), bounded allocation and detached observations.                                                                                | Profile defaults, subscript conversion, duplicate declarations and required ranks/forms.                                                                      |
-| Output — #119/#120        | Native adjacency/integer and fixed-width string USING; [internal integer/ASCII zone layout](print-layout-conformance.md).                                                        | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                    |
+| Output — #119/#120        | Native adjacency/integer and fixed-width string USING, including asterisk fill; [internal integer/ASCII zone layout](print-layout-conformance.md).                               | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                    |
 | Branches/calls — #118/#57 | Native colon sequences, inline IF/ELSE, literal GOSUB/RETURN and ON GOTO/GOSUB.                                                                                                  | Verified historical separators/transfers and GOTO expression OF; complete game outcomes.                                                                      |
 | Input — #121              | [Native scalar/array target lists](input-targets.md), strict rows, retries, cancellation isolation and native INPUT LINE.                                                        | Historical prompts/continuation/surplus/conversion, terminal terminators and file input.                                                                      |
 | Data — #122               | [Native typed pools/READ/RESTORE](data-statements.md); [internal historical text-field scanning](historical-data-scanner.md).                                                    | Historical pool/AST integration and target-dependent READ conversion; verified RESTORE forms. Missing AWARI data stays unresolved.                            |

@@ -91,6 +91,13 @@ export function runPrintUsingAcceptance(api: Api): void {
   assert.equal(writes.length, beforeAsterisks);
   basic.run('10 PRINT USING "**#",123');
   assert.equal(writes.at(-1), '123\n');
+  basic.run('10 PRINT USING "###-|**#-|!",-12,-12,"Zed"\n20 PRINT USING "##-",12');
+  assert.deepEqual(writes.slice(-2), [' 12-|*12-|Z\n', '12 \n']);
+  const beforeSignOverflow = writes.length;
+  assert.throws(() => basic.run('10 PRINT USING "##-|#-",1,-12'), api.BasicRuntimeError);
+  assert.equal(writes.length, beforeSignOverflow);
+  basic.run('10 PRINT USING "#-",-0');
+  assert.equal(writes.at(-1), '0 \n');
 }
 
 /** Corrected source is a separate fixture; native output is not a historical pass. */
