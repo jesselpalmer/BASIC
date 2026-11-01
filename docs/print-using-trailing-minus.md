@@ -14,8 +14,8 @@ Its preceding printed page 10-9 requires a trailing sign for negative asterisk
 fields. The manual's fractional example establishes sign placement, not native
 decimal rounding: fractions, currency and exponential formatting stay unsupported.
 
-Examples: `###-` formats -12 as ` 12-` and 12 as ` 12 `; `**#-` formats -12 as
-`*12-` and 12 as `*12 `. A value needing more digit positions fails with the
+Examples (quotes make padding visible): `###-` formats -12 as `" 12-"` and 12 as
+`" 12 "`; `**#-` formats -12 as `"*12-"` and 12 as `"*12 "`. A value needing more digit positions fails with the
 existing FORMAT_OVERFLOW. A lone, leading, repeated or space-separated minus is
 not a field. Existing images remain unchanged, including ordinary signed integer
 fields and the rejection of negative asterisk values without a suffix.
