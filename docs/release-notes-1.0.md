@@ -15,7 +15,13 @@ implementation; do not publish earlier candidate archives as 1.0.
 ## Implemented in the current development snapshot
 
 - Typed numeric/string variables, expressions, ABS/INT/RND, PRINT/INPUT,
-  IF/THEN and GOTO, nested FOR/NEXT loops, REM, CLS and END.
+  scientific literals/powers, optional LET/GO TO, nested FOR/NEXT loops, REM,
+  CLS and END. Explicit native numeric/string arrays have bounded storage.
+- Native colon sequences, inline IF/THEN/ELSE, GOSUB/RETURN and ON GOTO/GOSUB;
+  INPUT scalar/array lists and typed DATA/READ/RESTORE with fresh run-owned cursors.
+- String-involved PRINT adjacency and bounded native integer PRINT USING,
+  including a separately reviewed corrected 1CHECK native path. Historical
+  output and full-game compatibility remain unverified.
 - Stored-program terminal editing with LIST/RUN/NEW/LOAD/SAVE/EXIT, protected
   replacements and persistence, source-located diagnostics, cancellation and
   recoverable errors.
@@ -23,6 +29,9 @@ implementation; do not publish earlier candidate archives as 1.0.
   asynchronous execution, stepping, instruction budgets and injected hosts.
 - A static browser editor with local draft recovery, exact `.bas` import/export,
   Run/Stop/Escape, Pause/Continue/Step, source highlighting and read-only variables.
+- Version-one `.basic.json` documents preserve exact source and native context
+  in browser drafts/import/export and CLI file execution. Terminal editor
+  LOAD/SAVE remains plain source; no historical selection is exposed.
 - A fixed 320 × 200 canvas and 16-color COLOR/PSET/LINE/CIRCLE drawing;
   cancellable WAIT; focused INKEY$/KEYDOWN input with bounded queues and cleanup.
 - Greeting, times-table, guessing-game, picture, bouncing-ball, arrow-key marker
@@ -38,9 +47,11 @@ browser engines and mobile input are not validated targets. Serve the extracted
 playground over HTTP; no application backend or account is required.
 
 The target is the pinned classic collection with verified dialect rules, not
-general QBasic/GW-BASIC compatibility. Explicit native arrays are implemented;
-historical array policies, GOSUB/RETURN and corpus-required
-strings/data/formatting/control-flow/host features remain 1.0 blockers.
+general QBasic/GW-BASIC compatibility. Native arrays, subroutines, input/data and
+control-flow extensions above are implemented. Historical policies/integration
+for these forms, required numeric/string/formatting/function/host features and
+full-corpus certification remain 1.0 blockers. Internal scanner, word, string,
+PRINT-layout and exact float-word conformance do not enable a runnable profile.
 Sound and play-only exports remain optional unless required by
 a verified dependency. The [native language reference](language-v1.md) and
 [support/extension policy](compatibility.md) define the supported contract.

@@ -10,15 +10,30 @@ now blocks1.0. See the [roadmap](docs/classic-games-roadmap.md) and #114.
 The implemented changes below remain available; planned compatibility features
 are not claimed as shipped.
 
+- Add native inline IF/THEN/ELSE branches and ON GOTO/GOSUB through real
+  instruction/call/loop owners, preserving physical source and native names.
+- Add native INPUT scalar/array lists with complete-row validation/retries and
+  guarded sequential assignment, and typed DATA/READ/RESTORE with fresh run-owned
+  cursors, bounded pools and explicit exhaustion.
+- Preserve exact source/native context in portable `.basic.json` browser
+  drafts/import/export and CLI file execution. Terminal editor LOAD/SAVE remains
+  plain source; historical profiles remain unavailable.
+- Add internal historical scanner/integer spelling/DATA text conformance,
+  non-executable intrinsic signatures, pure signed-word/string/relation/PRINT
+  layout helpers and exact 24/56-bit float-word decoding. These are prerequisites
+  without public historical syntax or arithmetic activation.
+- Validate all 108 corpus ledger rows and retain scan-backed 1CHECK, 23MTCH and
+  LIFE2 transcription differences without rewriting raw listings or claiming
+  complete historical-game passes.
 - Add contextual native GOSUB/RETURN with same-line and nested returns, shared
   values, suspended caller loop ownership and bounded call depth. Preserve native
-  names and loop guards; clear frames on all terminal paths. Computed dispatch,
-  historical profiles and full-corpus certification remain pending.
+  names and loop guards; clear frames on all terminal paths. GOTO expression OF,
+  historical transfer policies/profiles and full-corpus certification remain pending.
 - Add bounded native colon-separated statements with real instruction positions,
   same-line loops, source-backed false-IF line scope and per-member stepping,
   budgets, cancellation and source columns. Preserve existing single-statement
   ASTs and exact source; reject immediate sequences before effects. Historical
-  inline branches, backslashes and full-corpus certification remain pending.
+  modifiers/separators and full-corpus certification remain pending.
 - Add scientific E/e literals in source and numeric INPUT, and left-associative
   powers with explicit precedence/domain/overflow rules. Preserve existing numeric
   names and verify extracted corpus formulas across installed and browser paths.
@@ -33,7 +48,7 @@ are not claimed as shipped.
 - Add explicit native DIM, numeric/string arrays with one or two dimensions,
   indexed reads/assignments, preflight allocation limits and bounded immutable
   array observations. Preserve scalar DIM names and separate scalar/array storage.
-  Historical defaults/conversions, indexed INPUT and full 1CHECK support remain pending.
+  Historical defaults/conversions and full 1CHECK compatibility remain pending.
 - Carry explicit native dialect context through parser snapshots, preparation and
   runtime/evaluator instances. Reject unsupported metadata before effects while
   preserving legacy native trees. Historical profiles remain unavailable.
@@ -73,9 +88,10 @@ are not claimed as shipped.
   effects, including duplicate labels, missing targets and unmatched loops.
 - END completes a run without terminating the host. Numbered terminal entries
   edit stored source; use RUN. Legacy library readLine methods remain immediate.
-- The current snapshot remains a limited native dialect. Historical array rules, DATA/READ,
-  GOSUB/RETURN and other verified classic features are not implemented yet and
-  now block 1.0. General immediate statements and sound remain optional unless
+- The current snapshot remains a limited native dialect. Native arrays,
+  DATA/READ/RESTORE and GOSUB/RETURN are implemented; their historical policies
+  and other required classic features still block 1.0. General immediate
+  statements and sound remain optional unless
   the certified corpus establishes a dependency. Graphics and keyboard calls
   need their optional host capabilities.
 
