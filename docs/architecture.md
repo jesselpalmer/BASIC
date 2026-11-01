@@ -43,6 +43,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                     |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.          |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                         |
+| `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                      |
 | `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                         |
 | `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                        |
 | `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                             |

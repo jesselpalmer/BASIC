@@ -10,6 +10,7 @@ import {programInstructions} from '../core/instructions.ts';
 import {dataItems} from '../core/data.ts';
 import {validateInputTargets} from '../core/input.ts';
 import {validateDispatch} from '../core/dispatch.ts';
+import {changeOperands} from '../core/change.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
@@ -41,6 +42,7 @@ export function validateProgram(
   dataItems(lines);
   validateInputTargets(lines);
   for (const {statement} of programInstructions(lines)) {
+    if (statement.type === 'ChangeStatement') changeOperands(statement);
     if (statement.type === 'OnStatement') validateDispatch(statement);
     validateKeyboardArguments(statement);
     if (statement.type === 'PrintUsingStatement') {

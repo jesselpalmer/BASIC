@@ -15,9 +15,11 @@ are not claimed as shipped.
 - Add native INPUT scalar/array lists with complete-row validation/retries and
   guarded sequential assignment, and typed DATA/READ/RESTORE with fresh run-owned
   cursors, bounded pools and explicit exhaustion.
+- Add native CHANGE string/numeric-array conversion with explicit dimensions,
+  byte/count limits, atomic failures and preserved contextual names.
 - Preserve exact source/native context in portable `.basic.json` browser
-  drafts/import/export and CLI file execution. Terminal editor LOAD/SAVE remains
-  plain source; historical profiles remain unavailable.
+  drafts/import/export, CLI file execution and terminal LOAD/SAVE. Unchanged
+  portable editor source stays verbatim; historical profiles remain unavailable.
 - Add internal historical scanner/integer spelling/DATA text conformance,
   non-executable intrinsic signatures, pure signed-word/string/relation/PRINT
   layout helpers and exact 24/56-bit float-word decoding. These are prerequisites

@@ -62,6 +62,11 @@ or provide a program counter. Those belong to the execution loop.
 
 Scalars have no implicit initialization; declared array cells start at 0/empty
 string. There is no implicit numeric/string conversion.
+`change(statement)` executes a parser-produced ChangeStatement using this
+evaluator's configured array store and variables. Use `reset(declarations)` first
+to supply its explicit numeric array. Conversion is bounded and atomic; see the
+[CHANGE contract](change-statements.md). The statement runtime uses the same
+method, with no separate array representation or conversion implementation.
 `A` and `A$` are distinct variables. Empty strings and zero are valid values.
 Inputs must be parser-produced expression/variable nodes; this API is not a
 schema validator for arbitrary or deserialized objects. It still rejects

@@ -8,8 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `80d11ebe4ae419a2679159897ffbe693ab2bdb79` after
-[PR #168](https://github.com/jesselpalmer/BASIC/pull/168). Native is still the
+Reconciled against main `d05922dd06e0f26dccc01454648b622ff33c2684` after
+[PR #169](https://github.com/jesselpalmer/BASIC/pull/169) and
+[PR #170](https://github.com/jesselpalmer/BASIC/pull/170). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -56,16 +57,23 @@ continuation words; BASIC diagnostics/handler state remain execution-owned.
 Remaining operations, conversion and installation validation still precede
 public activation.
 
-The next independent prerequisites are the selected MA2 conversion-string codec
-and [terminal portable LOAD/SAVE](editor-portable-documents.md). The latter keeps
+The selected MA2 conversion-string codec and
+[terminal portable LOAD/SAVE](editor-portable-documents.md) are now merged. The latter keeps
 source/dialect/filename/baseline atomic and preserves verbatim portable source
-until an actual numbered edit. These are prepared follow-ups, not additional
+until an actual numbered edit. These are merged prerequisites, not additional
 historical profile or game acceptance.
+
+The next prepared independent slices are runnable native
+[CHANGE string/array conversion](change-statements.md) and selected integer
+binary-string conversion. Native CHANGE requires explicit 1D arrays, uses byte
+codes/length cells and fails atomically; the manual's historical partial-overflow
+behavior remains separately gated. The integer codec adds no evaluator intrinsic
+or numeric argument conversion.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #168 and distinguish the prepared
-conversion-string/editor slices from remaining profile and release work,
+have also been reconciled through merged #169/#170 and distinguish the prepared
+CHANGE/integer-codec slices from remaining profile and release work,
 preserving their earlier plans as historical reference. This repository matrix
 and the owning issue criteria track subsequent deliveries.
 

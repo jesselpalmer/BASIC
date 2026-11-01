@@ -21,6 +21,7 @@ import {expressionType} from '../core/comparison.ts';
 import {nativeIntrinsic} from '../core/intrinsics.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
+import {changeOperands} from '../core/change.ts';
 import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets} from '../core/input.ts';
@@ -227,6 +228,22 @@ class Parser {
       if (command.value === 'READ') {
         this.take();
         return this.read(command);
+      }
+      if (command.value === 'CHANGE') {
+        this.take();
+        const source = this.expect(
+          'IDENTIFIER',
+          undefined,
+          'Expected a bare source name after CHANGE',
+        );
+        this.expect('KEYWORD', 'TO', 'Expected TO between CHANGE operands');
+        const target = this.expect('IDENTIFIER', undefined, 'Expected a bare target name after TO');
+        const statement = this.node('ChangeStatement', command, target, {
+          source: this.node('Variable', source, source, {name: source.value}),
+          target: this.node('Variable', target, target, {name: target.value}),
+        });
+        changeOperands(statement);
+        return statement;
       }
       if (command.value === 'RESTORE') {
         this.take();
