@@ -1,7 +1,7 @@
 # Internal V4A MA2 addition and subtraction
 
 Design before implementation for #123/#116. This slice computes only canonical
-24-bit MA2 word addition/subtraction. It does not activate a historical dialect,
+normal 24-bit MA2 word addition/subtraction and identifies range events. It does not activate a historical dialect,
 change native arithmetic, parse literals, implement MA4, or install error traps.
 
 ## Evidence and algorithm
@@ -27,8 +27,9 @@ The routine trace resolves the apparent conflicting halfway results:
    resulting sign, and normalize left; exact cancellation becomes canonical zero.
 4. Reject a nonzero result normalized below exponent1. Discard the low guard bit
    and increment magnitude if it was set. Propagate a rounding carry into the
-   exponent; exponent256 is overflow. Return canonical zero plus numeric event48
-   for a range event, leaving diagnostic/trap routing to execution ownership.
+   exponent; exponent256 is overflow. Return numeric event48 without numeric
+   continuation words for a range event. Diagnostic/trap/continuation ownership
+   remains separate.
 
 This is operation-specific guard/alignment behavior, not exact rational addition
 followed by one universal rounding rule. In particular, arithmetic alignment of a
@@ -47,12 +48,16 @@ Reject an unknown operation before reading operands. Never use an input iterator
 or retain a caller-owned buffer. Supported results contain frozen unsigned
 16-bit word pairs in the decoder's increasing-address order. Zero is `[0,0]`.
 
-Return either a value, an unsupported outcome, or a range event carrying code48,
-overflow/underflow identity and the untrapped zero continuation words. No source
+Return either a value, an unsupported outcome, or a range event carrying code48
+and overflow/underflow identity, **without numeric continuation words**. No source
 location, host diagnostic, handler transfer or RESUME state is invented here.
-The selected manual's error48 continuation contract and the recorded BASIC range
-probes support that zero result; the machine-routine harness stops at the trap
-instruction rather than running an error handler.
+The machine harness stops before executing the trap. Additional actual BASIC
+checks contradicted the initial design assumption that every range continuation
+is zero: maximum-plus-maximum reports FLOATING POINT ERROR and returns nonzero
+CVTF$ bytes `[255,255,0,255]`, while rounding into overflow and the tested tiny
+subtractions return zero. The manual's general zero statement does not resolve
+this operation-path difference. Callers must settle continuation separately;
+they cannot treat a range event as a successfully computed zero.
 
 ## Independent acceptance
 
@@ -71,3 +76,37 @@ BASIC conversion-string bytes. Validate malformed/unsupported operands,
 operator rejection, bounded getters and frozen/detached results in normal tests.
 Existing native/direct/installed/CLI/browser acceptance and coverage floors must
 remain unchanged. No full-game pass or release readiness follows.
+
+## Captured acceptance records
+
+The offline [machine vectors](../src/core/__tests__/ma2-addition-reference.json)
+contain494 independently captured calls:478 normal word results,10 overflow
+traps and6 underflow traps. The eight columns identify both unsigned word pairs,
+operation (0 add/1 subtract), outcome (0 normal/1 overflow/2 underflow), and normal
+result words. Trap rows have null result fields; scratch memory at a trap is not
+a completed result. The metadata pins the loader and simulator, alignment/edge
+selection and fixed LCG seed. The generated result rows are test oracles, not
+outputs calculated by the TypeScript helper; CI consumes them offline.
+
+A fresh boot using the pinned raw system image and the documented manual clock
+step ran the separate [six-case BASIC probe](rsts-v4a-ma2-addition-probe.bas).
+LIST matches the checked-in source, and two final runs produced the same
+[result body](rsts-v4a-ma2-addition-output.txt), normalized to LF with trailing
+ASCII spaces removed. Its source SHA-256 is
+`9bc5fc4d4110e532f5bf56e984aaa610e495b840cae6715901d5f78416b52f3f`; result-body SHA-256 is
+`3403e9b84c44ac73fd77832136266fb5c6835b8564d758178f97d2580f891a1b`.
+
+The first overflow's nonzero continuation is repeatable. Adding these stored
+lines to that probe and running again printed `ADD_OVERFLOWTRAPPED 48  11`,
+confirming the error number/location independently of the manual table:
+
+```bas
+6 ON ERROR GOTO 9100
+9100 PRINT "TRAPPED";ERR;ERL
+9110 RESUME 8999
+```
+
+No trapped numeric continuation is inferred from RESUME to END. Restoring the
+older saved guest state and entering NEW also reproduced the existing PC000056
+halt, so the BASIC acceptance above uses a fresh boot, not restored-state I/O.
+Startup/filesystem limitations from the build record remain open.
