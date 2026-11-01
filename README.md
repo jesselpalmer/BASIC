@@ -18,6 +18,8 @@ are supported; historical profiles remain pending. See the [array contract](docs
 and [subroutine contract](docs/subroutines.md) for native limits and semantics.
 The [data contract](docs/data-statements.md) covers ordered pools, target lists,
 RESTORE and explicit exhaustion errors.
+Native [CHANGE](docs/change-statements.md) converts string scalars and
+one-dimensional numeric-array byte prefixes, with bounded atomic writes.
 Native [INPUT target lists](docs/input-targets.md) accept coordinate pairs and
 explicit array elements, with complete-row retries and preserved single-string input.
 The new scope does not claim general QBasic or GW-BASIC compatibility.

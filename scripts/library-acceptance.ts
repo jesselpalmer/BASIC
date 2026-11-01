@@ -29,6 +29,7 @@ export const libraryAcceptanceCases = [
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
   'explicit arrays execute board moves, enforce bounds, and isolate fresh runs',
+  'CHANGE converts byte strings and numeric-array prefixes atomically across fresh runs',
   'string-involved PRINT adjacency preserves expressions, names, and atomic writes',
   'native integer PRINT USING preserves names, alignment, and errors',
   'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
@@ -250,6 +251,33 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       api,
       readFileSync(new URL('./package/fixtures/arrays/board.bas', import.meta.url), 'utf8'),
     ),
+  );
+  await check(
+    'CHANGE converts byte strings and numeric-array prefixes atomically across fresh runs',
+    async () => {
+      const output: string[] = [];
+      const basic = new api.Basic({write: (t) => output.push(t)});
+      const source = '10 DIM A(3):A=9:S$="CAT":CHANGE S$ TO A:CHANGE A TO R$:PRINT R$;A;A(0):END';
+      basic.run(source);
+      await basic.runAsync(source);
+      assert.deepEqual(output, ['CAT93\n', 'CAT93\n']);
+      assert.deepEqual(basic.arrays[0].values, [3, 67, 65, 84]);
+      basic.run('10 DIM A(2):A(0)=1:A(1)=65:A(2)=256:S$="kept":CHANGE A TO S$');
+      assert.equal(basic.variables.find((v) => v.name === 'S$')?.value, 'A');
+      assert.throws(() =>
+        basic.run('10 DIM A(2):A(0)=2:A(1)=65:A(2)=256:S$="kept":CHANGE A TO S$'),
+      );
+      assert.equal(basic.variables.find((v) => v.name === 'S$')?.value, 'kept');
+      basic.run(
+        '10 DIM CHANGE(1),A(0):CHANGE=2:CHANGE(1)=3:CHANGE A TO S$:PRINT CHANGE;CHANGE(1);S$',
+      );
+      assert.equal(output.at(-1), '23\n');
+      const before = output.length;
+      assert.throws(() => basic.run('10 PRINT "never":END:CHANGE S$ TO MISSING'));
+      assert.equal(output.length, before);
+      basic.run('10 DIM A(0):CHANGE A TO S$:PRINT S$');
+      assert.equal(output.at(-1), '\n');
+    },
   );
   await check(
     'string-involved PRINT adjacency preserves expressions, names, and atomic writes',

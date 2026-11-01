@@ -1,4 +1,5 @@
 import {BasicRuntimeError} from './diagnostic.ts';
+import {changeOperands} from './change.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {ArrayStore} from './arrays.ts';
@@ -98,6 +99,12 @@ export class Evaluator {
 
   snapshotArrays(): readonly ArraySnapshot[] {
     return this.arrays.snapshot();
+  }
+
+  change(statement: NodeOf<'ChangeStatement'>): void {
+    const {array, string, toArray} = changeOperands(statement);
+    if (toArray) this.arrays.changeToNumbers(array, this.evaluate(string));
+    else this.assign(string, this.arrays.changeToString(array));
   }
 
   snapshotVariables(): readonly VariableSnapshot[] {

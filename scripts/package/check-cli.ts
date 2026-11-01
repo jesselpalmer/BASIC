@@ -26,6 +26,25 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
     assert.equal(direct.stderr, '');
   }
   const portable = join(consumer, 'portable.basic.json');
+  const changeSource = '10 DIM A(3):S$="CAT":CHANGE S$ TO A:CHANGE A TO R$:PRINT R$;A(0):END';
+  const changePath = join(consumer, 'change.bas');
+  writeFileSync(changePath, changeSource);
+  const changed = runProcess({cwd: consumer, args: [executable, changePath]});
+  assert.equal(changed.stdout, 'CAT3\n');
+  assert.equal(changed.stderr, '');
+  const changeSaved = join(consumer, 'change-saved.basic.json');
+  const editedChange = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: `${changeSource}\nSAVE "${changeSaved}"\nNEW\nLOAD "${changeSaved}"\nLIST\nRUN\nRUN\nEXIT\n`,
+  });
+  assert.equal(editedChange.stderr, '');
+  assert.ok(editedChange.stdout.includes(changeSource + '\n'));
+  assert.equal(editedChange.stdout.split('CAT3\n').length - 1, 2);
+  assert.equal(
+    (JSON.parse(readFileSync(changeSaved, 'utf8')) as {source: string}).source,
+    changeSource,
+  );
   const portableSource = '30 END\r\n10 PRINT "portable"\r\n20 PRINT "CLI"\r\n';
   writeFileSync(
     portable,

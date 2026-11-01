@@ -225,6 +225,7 @@ export interface NodeFields {
   DataStatement: {readonly items: readonly (NodeOf<'NumberLiteral'> | NodeOf<'StringLiteral'>)[]};
   ReadStatement: {readonly targets: readonly AssignmentTarget[]};
   RestoreStatement: Record<never, never>;
+  ChangeStatement: {readonly source: NodeOf<'Variable'>; readonly target: NodeOf<'Variable'>};
   ForStatement: {
     readonly variable: NodeOf<'Variable'>;
     readonly start: Expression;
@@ -311,6 +312,7 @@ export type SimpleStatement = Nodes<
   | 'DataStatement'
   | 'ReadStatement'
   | 'RestoreStatement'
+  | 'ChangeStatement'
   | 'ForStatement'
   | 'NextStatement'
   | 'PrintStatement'

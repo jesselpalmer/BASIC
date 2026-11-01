@@ -233,6 +233,14 @@ lists, GO SUB aliases and historical loop transfers remain unsupported. See the
 
 ### DATA, READ, and RESTORE
 
+The native [CHANGE statements](change-statements.md) separately convert a string
+scalar to a one-dimensional numeric array or back: `CHANGE S$ TO A` and
+`CHANGE A TO S$`. Element0 contains the length and elements1..length contain byte
+codes0..255. CHANGE requires explicit DIM, bare names and at most32767 characters;
+it validates the complete conversion before changing the destination. It costs
+one statement and preserves existing CHANGE scalar/array names. These strict,
+atomic native rules do not emulate historical partial-overflow continuation.
+
 `DATA` contains finite signed decimal/scientific literals or quoted strings.
 It must be the final statement on a physical line; commas separate values,
 while quoted commas/colons/backslashes and doubled quotes stay literal text.

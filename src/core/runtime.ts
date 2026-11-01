@@ -504,6 +504,7 @@ export default class Basic {
       if (
         this.#immediate &&
         (statement.type === 'DimStatement' ||
+          statement.type === 'ChangeStatement' ||
           statement.type === 'DataStatement' ||
           statement.type === 'ReadStatement' ||
           statement.type === 'RestoreStatement' ||
@@ -518,12 +519,15 @@ export default class Basic {
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'DIM, DATA, READ, RESTORE, IF, GOTO, GOSUB, ON, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, CHANGE, DATA, READ, RESTORE, IF, GOTO, GOSUB, ON, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
       }
       switch (statement.type) {
+        case 'ChangeStatement':
+          this.#evaluator.change(statement);
+          break;
         case 'ReadStatement':
           this.#data.read(statement, this.#evaluator);
           break;

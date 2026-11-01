@@ -66,6 +66,24 @@ const graphicsHost: Host = {
 };
 graphicsHost.draw?.(command);
 const program: Program = parseProgram('10 PRINT 1');
+const changeNode = parseLine('20 CHANGE S$ TO A')?.statement;
+if (changeNode?.type === 'ChangeStatement') {
+  const changeEvaluator = new Evaluator();
+  const declarations = parseLine('10 DIM A(3)')?.statement;
+  if (declarations?.type === 'DimStatement') changeEvaluator.reset(declarations.declarations);
+  changeEvaluator.change(changeNode);
+  const sourceName: string = changeNode.source.name;
+  void sourceName;
+  // @ts-expect-error CHANGE operands are immutable variable nodes.
+  changeNode.source.name = 'OTHER$';
+  // @ts-expect-error CHANGE does not accept literal operands.
+  changeNode.target = {
+    type: 'StringLiteral',
+    value: 'x',
+    raw: '"x"',
+    location: changeNode.location,
+  };
+}
 const basic = new Basic(host);
 const dialect: Dialect = basic.dialect;
 const language: LanguageOptions = {dialect};

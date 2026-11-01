@@ -1,6 +1,7 @@
 import {BasicSyntaxError} from './diagnostic.ts';
 import {expressionType} from './comparison.ts';
 import {lineStatements} from './instructions.ts';
+import {changeOperands} from './change.ts';
 import type {ArrayDeclaration, Location, NodeOf, ParsedLine} from './types.ts';
 
 const maxArrays = 256;
@@ -71,6 +72,17 @@ export function validateArrays(lines: readonly ParsedLine[]): void {
     const value = pending.pop();
     if (value === null || typeof value !== 'object' || visited.has(value)) continue;
     visited.add(value);
+    if ('type' in value && value.type === 'ChangeStatement') {
+      const {array} = changeOperands(value as NodeOf<'ChangeStatement'>);
+      const shape = shapes.get(array.name.toUpperCase());
+      if (!shape) fail('UNDECLARED_ARRAY', `Array ${array.name} requires DIM`, array.location);
+      if (shape.bounds.length !== 1)
+        fail(
+          'ARRAY_RANK_MISMATCH',
+          'CHANGE requires a one-dimensional numeric array',
+          array.location,
+        );
+    }
     if ('type' in value && value.type === 'ArrayReference') {
       const reference = value as NodeOf<'ArrayReference'>;
       const shape = shapes.get(reference.name.toUpperCase());
