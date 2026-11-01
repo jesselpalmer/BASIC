@@ -14,7 +14,7 @@ test('INPUT LINE reads exact text into a stepped array target without a prompt',
   await expect(page.locator('#next-line')).toContainText('BASIC line 30');
   await page.locator('#continue').click();
   await expect(page.locator('#status')).toHaveText('Finished');
-  await expect(page.locator('#console-output')).toHaveText(/^\[  a,b,"raw"  \]\n$/);
+  await expect(page.locator('#console-output')).toHaveText(/^\[ {2}a,b,"raw" {2}\]\n$/);
   await page.locator('#run').click();
   await expect(page.locator('#input-form')).toBeVisible();
   await page.locator('#input-value').press('Enter');
