@@ -27,7 +27,8 @@ Scalar assignments now allow omitted LET, and GO TO is an alias for GOTO;
 these native extensions preserve existing names and execution semantics. Native PRINT
 also accepts adjacent items when a neighboring item is a string, such as
 `PRINT "Score: " SCORE`; see [PRINT adjacency](docs/print-adjacency.md). Aligned
-integer output uses the [native PRINT USING subset](docs/print-using.md).
+integer output and fixed-width byte-string fields use the
+[native PRINT USING subset](docs/print-using.md).
 The browser also supports a fixed 320×200 graphics surface; see the [graphics guide](docs/graphics.md).
 See the [changelog](CHANGELOG.md) and [release checklist](docs/release-checklist.md).
 

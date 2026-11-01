@@ -76,6 +76,14 @@ export function runPrintUsingAcceptance(api: Api): void {
   assert.equal(statement.items.length, 1);
   assert.equal(statement.separators.length, 2);
   assert.ok(Object.isFrozen(statement.items));
+  const width = '\\' + ' '.repeat(2) + '\\';
+  basic.run(`10 PRINT USING "!!!","AB","CD","EF"\n20 PRINT USING "${width}|!|##","xy","Zed",-2`);
+  assert.deepEqual(writes.slice(-2), ['ACE\n', 'xy  |Z|-2\n']);
+  const before = writes.length;
+  assert.throws(() => basic.run('10 PRINT USING "!!","first",2'), api.BasicRuntimeError);
+  assert.equal(writes.length, before);
+  basic.run('10 PRINT USING "!",""');
+  assert.equal(writes.at(-1), ' \n');
 }
 
 /** Corrected source is a separate fixture; native output is not a historical pass. */

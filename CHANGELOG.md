@@ -17,6 +17,8 @@ are not claimed as shipped.
   cursors, bounded pools and explicit exhaustion.
 - Add native CHANGE string/numeric-array conversion with explicit dimensions,
   byte/count limits, atomic failures and preserved contextual names.
+- Extend PRINT USING with fixed-width string fields, typed mixed images and
+  bounded atomic output while preserving integer formatting.
 - Preserve exact source/native context in portable `.basic.json` browser
   drafts/import/export, CLI file execution and terminal LOAD/SAVE. Unchanged
   portable editor source stays verbatim; historical profiles remain unavailable.

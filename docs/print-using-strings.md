@@ -19,6 +19,8 @@ this padding policy is explicit rather than inferred from the long-string
 manual examples. Only emitted prefixes must be code units0..255; unused tails
 are ignored. Ordinary unformatted Unicode output remains unchanged. Strings
 are not converted to numbers and numbers are not converted to string fields.
+Widths count emitted code units; the host still owns the display effects of
+control characters and actual terminal cursor positions.
 
 Keep maximal # runs, right-aligned safe integers, strict overflow and one pass
 with exactly one value per field. Mixed fields consume values in image order.
