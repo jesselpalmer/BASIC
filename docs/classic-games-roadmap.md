@@ -8,9 +8,8 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `d2eab744647e8e50164c143ea93fc196c7cc5f4d` after
-[PR #161](https://github.com/jesselpalmer/BASIC/pull/161) and
-[PR #163](https://github.com/jesselpalmer/BASIC/pull/163). Native is still the
+Reconciled against main `c8c60b8418917f7a3b3b4d7598a0184392860169` after
+[PR #164](https://github.com/jesselpalmer/BASIC/pull/164). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -37,6 +36,18 @@ resolve package-specific rounding or activate numeric execution. The
 [1CHECK source review](classic-source-review.md#whole-listing-review-and-attribution-limits)
 now covers all85 numbered lines and records unclear punctuation and a printed
 sample discontinuity; source/dialect certification remains open.
+
+The [reference-media verifier](rsts-reference-media.md) now pins tape one's
+30 linked payloads, including all eight math variants and IN/OV, with an exact
+input SHA and a read-only reproducible command. This is media identity, not a
+linked/booted installation or numeric rounding evidence. The next reference
+step is a selected configuration's monitor/link map and exact-word/event probes.
+
+The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
+and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
+have also been reconciled through merged #164, preserving their earlier plans
+as historical reference. This repository matrix and the owning issue criteria
+track subsequent deliveries.
 
 ## Compatibility target
 

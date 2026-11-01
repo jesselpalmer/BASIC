@@ -57,6 +57,11 @@ identifies original distribution tapes `DEC-11-ORTBA-A-UC1`,
 `MA2`, `MA2E`, `MA2X`, `MA2EX`, `MA4`, `MA4E`, `MA4X` and `MA4EX` as `.OBJ`
 modules, together with `IN.OBJ`, `OV.OBJ` and other system components. These are
 specific package/binary leads, not reviewed math source or execution results.
+The [reference-media verifier](rsts-reference-media.md) now pins the actual
+decompressed tape, directory metadata and all30 linked payload hashes. It
+reproduces the eight math-module identities plus IN/OV without executing or
+redistributing those objects. Payload hashes retain final-block padding; they
+are not loaded-code hashes or arithmetic observations.
 The label inventory dates those objects 22-SEP-72; the separate
 [decoded tape-one directory](https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/rsts01.dta.txt)
 prints Sep 23, 1972. Preserve that discrepancy rather than selecting a date as

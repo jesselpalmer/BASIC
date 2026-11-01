@@ -33,7 +33,7 @@ is not resolved by converting them speculatively.
 
 ## Closed verification command
 
-Decompress a separately obtained tape to a local file, then run:
+From a checkout, decompress a separately obtained tape to a local file, then run:
 
 ```sh
 gzip -dc rsts01.dta.gz > rsts01.dta
