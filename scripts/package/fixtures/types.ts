@@ -66,6 +66,20 @@ const graphicsHost: Host = {
 };
 graphicsHost.draw?.(command);
 const program: Program = parseProgram('10 PRINT 1');
+const lineInputNode = parseLine('10 INPUT LINE S$')?.statement;
+if (lineInputNode?.type === 'InputLineStatement') {
+  const name: string = lineInputNode.target.name;
+  void name;
+  // @ts-expect-error INPUT LINE targets are immutable.
+  lineInputNode.target.name = 'OTHER$';
+  // @ts-expect-error A numeric literal cannot be an INPUT LINE target.
+  lineInputNode.target = {
+    type: 'NumberLiteral',
+    value: 0,
+    raw: '0',
+    location: lineInputNode.location,
+  };
+}
 const changeNode = parseLine('20 CHANGE S$ TO A')?.statement;
 if (changeNode?.type === 'ChangeStatement') {
   const changeEvaluator = new Evaluator();

@@ -2,23 +2,61 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {signedNumericLiteral} from './numeric_literal.ts';
 import {lineStatements} from './instructions.ts';
-import type {AssignmentTarget, BasicValue, Host, NodeOf, ParsedLine, Statement} from './types.ts';
+import type {
+  AssignmentTarget,
+  BasicValue,
+  Host,
+  Location,
+  NodeOf,
+  ParsedLine,
+  Statement,
+} from './types.ts';
 
-export type InputStatement = NodeOf<'InputStatement'> | NodeOf<'InputTargetsStatement'>;
+export type InputStatement =
+  NodeOf<'InputStatement'> | NodeOf<'InputTargetsStatement'> | NodeOf<'InputLineStatement'>;
 export const maxInputTargets = 4096;
 const maxResponseLength = 65_536;
 
 export function isInputStatement(statement?: Statement): statement is InputStatement {
-  return statement?.type === 'InputStatement' || statement?.type === 'InputTargetsStatement';
+  return (
+    statement?.type === 'InputStatement' ||
+    statement?.type === 'InputTargetsStatement' ||
+    statement?.type === 'InputLineStatement'
+  );
 }
 
 export function inputTargets(statement: InputStatement): readonly AssignmentTarget[] {
-  return statement.type === 'InputStatement' ? [statement.target] : statement.targets;
+  return statement.type === 'InputTargetsStatement' ? statement.targets : [statement.target];
+}
+
+export function validateInputLineTarget(target: AssignmentTarget, location: Location): void {
+  if (
+    !target ||
+    (target.type !== 'Variable' && target.type !== 'ArrayReference') ||
+    typeof target.name !== 'string'
+  )
+    throw new BasicSyntaxError(
+      'INVALID_INPUT',
+      'INPUT LINE requires a string variable or array target',
+      location.start,
+      location.label,
+    );
+  if (!target.name.endsWith('$'))
+    throw new BasicSyntaxError(
+      'TYPE_MISMATCH',
+      'INPUT LINE requires a string target',
+      target.location.start,
+      location.label,
+    );
 }
 
 export function validateInputTargets(lines: readonly ParsedLine[]): void {
   for (const line of lines)
     for (const statement of lineStatements(line)) {
+      if (statement.type === 'InputLineStatement') {
+        validateInputLineTarget(statement.target, statement.location);
+        continue;
+      }
       if (statement.type !== 'InputTargetsStatement') continue;
       const targets = statement.targets;
       const fail = (code: string, message: string): never => {
@@ -96,7 +134,8 @@ export async function readInput(
   statement: InputStatement,
   signal: AbortSignal,
 ): Promise<readonly BasicValue[]> {
-  const prompt = `${statement.prompt?.value ?? ''}? `;
+  const prompt =
+    statement.type === 'InputLineStatement' ? '' : `${statement.prompt?.value ?? ''}? `;
   const targets = inputTargets(statement);
   for (;;) {
     let text: string | null;
@@ -129,10 +168,15 @@ export async function readInput(
         statement.location.label,
       );
     }
-    if (targets.length > 1 && text.length > maxResponseLength)
+    if (
+      (targets.length > 1 || statement.type === 'InputLineStatement') &&
+      text.length > maxResponseLength
+    )
       throw new BasicRuntimeError(
         'INPUT_LIMIT',
-        `INPUT lists permit at most ${maxResponseLength} response characters`,
+        statement.type === 'InputLineStatement'
+          ? `INPUT LINE permits at most ${maxResponseLength} response characters`
+          : `INPUT lists permit at most ${maxResponseLength} response characters`,
         statement.location.start,
         statement.location.label,
       );

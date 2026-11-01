@@ -24,7 +24,7 @@ import {maxPrintUsingValues} from '../core/print_using.ts';
 import {changeOperands} from '../core/change.ts';
 import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
-import {maxInputTargets} from '../core/input.ts';
+import {maxInputTargets, validateInputLineTarget} from '../core/input.ts';
 import {maxDispatchTargets} from '../core/dispatch.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
 
@@ -345,6 +345,17 @@ class Parser {
         }
       }
       case 'INPUT': {
+        if (this.at('KEYWORD', 'LINE')) {
+          this.take();
+          const name = this.expect(
+            'IDENTIFIER',
+            undefined,
+            'Expected a string target after INPUT LINE',
+          );
+          const target = this.reference(name);
+          validateInputLineTarget(target, this.location(command));
+          return this.node('InputLineStatement', command, target, {target});
+        }
         let prompt: NodeOf<'StringLiteral'> | null = null;
         if (this.at('STRING')) {
           const text = this.expect('STRING', undefined, 'Expected a quoted prompt');

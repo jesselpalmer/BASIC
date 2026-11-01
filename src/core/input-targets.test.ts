@@ -75,7 +75,7 @@ describe('native INPUT targets and rows', () => {
     '10 INPUT A+1,B',
     '10 INPUT "x",A,B',
     '10 INPUT "x";',
-    '10 INPUT LINE A$',
+    '10 INPUT LINE A',
     '10 LINPUT A$',
     '10 INPUTA,B',
   ])('rejects malformed/unsupported source %s', (text) => {

@@ -1,5 +1,9 @@
 # Native INPUT target lists
 
+The separate [native INPUT LINE form](input-line.md) reads one raw string scalar
+or indexed string target without a prompt or field parsing. Ordinary INPUT
+retains the rules below, including its existing raw single-string behavior.
+
 **Status:** implemented first native #121 slice; design recorded before code.
 Historical input/line/file profiles and whole-game certification remain pending.
 
@@ -18,7 +22,7 @@ entire untrimmed response, including commas and quote characters. Extend the
 same single-target behavior to explicit DIM array elements. Multiple targets use
 the strict row contract below. These are explicit native policies, not claims of
 BASIC-PLUS continuation, surplus-field handling, coercion or INPUT LINE emulation.
-LINPUT, INPUT LINE, channel input, prompt expressions/interleaved prompts, compact
+LINPUT, historical INPUT LINE terminators, channel input, prompt expressions/interleaved prompts, compact
 keywords and historical modifiers remain #115/#116/#121/#128 work.
 
 ## Source and immutable syntax

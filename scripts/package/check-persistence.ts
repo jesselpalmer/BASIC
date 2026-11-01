@@ -27,6 +27,30 @@ export async function checkPersistenceSessions(executable: string): Promise<void
       [],
     );
   try {
+    const lineSource = '10 INPUT LINE S$:PRINT "[";S$;"]":END';
+    const linePath = join(directory, 'line-input.basic.json');
+    const raw = '  a,b,"quoted"  ';
+    const lineSession = session([
+      lineSource,
+      `SAVE ${quote(linePath)}`,
+      'RUN',
+      raw,
+      'RUN',
+      '',
+      'NEW',
+      `LOAD ${quote(linePath)}`,
+      'RUN',
+      'again',
+      'EXIT',
+    ]);
+    assert.equal(lineSession.stderr, '');
+    for (const text of ['[' + raw + ']\n', '[]\n', '[again]\n'])
+      assert.ok(lineSession.stdout.includes(text));
+    const lineDocument = JSON.parse(readFileSync(linePath, 'utf8')) as {source: string};
+    assert.equal(lineDocument.source, lineSource);
+    const lineFile = runProcess({cwd: directory, args: [executable, linePath], input: raw + '\n'});
+    assert.equal(lineFile.stdout, '[' + raw + ']\n');
+    assert.equal(lineFile.stderr, '');
     const portable = join(directory, 'portable.BASIC.JSON');
     const verbatim = '\r\n20 END\r\n010 PRINT "portable editor"\r\n';
     const document = {format: 'basic-program', version: 1, dialect: 'native', source: verbatim};
