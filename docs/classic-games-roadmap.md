@@ -49,9 +49,10 @@ remain explicit; operation tracing and broader reference validation come next.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #164, preserving their earlier plans
-as historical reference. This repository matrix and the owning issue criteria
-track subsequent deliveries.
+have also been reconciled through merged #165 and mark
+[PR #166](https://github.com/jesselpalmer/BASIC/pull/166) as in review, preserving
+their earlier plans as historical reference. This repository matrix and the
+owning issue criteria track subsequent deliveries.
 
 ## Compatibility target
 
