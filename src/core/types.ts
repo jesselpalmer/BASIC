@@ -238,6 +238,7 @@ export interface NodeFields {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly target: NodeOf<'Variable'>;
   };
+  InputLineStatement: {readonly target: AssignmentTarget};
   InputTargetsStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly targets: readonly AssignmentTarget[];
@@ -303,6 +304,7 @@ export type SimpleStatement = Nodes<
   | 'LetStatement'
   | 'InputStatement'
   | 'InputTargetsStatement'
+  | 'InputLineStatement'
   | 'IfStatement'
   | 'InlineIfStatement'
   | 'GotoStatement'

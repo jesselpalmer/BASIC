@@ -348,8 +348,8 @@ export default class Basic {
         );
       }
       if (
-        line.statement.type === 'InputTargetsStatement' &&
-        line.statement.targets.some((target) => target.type === 'ArrayReference')
+        isInputStatement(line.statement) &&
+        inputTargets(line.statement).some((target) => target.type === 'ArrayReference')
       )
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
@@ -575,6 +575,7 @@ export default class Basic {
           );
         case 'InputStatement':
         case 'InputTargetsStatement':
+        case 'InputLineStatement':
           throw new BasicRuntimeError(
             'ASYNC_INPUT_REQUIRED',
             'Use runAsync, stepAsync, or readLineAsync for INPUT',

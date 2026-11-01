@@ -147,8 +147,9 @@ they are not written in a program.
 | ---------------- | ---------------------------------------------------------------------------- |
 | Assignment       | `[LET] variable = expression`; `LET` is optional.                            |
 | Output           | `PRINT [items] [;]`; expression/separator rules below.                       |
-| Formatted output | `PRINT USING template, value [, value ...] [;]`; integer subset below.       |
+| Formatted output | `PRINT USING template, value [, value ...] [;]`; bounded format contract.    |
 | Input            | `INPUT ["prompt";] target [, target ...]`; scalar or explicit array targets. |
+| Line input       | `INPUT LINE target`; one raw string scalar or declared string-array element. |
 | Program data     | `DATA literal [, literal ...]`; final statement on its physical line.        |
 | Read data        | `READ target [, target ...]`; numeric/string scalars or DIM arrays.          |
 | Rewind data      | `RESTORE`; reset the shared run-owned data cursor to the beginning.          |
@@ -263,10 +264,11 @@ limits, validation, historical conversion differences and feature provenance.
 
 ### PRINT
 
-`PRINT USING` accepts the [bounded native integer-field subset](print-using.md):
-a string template with `#` fields and exactly one safe integer per field,
-comma-separated values, and optional final semicolon. Fields align right; a
-negative sign consumes field width. Unsupported masks/fractions/overflow/reuse
+`PRINT USING` uses the [bounded native format contract](print-using.md):
+a string template, comma-separated values and optional final semicolon. Each
+`#` field requires a safe integer and aligns right; a negative sign consumes
+field width. Field types and supported markers are defined in that contract.
+Unsupported numeric masks/fractions/overflow/reuse
 fail explicitly. USING remains an ordinary name outside this contextual form.
 This does not enable a historical profile or change unformatted number spacing.
 
@@ -301,6 +303,14 @@ line. `CLS` does not reset variables, change the program, or move the next line.
 
 ### INPUT
 
+`INPUT LINE S$` and `INPUT LINE A$(index)` request one unparsed string with an
+empty host prompt, preserving spaces, commas, quotes, empty text and Unicode.
+No prompt expression, target list, channel or LINPUT/LINE INPUT alias is accepted.
+The response limit is65536 UTF-16 units. Native preserves the host's returned
+text without synthesizing terminal terminators. String target and array shape
+validation precedes effects; indices evaluate once after the guarded await.
+Stop/replacement prevents late writes. See [INPUT LINE](input-line.md).
+
 An optional prompt must be a string literal followed by `;`. The host displays
 that literal followed by `? `; without a prompt it displays `? `. Input consumes
 one complete line without its line ending. A single string target, scalar or
@@ -325,7 +335,7 @@ I for the index. A commit-time bounds/index failure preserves earlier writes
 and ends the run without retrying. A list costs one statement regardless of
 retries. Permit at most 4096 targets and 65536 UTF-16 units per multi-target
 response; an oversized response reports INPUT_LIMIT. Historical continuation,
-ignored surplus fields and INPUT LINE/LINPUT are unsupported. See the
+ignored surplus fields and LINPUT remain unsupported. See the
 [INPUT target contract](input-targets.md) for detailed native policies.
 
 Execution waits for input without blocking the host. EOF before a value arrives

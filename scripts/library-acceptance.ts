@@ -38,6 +38,7 @@ export const libraryAcceptanceCases = [
   'literal subroutines preserve caller loops, shared values and real return positions',
   'native data pools preserve corpus literals, sequential reads and fresh cursors',
   'INPUT lists retry whole rows, commit indexed targets and isolate late replies',
+  'INPUT LINE preserves raw scalar and indexed strings without prompts or parsing',
   'inline conditionals preserve physical clause scope, nested tests and call continuations',
   'computed dispatch selects bounded targets and preserves real call continuations',
   'native intrinsic signatures preserve errors, result types and host evaluation order',
@@ -508,6 +509,37 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       const raw = setup(['  "x,y"  ']);
       await raw.basic.runAsync('10 DIM S$(0):INPUT S$(0):PRINT S$(0)');
       assert.equal(raw.output.join(''), '  "x,y"  \n');
+    },
+  );
+  await check(
+    'INPUT LINE preserves raw scalar and indexed strings without prompts or parsing',
+    async () => {
+      const answers = ['  a,b,"quoted"  ', ''],
+        prompts: string[] = [],
+        writes: string[] = [];
+      const b = new api.Basic({
+        write: (t) => writes.push(t),
+        readLine: (p) => {
+          prompts.push(p ?? '');
+          return Promise.resolve(answers.shift() ?? null);
+        },
+      });
+      const source = '10 DIM A$(0):INPUT LINE A$(0):PRINT "[";A$(0);"]":END';
+      await b.runAsync(source);
+      await b.runAsync();
+      assert.deepEqual(writes, ['[  a,b,"quoted"  ]\n', '[]\n']);
+      assert.deepEqual(prompts, ['', '']);
+      const node = api.parseLine('10 INPUT LINE S$')!.statement;
+      assert.equal(node.type, 'InputLineStatement');
+      assert.ok(Object.isFrozen(node));
+      await assert.rejects(b.runAsync('10 PRINT "never":END:INPUT LINE N'), api.BasicSyntaxError);
+      assert.equal(writes.length, 2);
+      await assert.rejects(
+        b.runAsync('10 S$="kept":INPUT LINE S$'),
+        (error: unknown) =>
+          error instanceof api.BasicRuntimeError && error.diagnostic.code === 'INPUT_ENDED',
+      );
+      assert.equal(b.variables.find((v) => v.name === 'S$')?.value, 'kept');
     },
   );
   await check(
