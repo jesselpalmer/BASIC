@@ -237,8 +237,36 @@ dialect, feature and behavioral blockers retained. It does not certify every
 character in the listing or establish EduSystem's complete PRINT semantics.
 The raw fixture remains the exact pinned 1,211 bytes / 44 physical lines with
 SHA-256 `6406621c19cfac9961d0b4fa36ba50d322f4697648b1021fe99cace6ef9d8896`.
-No corrected 23MTCH fixture is introduced, and the partial native regression
-below deliberately continues to exercise the unchanged pinned transcription.
+A separately named corrected fixture now applies only that terminal semicolon.
+The original partial native regression below still exercises the unchanged
+pinned transcription. The correction leaves every other byte, including quoted
+spacing, intact; it is not a full scan-normalized transcription.
+
+### Separately tested terminal-semicolon correction
+
+`23mtch-corrected.bas` inserts exactly one ASCII semicolon before the newline at
+label 380. Its 1,212 bytes have SHA-256
+`6e20090bfdebc2f4760baa7568d53d6a64e18310f2f9daf6e95a883666956364`.
+The original 1,211-byte fixture and its hash remain unchanged. The fixture README
+retains attribution and archival provenance; no additional source, whitespace,
+message or game logic is edited.
+
+Both fixtures now have independently expected complete native output for the
+seven-moves-of-one loss/replay path. The correction suppresses exactly six
+newlines: for example `I TOOK1...THERE ARE NOW21MATCHES.` is one line rather than
+two. Invalid human moves 0, 4, 1.5 and 24 reprompt without changing the 23-match
+state. Computer choices remain 1, 3, 3, 3, 3, 3; remaining counts are 21, 17, 13,
+9, 5, 1, followed by loss and replay at 23. EOF bounds the next round at label 230. Repeated runs reset state. Entering 2 still reaches the explicit native
+RND(0) arity error at label 330 before any random callback.
+
+The shared oracle runs through direct/installed ESM/CommonJS and real file CLI,
+including editor LOAD/LIST/SAVE and portable file execution. Browser tests import
+both sources, assert the entire transcript including submitted-input echoes,
+then Stop, export exact bytes, reload and exercise the blocked branch. Those
+cases also run against the extracted static archive. These are corrected/raw
+native path checks, not EduSystem output/profile certification or a complete
+historical-game pass. The full listing, exact quoted spacing, dialect numeric
+and random rules, other game paths and final corpus acceptance remain open.
 
 ### Tested partial native path
 
