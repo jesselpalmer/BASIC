@@ -267,10 +267,13 @@ limits, validation, historical conversion differences and feature provenance.
 `PRINT USING` uses the [bounded native format contract](print-using.md):
 a string template, comma-separated values and optional final semicolon. Each
 `#` field requires a safe integer and aligns right; a negative sign consumes
-field width. Field types and supported markers are defined in that contract.
-Unsupported numeric masks/fractions/overflow/reuse
-fail explicitly. USING remains an ordinary name outside this contextual form.
-This does not enable a historical profile or change unformatted number spacing.
+field width. `**` followed by one or more `#` positions adds two digit columns
+and fills unused leading columns with asterisks. Asterisk fields require
+nonnegative safe integers that fit; trailing signs remain unsupported. String
+fields and other supported markers are defined in that contract. Unsupported
+numeric masks/fractions/overflow/reuse fail explicitly. USING remains an ordinary
+name outside this contextual form. This does not enable a historical profile or
+change unformatted number spacing.
 
 Adjacent complete expressions may omit a semicolon when either immediately
 neighboring item has string type: `PRINT "YOU MADE" M "JUMPS"`, `PRINT A$ B$`,

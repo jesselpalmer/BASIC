@@ -25,8 +25,9 @@ control characters and actual terminal cursor positions.
 Keep maximal # runs, right-aligned safe integers, strict overflow and one pass
 with exactly one value per field. Mixed fields consume values in image order.
 Unmatched backslashes or non-space field interiors fail as unsupported formats.
-Other reserved controls remain rejected, including variable-width &, numeric
-rounding/currency/exponents, escapes and image reuse. Existing image/value caps
+The separately documented [asterisk-filled integer fields](print-using-asterisks.md)
+can also be mixed with string fields. Other reserved controls remain rejected,
+including variable-width &, numeric rounding/currency/exponents, escapes and image reuse. Existing image/value caps
 remain4096. Validate at most each field's emitted width, keeping total string
 traversal/output bounded by image length even for large source strings.
 

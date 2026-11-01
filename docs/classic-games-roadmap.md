@@ -8,12 +8,13 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `63715d03540623ebc067627e5a4c7db178cb0ccb` after
-[PR #171](https://github.com/jesselpalmer/BASIC/pull/171) and
-[PR #172](https://github.com/jesselpalmer/BASIC/pull/172). Native is still the
-only executable profile. The merged native features and internal historical
-conformance work below are useful progress; none of the compatibility parent
-issues is complete.
+Reconciled against main `7a06a8d` after merged PRs
+[#171](https://github.com/jesselpalmer/BASIC/pull/171),
+[#172](https://github.com/jesselpalmer/BASIC/pull/172),
+[#173](https://github.com/jesselpalmer/BASIC/pull/173) and
+[#174](https://github.com/jesselpalmer/BASIC/pull/174). Native is still the only
+executable profile. Merged prerequisites do not complete compatibility parent
+issues or certify historical games.
 
 The [structured ledger](classic-games-ledger.json) currently records:
 
@@ -63,27 +64,23 @@ source/dialect/filename/baseline atomic and preserves verbatim portable source
 until an actual numbered edit. These are merged prerequisites, not additional
 historical profile or game acceptance.
 
-The newly merged independent slices are runnable native
-[CHANGE string/array conversion](change-statements.md) and selected integer
-binary-string conversion. Native CHANGE requires explicit 1D arrays, uses byte
-codes/length cells and fails atomically; the manual's historical partial-overflow
-behavior remains separately gated. The integer codec adds no evaluator intrinsic
-or numeric argument conversion.
+Native [CHANGE string/array conversion](change-statements.md), the internal
+integer binary-string codec, native [INPUT LINE](input-line.md), and
+[fixed-width PRINT USING string fields](print-using-strings.md) are now merged.
+Historical partial CHANGE failures, terminal terminators, numeric conversion,
+profile activation and full-game evidence remain separately required.
 
-The next prepared input/output slices are native INPUT LINE and
-[fixed-width PRINT USING string fields](print-using-strings.md). Line input uses
-the existing request/cancellation owner without parsing the returned text or
-synthesizing terminal terminators. String formatting extends the bounded image
-formatter, with typed mixed fields and one atomic write. Neither activates a
-historical profile; file channels, terminal terminators, remaining numeric masks
-and full game acceptance stay open.
+The next independent slices are [asterisk-filled integer USING fields](print-using-asterisks.md)
+and a separate 23 Matches fixture applying only the already reviewed terminal
+semicolon at label 380. The latter preserves raw bytes, quoted spacing and the
+explicit native RND(0) blocker. Neither slice changes source/dialect certification
+or claims a historical-game pass. Each PR carries its own validation evidence.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #171/#172 and distinguish the prepared
-line-input/string-format slices from remaining profile and release work,
-preserving their earlier plans as historical reference. This repository matrix
-and the owning issue criteria track subsequent deliveries.
+retain earlier planning checkpoints. This repository matrix and the owning
+issue criteria track subsequent deliveries; do not treat historical delivery
+comments as the current release decision.
 
 ## Compatibility target
 
@@ -194,13 +191,13 @@ limits; issue/PR evidence retains individual validation runs.
 | Context — #116            | Native immutable API/AST context; [portable source envelopes](portable-documents.md) in browser drafts/import/export and CLI file execution; activation/name-resolution designs. | Executable historical support matrix, numeric/host observation contracts and historical selection.                                                            |
 | Lexing — #117             | Native optional LET/GO TO; [internal compact scanner](scanner-conformance.md), integer spelling and DATA source modes.                                                           | Shared historical parser/AST integration, remaining source-backed lexical forms/continuation and runtime activation.                                          |
 | Arrays — #58              | [Native explicit numeric/string arrays](arrays.md), bounded allocation and detached observations.                                                                                | Profile defaults, subscript conversion, duplicate declarations and required ranks/forms.                                                                      |
-| Output — #119/#120        | Native adjacency/integer USING; [internal integer/ASCII zone layout](print-layout-conformance.md).                                                                               | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                    |
+| Output — #119/#120        | Native adjacency/integer and fixed-width string USING; [internal integer/ASCII zone layout](print-layout-conformance.md).                                                        | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                    |
 | Branches/calls — #118/#57 | Native colon sequences, inline IF/ELSE, literal GOSUB/RETURN and ON GOTO/GOSUB.                                                                                                  | Verified historical separators/transfers and GOTO expression OF; complete game outcomes.                                                                      |
-| Input — #121              | [Native scalar/array target lists](input-targets.md), strict rows, retries and cancellation isolation.                                                                           | Historical prompts/continuation/surplus/conversion and line/file input.                                                                                       |
+| Input — #121              | [Native scalar/array target lists](input-targets.md), strict rows, retries, cancellation isolation and native INPUT LINE.                                                        | Historical prompts/continuation/surplus/conversion, terminal terminators and file input.                                                                      |
 | Data — #122               | [Native typed pools/READ/RESTORE](data-statements.md); [internal historical text-field scanning](historical-data-scanner.md).                                                    | Historical pool/AST integration and target-dependent READ conversion; verified RESTORE forms. Missing AWARI data stays unresolved.                            |
 | Numeric — #123            | Native scientific literals/powers and shared native signatures; internal historical signature inventory and [exact 24/56-bit word decoding](basic-plus-floating-words.md).       | Literal/intermediate rounding, package-specific arithmetic/intrinsics, defaults/RNG and numeric diagnostics. Decoder results are not executable BASIC values. |
 | Integers/logical — #124   | [Internal signed-word operations](integer-semantics.md#internal-word-conformance-slice), raw integer spellings and bounded literal tokens.                                       | Numeric-kind AST/evaluation, mixed-mode scope, conversion/error edges, legal logical positions and operand ordering.                                          |
-| Text — #59                | [Internal byte-string functions](string-conformance.md) and [padded string relations](string-relation-conformance.md).                                                           | Intrinsic/runtime integration, index/error edges, full character ordering, VAL/NUM$/CHANGE and game outcomes.                                                 |
+| Text — #59                | [Internal byte-string functions](string-conformance.md) and [padded string relations](string-relation-conformance.md); native CHANGE and internal conversion-string codecs.      | Intrinsic/runtime integration, index/error edges, full character ordering, VAL/NUM$, historical CHANGE continuation and game outcomes.                        |
 | Functions — #125          | Name-resolution and numeric/result-kind designs.                                                                                                                                 | Expression/multiline DEF FN, parameters/scope, bounded frames, recursion policy and unwinding.                                                                |
 | Loops — #126              | Native loop/call ownership retained; documented historical differences.                                                                                                          | Historical completion/reentry/transfers, required NEXT forms and modifiers with verified evaluation order.                                                    |
 | MAT — #127                | Dependency observations in the corpus inventory.                                                                                                                                 | Verify and implement required forms, dimensions/aliasing and failure/input behavior.                                                                          |
