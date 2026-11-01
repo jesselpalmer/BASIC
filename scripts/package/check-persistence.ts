@@ -27,6 +27,60 @@ export async function checkPersistenceSessions(executable: string): Promise<void
       [],
     );
   try {
+    const portable = join(directory, 'portable.BASIC.JSON');
+    const verbatim = '\r\n20 END\r\n010 PRINT "portable editor"\r\n';
+    const document = {format: 'basic-program', version: 1, dialect: 'native', source: verbatim};
+    writeFileSync(portable, JSON.stringify(document));
+    const portableSession = session([
+      `LOAD ${quote(portable)}`,
+      'LIST',
+      'RUN',
+      'RUN',
+      'SAVE',
+      'yes',
+      'EXIT',
+    ]);
+    assert.equal(portableSession.stderr, '');
+    assert.ok(portableSession.stdout.includes(verbatim + '\n'));
+    assert.equal(portableSession.stdout.split('portable editor\n').length - 1, 2);
+    assert.deepEqual(JSON.parse(readFileSync(portable, 'utf8')), document);
+    const plainCopy = join(directory, 'portable-export.bas');
+    const converted = session([`LOAD ${quote(portable)}`, `SAVE ${quote(plainCopy)}`, 'EXIT']);
+    assert.equal(converted.stderr, '');
+    assert.equal(readFileSync(plainCopy, 'utf8'), verbatim);
+    const portableCopy = join(directory, 'plain-to-portable.basic.json');
+    const imported = session([`LOAD ${quote(plainCopy)}`, `SAVE ${quote(portableCopy)}`, 'EXIT']);
+    assert.equal(imported.stderr, '');
+    assert.deepEqual(JSON.parse(readFileSync(portableCopy, 'utf8')), {
+      ...document,
+      source: '010 PRINT "portable editor"\n20 END',
+    });
+    const executedPortable = runProcess({cwd: directory, args: [executable, portableCopy]});
+    assert.equal(executedPortable.stdout, 'portable editor\n');
+    assert.equal(executedPortable.stderr, '');
+    const badPortable = join(directory, 'bad.basic.json');
+    for (const text of [
+      '{',
+      JSON.stringify({...document, dialect: 'basic-plus'}),
+      JSON.stringify({...document, source: '10 END\n20 GOTO 999'}),
+    ]) {
+      writeFileSync(badPortable, text);
+      const rejected = session([
+        `LOAD ${quote(portable)}`,
+        '30 REM unsaved',
+        `LOAD ${quote(badPortable)}`,
+        'LIST',
+        'SAVE',
+        'yes',
+        'EXIT',
+      ]);
+      assert.notEqual(rejected.stderr, '');
+      assert.doesNotMatch(rejected.stdout, /Discard unsaved changes and load/);
+      const kept = {...document, source: '010 PRINT "portable editor"\n20 END\n30 REM unsaved'};
+      assert.deepEqual(JSON.parse(readFileSync(portable, 'utf8')), kept);
+      writeFileSync(portable, JSON.stringify(document));
+    }
+    noTemporaries();
     const first = session([
       '30 END',
       '20 PRINT "Hello, ";N$',

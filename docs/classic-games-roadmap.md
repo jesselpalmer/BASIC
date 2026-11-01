@@ -8,8 +8,8 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `6c8438de1260bc8bd1fdbad9bda0d52ab2703317` after
-[PR #167](https://github.com/jesselpalmer/BASIC/pull/167). Native is still the
+Reconciled against main `80d11ebe4ae419a2679159897ffbe693ab2bdb79` after
+[PR #168](https://github.com/jesselpalmer/BASIC/pull/168). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -47,7 +47,7 @@ observations. Literal conversion and opposite-sign arithmetic differ from a
 single generic rounding rule. Manual clock/startup and filesystem limitations
 remain explicit. The [internal MA2 addition/subtraction component](basic-plus-ma2-addition.md)
 now follows the traced 25-bit guard/alignment behavior and matches496 original
-machine calls. The prepared [range continuation follow-up](ma2-range-continuation.md)
+machine calls. The merged [range continuation follow-up](ma2-range-continuation.md)
 resolves the nonzero overflow seen in six additional BASIC probes: the original
 monitor skips an inline status mask and resumes with path-specific words.
 It independently executes598 completed calls, preserving all480 original normal
@@ -56,10 +56,16 @@ continuation words; BASIC diagnostics/handler state remain execution-owned.
 Remaining operations, conversion and installation validation still precede
 public activation.
 
+The next independent prerequisites are the selected MA2 conversion-string codec
+and [terminal portable LOAD/SAVE](editor-portable-documents.md). The latter keeps
+source/dialect/filename/baseline atomic and preserves verbatim portable source
+until an actual numbered edit. These are prepared follow-ups, not additional
+historical profile or game acceptance.
+
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #167 and distinguish the prepared
-MA2 range continuation component from remaining profile and release work,
+have also been reconciled through merged #168 and distinguish the prepared
+conversion-string/editor slices from remaining profile and release work,
 preserving their earlier plans as historical reference. This repository matrix
 and the owning issue criteria track subsequent deliveries.
 
@@ -169,7 +175,7 @@ limits; issue/PR evidence retains individual validation runs.
 | Area / parent tickets     | Delivered                                                                                                                                                                        | Required before completion                                                                                                                                    |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source — #115             | All 108 hashes, structured ledger and validator; scan-backed 1CHECK/23MTCH/LIFE2 differences.                                                                                    | Complete listing/dialect/edition review, assets, redistribution evidence and independent behavior oracles.                                                    |
-| Context — #116            | Native immutable API/AST context; [portable source envelopes](portable-documents.md) in browser drafts/import/export and CLI file execution; activation/name-resolution designs. | Executable historical support matrix, numeric/host observation contracts, historical selection and terminal editor persistence.                               |
+| Context — #116            | Native immutable API/AST context; [portable source envelopes](portable-documents.md) in browser drafts/import/export and CLI file execution; activation/name-resolution designs. | Executable historical support matrix, numeric/host observation contracts and historical selection.                                                            |
 | Lexing — #117             | Native optional LET/GO TO; [internal compact scanner](scanner-conformance.md), integer spelling and DATA source modes.                                                           | Shared historical parser/AST integration, remaining source-backed lexical forms/continuation and runtime activation.                                          |
 | Arrays — #58              | [Native explicit numeric/string arrays](arrays.md), bounded allocation and detached observations.                                                                                | Profile defaults, subscript conversion, duplicate declarations and required ranks/forms.                                                                      |
 | Output — #119/#120        | Native adjacency/integer USING; [internal integer/ASCII zone layout](print-layout-conformance.md).                                                                               | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                    |

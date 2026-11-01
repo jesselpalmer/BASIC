@@ -58,7 +58,6 @@ export default class Repl {
   }
 
   async start({signal}: InputOptions = {}): Promise<number> {
-    const program = new Basic(this.host);
     const onAbort = () => this.interrupt();
     signal?.addEventListener('abort', onAbort, {once: true});
     try {
@@ -96,8 +95,9 @@ export default class Repl {
             );
             if (warning) this.host.writeError(`${warning}\n`);
           } else if (command === 'RUN') {
-            const snapshot = this.#source.source;
-            await this.#withSignal((signal) => program.runAsync(snapshot, {signal}));
+            const snapshot = this.#source.document;
+            const program = new Basic(this.host, {dialect: snapshot.dialect});
+            await this.#withSignal((signal) => program.runAsync(snapshot.source, {signal}));
           } else if (command === 'LIST') {
             const source = this.#source.source;
             if (source !== '') this.host.write(source + '\n');
@@ -110,7 +110,6 @@ export default class Repl {
             }
             if (command === 'EXIT') return this.#finish(false);
             this.#source.clear();
-            program.reset('');
           } else if (/^[ \t]*\d/.test(line)) {
             this.#source.edit(line);
           } else {

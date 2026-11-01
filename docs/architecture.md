@@ -120,8 +120,9 @@ fields. The legacy single-scalar AST/raw string contract stays intact; see
 
 ## Terminal and stored source
 
-`repl/program.ts` owns editable source, the saved baseline, current filename, and
-derived dirty state. `repl/persistence.ts` owns candidate validation and staged
+`repl/program.ts` owns editable source/dialect, the saved baseline, current filename,
+and derived dirty state, including verbatim portable source until a numbered edit.
+`repl/persistence.ts` owns candidate validation and staged
 file operations through the narrow `ProgramFiles` capability;
 `repl/file_command.ts` parses quoted filenames independently of BASIC statements.
 `repl/repl.ts` owns session commands, confirmation, and cancellation of the current

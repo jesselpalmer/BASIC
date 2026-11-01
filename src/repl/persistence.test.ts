@@ -3,6 +3,7 @@ import {parseProgram} from '../parser/parser.ts';
 import StoredProgram from './program.ts';
 import ProgramPersistence from './persistence.ts';
 import type {ProgramFiles, ProgramWrite} from './program_files.ts';
+import {encodeSourceDocument, decodeSourceDocument} from '../core/source_document.ts';
 
 function fixture() {
   const source = new StoredProgram();
@@ -35,6 +36,137 @@ function fixture() {
     );
   return {source, destinations, files, commit, discard, controller, confirm, state, execute};
 }
+
+it('round-trips verbatim portable source and remembered format without executing it', async () => {
+  const f = fixture();
+  const text = '\r\n20 END\r\n\t010 PRINT "MiXeD"\r\n';
+  f.destinations.set('MiXeD.BASIC.JSON', encodeSourceDocument(text));
+  await f.execute('LOAD', 'MiXeD.BASIC.JSON');
+  expect(f.state()).toEqual({source: text, filename: 'MiXeD.BASIC.JSON', dirty: false});
+  expect(f.source.document).toEqual({
+    format: 'basic-program',
+    version: 1,
+    dialect: 'native',
+    source: text,
+  });
+  expect(Object.isFrozen(f.source.document)).toBe(true);
+  await f.execute('SAVE');
+  expect(decodeSourceDocument(f.destinations.get('MiXeD.BASIC.JSON')!)).toEqual(f.source.document);
+  expect(f.source.dirty).toBe(false);
+  await f.execute('SAVE', 'plain.bas');
+  expect(f.destinations.get('plain.bas')).toBe(text);
+  expect(f.source.filename).toBe('plain.bas');
+  await f.execute('LOAD', 'plain.bas');
+  expect(f.source.source).toBe('\t010 PRINT "MiXeD"\n20 END');
+  await f.execute('SAVE', 'converted.basic.json');
+  expect(decodeSourceDocument(f.destinations.get('converted.basic.json')!).source).toBe(
+    f.source.source,
+  );
+});
+
+it.each([
+  '{',
+  '{}',
+  '{"format":"basic-program","version":2,"dialect":"native","source":"10 END"}',
+  '{"format":"basic-program","version":1,"dialect":"basic-plus","source":"10 END"}',
+  '{"format":"basic-program","version":1,"dialect":"native","source":"10 END","extra":0}',
+  encodeSourceDocument('10 END\n20 GOTO 999'),
+  '10 END',
+])('rejects invalid portable files before discard confirmation: %j', async (text) => {
+  const f = fixture();
+  f.source.edit('20 REM unsaved');
+  const before = f.state(),
+    document = f.source.document;
+  f.destinations.set('bad.basic.json', text);
+  expect(await f.execute('LOAD', 'bad.basic.json').catch((error: unknown) => error)).toBeInstanceOf(
+    Error,
+  );
+  expect(f.state()).toEqual(before);
+  expect(f.source.document).toEqual(document);
+  expect(f.confirm).not.toHaveBeenCalled();
+});
+
+it('does not sniff portable JSON in a plain file', async () => {
+  const f = fixture(),
+    before = f.state();
+  f.destinations.set('plain.bas', encodeSourceDocument('10 END'));
+  expect(await f.execute('LOAD', 'plain.bas').catch((error: unknown) => error)).toBeInstanceOf(
+    Error,
+  );
+  expect(f.state()).toEqual(before);
+});
+
+it('saves incomplete portable edits and preserves baseline/format after failed SAVE AS', async () => {
+  const f = fixture();
+  f.source.edit('20 GOTO 999');
+  await f.execute('SAVE', 'incomplete.basic.json');
+  expect(decodeSourceDocument(f.destinations.get('incomplete.basic.json')!).source).toBe(
+    f.source.source,
+  );
+  f.source.edit('30 END');
+  const before = f.state();
+  f.files.prepareSave = () =>
+    Promise.resolve({
+      commit() {
+        throw new Error('Install failed');
+      },
+      discard: f.discard,
+    });
+  expect(await f.execute('SAVE', 'other.bas').catch((error: unknown) => error)).toMatchObject({
+    message: 'Install failed',
+  });
+  expect(f.state()).toEqual(before);
+  expect(f.discard).toHaveBeenCalledTimes(1);
+});
+
+it.each(['refuse', 'read', 'confirm', 'prepare', 'commit'])(
+  'preserves portable source/context and filename at the %s boundary',
+  async (at) => {
+    const f = fixture();
+    const text = '20 END\r\n10 PRINT "kept"\r\n';
+    f.destinations.set('prior.basic.json', encodeSourceDocument(text));
+    await f.execute('LOAD', 'prior.basic.json');
+    if (at === 'refuse' || at === 'confirm') f.source.edit('30 REM dirty');
+    const before = f.state(),
+      document = f.source.document;
+    if (at === 'refuse') f.confirm.mockResolvedValue(false);
+    if (at === 'read')
+      f.files.read = () => {
+        f.controller.abort();
+        return Promise.resolve(encodeSourceDocument('40 END'));
+      };
+    if (at === 'confirm')
+      f.confirm.mockImplementation(() => {
+        f.controller.abort();
+        return Promise.resolve(true);
+      });
+    if (at === 'prepare')
+      f.files.prepareSave = () => {
+        f.controller.abort();
+        return Promise.resolve({commit: f.commit, discard: f.discard});
+      };
+    if (at === 'commit')
+      f.files.prepareSave = () =>
+        Promise.resolve({
+          commit() {
+            throw new Error('Failed');
+          },
+          discard: f.discard,
+        });
+    if (at === 'refuse') await f.execute('LOAD', 'prior.basic.json');
+    else {
+      const pending =
+        at === 'read' || at === 'confirm'
+          ? f.execute('LOAD', 'prior.basic.json')
+          : f.execute('SAVE', 'next.basic.json');
+      expect(await pending.catch((error: unknown) => error)).toBeInstanceOf(Error);
+    }
+    expect(f.state()).toEqual(before);
+    expect(f.source.document).toEqual(document);
+    expect(f.destinations.has('next.basic.json')).toBe(false);
+    expect(f.discard).toHaveBeenCalledTimes(at === 'prepare' || at === 'commit' ? 1 : 0);
+  },
+);
 
 it('loads a completely validated candidate in numeric order without executing it', async () => {
   const f = fixture();

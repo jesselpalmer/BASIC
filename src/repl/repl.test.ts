@@ -21,6 +21,33 @@ function session(entries: readonly (string | null)[], files?: ProgramFiles) {
   return {repl: new Repl(host, files), host, output, errors, prompts, remaining};
 }
 
+it('loads, lists, runs and saves a portable document without normalizing its source', async () => {
+  const text = '20 END\r\n10 PRINT "portable"\r\n';
+  const document = {format: 'basic-program', version: 1, dialect: 'native', source: text};
+  let saved = '';
+  const files: ProgramFiles = {
+    read: () => Promise.resolve(JSON.stringify(document)),
+    exists: () => Promise.resolve(true),
+    prepareSave: (_path, text) =>
+      Promise.resolve({
+        commit() {
+          saved = text;
+        },
+        discard: () => Promise.resolve(),
+      }),
+  };
+  const s = session(
+    ['LOAD "source.basic.json"', 'LIST', 'RUN', 'RUN', 'SAVE', 'yes', 'NEW', 'RUN', 'EXIT'],
+    files,
+  );
+  expect(await s.repl.start()).toBe(0);
+  expect(s.errors).toEqual([]);
+  expect(s.output).toContain(text + '\n');
+  expect(s.output.filter((t) => t === 'portable\n')).toHaveLength(2);
+  expect(JSON.parse(saved)).toEqual(document);
+  expect(s.prompts.filter((p) => p.startsWith('Discard'))).toEqual([]);
+});
+
 it('edits incrementally, lists numeric order, and runs fresh snapshots repeatedly', async () => {
   const {repl, output, errors, prompts} = session([
     'LIST',
