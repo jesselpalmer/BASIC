@@ -92,6 +92,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'library-acceptance.ts',
       'array-acceptance.ts',
       'output-acceptance.ts',
+      'matches-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }

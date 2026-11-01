@@ -28,7 +28,7 @@ bounded opening scenario ends at seven jumps/41 pieces, rejects the next visible
 summary is not a reproducible oracle for that visible prefix. Unclear scan
 punctuation at110/360/562 is not applied as additional fixture corrections.
 
-## 23MTCH — unchanged source
+## 23MTCH — unchanged source and reviewed correction
 
 `23mtch.bas` is unchanged from
 [maurymarkowitz/101-BASIC-Computer-Games](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/23mtch.bas),
@@ -54,3 +54,14 @@ The checked native loss/replay path does not execute RND(0). A separate assertio
 records that branch as still unsupported. Native numeric formatting also differs.
 These tests prove the new GO TO spelling and source/control-flow preservation;
 they do not count as a complete historical-game compatibility pass in #129.
+
+`23mtch-corrected.bas` preserves the raw fixture except for one inserted terminal
+semicolon at label 380, matching the already reviewed printed listing/sample.
+SHA-256: `6e20090bfdebc2f4760baa7568d53d6a64e18310f2f9daf6e95a883666956364`;
+1,212 bytes / 44 physical lines. Quoted spacing remains the transcription's own,
+so this is a one-byte correction rather than complete scan normalization. The
+raw and corrected seven-moves-of-one paths have complete exact native-output,
+invalid-move/retry, loss/replay and explicit blocked-RNG assertions across direct
+and installed library, CLI and browser/extracted-static hosts. The correction
+suppresses six newlines; game state and all other source bytes stay identical.
+Both fixtures remain excluded from npm production archives.

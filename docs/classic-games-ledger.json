@@ -115,7 +115,7 @@
       "reviewRecord": "classic-source-review.md#23mtch",
       "behaviorEvidence": {
         "oracle": "classic-source-review.md#tested-partial-native-path",
-        "scope": "Unchanged-source loss/replay path, direct/installed library and browser. Not a complete historical pass.",
+        "scope": "Separate unchanged-source and one-byte-corrected loss/replay paths, exact output and invalid-move retries across direct/installed library, CLI and browser. Correction evidence: classic-source-review.md#separately-tested-terminal-semicolon-correction. Not a complete historical pass.",
         "remainingBlockers": [
           "EduSystem profile certification",
           "RND(0) semantics",

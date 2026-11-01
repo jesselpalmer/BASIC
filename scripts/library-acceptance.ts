@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {runArrayAcceptance} from './array-acceptance.ts';
+import {runMatchesCorrectionAcceptance} from './matches-acceptance.ts';
 import {
   runAdjacentPrintAcceptance,
   runPrintUsingAcceptance,
@@ -26,6 +27,7 @@ export const libraryAcceptanceCases = [
   'public program execution and stepping',
   'common classic spellings preserve native names and execution',
   'unchanged 23 Matches loss/replay path and explicit native RNG limit',
+  'reviewed 23 Matches correction retains exact native retry/replay output',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
   'explicit arrays execute board moves, enforce bounds, and isolate fresh runs',
@@ -186,6 +188,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     basic.run('10 recovered$="after game"\n20 PRINT recovered$');
     assert.ok(output.join('').endsWith('after game\n'));
   });
+  await check('reviewed 23 Matches correction retains exact native retry/replay output', () =>
+    runMatchesCorrectionAcceptance(api),
+  );
   await check('public parser snapshots and diagnostics', () => {
     const program = api.parseProgram('20 END\n10 LET A = 1+2*3');
     const first = program.lines[0];
