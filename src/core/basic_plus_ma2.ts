@@ -9,6 +9,7 @@ export type BasicPlusMa2Result =
       kind: 'numeric-event';
       code: 48;
       reason: 'overflow' | 'underflow';
+      continuationWords: readonly [number, number];
     }>
   | Readonly<{
       kind: 'unsupported';
@@ -16,7 +17,7 @@ export type BasicPlusMa2Result =
       reason: 'four-word-precision' | 'signed-zero' | 'zero-exponent-fraction';
     }>;
 
-function value(sign: number, significand: number, exponent: number): BasicPlusMa2Result {
+function packWords(sign: number, significand: number, exponent: number): readonly [number, number] {
   // Remove the restored hidden bit when packing the high fraction word.
   const words: readonly [number, number] = Object.freeze(
     significand === 0
@@ -26,14 +27,22 @@ function value(sign: number, significand: number, exponent: number): BasicPlusMa
           significand % 65536,
         ],
   );
-  return Object.freeze({kind: 'value', words});
+  return words;
 }
 
-function rangeEvent(reason: 'overflow' | 'underflow'): BasicPlusMa2Result {
+function value(sign: number, significand: number, exponent: number): BasicPlusMa2Result {
+  return Object.freeze({kind: 'value', words: packWords(sign, significand, exponent)});
+}
+
+function rangeEvent(
+  reason: 'overflow' | 'underflow',
+  continuationWords: readonly [number, number],
+): BasicPlusMa2Result {
   return Object.freeze({
     kind: 'numeric-event',
     code: 48,
     reason,
+    continuationWords,
   });
 }
 
@@ -86,7 +95,8 @@ export function basicPlusMa2Arithmetic(
     sum = -sum;
     sign = -sign;
   }
-  if (sum >= 2 ** 25) {
+  const carried = sum >= 2 ** 25;
+  if (carried) {
     sum = Math.floor(sum / 2);
     exponent++;
   }
@@ -94,13 +104,17 @@ export function basicPlusMa2Arithmetic(
     sum *= 2;
     exponent--;
   }
-  if (exponent < 1) return rangeEvent('underflow');
+  if (exponent < 1) return rangeEvent('underflow', packWords(1, 0, 0));
 
   let significand = Math.floor(sum / 2) + (sum % 2);
   if (significand === 2 ** 24) {
     significand /= 2;
     exponent++;
   }
-  if (exponent > 255) return rangeEvent('overflow');
+  if (exponent > 255) {
+    // TRAP0 skips its inline mask. Carry overflow reuses SWAB(256) as exponent1;
+    // packed rounding overflow reaches the underflow continuation and clears.
+    return rangeEvent('overflow', carried ? packWords(sign, significand, 1) : packWords(1, 0, 0));
+  }
   return value(sign, significand, exponent);
 }

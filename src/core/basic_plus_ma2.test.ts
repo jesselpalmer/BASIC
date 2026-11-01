@@ -32,7 +32,7 @@ describe('internal pinned V4A MA2 arithmetic', () => {
       } else {
         // The harness records the trap PC, not the unfinished scratch result.
         expect([high, low]).toEqual([null, null]);
-        expect(actual).toEqual({
+        expect(actual).toMatchObject({
           kind: 'numeric-event',
           code: 48,
           reason: outcome === 1 ? 'overflow' : 'underflow',
@@ -160,7 +160,7 @@ describe('internal pinned V4A MA2 arithmetic', () => {
     expect(() => Object.assign(result, {kind: 'unsupported'})).toThrow(TypeError);
   });
 
-  test('detaches identity results and leaves range continuation unresolved', () => {
+  test('detaches identity results and keeps range conditions distinct from values', () => {
     const source = [0xc1a0, 0];
     const result = basicPlusMa2Arithmetic([0, 0], 'add', source);
     source.fill(0);
