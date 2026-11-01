@@ -7,7 +7,9 @@ test('INPUT LINE reads exact text into a stepped array target without a prompt',
   await expect(page.locator('#next-line')).toContainText('BASIC line 20');
   await page.locator('#step').click();
   await expect(page.locator('#input-form')).toBeVisible();
-  await expect(page.locator('#input-prompt')).toHaveText(/^$/);
+  // The view labels an empty BASIC prompt accessibly, without printing it.
+  await expect(page.locator('#input-prompt')).toHaveText('Program input');
+  await expect(page.locator('#console-output')).toHaveText(/^$/);
   await page.locator('#input-value').fill('  a,b,"raw"  ');
   await page.locator('#input-value').press('Enter');
   await expect(page.locator('#status')).toHaveText('Paused');
