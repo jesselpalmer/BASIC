@@ -86,10 +86,15 @@ contains `basic_plus_2_v2_1.tpc`; it is not the target BASIC-PLUS implementation
 The listed `RSTS_8.0_src.zip` contains V8.0 source/tape material, likewise a later
 version. Neither establishes an unchanged V4A implementation.
 
-No kit was built or executed in this review. Before treating it as a numeric
-oracle, pin the actual media and extracted object hashes, identify the monitor
-and selected MA variant, and trace literal conversion separately from arithmetic
-and intrinsics. Record exact stored words and diagnostics for positive and
+The initial provenance review did not execute a kit. The follow-up
+[selected V4A-12 MA2 build](rsts-v4a-build.md) now pins the monitor/link inputs
+and records 42 repeated BASIC conversion-byte/event observations. It needed a
+manual clock adjustment, lacks the INIT CUSP, and has an unresolved save failure.
+These are scoped execution observations, not a fully initialized I/O oracle.
+Literal conversion and opposite-sign halfway arithmetic already disprove a
+single generic round-to-nearest/ties-away policy. Trace literal conversion
+separately from arithmetic and intrinsics before implementing a public policy.
+Record exact stored words and diagnostics for positive and
 negative halfway cases, cancellation to zero, range-boundary neighbors and
 noncanonical exponent-zero words. Distinguish decoded representable endpoints
 from runtime underflow/overflow decision thresholds. The current evidence does
