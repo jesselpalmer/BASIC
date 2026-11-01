@@ -348,6 +348,27 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   assert.ok(checker.stdout.includes('YOU MADE1JUMPS AND HAD47PIECES'));
   assert.ok(checker.stdout.includes('YOU MADE0JUMPS AND HAD48PIECES'));
   assert.ok(checker.stdout.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
+  const checkerOpening = runProcess({
+    cwd: consumer,
+    args: [executable, join(consumer, 'scripts/package/fixtures/classic/1check-corrected.bas')],
+    input: '1\n19\n2\n20\n3\n21\n8\n22\n16\n30\n24\n38\n64\n46\n12\n26\n0\nNO\n',
+  });
+  assert.equal(checkerOpening.stderr, '');
+  const openingRows = checkerOpening.stdout.split('\n').filter((line) => /^[01]{8}$/.test(line));
+  assert.equal(openingRows.length, 64);
+  assert.deepEqual(openingRows.slice(-8), [
+    '00011110',
+    '10001100',
+    '11111100',
+    '11000101',
+    '11000111',
+    '11000111',
+    '11111101',
+    '11111110',
+  ]);
+  assert.equal(checkerOpening.stdout.split('ILLEGAL MOVE.  TRY AGAIN...').length - 1, 1);
+  assert.ok(checkerOpening.stdout.includes('YOU MADE7JUMPS AND HAD41PIECES'));
+  assert.ok(checkerOpening.stdout.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
   const rawChecker = runProcess({
     cwd: consumer,
     args: [executable, join(consumer, 'scripts/package/fixtures/classic/1check-raw.bas')],
