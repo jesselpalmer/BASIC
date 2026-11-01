@@ -125,6 +125,15 @@ rounding or approximation accuracy for both math packages. Those still require
 reference execution or implementation evidence. In particular, do not import
 PDP-10 math-library thresholds into this PDP-11 profile.
 
+The table above records the manual's rule. The subsequent [MA2 addition probes](basic-plus-ma2-addition.md)
+expose a selected-build discrepancy: maximum-plus-maximum reports error48 but
+continues with nonzero CVTF$ bytes `[255,255,0,255]`; rounding into overflow and
+the tested tiny subtractions return zero. The error number was independently
+observed through ERR/ERL. Do not generalize earlier zero-result probes to every
+operation path. The internal addition component therefore identifies a range
+event without supplying continuation words. Reconcile this implementation/manual
+difference and handler behavior in #128 before activation.
+
 A returned zero is not permission to suppress the diagnostic, skip a handler or
 continue with a stale expression stack. Native errors remain fatal with their
 existing codes, spans and evaluation order. Native ON ERROR GOTO continues to
