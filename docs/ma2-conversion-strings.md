@@ -37,6 +37,6 @@ Use independently captured byte/word pairs and every individual bit/byte positio
 as primary expectations, then exhaustive one-word patterns in both positions and
 raw exponent-zero/edge patterns. Round trips supplement these oracles rather
 than replacing them. Test malformed/hostile inputs, bounded getters, exception
-propagation, frozen detached words, native non-reservation and offline package
+propagation, frozen detached words and offline package
 checks. CI downloads no historical kit. Native arithmetic and source grammar
 remain unchanged; #59/#123 and whole-game acceptance stay open.
