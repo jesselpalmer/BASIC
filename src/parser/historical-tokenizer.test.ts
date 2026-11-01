@@ -408,8 +408,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
 
   it.each([
     'IMAGE"###"',
-    "PRINT'x'",
-    '!comment',
     'PRINT1\\PRINT2',
     'letA=1',
     'FORWARD=1',

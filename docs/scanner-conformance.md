@@ -54,20 +54,22 @@ forms fail, rather than accepting a numeric prefix. Decoding a finite numeric
 token as a JavaScript number is not historical precision or runtime certification.
 The eventual profile must apply its separately reviewed representation policy.
 
-Double-delimited strings protect their literal payload; adjacent quoted strings
-are separate tokens in this internal policy rather than native doubled-quote
-escaping. REM protects the complete physical remainder. The separately reviewed
+Single- and double-delimited strings protect their literal payload; adjacent
+quoted strings are separate tokens in this internal policy rather than native
+doubled-quote escaping. REM and `!` protect the complete physical remainder.
+The [quote/comment contract](historical-quotes-comments.md) records the primary
+evidence, token spans and unchanged native boundary. The separately reviewed
 [DATA source mode](historical-data-scanner.md) preserves DATA fields as text
 tokens for eventual READ conversion. IMAGE payloads are rejected before scanning
-them as expressions. Outside DATA, single-quote/! forms,
-backslashes, unsupported percent forms and lowercase historical spellings report
+them as expressions. Outside protected payloads, backslashes, unsupported percent forms and lowercase
+historical spellings report
 an explicit unsupported lexical form. Appendix A.2's approximate equality `==`
 also fails explicitly rather than becoming two native equals tokens.
 Unknown long names never become native-style
 identifiers; unsupported adjacent names are rejected. Short-name/delimiter
 composition is admitted only in the lexical clause context described above.
 
-Whitespace inside a lexical word, other quote/escape forms, historical terminal
+Whitespace inside a lexical word, quote-escape forms, historical terminal
 continuation encoding, further vocabulary/abbreviations, integer AST integration and
 IMAGE mode and historical DATA AST/runtime integration still require evidence
 and implementation. LF/CRLF retain
