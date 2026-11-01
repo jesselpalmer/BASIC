@@ -133,12 +133,12 @@ positions; do not use the implementation's own bit helper as the expected-value
 oracle. Check grouping and precedence with relations, NOT, AND, OR/XOR, IMP and
 EQV, using source-located malformed cases as well as positive traces.
 
-## Remaining activation blockers and next executable slice
+## Remaining activation blockers
 
-The next safe code slice is internal, pure word-kind/conversion/bit-operation
-conformance, without exposing a public historical profile or accepting new
-native grammar. Integer suffix syntax and AST changes need their own focused
-integration once the scanner and expression contracts are ready.
+Internal pure word conversion/arithmetic/bit-operation conformance and bounded
+integer token spelling are implemented below. Numeric-kind AST/evaluator
+integration remains pending; it must follow the scanner/expression contracts
+without exposing unsettled historical behavior or changing native grammar.
 
 Before public activation, settle the precise mixed-mode scope for grouped and
 chained expressions, unsuffixed integer-looking constants, floating variables,

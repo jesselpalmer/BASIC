@@ -3,8 +3,9 @@
 **Status:** shared design decisions and the first verified grammar slice, for
 #116. Implementation is incremental; no historical profile is enabled today.
 The optional-LET/contextual-GO-TO native slice and native API context below are
-implemented. Historical policies and terminal/browser profile persistence remain
-pending.
+implemented. Native portable documents are implemented for browser drafts and
+import/export plus CLI file execution. Historical policies/selection and terminal
+editor source/context persistence remain pending.
 Unresolved dialect rules remain feature/release blockers, not native fallbacks.
 The [activation contract](profile-activation.md) records the closed support and
 lexical conformance gates before exposing a historical selection. The
@@ -210,8 +211,9 @@ A CHAIN resolver is supplied by the host and may not start arbitrary processes.
 2. Implement the unambiguous native optional-LET/GO-TO slice in #117, with exact
    source spans, unchanged native names/errors, malformed-source rejection and
    installed consumer acceptance. Record partial real-program paths honestly.
-3. Carry explicit native context through the core first; the API foundation is
-   implemented, while terminal/browser document profiles remain pending. Activate
+3. Carry explicit native context through the core first; the API foundation and
+   native portable browser/CLI documents are implemented. Terminal editor
+   persistence and historical selection remain pending. Activate
    a historical profile only after its accepted native-like forms have
    correct historical behavior or explicit unsupported-feature errors. Complete
    1CHECK's BASIC-PLUS-compatible forms through #58/#119/#120 with the reviewed

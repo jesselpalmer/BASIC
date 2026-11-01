@@ -44,12 +44,12 @@ ambiguous spellings against primary examples before accepting them.
 Pinned corpus evidence uses commit
 `45f75052be3f436f2e575f58d4aa611484268227`:
 
-| Source                                                                                                                      | Blob                                       | Observed forms and boundary                                                                                                                                         |
-| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [AWARI](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/awari.bas) | `8383e000bc6e9d8a18e2b9c4070dac541eb1df30` | Lines 5/10/15 have DATA0, DIMB and FORI=0TON-1; line 605 has FORP=PTO1STEP-1. Backslashes and the missing initial DATA stay separate blockers.                      |
-| [LIFE2](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/life2.bas) | `167aa165fe0e44e46829779d3a79c0a561b66c5c` | N1/O1 names and IFJ<>0THENIFJ<>6THEN105 exercise short names and adjacent verbs. Line 510 spells TO as T0; retain that spelling as an unresolved source difference. |
-| [HELLO](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/hello.bas) | `ca074a45adc26fbea6ec3fd5a0b0d8b5803130a8` | PRI/INP/GOT and unterminated strings are present. Its text identifies EDUSYSTEM-25; that is not BASIC-PLUS abbreviation evidence.                                   |
-| [QUEEN](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/queen.bas) | `28cea3499a9b4be715446daa2db57ed60adf5d53` | GO SUB, bare RND and label 99999 appear; that label exceeds this manual's range. Duplicate labels also require source review.                                       |
+| Source                                                                                                                      | Blob                                       | Observed forms and boundary                                                                                                                                                                                                          |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [AWARI](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/awari.bas) | `8383e000bc6e9d8a18e2b9c4070dac541eb1df30` | Lines 5/10/15 have DATA0, DIMB and FORI=0TON-1; line 605 has FORP=PTO1STEP-1. Backslashes and the missing initial DATA stay separate blockers.                                                                                       |
+| [LIFE2](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/life2.bas) | `167aa165fe0e44e46829779d3a79c0a561b66c5c` | N1/O1 names and IFJ<>0THENIFJ<>6THEN105 exercise short names and adjacent verbs. Lines 510/511 spell TO as T0; the [source review](classic-source-review.md#life2) records the scan-backed difference while preserving raw spelling. |
+| [HELLO](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/hello.bas) | `ca074a45adc26fbea6ec3fd5a0b0d8b5803130a8` | PRI/INP/GOT and unterminated strings are present. Its text identifies EDUSYSTEM-25; that is not BASIC-PLUS abbreviation evidence.                                                                                                    |
+| [QUEEN](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/queen.bas) | `28cea3499a9b4be715446daa2db57ed60adf5d53` | GO SUB, bare RND and label 99999 appear; that label exceeds this manual's range. Duplicate labels also require source review.                                                                                                        |
 
 These are source observations, not complete dialect attribution or execution
 results. Do not repair T0 into TO, add AWARI data, accept every abbreviation or
@@ -62,9 +62,11 @@ Keep one scanner and parser with an immutable policy selected at construction.
 Do not mutate the global native `reservedWords` set or preprocess source with
 space stripping, keyword replacement, line joining or synthesized labels.
 
-`parser/tokenizer.ts` currently consumes a whole nonwhitespace label and a whole
-alphanumeric name/number. Its `readLabel`, `readName`, `readNumber`, string and
-comment paths need explicit policy boundaries. Native paths must retain their
+The native policy in `parser/tokenizer.ts` consumes a whole nonwhitespace label
+and a whole alphanumeric name/number. The internal historical policy now has
+separate label/name/number, string/comment and DATA paths as documented in
+[scanner conformance](scanner-conformance.md). Public historical parser/AST
+integration is still pending. Native paths must retain their
 current spelling and errors: FORWARD, INTEGER, SCORE, ELSE, DATA and SQR remain
 valid native names wherever they are valid today.
 
