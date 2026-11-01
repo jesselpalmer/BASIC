@@ -60,6 +60,17 @@ Malformed or unsupported portable metadata and invalid unreachable BASIC fail
 before output or input. File execution is read-only and creates a fresh runtime
 for each call. See [terminal source](terminal.md) for the CLI boundary.
 
-The envelope is not the stored-program editor's save format yet. Extending
-LOAD/SAVE requires the same atomic source+dialect/baseline/filename ownership;
-it must not bolt a profile onto the existing source-only editor state.
+The stored-program editor also selects this format for LOAD/SAVE paths ending
+in `.basic.json`, including the remembered path for bare SAVE. Metadata and the
+whole BASIC candidate are validated before discard confirmation. Source,
+dialect, filename and clean baseline change together only after a successful
+load or staged save. Failure and cancellation preserve the previous atom.
+
+A portable LOAD retains exact decoded source through LIST, RUN and unchanged
+SAVE, including original label order, CRLF and final newline. A numbered edit
+that actually changes a line returns to the editor's existing sorted-label/LF
+representation; no-op edits preserve the verbatim text. Plain LOAD retains its
+existing sorted-line behavior. SAVE AS can copy either source representation
+to plain source or a portable envelope, and can preserve incomplete edits.
+NEW resets source and context to empty native. See the
+[editor contract](editor-portable-documents.md) for ownership and validation.

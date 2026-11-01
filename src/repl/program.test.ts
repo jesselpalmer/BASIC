@@ -1,6 +1,7 @@
 import {expect, it} from 'bun:test';
 import StoredProgram from './program.ts';
 import {parseProgram} from '../parser/parser.ts';
+import type {Program} from '../core/types.ts';
 
 it('stores, replaces, deletes, sorts, and clears source independently of snapshots', () => {
   const source = new StoredProgram();
@@ -80,5 +81,40 @@ it('tracks the current filename and saved baseline through edits, loads, and NEW
   source.clear();
   expect(source.source).toBe('');
   expect(source.filename).toBeNull();
+  expect(source.dirty).toBe(false);
+});
+
+it('preserves a verbatim document through no-op edits and changes representation only after edits', () => {
+  const source = new StoredProgram();
+  const text = '\r\n20 END\r\n010 PRINT "MiXeD"\r\n';
+  source.replace(parseProgram(text), 'source.basic.json', text);
+  const snapshot = source.document;
+  for (const edit of ['010 PRINT "MiXeD"', '999', '']) source.edit(edit);
+  expect(source.source).toBe(text);
+  expect(source.dirty).toBe(false);
+  source.edit('30 PRINT 3');
+  expect(source.source).toBe('010 PRINT "MiXeD"\n20 END\n30 PRINT 3');
+  expect(source.dirty).toBe(true);
+  expect(snapshot.source).toBe(text);
+  source.clear();
+  expect(source.document).toEqual({
+    format: 'basic-program',
+    version: 1,
+    dialect: 'native',
+    source: '',
+  });
+  expect(source.dirty).toBe(false);
+  expect(source.filename).toBeNull();
+});
+
+it('rejects unsupported replacement context before changing any editor state', () => {
+  const source = new StoredProgram();
+  source.edit('10 END');
+  source.saved('prior.bas');
+  const before = source.document;
+  const invalid = {...parseProgram('20 END'), dialect: 'basic-plus'} as unknown as Program;
+  expect(() => source.replace(invalid, 'bad.basic.json', '20 END')).toThrow();
+  expect(source.document).toEqual(before);
+  expect(source.filename).toBe('prior.bas');
   expect(source.dirty).toBe(false);
 });

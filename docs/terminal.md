@@ -9,7 +9,7 @@ remain immediate-entry APIs for compatibility.
 | ------------------- | --------------------------------------------------------------------------------------------------- |
 | `10 PRINT "Hello"`  | Insert or replace line 10 after validating that single statement.                                   |
 | `10`                | Delete line 10. Deleting a missing line is harmless.                                                |
-| `LIST`              | Print complete stored source in numeric label order.                                                |
+| `LIST`              | Print stored source; an unchanged portable load preserves its original order.                       |
 | `RUN`               | Validate the complete source snapshot, then execute with fresh variables and control-flow state.    |
 | `LOAD "path.bas"`   | Read and fully validate a candidate, then replace stored source after confirming any unsaved edits. |
 | `SAVE ["path.bas"]` | Save to a quoted path, or the current filename; confirm before overwriting an existing destination. |
@@ -105,13 +105,25 @@ filename. Saving to another path updates it only after the save succeeds.
 Every existing destination requires confirmation, including the current file
 and dangling symlinks. Only `y` or `yes` authorizes replacement.
 
+LOAD/SAVE use the [portable envelope](portable-documents.md) for a path ending
+in `.basic.json`, case-insensitively; all other paths use plain source. Portable
+LOAD preserves the exact decoded source and dialect through LIST, RUN and an
+unchanged SAVE. This includes original label order, blank lines, CRLF and final
+newline. A numbered edit that changes a line returns to the editor's normal
+numeric-label/LF representation; a no-op edit preserves the original text.
+Plain LOAD continues to sort lines. SAVE AS can copy either representation to
+plain source or a portable document, with the remembered path selecting the
+format for subsequent bare SAVE. Unsupported metadata fails before confirmation
+and never falls back to plain BASIC. NEW resets to an empty native document.
+
 `LOAD` checks the entire file before asking to discard edits: syntax, duplicate
 labels, jump targets, and loop pairing, including unreachable source. No
 candidate statements execute during loading. Blank files are valid empty
 programs. An unreadable or invalid candidate preserves your source, filename,
 and unsaved state without asking to discard anything.
 
-`SAVE` retains source spelling and whitespace in numeric label order. It also
+`SAVE` retains source spelling and whitespace (in numeric order for numbered
+edits/plain loads, or verbatim for an unchanged portable load). It also
 accepts incomplete edits, such as a forward jump without its target or an
 unmatched `FOR`. Complete these before loading the saved file: saving does not
 claim that the program can run.
