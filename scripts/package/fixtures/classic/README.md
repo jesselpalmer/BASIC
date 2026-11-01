@@ -21,6 +21,13 @@ Native number spacing still differs from the historical rules, and the original
 dialect is not certified. This is a corrected native path, not a complete
 historical-game compatibility pass. Both remain test fixtures excluded from npm.
 
+The source review also records a complete 85-label comparison and a discontinuity
+in the printed sample after its seven visible opening moves. The additional
+bounded opening scenario ends at seven jumps/41 pieces, rejects the next visible
+12-to26 move from an empty source square, then exits. The printed35-jump/13-piece
+summary is not a reproducible oracle for that visible prefix. Unclear scan
+punctuation at110/360/562 is not applied as additional fixture corrections.
+
 ## 23MTCH — unchanged source
 
 `23mtch.bas` is unchanged from

@@ -196,4 +196,69 @@ export async function runNativeCheckerAcceptance(api: Api): Promise<void> {
     await rejectRaw();
     assert.equal(writes.length, writeCount, 'Rejected raw replacement must have no effects');
   }
+
+  // Printed page164 has a continuous seven-move prefix, then a sample gap.
+  // Literal board oracles are reviewed independently in classic-source-review.md.
+  const openingBoards = [
+    initial,
+    moved,
+    '00111111/10011111/11110011/11000011/11000011/11000011/11111111/11111111'.split('/'),
+    '00011111/10001111/11111011/11000011/11000011/11000011/11111111/11111111'.split('/'),
+    '00011110/10001101/11111111/11000011/11000011/11000011/11111111/11111111'.split('/'),
+    '00011110/10001100/11111101/11000111/11000011/11000011/11111111/11111111'.split('/'),
+    '00011110/10001100/11111100/11000101/11000111/11000011/11111111/11111111'.split('/'),
+    '00011110/10001100/11111100/11000101/11000111/11000111/11111101/11111110'.split('/'),
+  ];
+  writes.length = 0;
+  prompts.length = 0;
+  jumpStates.length = 0;
+  answers.push(
+    '1',
+    '19',
+    '2',
+    '20',
+    '3',
+    '21',
+    '8',
+    '22',
+    '16',
+    '30',
+    '24',
+    '38',
+    '64',
+    '46',
+    '12',
+    '26',
+    '0',
+    'NO',
+  );
+  const openingResult = await basic.runAsync(undefined, {instructionLimit: 10000});
+  assert.equal(openingResult.status, 'halted');
+  assert.equal(openingResult.currentLocation?.label, 999);
+  assert.deepEqual(answers, []);
+  assert.deepEqual(prompts, [
+    ...Array.from({length: 8}, () => ['JUMP FROM? ', 'TO? ']).flat(),
+    'JUMP FROM? ',
+    'TRY AGAIN? ',
+  ]);
+  // Public snapshots deliberately include only cells0..63; output below checks
+  // all64 board squares, and the final S checks the complete post-rejection sum.
+  assert.deepEqual(
+    jumpStates,
+    [...openingBoards, openingBoards[7]].map((rows) =>
+      [0, ...rows.join('').split('').map(Number)].slice(0, 64),
+    ),
+  );
+  assert.equal(jumpStates[7][12], 0, 'The next printed move starts from an empty square');
+  assert.deepEqual(jumpStates[7], jumpStates[8], '12-to26 must preserve the observed board prefix');
+  assert.ok(basic.variables.some(({name, value}) => name === 'M' && value === 7));
+  assert.ok(basic.variables.some(({name, value}) => name === 'S' && value === 41));
+  const openingTranscript = writes.join('');
+  assert.deepEqual(
+    openingTranscript.split('\n').filter((line) => /^[01]{8}$/.test(line)),
+    openingBoards.flat(),
+  );
+  assert.equal(openingTranscript.split('ILLEGAL MOVE.  TRY AGAIN...').length - 1, 1);
+  assert.ok(openingTranscript.includes('YOU MADE7JUMPS AND HAD41PIECES\n'));
+  assert.ok(openingTranscript.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
 }

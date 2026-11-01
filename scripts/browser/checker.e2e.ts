@@ -6,6 +6,78 @@ const corrected = readFileSync(
   new URL('../package/fixtures/classic/1check-corrected.bas', import.meta.url),
 );
 
+test('printed 1CHECK opening reaches seven jumps and rejects the discontinuous next sample move', async ({
+  page,
+}) => {
+  await page.goto('/');
+  page.on('dialog', (dialog) => dialog.accept());
+  await page.locator('#file-input').setInputFiles({
+    name: '1check-corrected.bas',
+    mimeType: 'text/plain',
+    buffer: corrected,
+  });
+  await expect(page.locator('#file-status')).toHaveText('File imported.');
+  await page.locator('#run').click();
+  for (const [from, to] of [
+    ['1', '19'],
+    ['2', '20'],
+    ['3', '21'],
+    ['8', '22'],
+    ['16', '30'],
+    ['24', '38'],
+    ['64', '46'],
+    ['12', '26'],
+  ]) {
+    for (const [answer, prompt] of [
+      [from, 'JUMP FROM? '],
+      [to, 'TO? '],
+    ]) {
+      await expect(page.locator('#status')).toHaveText('Waiting for input');
+      await expect(page.locator('#input-prompt')).toHaveText(prompt);
+      await page.locator('#input-value').fill(answer);
+      await page.locator('#input-value').press('Enter');
+    }
+  }
+  await expect(page.locator('#input-prompt')).toHaveText('JUMP FROM? ');
+  const text = (await page.locator('#console-output').textContent()) ?? '';
+  const rows = text.split('\n').filter((line) => /^[01]{8}$/.test(line));
+  expect(rows).toHaveLength(64);
+  expect(
+    Array.from(
+      {length: 8},
+      (_, index) =>
+        rows
+          .slice(index * 8, index * 8 + 8)
+          .join('')
+          .split('1').length - 1,
+    ),
+  ).toEqual([48, 47, 46, 45, 44, 43, 42, 41]);
+  expect(rows.slice(-8)).toEqual([
+    '00011110',
+    '10001100',
+    '11111100',
+    '11000101',
+    '11000111',
+    '11000111',
+    '11111101',
+    '11111110',
+  ]);
+  expect(text.split('ILLEGAL MOVE.  TRY AGAIN...').length - 1).toBe(1);
+  for (const [answer, prompt] of [
+    ['0', 'JUMP FROM? '],
+    ['NO', 'TRY AGAIN? '],
+  ]) {
+    await expect(page.locator('#input-prompt')).toHaveText(prompt);
+    await page.locator('#input-value').fill(answer);
+    await page.locator('#input-value').press('Enter');
+  }
+  await expect(page.locator('#status')).toHaveText('Finished');
+  const completed = (await page.locator('#console-output').textContent()) ?? '';
+  expect(completed).toContain('YOU MADE7JUMPS AND HAD41PIECES');
+  expect(completed.endsWith('O.K.  HOPE YOU HAD FUN!\n')).toBe(true);
+  await expect(page.locator('#source')).toHaveValue(corrected.toString());
+});
+
 test('reviewed 1CHECK correction plays illegal/legal moves, retries, replays and exits with exact native boards', async ({
   page,
 }) => {
