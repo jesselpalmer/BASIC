@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "source": "https://bitsavers.trailing-edge.com/bits/DEC/pdp11/dectape/rsts/v4a-12/rsts01.dta.gz",
+  "compressedSha256": "22281930016962740e3c4adaa2adf53abab23753111aaeedcea828f2bcfec2d4",
+  "bytes": 295936,
+  "sha256": "88ffeb6025977cc8bc9fbd46c1f89345a8901886f12166cbcd6b9f5d568a3aae",
+  "payloadConvention": "linked block order, excluding each two-byte link, including final-block padding",
+  "files": [
+    {
+      "name": "PR.OBJ",
+      "firstBlock": 1,
+      "blocks": 2,
+      "lastBlock": 5,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1020,
+      "sha256": "2ca2dd56748390199582a78cc117952f3d546f84691b20643152371517becd1b"
+    },
+    {
+      "name": "PP.OBJ",
+      "firstBlock": 2,
+      "blocks": 1,
+      "lastBlock": 2,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 510,
+      "sha256": "4d9af740203d785660a451adc904a6035fd5cc5a7711e30587234804e61282a6"
+    },
+    {
+      "name": "CR.OBJ",
+      "firstBlock": 3,
+      "blocks": 3,
+      "lastBlock": 11,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1530,
+      "sha256": "51cc5d07de30f4bcde033f35f8718a41186c8b99365e36f06372249f582f999f"
+    },
+    {
+      "name": "CR029.OBJ",
+      "firstBlock": 4,
+      "blocks": 1,
+      "lastBlock": 4,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 510,
+      "sha256": "d97f00d26446f6c3e805e9d58d557d19ce9f31798f90500232f68c135449695b"
+    },
+    {
+      "name": "CR026.OBJ",
+      "firstBlock": 6,
+      "blocks": 1,
+      "lastBlock": 6,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 510,
+      "sha256": "205638c111106de8c33b4675d3edc5bb139ecf09998a167b2de91a3e684edb9c"
+    },
+    {
+      "name": "CR1401.OBJ",
+      "firstBlock": 8,
+      "blocks": 1,
+      "lastBlock": 8,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 510,
+      "sha256": "a8afd0f219c341b999e0188367942c3112ea469aad0d809ade21e90fc8b7bdfc"
+    },
+    {
+      "name": "LP.OBJ",
+      "firstBlock": 9,
+      "blocks": 2,
+      "lastBlock": 13,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1020,
+      "sha256": "65712c62d70286a134fd055cba4eaf39087c48569690a5b554a3736a309f215f"
+    },
+    {
+      "name": "LPFORM.OBJ",
+      "firstBlock": 10,
+      "blocks": 3,
+      "lastBlock": 18,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1530,
+      "sha256": "ef21c5b6f7929bd140e2c0392f16e786fb94de1f1420db75115dca71506aab9b"
+    },
+    {
+      "name": "DT.OBJ",
+      "firstBlock": 12,
+      "blocks": 4,
+      "lastBlock": 24,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 2040,
+      "sha256": "b84cd29235ec20527ce8e813481c786fb5dc6c8f63007aaba5066be32b237611"
+    },
+    {
+      "name": "MT.OBJ",
+      "firstBlock": 15,
+      "blocks": 5,
+      "lastBlock": 31,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 2550,
+      "sha256": "cf4c076e61dd349cac0c767491ec8c85e64b73982c4a8203585ae241fca89d03"
+    },
+    {
+      "name": "PIP.LDA",
+      "firstBlock": 17,
+      "blocks": 19,
+      "lastBlock": 101,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 9690,
+      "sha256": "31b8a5bc2779909c0494a22731b0cb432ba98dfd211cc07eeda50f06e7c065f2"
+    },
+    {
+      "name": "MA2.OBJ",
+      "firstBlock": 22,
+      "blocks": 24,
+      "lastBlock": 126,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 12240,
+      "sha256": "6d27b8d91ed33666292ef909472365dc19451275de20e56305be0d6d0ef1f303"
+    },
+    {
+      "name": "MA2E.OBJ",
+      "firstBlock": 28,
+      "blocks": 25,
+      "lastBlock": 139,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 12750,
+      "sha256": "0d62533c001a54caebabd1168a766bdc28e0deed6a2444c4c1f18c87254a16d0"
+    },
+    {
+      "name": "MA2X.OBJ",
+      "firstBlock": 35,
+      "blocks": 21,
+      "lastBlock": 128,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 10710,
+      "sha256": "18fddf38ba6f3a7ee1f61ddbe075c3c432809b90a9a59610313a644565a47906"
+    },
+    {
+      "name": "MA2EX.OBJ",
+      "firstBlock": 105,
+      "blocks": 21,
+      "lastBlock": 185,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 10710,
+      "sha256": "dedff5404996e90ce2f81250a1c6df836c78378099ca7e56202643953304d747"
+    },
+    {
+      "name": "MA4.OBJ",
+      "firstBlock": 130,
+      "blocks": 29,
+      "lastBlock": 242,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 14790,
+      "sha256": "95bd6a157fe89036f4fd9d8a2e51f6c62e7a857a44abe59f29a8e948c6cb0902"
+    },
+    {
+      "name": "MA4E.OBJ",
+      "firstBlock": 132,
+      "blocks": 30,
+      "lastBlock": 248,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 15300,
+      "sha256": "30c9c114cb0c526571f98fb909cca715749632bd09bb16cee94c3498164d7232"
+    },
+    {
+      "name": "MA4X.OBJ",
+      "firstBlock": 143,
+      "blocks": 23,
+      "lastBlock": 231,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 11730,
+      "sha256": "c3561f0b043fc524fd79d25887c3d624f4e1aee769bf175cb737712675760259"
+    },
+    {
+      "name": "MA4EX.OBJ",
+      "firstBlock": 189,
+      "blocks": 24,
+      "lastBlock": 281,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 12240,
+      "sha256": "d3b851a16060bf1977703ce7c174e1db751e98229161754505c170a0acd9cc24"
+    },
+    {
+      "name": "NF.OBJ",
+      "firstBlock": 235,
+      "blocks": 2,
+      "lastBlock": 239,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1020,
+      "sha256": "717bc5fbb2372dbbe202327200fcb2b5616f352e62b964dbc23eea86b4ccd58a"
+    },
+    {
+      "name": "IO.OBJ",
+      "firstBlock": 243,
+      "blocks": 5,
+      "lastBlock": 259,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 2550,
+      "sha256": "d060fce729c8632c18cda6ac2062024a33f2512c219444bc7e0faf6af7dc7715"
+    },
+    {
+      "name": "PU.OBJ",
+      "firstBlock": 246,
+      "blocks": 7,
+      "lastBlock": 270,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 3570,
+      "sha256": "b0c6cb86dc8309e0137ab939d8c5a5d12a89e471ce2b9d1fed87829beff5446a"
+    },
+    {
+      "name": "UP.OBJ",
+      "firstBlock": 252,
+      "blocks": 2,
+      "lastBlock": 256,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 1020,
+      "sha256": "e57a3cc91fb5050527ed12f4dc782170d279358aaf50d9e8d7abc4015426e70e"
+    },
+    {
+      "name": "MX.OBJ",
+      "firstBlock": 260,
+      "blocks": 10,
+      "lastBlock": 296,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 5100,
+      "sha256": "abaa4a861f3e9b1f6fe12cb0f2b21eb96b282ba5e5f7a1a89df4c1542942e0d6"
+    },
+    {
+      "name": "OV.OBJ",
+      "firstBlock": 263,
+      "blocks": 45,
+      "lastBlock": 439,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 22950,
+      "sha256": "3a0cbbfe6eaecdab8a7ec595c39c1e5a2ca220790cd2dff9a027ec88f4656a5f"
+    },
+    {
+      "name": "IN.OBJ",
+      "firstBlock": 274,
+      "blocks": 33,
+      "lastBlock": 402,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 16830,
+      "sha256": "fb17416815b5a1fcf7404b2d56322a8f79ecd7f7928694edd7c5788d6766089e"
+    },
+    {
+      "name": "ER.LDA",
+      "firstBlock": 285,
+      "blocks": 12,
+      "lastBlock": 329,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 6120,
+      "sha256": "30ebb73b69f7997b6ed0a82be026e8843a00a4d5ce80a5334737222da72bd3ac"
+    },
+    {
+      "name": "ROLLIN.LDA",
+      "firstBlock": 300,
+      "blocks": 19,
+      "lastBlock": 372,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 9690,
+      "sha256": "1f48c586aa58c5756a076512d3597e8674f094987f4bbcfab5a4b023d51ecf85"
+    },
+    {
+      "name": "DSKINT.LDA",
+      "firstBlock": 333,
+      "blocks": 15,
+      "lastBlock": 389,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 7650,
+      "sha256": "7966713e95ad6502cb52b88bc9280afff53560db7087b74dc389d54d114bbfa3"
+    },
+    {
+      "name": "CILUS.LDA",
+      "firstBlock": 376,
+      "blocks": 28,
+      "lastBlock": 484,
+      "rawDateWord": 2266,
+      "rawProtectionWord": 155,
+      "payloadBytes": 14280,
+      "sha256": "4da7aa907ec32b4a5f890da5bf21cb4ef056ab9a153a6f7af9b61505ee5bf651"
+    }
+  ]
+}
