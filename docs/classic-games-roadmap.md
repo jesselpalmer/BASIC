@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `d05922dd06e0f26dccc01454648b622ff33c2684` after
-[PR #169](https://github.com/jesselpalmer/BASIC/pull/169) and
-[PR #170](https://github.com/jesselpalmer/BASIC/pull/170). Native is still the
+Reconciled against main `63715d03540623ebc067627e5a4c7db178cb0ccb` after
+[PR #171](https://github.com/jesselpalmer/BASIC/pull/171) and
+[PR #172](https://github.com/jesselpalmer/BASIC/pull/172). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -63,17 +63,25 @@ source/dialect/filename/baseline atomic and preserves verbatim portable source
 until an actual numbered edit. These are merged prerequisites, not additional
 historical profile or game acceptance.
 
-The next prepared independent slices are runnable native
+The newly merged independent slices are runnable native
 [CHANGE string/array conversion](change-statements.md) and selected integer
 binary-string conversion. Native CHANGE requires explicit 1D arrays, uses byte
 codes/length cells and fails atomically; the manual's historical partial-overflow
 behavior remains separately gated. The integer codec adds no evaluator intrinsic
 or numeric argument conversion.
 
+The next prepared input/output slices are native INPUT LINE and
+[fixed-width PRINT USING string fields](print-using-strings.md). Line input uses
+the existing request/cancellation owner without parsing the returned text or
+synthesizing terminal terminators. String formatting extends the bounded image
+formatter, with typed mixed fields and one atomic write. Neither activates a
+historical profile; file channels, terminal terminators, remaining numeric masks
+and full game acceptance stay open.
+
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #169/#170 and distinguish the prepared
-CHANGE/integer-codec slices from remaining profile and release work,
+have also been reconciled through merged #171/#172 and distinguish the prepared
+line-input/string-format slices from remaining profile and release work,
 preserving their earlier plans as historical reference. This repository matrix
 and the owning issue criteria track subsequent deliveries.
 

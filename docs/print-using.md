@@ -1,4 +1,4 @@
-# Native integer PRINT USING
+# Native fixed-width PRINT USING
 
 **Status:** implemented native slice for #120; its design was recorded before code.
 Historical profiles and the remaining formatting forms stay open.
@@ -17,8 +17,8 @@ The inspected 1CHECK book listing has the comma after B$; the pinned repository
 has a semicolon there. Raw and reviewed corrected listings remain separate.
 
 The manuals disagree on fractional values, overflow and repeated images. This
-native slice accepts only unambiguous integer fields with exactly one value per
-field in one pass. It does not select a historical profile or guess the remaining
+native slice accepts integer and fixed-width string fields with exactly one typed
+value per field in one pass. It does not select a historical profile or guess the remaining
 rules. See the existing source review for manual/scan provenance.
 
 ## Grammar and native preservation
@@ -44,13 +44,20 @@ whitespace-sensitive reinterpretation, speculative parsing or source rewrite.
   negative sign; other positions are leading spaces. Zero and negative zero
   print as `0`. Values must be finite safe integers. Fractions/unsafe values,
   overflow, repeated/partial image use and unsupported masks fail explicitly.
-- Require exactly one numeric value per field and at least one field/value.
+- `!` is a one-character string field. Backslashes enclosing only ASCII spaces
+  form a string field whose width includes the two backslashes. Native truncates
+  long strings and right-pads short/empty strings with blanks. Emitted prefixes
+  must contain byte code units0..255; unused tails are ignored. Total string
+  traversal is bounded by image length. See the [string-field contract](print-using-strings.md)
+  for primary examples and the explicit native padding policy.
+- Require exactly one correctly typed value per field and at least one field/value.
   Complete one pass through the template, retaining prefix, inter-field and
   trailing literals exactly. No rounding, precision or overflow-marker policy is
   claimed by this slice.
 - Literals are printable ASCII excluding formatting controls `.`, `,`, `+`, `-`,
-  `*`, `$`, `^`, `!`, `\`, `'`, `_`, `&`, and `%`. Reject those controls anywhere,
-  as well as control/non-ASCII characters. No literal-escape syntax is invented.
+  `*`, `$`, `^`, `!`, `\`, `'`, `_`, `&`, and `%`. Bang/backslash markers must
+  form valid fields; other unsupported controls still fail anywhere, as do
+  control/non-ASCII image characters. No literal-escape syntax is invented.
   Ordinary unformatted PRINT retains all its existing Unicode/text behavior.
 - Cap the template at 4096 UTF-16 units and the value list at 4096 entries. A
   successful output has exactly the template's length, plus at most one newline;
@@ -79,7 +86,7 @@ paths, expression effects and a single atomic write. Verify old USING names and
 arrays, malformed syntax, source spans and runtime recovery. Exercise direct and
 installed ESM/CommonJS/types/CLI and actual browser/static artifacts on Linux/macOS.
 
-Historical numeric spacing/zones/TAB, fractional/currency/exponent/string fields,
+Historical numeric spacing/zones/TAB, fractional/currency/exponent/other string fields,
 image reuse/partial lists, overflow conventions and full profile certification
 remain #119/#120 work. Native numbering support alone is not a raw/corrected
 whole-game compatibility pass or a READY release decision.

@@ -195,7 +195,7 @@ modules directly; it does not bundle CLI or REPL modules. See the
 
 ## Changing the code
 
-`core/print_using.ts` owns pure, bounded integer-field formatting. The runtime
+`core/print_using.ts` owns pure, bounded fixed-width integer/string formatting. The runtime
 owns expression order, newline suppression and one atomic host write. The parser
 selects its contextual syntax using a top-level-comma lookahead; ordinary USING
 names remain valid. Format grammar/source locations stay with the shared parser.

@@ -99,7 +99,7 @@ describe('native integer PRINT USING formatter', () => {
     failure('###', [1, 2, 3], 'FORMAT_VALUE_COUNT');
   });
 
-  it.each(['.', ',', '+', '-', '*', '$', '^', '!', '\\', "'", '_', '&', '%'])(
+  it.each(['.', ',', '+', '-', '*', '$', '^', '\\', "'", '_', '&', '%'])(
     'rejects unsupported image marker %j even outside a numeric field',
     (marker) => {
       failure(`${marker} ##`, [1], 'UNSUPPORTED_FORMAT');
