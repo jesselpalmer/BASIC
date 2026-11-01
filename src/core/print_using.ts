@@ -6,7 +6,8 @@ export const maxPrintUsingValues = 4096;
 const UNSUPPORTED_CHARACTERS = ".,+-*$^'_&%";
 
 type ImagePart =
-  {readonly literal: string} | {readonly width: number; readonly kind: 'integer' | 'string'};
+  | {readonly literal: string}
+  | {readonly width: number; readonly kind: 'integer' | 'asterisk' | 'string'};
 
 function fail(code: string, message: string, location: Location): never {
   throw new BasicRuntimeError(code, message, location.start, location.label);
@@ -33,9 +34,21 @@ export function formatPrintUsing(
   let fieldCount = 0;
   for (let index = 0; index < image.length;) {
     const start = index;
-    if (image[index] === '#') {
+    if (image[index] === '#' || image[index] === '*') {
+      const asterisk = image[index] === '*';
+      if (asterisk) {
+        if (image[index + 1] !== '*' || image[index + 2] !== '#')
+          fail(
+            'UNSUPPORTED_FORMAT',
+            'PRINT USING asterisk fields require ** followed by #',
+            location,
+          );
+        index += 2;
+      }
       while (image[index] === '#') index++;
-      parts.push({width: index - start, kind: 'integer'});
+      if (image[index] === '*')
+        fail('UNSUPPORTED_FORMAT', 'PRINT USING asterisks must begin a numeric field', location);
+      parts.push({width: index - start, kind: asterisk ? 'asterisk' : 'integer'});
       fieldCount++;
     } else if (image[index] === '!') {
       index++;
@@ -57,6 +70,7 @@ export function formatPrintUsing(
       while (
         index < image.length &&
         image[index] !== '#' &&
+        image[index] !== '*' &&
         image[index] !== '!' &&
         image[index] !== '\\'
       ) {
@@ -112,6 +126,12 @@ export function formatPrintUsing(
             `PRINT USING value ${valueIndex + 1} must be a safe integer`,
             location,
           );
+        if (part.kind === 'asterisk' && value < 0)
+          fail(
+            'UNSUPPORTED_FORMAT_VALUE',
+            `PRINT USING value ${valueIndex + 1} requires a trailing sign for asterisk fill`,
+            location,
+          );
         const text = String(value === 0 ? 0 : value);
         if (text.length > part.width) {
           fail(
@@ -134,7 +154,7 @@ export function formatPrintUsing(
         ? part.literal
         : part.kind === 'string'
           ? fields[valueIndex++].padEnd(part.width, ' ')
-          : fields[valueIndex++].padStart(part.width, ' '),
+          : fields[valueIndex++].padStart(part.width, part.kind === 'asterisk' ? '*' : ' '),
     )
     .join('');
 }

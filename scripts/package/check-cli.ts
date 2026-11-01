@@ -27,10 +27,11 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   }
   const portable = join(consumer, 'portable.basic.json');
   const usingFile = join(consumer, 'using-strings.bas');
-  const usingSource = '10 PRINT USING "!!!","AB","CD","EF"\n20 PRINT USING "! ##","Ada",-2';
+  const usingSource =
+    '10 PRINT USING "!!!","AB","CD","EF"\n20 PRINT USING "! ##","Ada",-2\n30 PRINT USING "**###",27';
   writeFileSync(usingFile, usingSource);
   const strings = runProcess({cwd: consumer, args: [executable, usingFile]});
-  assert.equal(strings.stdout, 'ACE\nA -2\n');
+  assert.equal(strings.stdout, 'ACE\nA -2\n***27\n');
   assert.equal(strings.stderr, '');
   const stringSession = runProcess({
     cwd: consumer,
@@ -41,7 +42,7 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   });
   assert.equal(stringSession.stderr, '');
   assert.ok(stringSession.stdout.includes(usingSource + '\n'));
-  assert.ok(stringSession.stdout.includes('ACE\nA -2\n'));
+  assert.ok(stringSession.stdout.includes('ACE\nA -2\n***27\n'));
   const changeSource = '10 DIM A(3):S$="CAT":CHANGE S$ TO A:CHANGE A TO R$:PRINT R$;A(0):END';
   const changePath = join(consumer, 'change.bas');
   writeFileSync(changePath, changeSource);

@@ -84,6 +84,13 @@ export function runPrintUsingAcceptance(api: Api): void {
   assert.equal(writes.length, before);
   basic.run('10 PRINT USING "!",""');
   assert.equal(writes.at(-1), ' \n');
+  basic.run('10 PRINT USING "**###|###|!",27,-12,"Zed"');
+  assert.equal(writes.at(-1), '***27|-12|Z\n');
+  const beforeAsterisks = writes.length;
+  assert.throws(() => basic.run('10 PRINT USING "**# **#",1,-1'), api.BasicRuntimeError);
+  assert.equal(writes.length, beforeAsterisks);
+  basic.run('10 PRINT USING "**#",123');
+  assert.equal(writes.at(-1), '123\n');
 }
 
 /** Corrected source is a separate fixture; native output is not a historical pass. */
