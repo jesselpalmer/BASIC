@@ -80,7 +80,7 @@ remain unchanged. No full-game pass or release readiness follows.
 ## Captured acceptance records
 
 The offline [machine vectors](../src/core/__tests__/ma2-addition-reference.json)
-contain494 independently captured calls:478 normal word results,10 overflow
+contain496 independently captured calls:480 normal word results,10 overflow
 traps and6 underflow traps. The eight columns identify both unsigned word pairs,
 operation (0 add/1 subtract), outcome (0 normal/1 overflow/2 underflow), and normal
 result words. Trap rows have null result fields; scratch memory at a trap is not

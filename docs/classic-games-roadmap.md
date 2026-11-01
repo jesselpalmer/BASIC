@@ -8,8 +8,8 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `433c65bf34dced9bfc445697d5a937ff8c02b810` after
-[PR #165](https://github.com/jesselpalmer/BASIC/pull/165). Native is still the
+Reconciled against main `dbde8b9bf41f9f6f426780ba191fd31b0e033818` after
+[PR #166](https://github.com/jesselpalmer/BASIC/pull/166). Native is still the
 only executable profile. The merged native features and internal historical
 conformance work below are useful progress; none of the compatibility parent
 issues is complete.
@@ -45,14 +45,19 @@ linked/booted installation or numeric rounding evidence by itself. The follow-up
 monitor, selected object/map identities and 42 repeatable conversion-byte/event
 observations. Literal conversion and opposite-sign arithmetic differ from a
 single generic rounding rule. Manual clock/startup and filesystem limitations
-remain explicit; operation tracing and broader reference validation come next.
+remain explicit. The [internal MA2 addition/subtraction component](basic-plus-ma2-addition.md)
+now follows the traced 25-bit guard/alignment behavior and matches496 original
+machine calls. Range events deliberately omit continuation values after six
+additional BASIC probes found a nonzero overflow continuation conflicting with
+the manual's general zero rule. Remaining operations, conversion, diagnostics
+and installation validation still precede public activation.
 
 The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
 and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
-have also been reconciled through merged #165 and mark
-[PR #166](https://github.com/jesselpalmer/BASIC/pull/166) as in review, preserving
-their earlier plans as historical reference. This repository matrix and the
-owning issue criteria track subsequent deliveries.
+have also been reconciled through merged #166 and distinguish the prepared
+MA2 addition/subtraction component from remaining profile and release work,
+preserving their earlier plans as historical reference. This repository matrix
+and the owning issue criteria track subsequent deliveries.
 
 ## Compatibility target
 

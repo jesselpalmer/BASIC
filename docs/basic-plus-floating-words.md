@@ -74,3 +74,8 @@ adjacent 56-bit significands; two-word cases retain 24 significant bits. Zero an
 unresolved exponent-zero patterns, invalid words/containers, sparse/excessive
 arrays, hostile iterators, changing getters, and result immutability are covered.
 The full repository gate verifies the existing native/public package contract.
+
+The separate [MA2 addition/subtraction component](basic-plus-ma2-addition.md)
+uses this decoder for canonical 24-bit operands and returns exact word results
+or explicit unsupported/range outcomes. It does not provide general literal
+encoding, four-word arithmetic or public historical activation.
