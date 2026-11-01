@@ -10,6 +10,7 @@ test('printed 1CHECK opening reaches seven jumps and rejects the discontinuous n
   page,
 }) => {
   await page.goto('/');
+  page.on('dialog', (dialog) => dialog.accept());
   await page.locator('#file-input').setInputFiles({
     name: '1check-corrected.bas',
     mimeType: 'text/plain',
