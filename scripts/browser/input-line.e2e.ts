@@ -16,12 +16,15 @@ test('INPUT LINE reads exact text into a stepped array target without a prompt',
   await expect(page.locator('#next-line')).toContainText('BASIC line 30');
   await page.locator('#continue').click();
   await expect(page.locator('#status')).toHaveText('Finished');
-  await expect(page.locator('#console-output')).toHaveText(/^\[ {2}a,b,"raw" {2}\]\n$/);
+  // Submitted input is echoed before the program's bracketed output.
+  expect(await page.locator('#console-output').textContent()).toBe(
+    '  a,b,"raw"  \n[  a,b,"raw"  ]\n',
+  );
   await page.locator('#run').click();
   await expect(page.locator('#input-form')).toBeVisible();
   await page.locator('#input-value').press('Enter');
   await expect(page.locator('#status')).toHaveText('Finished');
-  await expect(page.locator('#console-output')).toHaveText(/^\[\]\n$/);
+  expect(await page.locator('#console-output').textContent()).toBe('\n[]\n');
   await expect(page.locator('#source')).toHaveValue(source);
 });
 test('INPUT LINE rejects dead numeric targets before effects and Stop isolates a replacement', async ({
