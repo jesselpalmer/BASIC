@@ -98,7 +98,9 @@ state isolation, interpreter integration, and CLI diagnostics/recovery.
 The internal tokenizer alone also accepts `lexicalPolicy: 'basic-plus-1972-10'`
 for the closed, source-backed subset in [scanner conformance](scanner-conformance.md).
 It reuses the same Scanner and source positions while separating compact labels,
-short names, documented words and E-number boundaries. Unsupported literal modes
+short names, documented words and E-number boundaries. It also recognizes
+[matching single/double quotes and physical-line `!` comments](historical-quotes-comments.md),
+preserving DATA payloads and exact raw spans. Unsupported literal modes
 fail explicitly rather than being interpreted under native rules. This internal
 selection is not a public Dialect or parser/runtime option; it enables no game
 execution. The parser and interpreter continue to accept only native context.

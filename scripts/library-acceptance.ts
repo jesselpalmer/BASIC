@@ -250,6 +250,16 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
       basic.run();
       assert.deepEqual(output, ['4\n', '4\n']);
       assert.equal(Reflect.set(basic, 'dialect', 'basic-plus-1972'), false);
+      const lexicalOptions = {dialect: 'native' as const};
+      Reflect.set(lexicalOptions, 'lexicalPolicy', 'basic-plus-1972-10');
+      for (const source of ["10 PRINT 'CAN'", '10 PRINT 1!ignored']) {
+        assert.throws(() => api.parseProgram(source, lexicalOptions), api.BasicSyntaxError);
+        assert.throws(() => api.parseLine(source, lexicalOptions), api.BasicSyntaxError);
+        assert.throws(() => basic.run('5 PRINT "never"\n' + source), api.BasicSyntaxError);
+      }
+      assert.deepEqual(output, ['4\n', '4\n']);
+      basic.run('10 PRINT "A""B"');
+      assert.equal(output.at(-1), 'A"B\n');
     },
   );
   await check('explicit arrays execute board moves, enforce bounds, and isolate fresh runs', () =>

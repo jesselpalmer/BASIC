@@ -114,8 +114,10 @@ class Scanner {
           continue;
         }
       }
-      if (character === '"') {
+      if (character === '"' || (this.policy.compact && character === "'")) {
         this.readString();
+      } else if (this.policy.compact && character === '!') {
+        this.readComment(true);
       } else if (digit(character) || character === '.') {
         this.readNumber();
       } else if (letter(character)) {
@@ -137,7 +139,7 @@ class Scanner {
         this.emit('PUNCTUATION', start, character);
         if (character === ':' && this.policy.compact) this.resetHistoricalClause();
       } else {
-        if (this.policy.compact && "'!\\%".includes(character))
+        if (this.policy.compact && '\\%'.includes(character))
           this.fail('UNSUPPORTED_LEXICAL_FORM', 'This historical lexical form is not implemented');
         const unexpected = String.fromCodePoint(this.source.codePointAt(this.index)!);
         this.fail('UNEXPECTED_CHARACTER', `Unexpected character ${JSON.stringify(unexpected)}`);
@@ -196,6 +198,7 @@ class Scanner {
       this.policy.compact &&
       this.index < this.source.length &&
       !letter(this.source[this.index]) &&
+      this.source[this.index] !== '!' &&
       !/[ \t\r\n]/.test(this.source[this.index])
     )
       while (this.index < this.source.length && !/[ \t\r\n]/.test(this.source[this.index]))
@@ -215,13 +218,14 @@ class Scanner {
 
   readString() {
     const start = this.position();
+    const delimiter = this.source[this.index];
     this.index++;
     let value = '';
     while (this.index < this.source.length) {
       const character = this.source[this.index];
       if (character === '\r' || character === '\n') break;
       this.index++;
-      if (character === '"') {
+      if (character === delimiter) {
         if (this.policy.compact || this.source[this.index] !== '"') {
           this.emit('STRING', start, value);
           return;
@@ -231,6 +235,14 @@ class Scanner {
       value += character;
     }
     this.fail('UNTERMINATED_STRING', 'Unterminated string', start);
+  }
+
+  readComment(introducer = false) {
+    const start = this.position();
+    if (introducer) this.index++;
+    const beginning = this.index;
+    while (this.index < this.source.length && !/[\r\n]/.test(this.source[this.index])) this.index++;
+    this.emit('COMMENT', start, this.source.slice(beginning, this.index));
   }
 
   readHistoricalData() {
@@ -424,11 +436,7 @@ class Scanner {
     this.emit(type, start, value);
     if (this.policy.compact && value === 'DATA') this.readHistoricalData();
     if (value === 'REM') {
-      const comment = this.position();
-      const beginning = this.index;
-      while (this.index < this.source.length && !/[\r\n]/.test(this.source[this.index]))
-        this.index++;
-      this.emit('COMMENT', comment, this.source.slice(beginning, this.index));
+      this.readComment();
     }
   }
 }
