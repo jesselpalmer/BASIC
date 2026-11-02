@@ -25,8 +25,10 @@ The source review also records a complete 85-label comparison and a discontinuit
 in the printed sample after its seven visible opening moves. The additional
 bounded opening scenario ends at seven jumps/41 pieces, rejects the next visible
 12-to26 move from an empty source square, then exits. The printed35-jump/13-piece
-summary is not a reproducible oracle for that visible prefix. Unclear scan
-punctuation at110/360/562 is not applied as additional fixture corrections.
+summary is not a reproducible oracle for that visible prefix. The follow-up
+March1975 scan (imprint and hash in the source review) clearly shows semicolons
+at110/360/562, matching both fixtures. No additional correction follows. Quoted
+spacing/punctuation still differs, so neither fixture is a lossless book transcription.
 
 ## 23MTCH — unchanged source and reviewed correction
 

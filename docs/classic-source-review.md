@@ -64,8 +64,9 @@ historical baseline commit rather than pretending to be current parser results.
 - Author in the book: David Ahl. Description is printed page 163; the listing and
   sample run are printed page **164**, PDF page **166**, leaf **n165** of the
   [available scan](https://archive.org/details/101basiccomputer0000davi/page/n165/mode/1up).
-- The scan's catalog year is 1974; upstream describes a 1975 third printing.
-  Do not assert identical editions or call every difference an OCR error.
+- The first scan's catalog year is 1974; the follow-up below independently
+  verifies the March1975 third-printing imprint named by upstream. Do not call
+  every transcription difference an OCR error.
 - Scan PDF SHA-256:
   `c8a7549a649e9b6a99d80cab9ec8e3d78f6a872f127daee617fe692c40b92867`.
 
@@ -89,20 +90,36 @@ arithmetic operands, array references, branch targets and loop bounds. It found
 no additional verified arithmetic or control-flow difference in the readable
 text; that is narrower than byte-for-byte source certification.
 
-| Labels  | Reviewed agreement / remaining uncertainty                                                                                                                                                                        |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5-68    | Instruction text, numbered-board introduction and DIM A(64) are present. Quoted spacing/punctuation is not certified byte for byte.                                                                               |
-| 70-98   | Numbering loop, array initialization, central clearing loops, M=0 and GOTO 340 agree. Line72's format spacing differs; line74's comma difference remains the sole applied correction.                             |
-| 100-112 | F/T input and the zero-to-summary branch agree. The line110 prompt separator is comma-like in this scan; its upper dot is not sufficiently clear to assert a further correction.                                  |
-| 118-290 | Coordinate arithmetic, range/diagonal/occupancy checks, illegal-move branch and three-cell update/M increment agree in readable text. Quoted illegal-move spacing remains outside a lossless transcription claim. |
-| 310-410 | Eight-row nested printing loops and return to input agree. Line360's final separator is comma-like; faint-dot uncertainty prevents certifying it as a change from the fixture's semicolon.                        |
-| 490-999 | Sum, M/S summary operands, YES/NO branches and END agree. Line562's prompt separator and literal spacing/punctuation in550/580/610 need a clearer source before a full transcription is claimed.                  |
+The follow-up [March 1975 scan](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf)
+has SHA-256 `311c1be8d3c9361ee9badb59b5a43c43a5b0bf4803298943be1cb617b8f33ad7`
+(26,006,648 bytes, 252 PDF pages). Its **printed/PDF page2** explicitly lists
+third printing, March1975; this edition identity comes from the imprint, not the
+archive filename. Description and listing/sample are printed/PDF163/164 in this
+copy. These page numbers must not be reused as PDF indices for the earlier scan.
+The later scan was visually inspected at 250dpi, including all85 numbered labels
+and the sample. It resolves the three faint separators in the earlier copy:
 
-The uncertain separators at 110/360/562 must not be changed from a comma-like
-scan glyph alone. A cleaner independent reproduction or the original machine
-file is needed to distinguish a comma from a semicolon with a faint upper dot.
-The current corrected fixture still changes **only line74**; it is not a fully
-scan-normalized edition and does not resolve these observations.
+| Labels  | Reviewed agreement / remaining uncertainty                                                                                                                                                            |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5-68    | Instruction text, numbered-board introduction and DIM A(64) are present. Quoted spacing/punctuation is not certified byte for byte.                                                                   |
+| 70-98   | Numbering loop, array initialization, central clearing loops, M=0 and GOTO 340 agree. Line72's format spacing differs; line74's comma is clear in both scans and remains the sole applied correction. |
+| 100-112 | F/T input and the zero-to-summary branch agree. Both INPUT separators, including110, are visibly semicolons in the March1975 copy, matching the fixtures.                                             |
+| 118-290 | Coordinate arithmetic, range/diagonal/occupancy checks, illegal-move branch and three-cell update/M increment agree. Quoted illegal-move spacing/punctuation differs from the fixture.                |
+| 310-410 | Eight-row nested printing loops and return to input agree. Line360 visibly ends with a semicolon in the March1975 copy, matching the fixtures.                                                        |
+| 490-999 | Sum, M/S summary operands, YES/NO branches and END agree. Line562's INPUT separator is visibly a semicolon, matching the fixtures. Quoted spacing/punctuation in550/580/610 still differs.            |
+
+The March1975 glyphs at110/360/562 have upper dots as well as lower comma tails;
+compare the clear semicolon at100 and comma after B$ at74 on that same page.
+They support the preserved semicolons, not three further source corrections.
+The corrected fixture still changes **only line74**. Its raw/corrected hashes,
+2042-byte sizes and86 physical lines remain unchanged. Matching the printing
+named by upstream removes the earlier edition-comparison limitation for this
+review; it does not make that upstream transcription lossless.
+
+Visible quoted differences remain, including the extra gap between `O.` and `K.`
+at610 and a trailing blank before the closing quote at550/580. No quote spacing
+is silently normalized. The later sample also retains the same seven-move prefix,
+the discontinuous12-to26 input and35-jump/13-piece summary described below.
 
 The description credits David Ahl at Digital Equipment Corp., Maynard. The
 listing header reads `1CHECK 05:54 PM 25-JUN-73`, and the footer says READY.
