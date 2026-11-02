@@ -17,11 +17,11 @@ for spaces, punctuation or the zero glyph.
 
 Three quoted spaces differ from the pinned transcription:
 
-| Label | Preserved older fixture | Reviewed text |
-| ----- | ----------------------- | ------------- |
-| 550 | `"REMAINING ON THE BOARD."` | `"REMAINING ON THE BOARD. "` |
-| 580 | `"PLEASE ANSWER 'YES' OR 'NO'."` | `"PLEASE ANSWER 'YES' OR 'NO'. "` |
-| 610 | `"O.K.  HOPE YOU HAD FUN!"` | `"O. K.  HOPE YOU HAD FUN!"` |
+| Label | Preserved older fixture          | Reviewed text                     |
+| ----- | -------------------------------- | --------------------------------- |
+| 550   | `"REMAINING ON THE BOARD."`      | `"REMAINING ON THE BOARD. "`      |
+| 580   | `"PLEASE ANSWER 'YES' OR 'NO'."` | `"PLEASE ANSWER 'YES' OR 'NO'. "` |
+| 610   | `"O.K.  HOPE YOU HAD FUN!"`      | `"O. K.  HOPE YOU HAD FUN!"`      |
 
 The new `1check-mar75-text.bas` starts from the existing minimal correction,
 then inserts exactly these three ASCII spaces. Relative to raw source, its only

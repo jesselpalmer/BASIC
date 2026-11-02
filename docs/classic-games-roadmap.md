@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `97de8887db554d28cdf38a9d606d1c98838ee096` after merged
-[#177](https://github.com/jesselpalmer/BASIC/pull/177) and
-[#178](https://github.com/jesselpalmer/BASIC/pull/178). Native remains the only
+Reconciled against main `d77f85ad419a8dbd4a680143c89c8c316cbfa09e` after merged
+[#180](https://github.com/jesselpalmer/BASIC/pull/180) and
+[#181](https://github.com/jesselpalmer/BASIC/pull/181). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -34,8 +34,10 @@ The merged [math-package provenance investigation](numeric-representation.md#imp
 identifies specific implementation leads and version pitfalls. It does not
 resolve package-specific rounding or activate numeric execution. The
 [1CHECK source review](classic-source-review.md#whole-listing-review-and-attribution-limits)
-now covers all85 numbered lines and records unclear punctuation and a printed
-sample discontinuity; source/dialect certification remains open.
+now covers all85 numbered lines, confirms the March1975 printing/separators,
+and records the printed sample discontinuity. The [quoted-text follow-up](1check-reviewed-text.md)
+resolves the three spaces in a separate tested fixture; original-dialect and
+full historical certification remain open.
 
 The [reference-media verifier](rsts-reference-media.md) now pins tape one's
 30 linked payloads, including all eight math variants and IN/OV, with an exact
@@ -53,6 +55,10 @@ monitor skips an inline status mask and resumes with path-specific words.
 It independently executes598 completed calls, preserving all480 original normal
 results and retaining118 range/control vectors. Events carry separate frozen
 continuation words; BASIC diagnostics/handler state remain execution-owned.
+The merged [MA2 multiplication component](basic-plus-ma2-multiplication.md)
+preserves ordered partial-product behavior against1,341 original-machine calls,
+including254 real-monitor range continuations. Returned result pointers and
+masks remain research evidence, separate from BASIC expression/error policy.
 Remaining operations, conversion and installation validation still precede
 public activation.
 
@@ -147,9 +153,10 @@ The pinned repository and pasted program instead have a semicolon after B$.
 Both reviewed DEC manuals specify a comma between the template and item list.
 Keep the raw transcription, and record this one-character correction separately;
 do not invent an undocumented DEC syntax exception. A semicolon may be accepted
-in another profile only with that dialect's own evidence. The scan is cataloged
-1974 while the repository describes a 1975 printing; retain that edition
-provenance and check the remainder of the listing in #115.
+in another profile only with that dialect's own evidence. The first scan is cataloged
+1974; the hash-pinned follow-up verifies the March1975 imprint and same comma.
+The separate quoted-text fixture resolves550/580/610 without altering the raw
+or minimal correction. Original interpreter/version still needs evidence in #115.
 
 The original listing also has optional LET, arrays and adjacent PRINT items.
 Those forms and native integer PRINT USING are now implemented. A separately
@@ -227,16 +234,17 @@ profile decisions are settled.
 1. **Resolve the first game's remaining source/dialect gaps (#115).** Keep
    corrected 1CHECK as the first-game candidate. Its 85-label review and verified
    seven-move opening oracle are already recorded. The hash-pinned March1975 scan
-   now confirms the printing and semicolons at110/360/562. Resolve the remaining
-   quoted spacing differences, establish its intended dialect/version,
+   now confirms the printing and semicolons at110/360/562. The separate reviewed-text
+   fixture resolves the quoted spaces at550/580/610 across native hosts. Establish
+   its intended dialect/version,
    and settle exact historical output and subscript rules. The printed sample's
    discontinuity must not be filled with invented moves. Source review can proceed
    independently of numeric implementation; compatible syntax alone does not prove
    that the game was written for BASIC-PLUS.
 2. **Complete the selected numeric reference contract (#116/#123, with #128).**
    The V4A-12 MA2 configuration is already pinned, linked and booted; addition,
-   subtraction and their path-specific range continuations have captured machine
-   evidence. Build on those records rather than repeating initial media identity
+   subtraction, multiplication and their path-specific range continuations have
+   captured machine evidence. Build on those records rather than repeating initial media identity
    work. Resolve literal/READ/VAL conversion, the other arithmetic/intrinsics
    required by the selected slice, remaining exceptional patterns, and BASIC
    diagnostic/handler behavior. Retain the startup/filesystem limitations when

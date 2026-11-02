@@ -35,6 +35,7 @@ export const libraryAcceptanceCases = [
   'string-involved PRINT adjacency preserves expressions, names, and atomic writes',
   'native integer PRINT USING preserves names, alignment, and errors',
   'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
+  'March 1975 reviewed 1CHECK text preserves exact spaces across native game paths',
   'scientific literals and powers execute corpus formulas with bounded failures',
   'statement sequences preserve positions, line scope and preflight validation',
   'literal subroutines preserve caller loops, shared values and real return positions',
@@ -305,6 +306,10 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check(
     'reviewed 1CHECK correction executes native moves, retry, replay, and normal exit',
     () => runNativeCheckerAcceptance(api),
+  );
+  await check(
+    'March 1975 reviewed 1CHECK text preserves exact spaces across native game paths',
+    () => runNativeCheckerAcceptance(api, 'march1975-text'),
   );
   await check(
     'scientific literals and powers execute corpus formulas with bounded failures',

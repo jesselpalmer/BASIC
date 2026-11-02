@@ -31,7 +31,7 @@ whole-corpus and per-profile gates remain in #109/#114/#115/#116/#129.
 
 ### Tested corrected native path
 
-Two separate fixtures retain the pinned raw bytes and the reviewed one-character
+The original two fixtures retain the pinned raw bytes and the reviewed one-character
 line74 template-delimiter correction. The fixture README records both hashes and
 scan provenance; tests assert exactly one changed byte. Raw source still fails
 before effects at line74 rather than being repaired by the interpreter.
@@ -99,14 +99,14 @@ copy. These page numbers must not be reused as PDF indices for the earlier scan.
 The later scan was visually inspected at 250dpi, including all85 numbered labels
 and the sample. It resolves the three faint separators in the earlier copy:
 
-| Labels  | Reviewed agreement / remaining uncertainty                                                                                                                                                            |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5-68    | Instruction text, numbered-board introduction and DIM A(64) are present. Quoted spacing/punctuation is not certified byte for byte.                                                                   |
-| 70-98   | Numbering loop, array initialization, central clearing loops, M=0 and GOTO 340 agree. Line72's format spacing differs; line74's comma is clear in both scans and remains the sole applied correction. |
-| 100-112 | F/T input and the zero-to-summary branch agree. Both INPUT separators, including110, are visibly semicolons in the March1975 copy, matching the fixtures.                                             |
-| 118-290 | Coordinate arithmetic, range/diagonal/occupancy checks, illegal-move branch and three-cell update/M increment agree. Quoted illegal-move spacing/punctuation differs from the fixture.                |
-| 310-410 | Eight-row nested printing loops and return to input agree. Line360 visibly ends with a semicolon in the March1975 copy, matching the fixtures.                                                        |
-| 490-999 | Sum, M/S summary operands, YES/NO branches and END agree. Line562's INPUT separator is visibly a semicolon, matching the fixtures. Quoted spacing/punctuation in550/580/610 still differs.            |
+| Labels  | Reviewed agreement / remaining uncertainty                                                                                                                                                                                   |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5-68    | Instruction text, numbered-board introduction and DIM A(64) are present. Quoted content is resolved separately below; physical typesetting is not byte-certified.                                                            |
+| 70-98   | Numbering loop, array initialization, central clearing loops, M=0 and GOTO 340 agree. Line72 matches the March1975 copy; line74's comma remains the minimal fixture's sole correction.                                       |
+| 100-112 | F/T input and the zero-to-summary branch agree. Both INPUT separators, including110, are visibly semicolons in the March1975 copy, matching the fixtures.                                                                    |
+| 118-290 | Coordinate arithmetic, range/diagonal/occupancy checks, illegal-move branch and three-cell update/M increment agree. The March1975 illegal-move text, including three periods, matches the fixture.                          |
+| 310-410 | Eight-row nested printing loops and return to input agree. Line360 visibly ends with a semicolon in the March1975 copy, matching the fixtures.                                                                               |
+| 490-999 | Sum, M/S summary operands, YES/NO branches and END agree. Line562's INPUT separator is visibly a semicolon, matching the fixtures. Raw/minimal quoted spaces at550/580/610 differ; the separate fixture resolves them below. |
 
 The March1975 glyphs at110/360/562 have upper dots as well as lower comma tails;
 compare the clear semicolon at100 and comma after B$ at74 on that same page.
@@ -116,10 +116,17 @@ The corrected fixture still changes **only line74**. Its raw/corrected hashes,
 named by upstream removes the earlier edition-comparison limitation for this
 review; it does not make that upstream transcription lossless.
 
-Visible quoted differences remain, including the extra gap between `O.` and `K.`
-at610 and a trailing blank before the closing quote at550/580. No quote spacing
-is silently normalized. The later sample also retains the same seven-move prefix,
-the discontinuous12-to26 input and35-jump/13-piece summary described below.
+The [follow-up quoted-text review](1check-reviewed-text.md) checks all25 literals
+on23 labels at400dpi and resolves the three remaining differences at550/580/610.
+A third fixture, `1check-mar75-text.bas`, adds exactly those three spaces to the
+minimal correction; raw and minimal fixtures stay unchanged. In the March1975
+copy, line72's format spacing and line230's three terminal periods match the
+preserved source, and line78 has no extra trailing blank. The new fixture's exact
+native output, game paths, retries/reruns and source round trips are checked
+across direct/installed library, CLI and browser/extracted-static hosts.
+The later sample retains the same seven-move prefix, discontinuous12-to26 input
+and35-jump/13-piece summary described below. This quoted-text review is not a
+physical-typesetting facsimile or original-machine-file certification.
 
 The description credits David Ahl at Digital Equipment Corp., Maynard. The
 listing header reads `1CHECK 05:54 PM 25-JUN-73`, and the footer says READY.
