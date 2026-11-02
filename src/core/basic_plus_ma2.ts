@@ -2,13 +2,19 @@
 import {decodeBasicPlusFloatingWords} from './basic_plus_floating_words.ts';
 import type {BasicPlusFloatingValue} from './basic_plus_floating_words.ts';
 
-export type BasicPlusMa2Operation = 'add' | 'subtract' | 'multiply';
+export type BasicPlusMa2Operation = 'add' | 'subtract' | 'multiply' | 'divide';
 export type BasicPlusMa2Result =
   | Readonly<{kind: 'value'; words: readonly [number, number]}>
   | Readonly<{
       kind: 'numeric-event';
       code: 48;
       reason: 'overflow' | 'underflow';
+      continuationWords: readonly [number, number];
+    }>
+  | Readonly<{
+      kind: 'numeric-event';
+      code: 61;
+      reason: 'division-by-zero';
       continuationWords: readonly [number, number];
     }>
   | Readonly<{
@@ -74,12 +80,40 @@ function multiply(left: Operand, right: Operand): BasicPlusMa2Result {
   return value(left.sign * right.sign, significand, exponent);
 }
 
+function divide(left: Operand, right: Operand): BasicPlusMa2Result {
+  if (right.significand === 0) {
+    return Object.freeze({
+      kind: 'numeric-event',
+      code: 61,
+      reason: 'division-by-zero',
+      continuationWords: packWords(1, 0, 0),
+    });
+  }
+  if (left.significand === 0) return value(1, 0, 0);
+  const atLeastOne = left.significand >= right.significand;
+  const exponent = left.exponent - right.exponent + 128 + (atLeastOne ? 1 : 0);
+  if (exponent < 1) return rangeEvent('underflow', packWords(1, 0, 0));
+  if (exponent > 255) return rangeEvent('overflow', packWords(1, 0, 0));
+  // Exact integers below 2^48. Even the closest noninteger quotient is farther
+  // from an integer than binary64's rounding error; floor cannot cross it.
+  const numerator = left.significand * 2 ** (atLeastOne ? 23 : 24);
+  const quotient = Math.floor(numerator / right.significand);
+  const remainder = numerator - quotient * right.significand;
+  const significand = quotient + (remainder * 2 >= right.significand ? 1 : 0);
+  return value(left.sign * right.sign, significand, exponent);
+}
+
 export function basicPlusMa2Arithmetic(
   left: readonly number[],
   operation: BasicPlusMa2Operation,
   right: readonly number[],
 ): BasicPlusMa2Result {
-  if (operation !== 'add' && operation !== 'subtract' && operation !== 'multiply') {
+  if (
+    operation !== 'add' &&
+    operation !== 'subtract' &&
+    operation !== 'multiply' &&
+    operation !== 'divide'
+  ) {
     throw new RangeError('Unsupported MA2 arithmetic operation');
   }
   const operands: BasicPlusFloatingValue[] = [];
@@ -105,6 +139,7 @@ export function basicPlusMa2Arithmetic(
     significand: Number(operands[1].significand),
     exponent: operands[1].binaryExponent + 128 + 24,
   };
+  if (operation === 'divide') return divide(large, small);
   if (operation === 'multiply') {
     if (large.significand === 0 || small.significand === 0) return value(1, 0, 0);
     return multiply(large, small);

@@ -72,3 +72,38 @@ CI consumes its offline fixture without emulator/OS binaries or network access.
 Preserve existing addition/subtraction/multiplication fixtures, input validation,
 operator-first rejection, detached/frozen results and native/installed/browser
 acceptance. No historical profile, game certification or release approval follows.
+
+## Captured records and reproduction
+
+The [offline fixture](../src/core/__tests__/ma2-division-reference.json) contains
+1,325 ordered original-machine calls:1,059 normal results,148 overflows,
+113 underflows and5 zero-divisor events. All266 exceptional calls were rerun
+through the original monitor, with one TRAP0 each, returned R1=140004 and zero
+completed words. Range calls latch100002; zero divisors latch100006. The longest
+exceptional history contains352 instructions, below the1,000-entry buffer; none
+executes inline data at101706 or101716. Each call completes before the
+10,000-instruction bound.
+
+The existing independently booted BASIC probe's `DIVIDE_THIRD` conversion bytes
+`[170,171,63,170]` match words `[0x3faa,0xaaab]`; `HALF_DIVISION` bytes
+`[0,0,52,128]` match `[0x3480,0]`. These are representation/calibration checks,
+not a fresh claim about the installation's unresolved startup/I/O behavior.
+
+The [capture script](../scripts/research/capture-ma2-division.py) selects the
+explicit endpoint/significand/zero cases and256 fixed-LCG pairs plus reverses,
+deduplicating ordered tuples. First-pass stop PCs and signed R4 distinguish
+normal/range/zero-divisor paths. Second-pass results come only from completed
+SIMH examination, with unchanged monitor instructions/vectors and a separate
+status latch. Both normalized transcript hashes are retained in the fixture.
+No arithmetic model calculates expected words in this script.
+
+```sh
+python scripts/research/capture-ma2-division.py \
+  --simulator /path/to/pinned/pdp11 \
+  --loader /path/to/rebuilt/SY.LDA \
+  --output /tmp/ma2-division-reference.json
+```
+
+The loader hash is checked before invocation, and the reported simulator revision
+is verified. Obtain/build the full pinned simulator separately using the build
+record. Compare parsed JSON when reproducing; repository formatting is separate.
