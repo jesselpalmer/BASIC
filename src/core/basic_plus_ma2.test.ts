@@ -89,7 +89,7 @@ describe('internal pinned V4A MA2 arithmetic', () => {
       },
     });
     expect(() =>
-      basicPlusMa2Arithmetic(unreadable, 'divide' as BasicPlusMa2Operation, unreadable),
+      basicPlusMa2Arithmetic(unreadable, 'power' as BasicPlusMa2Operation, unreadable),
     ).toThrow('Unsupported MA2 arithmetic operation');
     expect(basicPlusMa2Arithmetic([0, 1], 'subtract', unreadable)).toEqual({
       kind: 'unsupported',
