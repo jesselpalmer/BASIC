@@ -101,25 +101,53 @@ export function runPrintUsingAcceptance(api: Api): void {
 }
 
 /** Corrected source is a separate fixture; native output is not a historical pass. */
-export async function runNativeCheckerAcceptance(api: Api): Promise<void> {
+export async function runNativeCheckerAcceptance(
+  api: Api,
+  variant: 'minimal' | 'march1975-text' = 'minimal',
+): Promise<void> {
   const raw = readFileSync(new URL('./package/fixtures/classic/1check-raw.bas', import.meta.url));
-  const corrected = readFileSync(
+  const minimal = readFileSync(
     new URL('./package/fixtures/classic/1check-corrected.bas', import.meta.url),
   );
+  const reviewed = variant === 'march1975-text';
+  const corrected = reviewed
+    ? readFileSync(new URL('./package/fixtures/classic/1check-mar75-text.bas', import.meta.url))
+    : minimal;
+  const retry = reviewed ? "PLEASE ANSWER 'YES' OR 'NO'. " : "PLEASE ANSWER 'YES' OR 'NO'.";
+  const remaining = reviewed ? 'REMAINING ON THE BOARD. ' : 'REMAINING ON THE BOARD.';
+  const goodbye = reviewed ? 'O. K.  HOPE YOU HAD FUN!\n' : 'O.K.  HOPE YOU HAD FUN!\n';
   assert.equal(
     createHash('sha256').update(raw).digest('hex'),
     '87b6ea841f5e6ff0af0718ef3f4f905c992535455afd5d3400b1e2946c30d04f',
   );
   assert.equal(
-    createHash('sha256').update(corrected).digest('hex'),
+    createHash('sha256').update(minimal).digest('hex'),
     '952576cf60f86f5548a880e261e06f6e7353ad607827596d83e028ddbe7ece94',
   );
   assert.equal(
-    corrected.toString(),
+    minimal.toString(),
     raw.toString().replace('74 PRINT USING B$;J,', '74 PRINT USING B$,J,'),
   );
-  assert.equal(raw.length, corrected.length);
-  assert.equal([...raw].filter((byte, index) => byte !== corrected[index]).length, 1);
+  assert.equal(raw.length, minimal.length);
+  assert.equal([...raw].filter((byte, index) => byte !== minimal[index]).length, 1);
+  if (reviewed) {
+    assert.equal(corrected.length, 2045);
+    assert.equal(
+      createHash('sha256').update(corrected).digest('hex'),
+      'f4744d9a5e9c6aa8bd08375d743e2ab7800c68e3af4d8d1a495717a3e99894b4',
+    );
+    assert.equal(
+      corrected.toString(),
+      minimal
+        .toString()
+        .replace('550 PRINT "REMAINING ON THE BOARD."', '550 PRINT "REMAINING ON THE BOARD. "')
+        .replace(
+          "580 PRINT \"PLEASE ANSWER 'YES' OR 'NO'.\"",
+          "580 PRINT \"PLEASE ANSWER 'YES' OR 'NO'. \"",
+        )
+        .replace('610 PRINT "O.K.  HOPE YOU HAD FUN!"', '610 PRINT "O. K.  HOPE YOU HAD FUN!"'),
+    );
+  }
   const writes: string[] = [],
     prompts: string[] = [];
   const answers: string[] = [];
@@ -210,10 +238,11 @@ export async function runNativeCheckerAcceptance(api: Api): Promise<void> {
     assert.equal(jumpStates[2][10], 0);
     assert.equal(jumpStates[2][19], 1);
     assert.equal(lines.filter((line) => line === 'ILLEGAL MOVE.  TRY AGAIN...').length, 1);
-    assert.equal(lines.filter((line) => line === "PLEASE ANSWER 'YES' OR 'NO'.").length, 1);
+    assert.equal(lines.filter((line) => line === retry).length, 1);
+    assert.equal(lines.filter((line) => line === remaining).length, 2);
     assert.ok(transcript.includes('YOU MADE1JUMPS AND HAD47PIECES\n'));
     assert.ok(transcript.includes('YOU MADE0JUMPS AND HAD48PIECES\n'));
-    assert.ok(transcript.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
+    assert.ok(transcript.endsWith(goodbye));
     const writeCount: number = writes.length;
     await rejectRaw();
     assert.equal(writes.length, writeCount, 'Rejected raw replacement must have no effects');
@@ -282,5 +311,5 @@ export async function runNativeCheckerAcceptance(api: Api): Promise<void> {
   );
   assert.equal(openingTranscript.split('ILLEGAL MOVE.  TRY AGAIN...').length - 1, 1);
   assert.ok(openingTranscript.includes('YOU MADE7JUMPS AND HAD41PIECES\n'));
-  assert.ok(openingTranscript.endsWith('O.K.  HOPE YOU HAD FUN!\n'));
+  assert.ok(openingTranscript.endsWith(goodbye));
 }
