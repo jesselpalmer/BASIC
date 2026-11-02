@@ -268,8 +268,10 @@ limits, validation, historical conversion differences and feature provenance.
 a string template, comma-separated values and optional final semicolon. Each
 `#` field requires a safe integer and aligns right; a negative sign consumes
 field width. `**` followed by one or more `#` positions adds two digit columns
-and fills unused leading columns with asterisks. Asterisk fields require
-nonnegative safe integers that fit; trailing signs remain unsupported. String
+and fills unused leading columns with asterisks. An immediately following `-` adds a separate
+trailing sign column: `-` for negative values, a blank otherwise. Asterisk fields
+require that suffix for negative values; all fields still require safe integers
+that fit. String
 fields and other supported markers are defined in that contract. Unsupported
 numeric masks/fractions/overflow/reuse fail explicitly. USING remains an ordinary
 name outside this contextual form. This does not enable a historical profile or

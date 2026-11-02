@@ -44,10 +44,14 @@ whitespace-sensitive reinterpretation, speculative parsing or source rewrite.
   negative sign; other positions are leading spaces. Zero and negative zero
   print as `0`. Values must be finite safe integers. Fractions/unsafe values,
   overflow, repeated/partial image use and unsupported masks fail explicitly.
-- `**` followed by one or more `#` characters forms a nonnegative safe-integer
+- `**` followed by one or more `#` characters forms a safe-integer
   field. The asterisks add two digit positions and fill unused leading columns.
-  Strict overflow still applies; negative values require an unimplemented trailing
-  sign and fail explicitly. See [asterisk fill](print-using-asterisks.md).
+  Strict overflow still applies; negative values require the trailing-minus
+  suffix described below. See [asterisk fill](print-using-asterisks.md).
+- An immediately following `-` adds a sign column to an integer or asterisk
+  field. Magnitude digits align right before a trailing minus for negative values
+  or a blank for nonnegative values (including negative zero). The suffix does
+  not add digit capacity. See [trailing minus](print-using-trailing-minus.md).
 - `!` is a one-character string field. Backslashes enclosing only ASCII spaces
   form a string field whose width includes the two backslashes. Native truncates
   long strings and right-pads short/empty strings with blanks. Emitted prefixes
@@ -59,7 +63,7 @@ whitespace-sensitive reinterpretation, speculative parsing or source rewrite.
   trailing literals exactly. No rounding, precision or overflow-marker policy is
   claimed by this slice.
 - Literals are printable ASCII excluding formatting controls `.`, `,`, `+`, `-`,
-  `*`, `$`, `^`, `!`, `\`, `'`, `_`, `&`, and `%`. Bang/backslash/asterisk markers must
+  `*`, `$`, `^`, `!`, `\`, `'`, `_`, `&`, and `%`. Bang/backslash/asterisk/minus markers must
   form valid fields; other unsupported controls still fail anywhere, as do
   control/non-ASCII image characters. No literal-escape syntax is invented.
   Ordinary unformatted PRINT retains all its existing Unicode/text behavior.
