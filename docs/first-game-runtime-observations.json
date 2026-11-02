@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-11-01",
+  "build": "rsts-v4a-build.json",
+  "probe": "first-game-runtime-probe.bas",
+  "probeSha256": "87de0ccad7e02753b71e1d0a7a9cce49448546487ddc9bd730cc91f7bdf5b950",
+  "output": "first-game-runtime-output.txt",
+  "outputSha256": "4512d3b75372525bb8c70451d812d40b222e19a62c6e41802e8d04e067771d46",
+  "runsCompared": 2,
+  "listingSourceMatch": true,
+  "normalization": "Exclude dynamic RUN headers/Ready prompts; CRLF becomes LF; remove trailing ASCII spaces per line. Output transports state/ERR observations and is not a general I/O oracle.",
+  "rawLfBodySha256": [
+    "89178129cc8a18db61043e13e57ebe845a7a0a53cdd81478e54261d845de2046",
+    "89178129cc8a18db61043e13e57ebe845a7a0a53cdd81478e54261d845de2046"
+  ],
+  "sourceLines": 53,
+  "rawUnrefreshedDiskSha256": "6fa4a4bfc15fc646da0da52f786b388bd64391b571fa48ab0015c35f06175e75",
+  "subscripts": [
+    {
+      "id": 1,
+      "sourceSpelling": "-1.5",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 2,
+      "sourceSpelling": "-1.1",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 3,
+      "sourceSpelling": "-1.",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 4,
+      "sourceSpelling": "-.9",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 5,
+      "sourceSpelling": "-.51",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 6,
+      "sourceSpelling": "-.5",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 7,
+      "sourceSpelling": "-.49",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 8,
+      "sourceSpelling": "-.1",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 9,
+      "sourceSpelling": "0.",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 10,
+      "sourceSpelling": ".1",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 11,
+      "sourceSpelling": ".49",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 12,
+      "sourceSpelling": ".5",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 13,
+      "sourceSpelling": ".51",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 14,
+      "sourceSpelling": ".9",
+      "kind": "value",
+      "value": 10
+    },
+    {
+      "id": 15,
+      "sourceSpelling": "1.",
+      "kind": "value",
+      "value": 20
+    },
+    {
+      "id": 16,
+      "sourceSpelling": "1.49",
+      "kind": "value",
+      "value": 20
+    },
+    {
+      "id": 17,
+      "sourceSpelling": "1.5",
+      "kind": "value",
+      "value": 20
+    },
+    {
+      "id": 18,
+      "sourceSpelling": "1.51",
+      "kind": "value",
+      "value": 20
+    },
+    {
+      "id": 19,
+      "sourceSpelling": "1.9",
+      "kind": "value",
+      "value": 20
+    },
+    {
+      "id": 20,
+      "sourceSpelling": "2.",
+      "kind": "value",
+      "value": 30
+    },
+    {
+      "id": 21,
+      "sourceSpelling": "2.49",
+      "kind": "value",
+      "value": 30
+    },
+    {
+      "id": 22,
+      "sourceSpelling": "2.5",
+      "kind": "value",
+      "value": 30
+    },
+    {
+      "id": 23,
+      "sourceSpelling": "2.51",
+      "kind": "value",
+      "value": 30
+    },
+    {
+      "id": 24,
+      "sourceSpelling": "3.",
+      "kind": "value",
+      "value": 40
+    },
+    {
+      "id": 25,
+      "sourceSpelling": "3.49",
+      "kind": "value",
+      "value": 40
+    },
+    {
+      "id": 26,
+      "sourceSpelling": "3.5",
+      "kind": "value",
+      "value": 40
+    },
+    {
+      "id": 27,
+      "sourceSpelling": "4.",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 28,
+      "sourceSpelling": "4.1",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 29,
+      "sourceSpelling": "32767.",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 30,
+      "sourceSpelling": "32768.",
+      "kind": "error",
+      "ERR": 51,
+      "ERL": 70
+    },
+    {
+      "id": 31,
+      "sourceSpelling": "-32768.",
+      "kind": "error",
+      "ERR": 55,
+      "ERL": 70
+    },
+    {
+      "id": 32,
+      "sourceSpelling": "-32769.",
+      "kind": "error",
+      "ERR": 51,
+      "ERL": 70
+    }
+  ],
+  "loopLines": [
+    "SUBPOST 32",
+    "FWD 1  2  3 POST 3",
+    "REV 3  2  1 POST 1",
+    "EMPTYUPPOST 3",
+    "EMPTYDOWNPOST 1",
+    "MODIFIED 1  3 POST 4",
+    "LEFT 1",
+    "REENTER 3  3",
+    "FINISHED"
+  ],
+  "limitations": [
+    "Manual clock adjustment; absent INIT CUSP; existing filesystem/save limitations remain.",
+    "Explicitly initialized floating variables and numeric cells only; no implicit defaults/RNG or general I/O claim.",
+    "Subscript errors observed with ON ERROR handler and RESUME to NEXT; no untrapped replacement value inferred.",
+    "Only the six authored floating loop paths are observed; nested/GOSUB/FN/overflow policies remain separate."
+  ]
+}

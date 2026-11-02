@@ -32,7 +32,7 @@ Section references below identify printed sections, not PDF page indexes.
 | 3.1, 5.1.1          | REM consumes the remainder; `!` comments have a DATA exception; strings allow single or double delimiters.             |
 | 2.5.2, 3.6.2, 5.1.2 | Numeric/string defaults are zero/empty; undeclared arrays default to upper bound 10.                                   |
 | 3.3.2               | Numeric PRINT has sign padding and trailing space; commas use 14-column zones.                                         |
-| 3.6.1               | A completed FOR retains its last in-range value; a previously left unfinished loop permits reentry.                    |
+| 3.6.1               | An ordinary unmodified FOR retains its last in-range value; unfinished-loop reentry is documented.                     |
 | 3.7.1, 3.7.2        | Bare RND and RND(X) exist; X is ignored; ordinary RUN repeats a sequence; RANDOM/RANDOMIZE changes its starting point. |
 | 5.2, 6, Appendix F  | String comparison, integer arithmetic and numeric representation have their own historical rules.                      |
 
@@ -171,3 +171,13 @@ long line. Runtime oracles must distinguish completed-loop values, exited-loop
 reentry, padded numeric output, string comparison and repeatable RNG behavior
 from native results. Passing a short lexical fixture does not certify a profile
 or any whole game. All 108 corpus dispositions remain required.
+
+## Concrete first-game preparation
+
+The [first-game runtime evidence and matrix](first-game-runtime-evidence.md)
+now enumerates the reviewed candidate's85 common-grammar statements and records
+32 selected subscript cases plus six targeted floating-loop scenarios from a
+separately booted MA2 reference. The body-modified loop retained4 after a1..3
+loop, so “last in-range value” is not a complete rule for body mutations. The
+matrix preserves this distinction and the reference installation limitations;
+no historical option or native semantic change is enabled.
