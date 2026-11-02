@@ -37,6 +37,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/basic_plus_words.ts`            | Internal pure signed-word conversion, arithmetic and logical conformance; it does not activate a public profile.     |
 | `core/basic_plus_floating_words.ts`   | Internal exact floating-word decoding; unsupported encodings stay explicit and no public profile is activated.       |
 | `core/basic_plus_ma2.ts`              | Internal MA2 arithmetic and range words; diagnostic/trap flow and public activation are separate.                    |
+| `core/basic_plus_ma2_decimal.ts`      | Internal selected-MA2 source-literal conversion; caller error policy and activation remain separate.                 |
 | `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.             |
 | `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.    |
 | `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                         |

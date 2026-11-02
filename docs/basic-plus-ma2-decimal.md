@@ -28,8 +28,9 @@ collapse even though arithmetic constructs a distinct neighboring value:
    seven-digit cutoff. After the point, stop processing digits once the total
    processed count has reached7; ignored digits do not further adjust the scale.
 3. Parse an optional uppercase-E signed decimal exponent through the selected
-   signed-word boundary -32768..32767, then add it to the decimal scale. An all-zero
-   mantissa returns zero without applying a valid parsed exponent.
+   signed-word boundary -32768..32767, then add it to the decimal scale with a
+   checked signed-word sum. Only after both checks does an all-zero mantissa
+   return zero without applying the scale.
 4. For a nonzero mantissa the effective decimal scale must be within -38..38.
    The original checks this scale before multiplying, even when the mathematical
    final value would be representable. Larger scales are an invalid conversion
@@ -78,3 +79,25 @@ come from SIMH, not the converter under test; normal CI never downloads or runs
 historical binaries. Preserve existing arithmetic fixtures, installed/native and
 browser gates. Literal caller integration, READ/VAL/INPUT, exceptional conversion
 policy and public numeric observations remain open.
+
+## Captured records and reproduction
+
+The [offline fixture](../src/core/__tests__/ma2-decimal-reference.json) retains
+396 original-machine calls:265 normal values,114 unsupported conversion-status
+cases and17 calls with intermediate arithmetic traps. All normal calls consume
+the complete ASCII spelling. Complete histories have at most15,107 instructions,
+below the100,000-entry capacity and200,000-instruction call bound. No caller's
+BASIC diagnostic/continuation policy is inferred from these low-level flags.
+
+The [capture command](../scripts/research/capture-ma2-decimal.py) requires a
+separately obtained pinned simulator and exact SY.LDA, verifies loader identity
+and the reported simulator revision, and records both the24 stored power-table
+words and a normalized stdout SHA-256. It contains no arithmetic expectation
+model. Reproduction compares parsed JSON; maintained formatting is separate.
+
+```sh
+python scripts/research/capture-ma2-decimal.py \
+  --simulator /path/to/pinned/pdp11 \
+  --loader /path/to/rebuilt/SY.LDA \
+  --output /tmp/ma2-decimal-reference.json
+```
