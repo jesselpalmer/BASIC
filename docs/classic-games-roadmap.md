@@ -226,8 +226,9 @@ profile decisions are settled.
 
 1. **Resolve the first game's remaining source/dialect gaps (#115).** Keep
    corrected 1CHECK as the first-game candidate. Its 85-label review and verified
-   seven-move opening oracle are already recorded. Resolve the unclear separators
-   and quoted spacing from a clearer source, establish its intended dialect/version,
+   seven-move opening oracle are already recorded. The hash-pinned March1975 scan
+   now confirms the printing and semicolons at110/360/562. Resolve the remaining
+   quoted spacing differences, establish its intended dialect/version,
    and settle exact historical output and subscript rules. The printed sample's
    discontinuity must not be filled with invented moves. Source review can proceed
    independently of numeric implementation; compatible syntax alone does not prove
