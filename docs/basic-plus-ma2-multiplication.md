@@ -42,10 +42,10 @@ rounding step. The original omits low partial-product contributions before the
 final rounding, so **operand order can change the final bit**. The captured
 positive word pairs demonstrate this (decimal unsigned words):
 
-| Left | Right | Completed words |
-| ---- | ----- | --------------- |
-| `[16565,1266]` | `[16639,65533]` | `[16693,1264]` |
-| `[16639,65533]` | `[16565,1266]` | `[16693,1263]` |
+| Left            | Right           | Completed words |
+| --------------- | --------------- | --------------- |
+| `[16565,1266]`  | `[16639,65533]` | `[16693,1264]`  |
+| `[16639,65533]` | `[16565,1266]`  | `[16693,1263]`  |
 
 The existing independently booted BASIC `MUL_TIE` probe, whose operands are
 `(1.+2.^(-23.))*(1.+2.^(-1.))`, reports conversion bytes `[0,2,64,192]`.
@@ -87,3 +87,37 @@ SY.LDA and the pinned simulator. It must not download media or execute during
 normal project checks. Normal tests consume the captured fixture offline and
 retain every existing addition/subtraction and native regression. No complete
 historical-game pass or release readiness follows.
+
+## Captured records and reproduction
+
+The [offline fixture](../src/core/__tests__/ma2-multiplication-reference.json)
+contains1,341 independently executed ordered calls:1,087 normal results,
+144 overflow events and110 underflow events. All254 range calls were separately
+rerun through the original monitor handler, each with one TRAP0 and mask100002.
+The longest range history contains278 instructions, below the1,000-entry buffer;
+no history executes the inline mask at101422. Every call completes within the
+10,000-instruction bound. All normal results return R1=140004; all captured
+range continuations return R1=140006 with zero words. Both memory addresses and
+masks remain explicit fixture columns.
+
+The [capture script](../scripts/research/capture-ma2-multiplication.py) selects
+significand/exponent boundary cases, both operand orders/signs, zeros and256
+fixed-LCG pairs plus reverses, deduplicating ordered tuples. Its first pass stops
+at completion or TRAP0 and classifies a range reason from the signed normalized
+exponent in R4. Its second pass runs only the range calls to completion, reading
+words at returned R1 and a separate status latch140020. The fixture retains
+SHA-256 values of both normalized simulator outputs. No expected arithmetic is
+calculated in that script; its output words come only from SIMH examination.
+
+```sh
+python scripts/research/capture-ma2-multiplication.py \
+  --simulator /path/to/pinned/pdp11 \
+  --loader /path/to/rebuilt/SY.LDA \
+  --output /tmp/ma2-multiplication-reference.json
+```
+
+The script rejects a loader whose bytes do not match the pinned hash and checks
+the simulator's reported revision. Obtain/build the complete pinned simulator
+source separately as described in the build record. Compare parsed JSON records
+when reproducing; repository formatting is separate from capture. Existing
+addition/subtraction and range fixtures remain unchanged.
