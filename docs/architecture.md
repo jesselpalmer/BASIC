@@ -22,34 +22,35 @@ are implementation modules, not additional public package entrypoints. See the
 
 ## Source and execution
 
-| Owner                                 | Responsibility                                                                                                        |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                        |
-| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.   |
-| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                          |
-| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                  |
-| `core/instructions.ts`                | Bounded sequence/conditional trees, real instruction positions and prepared branch/continuation destinations.         |
-| `core/prepared_program.ts`            | A validated program, flat real instructions and label/loop indexes derived from that exact snapshot.                  |
-| `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.      |
-| `core/dispatch.ts`                    | Bounded immutable ON target validation and one-based truncated selector resolution.                                   |
-| `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                       |
-| `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                               |
-| `core/basic_plus_words.ts`            | Internal pure signed-word conversion, arithmetic and logical conformance; it does not activate a public profile.      |
-| `core/basic_plus_floating_words.ts`   | Internal exact floating-word decoding; unsupported encodings stay explicit and no public profile is activated.        |
-| `core/basic_plus_ma2.ts`              | Internal MA2 arithmetic and range words; diagnostic/trap flow and public activation are separate.                     |
-| `core/basic_plus_ma2_decimal.ts`      | Internal selected-MA2 source-literal conversion; caller error policy and activation remain separate.                  |
-| `core/basic_plus_ma2_values.ts`       | Internal canonical MA2 INT/ABS/negation, numeric ordering and exact value observation; public binding stays separate. |
-| `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.              |
-| `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.     |
-| `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                          |
-| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                      |
-| `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.           |
-| `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                          |
-| `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                       |
-| `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                          |
-| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                         |
-| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                              |
-| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization.  |
+| Owner                                 | Responsibility                                                                                                           |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                           |
+| `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.      |
+| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                             |
+| `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                     |
+| `core/instructions.ts`                | Bounded sequence/conditional trees, real instruction positions and prepared branch/continuation destinations.            |
+| `core/prepared_program.ts`            | A validated program, flat real instructions and label/loop indexes derived from that exact snapshot.                     |
+| `core/dialect.ts`                     | Explicit language-context validation; absent legacy metadata means native, unsupported context never falls back.         |
+| `core/dispatch.ts`                    | Bounded immutable ON target validation and one-based truncated selector resolution.                                      |
+| `core/control_flow.ts`                | Instruction position, bounded subroutine stack, owned loop contexts and shared transfer guards.                          |
+| `core/numeric_literal.ts`             | Complete native decimal/scientific literal patterns shared by source and numeric INPUT.                                  |
+| `core/basic_plus_words.ts`            | Internal pure signed-word conversion, arithmetic and logical conformance; it does not activate a public profile.         |
+| `core/basic_plus_floating_words.ts`   | Internal exact floating-word decoding; unsupported encodings stay explicit and no public profile is activated.           |
+| `core/basic_plus_ma2.ts`              | Internal MA2 arithmetic and range words; diagnostic/trap flow and public activation are separate.                        |
+| `core/basic_plus_ma2_decimal.ts`      | Internal selected-MA2 source-literal conversion; caller error policy and activation remain separate.                     |
+| `core/basic_plus_ma2_conversion.ts`   | Internal bounded selected-MA2 VAL/numeric READ conversion facts; execution owns diagnostics, targets and cursor commits. |
+| `core/basic_plus_ma2_values.ts`       | Internal canonical MA2 INT/ABS/negation, numeric ordering and exact value observation; public binding stays separate.    |
+| `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.                 |
+| `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.        |
+| `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                             |
+| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                         |
+| `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.              |
+| `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                             |
+| `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                          |
+| `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                             |
+| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                            |
+| `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                                 |
+| `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization.     |
 
 Parsing a line permits incomplete forward targets and loop pairs for editing.
 Validating a complete program checks every statement before effects, including
