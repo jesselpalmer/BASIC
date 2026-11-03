@@ -1,0 +1,690 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-11-01",
+  "build": "rsts-v4a-build.json",
+  "loaderSha256": "e1add1ea800307764a97a0eb8964fb3dca88403825c3e9a500d68eac786cd596",
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "normalization": "Exclude dynamic RUN headers/Ready; CRLF to LF; remove trailing ASCII spaces per line, retain one final LF. Output transports numeric/error/cursor state, not a general I/O oracle.",
+  "val": {
+    "probe": "ma2-val-caller-probe.bas",
+    "probeSha256": "1792bb74464cbffb16019db91db2e2c66c6179f535739844091113e11fc6e231",
+    "sourceLines": 46,
+    "output": "ma2-val-caller-output.txt",
+    "outputSha256": "20c1f5b8681ec569e97b1c41402f91281478ccc6b46cd066986dd134cbe9b5b9",
+    "listingSourceMatch": true,
+    "runsCompared": 2,
+    "rawLfBodySha256": [
+      "ff2e32da0a9706a7bb617e92a6ca5d0b9bc82e2e7ae429f535bdf7782e6b7758",
+      "ff2e32da0a9706a7bb617e92a6ca5d0b9bc82e2e7ae429f535bdf7782e6b7758"
+    ],
+    "cases": [
+      {
+        "id": 1,
+        "expression": "\"\"",
+        "inputBytes": [],
+        "words": [0, 0]
+      },
+      {
+        "id": 2,
+        "expression": "\"0\"",
+        "inputBytes": [48],
+        "words": [0, 0]
+      },
+      {
+        "id": 3,
+        "expression": "\"1\"",
+        "inputBytes": [49],
+        "words": [16512, 0]
+      },
+      {
+        "id": 4,
+        "expression": "\"-1\"",
+        "inputBytes": [45, 49],
+        "words": [49280, 0]
+      },
+      {
+        "id": 5,
+        "expression": "\"+1\"",
+        "inputBytes": [43, 49],
+        "words": [16512, 0]
+      },
+      {
+        "id": 6,
+        "expression": "\"1.5\"",
+        "inputBytes": [49, 46, 53],
+        "words": [16576, 0]
+      },
+      {
+        "id": 7,
+        "expression": "\"-1.5\"",
+        "inputBytes": [45, 49, 46, 53],
+        "words": [49344, 0]
+      },
+      {
+        "id": 8,
+        "expression": "\" 1\"",
+        "inputBytes": [32, 49],
+        "words": [16512, 0]
+      },
+      {
+        "id": 9,
+        "expression": "\"1 \"",
+        "inputBytes": [49, 32],
+        "words": [16512, 0]
+      },
+      {
+        "id": 10,
+        "expression": "\"1 2\"",
+        "inputBytes": [49, 32, 50],
+        "words": [16960, 0]
+      },
+      {
+        "id": 11,
+        "expression": "\"1,2\"",
+        "inputBytes": [49, 44, 50],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 12,
+        "expression": "\"1X\"",
+        "inputBytes": [49, 88],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 13,
+        "expression": "\"X1\"",
+        "inputBytes": [88, 49],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 14,
+        "expression": "\"--1\"",
+        "inputBytes": [45, 45, 49],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 15,
+        "expression": "\"+-1\"",
+        "inputBytes": [43, 45, 49],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 16,
+        "expression": "\"1E\"",
+        "inputBytes": [49, 69],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 17,
+        "expression": "\"1E+\"",
+        "inputBytes": [49, 69, 43],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 18,
+        "expression": "\"1E-\"",
+        "inputBytes": [49, 69, 45],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 19,
+        "expression": "\"1EE2\"",
+        "inputBytes": [49, 69, 69, 50],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 20,
+        "expression": "\"1E2X\"",
+        "inputBytes": [49, 69, 50, 88],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 21,
+        "expression": "\".5\"",
+        "inputBytes": [46, 53],
+        "words": [16384, 0]
+      },
+      {
+        "id": 22,
+        "expression": "\"1..2\"",
+        "inputBytes": [49, 46, 46, 50],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 23,
+        "expression": "\"1.2.3\"",
+        "inputBytes": [49, 46, 50, 46, 51],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 24,
+        "expression": "\"E2\"",
+        "inputBytes": [69, 50],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 25,
+        "expression": "\"1%\"",
+        "inputBytes": [49, 37],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 26,
+        "expression": "\"%1\"",
+        "inputBytes": [37, 49],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 27,
+        "expression": "\"1E39\"",
+        "inputBytes": [49, 69, 51, 57],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 28,
+        "expression": "\"0E999\"",
+        "inputBytes": [48, 69, 57, 57, 57],
+        "words": [0, 0]
+      },
+      {
+        "id": 29,
+        "expression": "\"0E32768\"",
+        "inputBytes": [48, 69, 51, 50, 55, 54, 56],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      },
+      {
+        "id": 30,
+        "expression": "\"1.0000001\"",
+        "inputBytes": [49, 46, 48, 48, 48, 48, 48, 48, 49],
+        "words": [16512, 0]
+      },
+      {
+        "id": 31,
+        "expression": "\"1.00000011920928955078125\"",
+        "inputBytes": [
+          49, 46, 48, 48, 48, 48, 48, 48, 49, 49, 57, 50, 48, 57, 50, 56, 57, 53, 53, 48, 55, 56,
+          49, 50, 53
+        ],
+        "words": [16512, 0]
+      },
+      {
+        "id": 32,
+        "expression": "\"9.999999E-37\"",
+        "inputBytes": [57, 46, 57, 57, 57, 57, 57, 57, 69, 45, 51, 55],
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 7020
+      }
+    ]
+  },
+  "read": {
+    "probe": "ma2-read-caller-probe.bas",
+    "probeSha256": "da23e9b4e7516b25d78824b029b12301e4fc63826c368ec083575016e70cdd09",
+    "sourceLines": 60,
+    "output": "ma2-read-caller-output.txt",
+    "outputSha256": "ac218bf7ea880a12faf87cbb6b5d701c5fbe7a183e861f01200e2333247b5d67",
+    "listingSourceMatch": true,
+    "runsCompared": 2,
+    "rawLfBodySha256": [
+      "ac218bf7ea880a12faf87cbb6b5d701c5fbe7a183e861f01200e2333247b5d67",
+      "ac218bf7ea880a12faf87cbb6b5d701c5fbe7a183e861f01200e2333247b5d67"
+    ],
+    "cases": [
+      {
+        "kind": "floating",
+        "id": 1,
+        "dataSpelling": "0",
+        "nextStringField": "1",
+        "words": [0, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 2,
+        "dataSpelling": "1",
+        "nextStringField": "-1",
+        "words": [16512, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 3,
+        "dataSpelling": "-1",
+        "nextStringField": "+1",
+        "words": [49280, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 4,
+        "dataSpelling": "+1",
+        "nextStringField": "1.5",
+        "words": [16512, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 5,
+        "dataSpelling": "1.5",
+        "nextStringField": "-1.5",
+        "words": [16576, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 6,
+        "dataSpelling": "-1.5",
+        "nextStringField": "32767",
+        "words": [49344, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 7,
+        "dataSpelling": "32767",
+        "nextStringField": "32768",
+        "words": [18431, 65024]
+      },
+      {
+        "kind": "floating",
+        "id": 8,
+        "dataSpelling": "32768",
+        "nextStringField": "-32768",
+        "words": [18432, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 9,
+        "dataSpelling": "-32768",
+        "nextStringField": "-32769",
+        "words": [51200, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 10,
+        "dataSpelling": "-32769",
+        "nextStringField": "1",
+        "words": [51200, 256]
+      },
+      {
+        "kind": "floating",
+        "id": 11,
+        "dataSpelling": "\"1\"",
+        "nextStringField": "1",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 12,
+        "dataSpelling": "\"1.5\"",
+        "nextStringField": "1.5",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 13,
+        "dataSpelling": "\" 1 \"",
+        "nextStringField": " 1 ",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 14,
+        "dataSpelling": "\"1 2\"",
+        "nextStringField": "1 2",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 15,
+        "dataSpelling": "\"1X\"",
+        "nextStringField": "1X",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 16,
+        "dataSpelling": "\"\"",
+        "nextStringField": "",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 17,
+        "dataSpelling": "1E2",
+        "nextStringField": "1E39",
+        "words": [17352, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 18,
+        "dataSpelling": "1E39",
+        "nextStringField": "1E39",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 19,
+        "dataSpelling": "0E999",
+        "nextStringField": "0E32768",
+        "words": [0, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 20,
+        "dataSpelling": "0E32768",
+        "nextStringField": "0E32768",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 21,
+        "dataSpelling": "9.999999E-37",
+        "nextStringField": "9.999999E-37",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "floating",
+        "id": 22,
+        "dataSpelling": "1.0000001",
+        "nextStringField": ".5",
+        "words": [16512, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 23,
+        "dataSpelling": ".5",
+        "nextStringField": "1,2",
+        "words": [16384, 0]
+      },
+      {
+        "kind": "floating",
+        "id": 24,
+        "dataSpelling": "\"1,2\"",
+        "nextStringField": "1,2",
+        "words": [16864, 0],
+        "ERR": 52,
+        "ERL": 90
+      },
+      {
+        "kind": "integer",
+        "id": 1,
+        "dataSpelling": "0",
+        "nextStringField": "1",
+        "value": 0
+      },
+      {
+        "kind": "integer",
+        "id": 2,
+        "dataSpelling": "1",
+        "nextStringField": "-1",
+        "value": 1
+      },
+      {
+        "kind": "integer",
+        "id": 3,
+        "dataSpelling": "-1",
+        "nextStringField": "+1",
+        "value": -1
+      },
+      {
+        "kind": "integer",
+        "id": 4,
+        "dataSpelling": "+1",
+        "nextStringField": "1.5",
+        "value": 1
+      },
+      {
+        "kind": "integer",
+        "id": 5,
+        "dataSpelling": "1.5",
+        "nextStringField": "1.5",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 6,
+        "dataSpelling": "-1.5",
+        "nextStringField": "-1.5",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 7,
+        "dataSpelling": "32767",
+        "nextStringField": "32768",
+        "value": 32767
+      },
+      {
+        "kind": "integer",
+        "id": 8,
+        "dataSpelling": "32768",
+        "nextStringField": "32768",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 9,
+        "dataSpelling": "-32768",
+        "nextStringField": "-32769",
+        "value": -32768
+      },
+      {
+        "kind": "integer",
+        "id": 10,
+        "dataSpelling": "-32769",
+        "nextStringField": "-32769",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 11,
+        "dataSpelling": "\"1\"",
+        "nextStringField": "1",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 12,
+        "dataSpelling": "\"1.5\"",
+        "nextStringField": "1.5",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 13,
+        "dataSpelling": "\" 1 \"",
+        "nextStringField": " 1 ",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 14,
+        "dataSpelling": "\"1 2\"",
+        "nextStringField": "1 2",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 15,
+        "dataSpelling": "\"1X\"",
+        "nextStringField": "1X",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 16,
+        "dataSpelling": "\"\"",
+        "nextStringField": "",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 17,
+        "dataSpelling": "1E2",
+        "nextStringField": "1E2",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 18,
+        "dataSpelling": "1E39",
+        "nextStringField": "1E39",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 19,
+        "dataSpelling": "0E999",
+        "nextStringField": "0E999",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 20,
+        "dataSpelling": "0E32768",
+        "nextStringField": "0E32768",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 21,
+        "dataSpelling": "9.999999E-37",
+        "nextStringField": "9.999999E-37",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 22,
+        "dataSpelling": "1.0000001",
+        "nextStringField": "1.0000001",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 23,
+        "dataSpelling": ".5",
+        "nextStringField": ".5",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      },
+      {
+        "kind": "integer",
+        "id": 24,
+        "dataSpelling": "\"1,2\"",
+        "nextStringField": "1,2",
+        "value": 7,
+        "ERR": 52,
+        "ERL": 390
+      }
+    ]
+  },
+  "limitations": [
+    "Manually entered clock; missing INIT; prior filesystem/save limitations retained. New private disk copy and controller were used for all retained caller captures.",
+    "Targets explicitly start at 7; errors are observed with ON ERROR and RESUME past the attempted assignment. No untrapped continuation or implicit default is inferred.",
+    "Only the retained authored fields/strings are certified observations; controls/high bytes, standalone point, broader INPUT, intermediate-event READ paths and unwind/retry behavior remain separate.",
+    "An earlier exploratory VAL batch did not complete; it is not an accepted behavior oracle."
+  ],
+  "valEvent": {
+    "probe": "ma2-val-event-probe.bas",
+    "probeSha256": "abc6d9214d9cd49bdcf7e286227122c5b789b09655e4b29be03d68bf63d59d48",
+    "sourceLines": 13,
+    "output": "ma2-val-event-output.txt",
+    "outputSha256": "690192f19ec74e46998160d763e94057280009b11c462115e75ea2dad92cb8c5",
+    "listingSourceMatch": true,
+    "runsCompared": 2,
+    "rawLfBodySha256": [
+      "79b13ce3daa648baf1029553c93536c1cb344fd942e0ec3a13cd39387c170db5",
+      "79b13ce3daa648baf1029553c93536c1cb344fd942e0ec3a13cd39387c170db5"
+    ],
+    "case": {
+      "expression": "\"9999999999999999999999999999999999999999\"",
+      "inputBytes": [
+        57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57,
+        57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57
+      ],
+      "ERR": 48,
+      "ERL": 30,
+      "words": [16864, 0]
+    }
+  }
+}
