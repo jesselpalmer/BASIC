@@ -181,3 +181,14 @@ separately booted MA2 reference. The body-modified loop retained4 after a1..3
 loop, so “last in-range value” is not a complete rule for body mutations. The
 matrix preserves this distinction and the reference installation limitations;
 no historical option or native semantic change is enabled.
+
+## Selected-MA2 representation and preparation decision
+
+The [shared value contract](ma2-shared-value-contract.md) now specifies the
+proposed `basic-plus-v4a12-ma2` configuration, distinct expression literal kind,
+raw-to-word validation and word-preserving storage in the existing evaluator.
+Canonical MA2 observations remain exact `number | string` values at the public
+boundary; arbitrary binary64 injection must not silently choose a decimal
+conversion. The earlier manual-only design name was never an accepted option.
+This is a staged implementation contract, not activation: all first-game support
+rows, event/handler observations and cross-host acceptance remain required.

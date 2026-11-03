@@ -203,3 +203,14 @@ accuracy, exact range endpoints, negative-zero rules, a verified reference
 implementation/installation, diagnostic/trap continuation state, and game-sensitive
 outcome comparisons. No compatibility waiver follows from a newer host number
 type or a passing formula. #115/#116/#123/#128/#129 remain open.
+
+## Current selected-MA2 implementation direction
+
+The merged arithmetic, source-conversion, canonical unary/order/observation and
+caller evidence refine the earlier investigation above. The
+[shared value contract](ma2-shared-value-contract.md) makes the next parser,
+literal/supplied-tree, private storage and public observation decisions concrete.
+It retains one evaluator and exact canonical words through every operation;
+public Number observations are views, not arithmetic state. Event/handler/INPUT,
+formatting and complete first-game integration still gate activation. MA4 and
+noncanonical values do not acquire a lossy observation fallback.
