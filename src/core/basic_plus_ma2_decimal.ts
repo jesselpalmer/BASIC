@@ -10,6 +10,11 @@ export type BasicPlusMa2DecimalResult =
     }>;
 
 const spelling = /^(?:\d+(?:\.\d*)?|\.\d+)(?:E[+-]?\d+)?$/;
+/** Complete spelling only; callers own signs, spaces and diagnostic policy. */
+export function isBasicPlusMa2DecimalSpelling(raw: string): boolean {
+  return spelling.test(raw);
+}
+
 const digits: readonly Words[] = [
   [0, 0],
   [0x4080, 0],
@@ -53,7 +58,8 @@ function value(words: Words): BasicPlusMa2DecimalResult {
 export function basicPlusMa2DecimalLiteral(raw: string): BasicPlusMa2DecimalResult {
   if (typeof raw !== 'string') throw new TypeError('Expected a decimal literal spelling');
   if (raw.length > 255) return unsupported('input-limit');
-  if (!spelling.test(raw)) throw new SyntaxError('Expected a complete unsigned MA2 literal');
+  if (!isBasicPlusMa2DecimalSpelling(raw))
+    throw new SyntaxError('Expected a complete unsigned MA2 literal');
   const [mantissa, exponent] = raw.split('E');
   let words: Words = [0, 0];
   let count = 0;
