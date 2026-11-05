@@ -214,3 +214,12 @@ It retains one evaluator and exact canonical words through every operation;
 public Number observations are views, not arithmetic state. Event/handler/INPUT,
 formatting and complete first-game integration still gate activation. MA4 and
 noncanonical values do not acquire a lossy observation fallback.
+
+## Exact host-value injection prerequisite
+
+The [exact MA2 injection primitive](ma2-exact-injection.md) now rejects host values
+that require rounding, range replacement or decimal-spelling inference. It is
+separate from source conversion: an exact MA2 host neighbor can be preserved even
+when ATOF's decimal cutoff maps the corresponding long source spelling to 1.
+Public observations/assignment, supplied values and execution diagnostics remain
+subject to the shared value integration and activation gates.
