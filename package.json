@@ -60,7 +60,16 @@
     "url": "https://github.com/sponsors/jesselpalmer"
   },
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./browser": {
+      "types": "./src/browser/index.ts",
+      "default": "./src/browser/index.ts"
+    }
+  },
   "files": [
     "CHANGELOG.md",
     "bin/",

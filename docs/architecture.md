@@ -12,11 +12,12 @@ reference. The API guides explain how hosts prepare and execute that language.
 | Entry                           | Contract                                                                                                                                                                                                 |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Package root, `src/index.ts`    | Named exports: `Basic`, `createHost`, `parseLine`, `parseProgram`, `validateProgram`, `Evaluator`, both BASIC error classes, and public value/host/execution/syntax types. Imports have no host effects. |
+| `src/browser/index.ts`          | Supported `node-basic-lang/browser` embedding exports: session/view types, source envelopes and logical keyboard input; no DOM/import-time host effects.                                                 |
 | `src/basic.ts`                  | Internal compatibility re-export of the same `core/runtime.ts` class, used by the CLI and REPL. It is not a separate interpreter or a package subpath export.                                            |
 | `bin/basic` → `src/cli/main.ts` | Executable entrypoint; forwards arguments to `runCli` and translates its result into process exit status.                                                                                                |
 
-Consumers import from `node-basic-lang`; `package.json` exposes only that package
-root. Tokenization, prepared indexes, control flow, REPL state, and CLI adapters
+Consumers import the interpreter from `node-basic-lang` and the supported
+portable embedding surface from `node-basic-lang/browser`. Tokenization, prepared indexes, control flow, REPL state, and CLI adapters
 are implementation modules, not additional public package entrypoints. See the
 [runtime guide](interpreter-host.md) for host callbacks and execution methods.
 
@@ -215,3 +216,8 @@ should assert observable values, diagnostics, state transitions, and cleanup.
 Use independent expected results, observable readiness, and bounded execution;
 coverage alone cannot prove any of those properties. The
 [quality guide](quality-checks.md) describes the enforced checks.
+
+The [browser embedding guide](browser-embedding.md) documents supported imports,
+host ownership, draft-envelope composition, package pinning and installed/browser
+consumer checks. The playground's BrowserDocument remains a private strict
+complete-program import controller; its policy is separate from envelope decoding.

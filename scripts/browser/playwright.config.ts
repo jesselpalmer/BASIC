@@ -2,6 +2,8 @@ import {defineConfig} from '@playwright/test';
 import {resolve} from 'node:path';
 
 const root = resolve(import.meta.dirname, '../..');
+// Workers may use a different JS executable; package preparation always uses Bun.
+process.env.BASIC_BROWSER_BUN ??= process.execPath;
 const staticRoot = process.env.BASIC_BROWSER_STATIC_ROOT;
 const shellQuote = (value: string) => "'" + value.replaceAll("'", "'\"'\"'") + "'";
 

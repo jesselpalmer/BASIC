@@ -386,3 +386,12 @@ Standalone `10 ABS "-3.14"` and `20 INT "-1.6"` are no longer supported. Use
 label order and validate all syntax and duplicate labels before any effects,
 including source after `END`. Runtime expressions after `END` are not evaluated.
 `run()` and `step()` return the richer immutable state documented above.
+
+### Embed in a browser application
+
+Use `node-basic-lang/browser` for the supported portable BrowserSession, source
+context/envelope and logical keyboard APIs. Your application owns its UI, canvas,
+input controls and editable drafts. See the [embedding guide](docs/browser-embedding.md)
+for lifecycle contracts, preserving unfinished imports, validation on Run, and
+pinning a verified package artifact. This entrypoint does not require a BASIC 1.0
+release or a backend service.
