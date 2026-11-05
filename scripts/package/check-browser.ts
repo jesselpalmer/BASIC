@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {realpathSync, symlinkSync, unlinkSync} from 'node:fs';
 import {join, resolve, sep} from 'node:path';
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
 import {browserEmbeddingCases} from './fixtures/browser-acceptance.ts';
@@ -14,11 +15,13 @@ export async function buildBrowserConsumer(consumer: string): Promise<string> {
   assert.ok(result.success, result.logs.map((log) => log.message).join('\n'));
   assert.ok(result.metafile, 'Browser bundle must report its module graph');
   const graph = result.metafile;
-  const installed = join(consumer, 'node_modules/node-basic-lang') + sep;
-  const fixtureRoot = join(consumer, 'scripts/package/fixtures') + sep;
+  // macOS exposes temporary directories through /var -> /private/var.
+  // Compare physical paths on both sides, also rejecting symlink escapes.
+  const installed = realpathSync(join(consumer, 'node_modules/node-basic-lang')) + sep;
+  const fixtureRoot = realpathSync(join(consumer, 'scripts/package/fixtures')) + sep;
   let entry = false;
   for (const [path, input] of Object.entries(graph.inputs)) {
-    const absolute = resolve(path);
+    const absolute = realpathSync(resolve(path));
     assert.ok(
       absolute.startsWith(installed) || absolute.startsWith(fixtureRoot),
       'Bundle escaped installed consumer: ' + path,
@@ -80,6 +83,13 @@ export async function checkBrowserConsumer(root: string, consumer: string): Prom
     ],
   });
   await buildBrowserConsumer(consumer);
+  const alias = join(consumer, '..', 'browser-consumer-alias');
+  symlinkSync(consumer, alias, 'dir');
+  try {
+    await buildBrowserConsumer(alias);
+  } finally {
+    unlinkSync(alias);
+  }
   console.log(
     `Browser embedding: ${browserEmbeddingCases.length} public consumer cases in ESM/CommonJS, strict types, quiet imports and portable browser bundle passed.`,
   );
