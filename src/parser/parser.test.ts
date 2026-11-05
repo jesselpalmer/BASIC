@@ -20,6 +20,8 @@ function narrow<T extends {type: string}, K extends T['type']>(
 type Shape = string | number | readonly Shape[];
 function shape(node: Expression): Shape {
   switch (node.type) {
+    case 'Ma2NumberLiteral':
+      return ['ma2', node.raw, ...node.words];
     case 'NumberLiteral':
       return node.value;
     case 'StringLiteral':

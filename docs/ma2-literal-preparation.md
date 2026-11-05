@@ -28,7 +28,7 @@ historical operator, native arithmetic fallback or second executor is added.
 
 Use an iterative, cycle-safe foreign-literal search shared by the native guards.
 Keep existing native-only arity/type/error behavior and source ordering intact.
-Verify all396 original ATOF inputs through scanner/preparation: exact normal words
+Verify all 396 original ATOF inputs through scanner/preparation: exact normal words
 and explicit unsupported status/event results, plus integer and input limits.
 Exercise raw/word mismatches, hostile fields, read-once word snapshots, copied
 locations, immutability, native parser identity, deep/shared/cyclic search, and
@@ -39,3 +39,15 @@ replacement state. Update exhaustive switches and positive/negative public types
 This completes a literal conformance/preparation seam, not the shared historical
 parser or executable configuration. The remaining support matrix, value storage,
 input/output, array/loop/event policies and full corpus acceptance stay gated.
+
+## Implemented evidence
+
+All 396 original-machine ATOF spellings pass through the actual raw scanner and
+literal preparation seam, retaining exact normal words or explicit unsupported
+status/event outcomes. Six additional cases cover hostile/mismatched inputs,
+read-once words, immutable detached locations, native parser identity, deep/shared
+and cyclic search, pre-effect direct evaluation/comparison/index rejection and
+atomic prepared-program replacement. Installed ESM/CommonJS and the extracted
+browser consumer also reject late foreign literals before output or random
+callbacks, without observing foreign words. Public type checks verify the
+readonly raw/word tuple and absence of a host value field.

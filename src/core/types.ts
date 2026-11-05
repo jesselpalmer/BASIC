@@ -174,6 +174,8 @@ export type TokenOf<K extends TokenType> = {
 export type Token = {[K in TokenType]: TokenOf<K>}[TokenType];
 export interface NodeFields {
   NumberLiteral: {readonly value: number; readonly raw: string};
+  /** Prepared selected-MA2 expression literal; native execution rejects this case. */
+  Ma2NumberLiteral: {readonly raw: string; readonly words: readonly [number, number]};
   StringLiteral: {readonly value: string; readonly raw: string};
   Variable: {readonly name: string};
   ArrayReference: {
@@ -290,6 +292,7 @@ export type NodeOf<K extends keyof NodeFields> = {
 type Nodes<K extends keyof NodeFields> = {[P in K]: NodeOf<P>}[K];
 export type Expression = Nodes<
   | 'NumberLiteral'
+  | 'Ma2NumberLiteral'
   | 'StringLiteral'
   | 'Variable'
   | 'ArrayReference'

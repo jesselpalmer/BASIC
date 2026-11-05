@@ -1,7 +1,15 @@
 import type {BrowserView, BrowserState, GraphicsCommand} from 'node-basic-lang/browser';
 
 type BrowserAPI = typeof import('node-basic-lang/browser');
-type Parse = (typeof import('node-basic-lang'))['parseProgram'];
+type RootAPI = Pick<
+  typeof import('node-basic-lang'),
+  | 'parseProgram'
+  | 'Basic'
+  | 'Evaluator'
+  | 'validateProgram'
+  | 'BasicSyntaxError'
+  | 'BasicRuntimeError'
+>;
 export const browserEmbeddingCases = [
   'unfinished draft envelope and validation on Run',
   'malformed envelope preserves draft',
@@ -11,6 +19,7 @@ export const browserEmbeddingCases = [
   'repeat Run starts fresh variables',
   'Stop cancels WAIT',
   'unsupported context preserves prior state',
+  'native supplied MA2 literals reject before effects',
 ] as const;
 
 function check(condition: unknown, message: string): void {
@@ -25,7 +34,8 @@ async function until(predicate: () => boolean): Promise<void> {
 }
 
 /** Portable independent oracles, run from an installed package in Bun and Chromium. */
-export async function runBrowserEmbedding(api: BrowserAPI, parseProgram: Parse) {
+export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
+  const {parseProgram} = root;
   const draft = '\t10 PRINT "unfinished🙂\r\n';
   const envelope = api.encodeSourceDocument(draft);
   let document = api.decodeSourceDocument(envelope);
@@ -153,6 +163,75 @@ export async function runBrowserEmbedding(api: BrowserAPI, parseProgram: Parse) 
     }
     check(rejected && session.state === stopped, 'Unsupported context is atomic');
     check(states.every(Object.isFrozen), 'Immutable state observations');
+    const native = parseProgram('10 PRINT "before"\n20 END\n30 PRINT 1');
+    const print = native.lines[2].statement;
+    if (print.type !== 'PrintStatement') throw new Error('Expected literal PRINT');
+    const foreign: Extract<import('node-basic-lang').Expression, {type: 'Ma2NumberLiteral'}> = {
+      type: 'Ma2NumberLiteral',
+      raw: '1',
+      words: [0x4080, 0],
+      location: print.items[0].location,
+    };
+    Object.defineProperty(foreign, 'words', {
+      get() {
+        throw new Error('Observed foreign words');
+      },
+    });
+    const lines = native.lines.map((line, index) =>
+      index === 2 ? {...line, statement: {...print, items: [foreign]}} : line,
+    );
+    const expectForeign = (action: () => unknown, runtime = false) => {
+      try {
+        action();
+      } catch (error) {
+        const expected = runtime ? root.BasicRuntimeError : root.BasicSyntaxError;
+        if (!(error instanceof expected)) throw error;
+        check(
+          error.diagnostic.code === 'UNSUPPORTED_NUMERIC_LITERAL' && error.diagnostic.label === 30,
+          'Located foreign literal rejection',
+        );
+        return;
+      }
+      throw new Error('Expected MA2 rejection');
+    };
+    expectForeign(() => root.validateProgram(lines));
+    let writes = '';
+    const basic = new root.Basic({
+      write: (text) => {
+        writes += text;
+      },
+    });
+    basic.run('10 PRINT "saved"');
+    writes = '';
+    expectForeign(() => basic.run({type: 'Program', lines}));
+    check(writes === '', 'Reject after-END foreign literal before PRINT');
+    basic.run();
+    check(writes === 'saved\n', 'Failed replacement preserves prior program');
+    let effects = 0;
+    const evaluator = new root.Evaluator({
+      random: () => {
+        effects++;
+        return 0.5;
+      },
+    });
+    const random = parseProgram('10 PRINT RND()').lines[0].statement;
+    if (random.type !== 'PrintStatement') throw new Error('Expected random PRINT');
+    expectForeign(
+      () =>
+        evaluator.evaluate({
+          type: 'BinaryExpression',
+          operator: '+',
+          operatorLocation: foreign.location,
+          location: foreign.location,
+          left: random.items[0],
+          right: foreign,
+        }),
+      true,
+    );
+    check(
+      effects === 0 && evaluator.snapshotVariables().length === 0,
+      'Foreign tree has no native effects',
+    );
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {
     session.stop();

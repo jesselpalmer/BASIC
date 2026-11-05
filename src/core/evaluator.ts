@@ -4,6 +4,7 @@ import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {ArrayStore} from './arrays.ts';
 import {compareValues} from './comparison.ts';
+import {firstMa2Literal} from './foreign_literal.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import type {
@@ -114,12 +115,14 @@ export class Evaluator {
   }
 
   compare(condition: Comparison): boolean {
+    this.rejectForeignLiterals(condition);
     const left = this.evaluate(condition.left);
     const right = this.evaluate(condition.right);
     return compareValues(left, right, condition);
   }
 
   assign(target: AssignmentTarget, value: BasicValue): void {
+    this.rejectForeignLiterals(target);
     const name = target.name.toUpperCase();
     if (name.endsWith('$')) {
       if (typeof value !== 'string') {
@@ -136,7 +139,18 @@ export class Evaluator {
     } else this.variables.set(name, value);
   }
 
+  private rejectForeignLiterals(tree: unknown): void {
+    const foreign = firstMa2Literal(tree);
+    if (foreign)
+      fail(
+        'UNSUPPORTED_NUMERIC_LITERAL',
+        'MA2 literals require a supported historical context',
+        foreign.location,
+      );
+  }
+
   evaluate(expression: Expression): BasicValue {
+    if (expression.type !== 'Ma2NumberLiteral') this.rejectForeignLiterals(expression);
     // A flat expression can contain thousands of left-associated nodes. An
     // explicit traversal also preserves left-to-right host callback ordering.
     const pending: Frame[] = [{node: expression, ready: false}];
@@ -144,6 +158,12 @@ export class Evaluator {
     while (pending.length) {
       const {node, ready} = pending.pop()!;
       switch (node.type) {
+        case 'Ma2NumberLiteral':
+          return fail(
+            'UNSUPPORTED_NUMERIC_LITERAL',
+            'MA2 literals require a supported historical context',
+            node.location,
+          );
         case 'NumberLiteral':
           values.push(number(node.value, node.location));
           break;

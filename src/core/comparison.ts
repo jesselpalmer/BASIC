@@ -79,6 +79,7 @@ export function expressionType(expression: Expression): ValueType | null {
           values.push(left === right ? left : null);
         }
         break;
+      case 'Ma2NumberLiteral':
       case 'NumberLiteral':
       case 'UnaryExpression':
         values.push('number');
