@@ -17,6 +17,7 @@ import {libraryAcceptanceCases} from '../library-acceptance.ts';
 import {checkGlobalCli, checkLocalCli} from './check-cli.ts';
 import {checkConsumerTypes, checkLibraryConsumers} from './check-library.ts';
 import {runProcess} from '../subprocess.ts';
+import {checkBrowserConsumer} from './check-browser.ts';
 import {checkArchiveEntries} from '../release/archive.ts';
 
 function files(directory: string): string[] {
@@ -98,6 +99,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
     }
     await checkLibraryConsumers(consumer, installed);
     checkConsumerTypes(root, consumer);
+    await checkBrowserConsumer(root, consumer);
     await checkLocalCli(consumer, installed);
     checkGlobalCli(directory, archive);
     console.log(

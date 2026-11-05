@@ -51,6 +51,7 @@ await completeRelease(async () => {
           ...process.env,
           BASIC_BROWSER_STATIC_ROOT: join(extracted, folder),
           BASIC_BROWSER_REPORT: browserReport,
+          BASIC_BROWSER_PACKAGE_ARCHIVE: join(directory, packageArtifact.name),
         },
         stdout: 'inherit',
         stderr: 'inherit',
