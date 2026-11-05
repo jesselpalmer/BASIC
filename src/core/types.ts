@@ -151,6 +151,8 @@ export interface Diagnostic extends Position {
 export interface TokenValues {
   LABEL: number;
   NUMBER: number;
+  /** Internal historical numeric spelling; conversion belongs to preparation. */
+  RAW_NUMBER: null;
   STRING: string;
   KEYWORD: string;
   IDENTIFIER: string;

@@ -177,3 +177,13 @@ preserve the current BasicValue boundary without losing selected-MA2 bits.
 This settles the proposed representation/observation direction, not the remaining
 execution evidence. All 108 corpus dispositions and zero certified historical
 passes remain unchanged; compatibility parents stay open.
+
+## First scanner stage implemented
+
+The [raw numeric token delivery](historical-raw-numbers.md) now emits RAW_NUMBER
+with null values under the internal historical scanner policy. Its spelling
+classifier retains raw/kind facts without host-number conversion, including
+lexically valid magnitudes beyond binary64. Native tokens and public historical
+context rejection remain unchanged. Distinct historical expression literals,
+supplied-tree/preparation integration and shared word storage are still the next
+stages; raw tokens are not executable programs.

@@ -7,7 +7,7 @@ const policy = 'basic-plus-1972-10' as const;
 const scan = (source: string) => tokenize(source, {lexicalPolicy: policy});
 
 describe('internal historical integer spellings', () => {
-  it('retains distinct immutable lexical kinds despite equal decoded values', () => {
+  it('retains distinct immutable lexical kinds without decoding numeric values', () => {
     for (const [raw, kind] of [
       ['4%', 'integer'],
       ['4', 'whole'],
@@ -15,12 +15,12 @@ describe('internal historical integer spellings', () => {
       ['4E0', 'floating'],
     ] as const) {
       const descriptor = historicalNumericSpelling(raw);
-      expect(descriptor).toEqual({raw, kind, value: 4});
+      expect(descriptor).toEqual({raw, kind});
       expect(Object.isFrozen(descriptor)).toBe(true);
     }
-    expect(historicalNumericSpelling('000%')).toEqual({raw: '000%', kind: 'integer', value: 0});
-    expect(historicalNumericSpelling('32767%').value).toBe(32767);
-    expect(historicalNumericSpelling('.5E-2').value).toBe(0.005);
+    expect(historicalNumericSpelling('000%')).toEqual({raw: '000%', kind: 'integer'});
+    expect(historicalNumericSpelling('32767%')).toEqual({raw: '32767%', kind: 'integer'});
+    expect(historicalNumericSpelling('.5E-2')).toEqual({raw: '.5E-2', kind: 'floating'});
   });
 
   it.each([
@@ -35,7 +35,6 @@ describe('internal historical integer spellings', () => {
     '1%%',
     '1%$',
     'Infinity',
-    '1E999',
     '12oops',
   ])('rejects malformed descriptor %s', (raw) => {
     expect(() => historicalNumericSpelling(raw)).toThrow(SyntaxError);
@@ -57,18 +56,18 @@ describe('internal historical integer spellings', () => {
       ['IDENTIFIER', 'A1%'],
       ['OPERATOR', '='],
       ['OPERATOR', '-'],
-      ['NUMBER', 2],
+      ['RAW_NUMBER', null],
       ['PUNCTUATION', ':'],
       ['KEYWORD', 'DIM'],
       ['IDENTIFIER', 'A%'],
       ['PUNCTUATION', '('],
-      ['NUMBER', 2],
+      ['RAW_NUMBER', null],
       ['PUNCTUATION', ')'],
       ['PUNCTUATION', ':'],
       ['KEYWORD', 'READ'],
       ['IDENTIFIER', 'A%'],
       ['PUNCTUATION', '('],
-      ['NUMBER', 1],
+      ['RAW_NUMBER', null],
       ['PUNCTUATION', ')'],
       ['PUNCTUATION', ':'],
       ['KEYWORD', 'PRINT'],
@@ -111,7 +110,8 @@ describe('internal historical integer spellings', () => {
       end: {line: 7, column: 6, offset: 55},
     });
     expect(tokens.find(({raw}) => raw === '01%')).toMatchObject({
-      value: 1,
+      type: 'RAW_NUMBER',
+      value: null,
       start: {line: 7, column: 7, offset: 56},
       end: {line: 7, column: 10, offset: 59},
     });
@@ -167,9 +167,9 @@ describe('internal historical integer spellings', () => {
 
   it('handles a long compact sequence and isolates scans after failure', () => {
     expect(
-      scan('10' + 'A1%=32767%:'.repeat(6000) + 'END').filter((t) => t.type === 'NUMBER'),
+      scan('10' + 'A1%=32767%:'.repeat(6000) + 'END').filter((t) => t.type === 'RAW_NUMBER'),
     ).toHaveLength(6000);
     expect(() => scan('10A%=1%%')).toThrow(BasicSyntaxError);
-    expect(scan('10A%=2%')[3]).toMatchObject({raw: '2%', value: 2});
+    expect(scan('10A%=2%')[3]).toMatchObject({type: 'RAW_NUMBER', raw: '2%', value: null});
   });
 });

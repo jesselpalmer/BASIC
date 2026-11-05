@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `5bbd548fa0a0a8c140fc2b98e37173cd98eaaaca` after merged
-[#186](https://github.com/jesselpalmer/BASIC/pull/186) and
-[#187](https://github.com/jesselpalmer/BASIC/pull/187). Native remains the only
+Reconciled against main `e7499599e2525274c99eb1cb175e594c8c1399cf` after merged
+[#188](https://github.com/jesselpalmer/BASIC/pull/188) and
+[#189](https://github.com/jesselpalmer/BASIC/pull/189). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -110,6 +110,12 @@ literal/supplied-tree and word-preserving evaluator/storage stage, including
 exact public observations and bounded host injection. It keeps the new context
 rejected until all first-game support rows are complete; native remains the
 only executable profile.
+
+The merged [bounded caller converters](ma2-caller-conversion.md) now cover the
+retained VAL/READ subset while keeping unverified event/byte paths explicit.
+The [raw numeric scanner stage](historical-raw-numbers.md) implements the next
+shared-value prerequisite: raw historical tokens no longer pass through host
+Number conversion. Historical AST/preparation and execution still remain gated.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.
