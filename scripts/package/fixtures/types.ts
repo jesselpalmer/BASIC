@@ -397,3 +397,17 @@ if (dispatch?.type === 'OnStatement') {
   // @ts-expect-error Computed dispatch supports only jump/call modes.
   dispatch.transfer = 'return';
 }
+
+// Raw historical numeric tokens carry spelling only, never a host numeric value.
+declare const numericToken: import('node-basic-lang').Token;
+if (numericToken.type === 'RAW_NUMBER') {
+  const raw: string = numericToken.raw;
+  const unconverted: null = numericToken.value;
+  void raw;
+  void unconverted;
+  // @ts-expect-error Raw tokens cannot acquire a converted numeric payload.
+  const converted: number = numericToken.value;
+  void converted;
+  // @ts-expect-error Token spelling is immutable.
+  numericToken.raw = '1';
+}

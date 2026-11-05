@@ -86,7 +86,7 @@ describe('internal historical DATA source mode', () => {
       ['LABEL', 10],
       ['IDENTIFIER', 'A'],
       ['OPERATOR', '='],
-      ['NUMBER', 1],
+      ['RAW_NUMBER', null],
       ['PUNCTUATION', ':'],
       ['KEYWORD', 'DATA'],
       ['STRING', 'ONE'],

@@ -50,9 +50,11 @@ can validate the complete header. No token stream is an accepted Program here.
 Numeric scanning stops at a recognized following word, so `0TO12`, `1STEP-1`
 and `6THEN105` retain correct boundaries. E followed by an exponent belongs to
 the number; bare E/E3 at name position remains a short variable. Invalid E
-forms fail, rather than accepting a numeric prefix. Decoding a finite numeric
-token as a JavaScript number is not historical precision or runtime certification.
-The eventual profile must apply its separately reviewed representation policy.
+forms fail, rather than accepting a numeric prefix. Historical numeric expressions now retain distinct RAW_NUMBER tokens with null
+values; labels keep their bounded integer values. The raw spelling reaches the
+separate converter without host-number decoding. See [raw numeric tokens](historical-raw-numbers.md).
+The eventual profile must bind those tokens through its separately reviewed
+representation policy before any execution.
 
 Single- and double-delimited strings protect their literal payload; adjacent
 quoted strings are separate tokens in this internal policy rather than native

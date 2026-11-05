@@ -321,10 +321,9 @@ class Scanner {
         else break;
       }
     const raw = this.source.slice(beginning, this.index);
-    let value = Number(raw);
     if (this.policy.compact) {
       try {
-        value = historicalNumericSpelling(raw).value;
+        historicalNumericSpelling(raw);
       } catch (error) {
         if (error instanceof RangeError)
           this.fail(
@@ -334,16 +333,18 @@ class Scanner {
           );
         this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
       }
-    } else if (!numericLiteral.test(raw) || !Number.isFinite(value)) {
-      this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
-    }
-    if (this.policy.compact) {
+
       const word = historicalWord(this.source, this.index);
       if (word && !this.historicalWordAllowed(word.word))
         this.fail('UNSUPPORTED_LEXICAL_FORM', 'Unsupported or misplaced historical word');
+      this.emit('RAW_NUMBER', start, null);
+      this.statementStart = false;
+      return;
     }
+    const value = Number(raw);
+    if (!numericLiteral.test(raw) || !Number.isFinite(value))
+      this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
     this.emit('NUMBER', start, value);
-    if (this.policy.compact) this.statementStart = false;
   }
 
   readCompactNumber() {
