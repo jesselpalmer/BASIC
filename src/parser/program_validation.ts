@@ -10,6 +10,7 @@ import {programInstructions} from '../core/instructions.ts';
 import {dataItems} from '../core/data.ts';
 import {validateInputTargets} from '../core/input.ts';
 import {validateDispatch} from '../core/dispatch.ts';
+import {firstMa2Literal} from '../core/foreign_literal.ts';
 import {changeOperands} from '../core/change.ts';
 
 function isArray(value: unknown): value is readonly unknown[] {
@@ -39,6 +40,14 @@ export function validateProgram(
     }
     labels.add(line.label);
   }
+  const foreign = firstMa2Literal(lines);
+  if (foreign)
+    throw new BasicSyntaxError(
+      'UNSUPPORTED_NUMERIC_LITERAL',
+      'MA2 literals require a supported historical context',
+      foreign.location.start,
+      foreign.location.label,
+    );
   dataItems(lines);
   validateInputTargets(lines);
   for (const {statement} of programInstructions(lines)) {

@@ -2,8 +2,8 @@
 
 **Status:** concrete implementation design for #116/#123/#117/#129, following
 merged source conversion, canonical unary/order/observation and caller evidence.
-No public historical profile, AST kind, Host method or runtime behavior changes
-in this document. Native remains the only executable profile; #109 is NOT READY.
+The distinct expression AST kind and internal literal preparation are now
+implemented; historical profile, shared value storage and execution remain gated. Native remains the only executable profile; #109 is NOT READY.
 
 ## Immutable configuration and the first slice
 
@@ -54,10 +54,9 @@ with the complete supported execution context. Use the existing historical
 scanner vocabulary/raw spans. Do not create a second parser, translate BASIC
 source, strip spaces globally or add an internal-policy-shaped public option.
 
-The historical scanner currently also computes a host numeric token value.
-Replace that dependency in the integration stage with a distinct raw numeric
-token case whose value is null and whose raw text/lexical kind carries the
-spelling. Do not change native NUMBER tokens. The parser reads a raw historical
+The historical scanner now emits a distinct RAW_NUMBER token case whose
+value is null and whose raw text/lexical kind carries the spelling. Native
+NUMBER tokens remain unchanged. The parser reads a raw historical
 numeric token either as an expression constant or, at a structural destination/
 bound position, through that position's bounded integer grammar. Update the
 exported closed Token union, scanner tests and consumer type tests together;
@@ -184,6 +183,7 @@ The [raw numeric token delivery](historical-raw-numbers.md) now emits RAW_NUMBER
 with null values under the internal historical scanner policy. Its spelling
 classifier retains raw/kind facts without host-number conversion, including
 lexically valid magnitudes beyond binary64. Native tokens and public historical
-context rejection remain unchanged. Distinct historical expression literals,
-supplied-tree/preparation integration and shared word storage are still the next
-stages; raw tokens are not executable programs.
+context rejection remain unchanged. The [literal preparation seam](ma2-literal-preparation.md) now adds the distinct
+expression kind, exact raw/word validation and native supplied-tree rejection.
+Historical parser integration and shared word storage remain later stages;
+raw tokens and prepared literals are not executable historical programs.

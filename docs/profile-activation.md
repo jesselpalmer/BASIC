@@ -192,3 +192,10 @@ boundary; arbitrary binary64 injection must not silently choose a decimal
 conversion. The earlier manual-only design name was never an accepted option.
 This is a staged implementation contract, not activation: all first-game support
 rows, event/handler observations and cross-host acceptance remain required.
+
+The [MA2 literal preparation seam](ma2-literal-preparation.md) is implemented as
+an internal raw-token binder and supplied-literal validator. The public Expression
+union distinguishes its raw/word node; native Program preparation and direct
+Evaluator boundaries reject it before effects, including dead/late trees. The
+public parser still emits native literals only. This does not activate the
+historical parser or finish the shared runtime support matrix.

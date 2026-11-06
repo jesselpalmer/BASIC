@@ -411,3 +411,16 @@ if (numericToken.type === 'RAW_NUMBER') {
   // @ts-expect-error Token spelling is immutable.
   numericToken.raw = '1';
 }
+
+// MA2 identity is explicit; native execution rejects it until historical activation.
+declare const ma2Literal: Extract<Expression, {type: 'Ma2NumberLiteral'}>;
+const ma2Raw: string = ma2Literal.raw;
+const ma2Words: readonly [number, number] = ma2Literal.words;
+void ma2Raw;
+void ma2Words;
+// @ts-expect-error MA2 literals never have a binary64 value payload.
+void ma2Literal.value;
+// @ts-expect-error Historical words belong to immutable snapshots.
+ma2Literal.words[0] = 0;
+// @ts-expect-error Historical spelling is immutable.
+ma2Literal.raw = '2';

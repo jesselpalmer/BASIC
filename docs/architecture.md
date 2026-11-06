@@ -39,6 +39,8 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/basic_plus_floating_words.ts`   | Internal exact floating-word decoding; unsupported encodings stay explicit and no public profile is activated.           |
 | `core/basic_plus_ma2.ts`              | Internal MA2 arithmetic and range words; diagnostic/trap flow and public activation are separate.                        |
 | `core/basic_plus_ma2_decimal.ts`      | Internal selected-MA2 source-literal conversion; caller error policy and activation remain separate.                     |
+| `core/basic_plus_ma2_literal.ts`      | Internal raw-token MA2 literal binding and supplied raw/word validation; historical parser activation remains gated.     |
+| `core/foreign_literal.ts`             | Iterative cycle-safe foreign literal search for native Program/Evaluator pre-effect rejection.                           |
 | `core/basic_plus_ma2_conversion.ts`   | Internal bounded selected-MA2 VAL/numeric READ conversion facts; execution owns diagnostics, targets and cursor commits. |
 | `core/basic_plus_ma2_values.ts`       | Internal canonical MA2 INT/ABS/negation, numeric ordering and exact value observation; public binding stays separate.    |
 | `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.                 |
