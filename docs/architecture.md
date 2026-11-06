@@ -230,3 +230,10 @@ Its parsed-only constant trees carry immutable word values; numeric events stop
 calculation with their original continuation/location rather than selecting BASIC
 handler behavior. Native direct evaluation retains live array-owner lookup across
 host callbacks, native arity timing and the existing foreign-literal guards.
+
+The internal [MA2 scalar conformance session](ma2-scalar-storage.md) now owns
+canonical descriptor cells and uses the same parser/preflight/expression driver.
+Source assignments and exact host injection commit only normal values; numeric
+events and failed preparation leave prior cells intact. Number-valued snapshots
+are detached observations and never feed subsequent arithmetic. This is not a
+historical Program, public dialect, statement executor or default-variable policy.

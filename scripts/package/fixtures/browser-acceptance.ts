@@ -22,6 +22,7 @@ export const browserEmbeddingCases = [
   'native supplied MA2 literals reject before effects',
   'historical numeric expression conformance stays internal',
   'shared evaluator retains native callback array replacement',
+  'native scalar observations stay isolated and conformance stays private',
 ] as const;
 
 function check(condition: unknown, message: string): void {
@@ -269,6 +270,34 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
       resettingEvaluator.evaluate(indexed.items[0]) === 0 && resets === 1,
       'Read observes replacement array owner after native callback',
     );
+    check(!('createBasicPlusMa2ScalarSession' in root), 'No public scalar conformance factory');
+    const scalarProgram = root.parseProgram('10 A=2\n20 PRINT A+1');
+    const scalarAssignment = scalarProgram.lines[0].statement,
+      scalarPrint = scalarProgram.lines[1].statement;
+    if (scalarAssignment.type !== 'LetStatement' || scalarPrint.type !== 'PrintStatement')
+      throw new Error('Expected scalar fixture');
+    const scalarEvaluator = new root.Evaluator();
+    scalarEvaluator.assign(scalarAssignment.target, 2);
+    check(
+      scalarEvaluator.evaluate(scalarPrint.items[0]) === 3,
+      'Native scalar arithmetic stays native',
+    );
+    const scalarSnapshot = scalarEvaluator.snapshotVariables();
+    scalarEvaluator.assign(scalarAssignment.target, 9);
+    check(
+      scalarSnapshot[0].value === 2 &&
+        Object.isFrozen(scalarSnapshot) &&
+        Object.isFrozen(scalarSnapshot[0]),
+      'Native scalar snapshots remain detached and frozen',
+    );
+    let unboundNative = false;
+    try {
+      new root.Evaluator().evaluate(scalarPrint.items[0]);
+    } catch (error) {
+      unboundNative =
+        error instanceof root.BasicRuntimeError && error.diagnostic.code === 'UNDEFINED_VARIABLE';
+    }
+    check(unboundNative, 'Fresh native evaluators retain unbound-variable behavior');
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {
     session.stop();
