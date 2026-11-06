@@ -1,4 +1,4 @@
-import {BasicRuntimeError} from './diagnostic.ts';
+import {BasicSyntaxError, BasicRuntimeError} from './diagnostic.ts';
 import {changeOperands} from './change.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
@@ -7,8 +7,11 @@ import {compareValues} from './comparison.ts';
 import {firstMa2Literal} from './foreign_literal.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
+import {parseBasicPlusMa2NumericExpression} from '../parser/parser.ts';
+import {ma2Binary, ma2Unary, type Ma2Value, type Ma2BinaryResult} from './ma2_value.ts';
 import type {
   BasicValue,
+  SourceOptions,
   ArrayDeclaration,
   ArraySnapshot,
   AssignmentTarget,
@@ -151,107 +154,13 @@ export class Evaluator {
 
   evaluate(expression: Expression): BasicValue {
     if (expression.type !== 'Ma2NumberLiteral') this.rejectForeignLiterals(expression);
-    // A flat expression can contain thousands of left-associated nodes. An
-    // explicit traversal also preserves left-to-right host callback ordering.
-    const pending: Frame[] = [{node: expression, ready: false}];
-    const values: BasicValue[] = [];
-    while (pending.length) {
-      const {node, ready} = pending.pop()!;
-      switch (node.type) {
-        case 'Ma2NumberLiteral':
-          return fail(
-            'UNSUPPORTED_NUMERIC_LITERAL',
-            'MA2 literals require a supported historical context',
-            node.location,
-          );
-        case 'NumberLiteral':
-          values.push(number(node.value, node.location));
-          break;
-        case 'StringLiteral':
-          values.push(node.value);
-          break;
-        case 'Variable': {
-          const name = node.name.toUpperCase();
-          const value = this.variables.get(name);
-          if (value === undefined) {
-            fail('UNDEFINED_VARIABLE', `Undefined variable ${name}`, node.location);
-          }
-          values.push(value);
-          break;
-        }
-        case 'ArrayReference':
-          if (!ready) {
-            this.arrays.checkReference(node);
-            pending.push({node, ready: true});
-            for (let i = node.indices.length - 1; i >= 0; i--) {
-              pending.push({node: node.indices[i], ready: false});
-            }
-          } else {
-            const indices = values.splice(values.length - node.indices.length);
-            values.push(this.arrays.read(node, indices));
-          }
-          break;
-        case 'GroupExpression':
-          pending.push({node: node.expression, ready: false});
-          break;
-        case 'UnaryExpression':
-          if (!ready) {
-            pending.push({node, ready: true}, {node: node.argument, ready: false});
-          } else {
-            const value = number(values.pop()!, node.operatorLocation);
-            if (node.operator !== '+' && node.operator !== '-') {
-              fail(
-                'UNSUPPORTED_OPERATOR',
-                `Unsupported operator ${node.operator}`,
-                node.operatorLocation,
-              );
-            }
-            values.push(number(node.operator === '-' ? -value : value, node.operatorLocation));
-          }
-          break;
-        case 'BinaryExpression':
-          if (!ready) {
-            pending.push(
-              {node, ready: true},
-              {node: node.right, ready: false},
-              {node: node.left, ready: false},
-            );
-          } else {
-            const right = values.pop()!;
-            const left = values.pop()!;
-            values.push(binary(node, left, right));
-          }
-          break;
-        case 'CallExpression':
-          if (!ready) {
-            const signature = nativeIntrinsic(node.name);
-            if (signature === null)
-              fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
-            if (node.arguments.length !== signature.arity) {
-              fail(
-                'INVALID_ARGUMENT_COUNT',
-                `${signature.name} expects ${signature.arity} argument(s)`,
-                node.nameLocation,
-              );
-            }
-            pending.push({node, ready: true});
-            for (let i = node.arguments.length - 1; i >= 0; i--) {
-              pending.push({node: node.arguments[i], ready: false});
-            }
-          } else if (node.name === 'INKEY$') {
-            values.push(readKey(this.host, node.nameLocation));
-          } else if (node.name === 'KEYDOWN') {
-            values.push(keyDown(this.host, values.pop()!, node.nameLocation));
-          } else if (node.name === 'RND') {
-            values.push(this.nextRandom(node.nameLocation));
-          } else {
-            const value = number(values.pop()!, node.nameLocation);
-            values.push(node.name === 'ABS' ? Math.abs(value) : Math.floor(value));
-          }
-          break;
-      }
-    }
-    return values[0];
+    return evaluateTree(expression, {
+      kind: 'native',
+      variables: this.variables,
+      arrays: () => this.arrays,
+      host: this.host,
+      random: (location) => this.nextRandom(location),
+    });
   }
 
   private nextRandom(location: Location): number {
@@ -272,4 +181,236 @@ export class Evaluator {
     }
     return value;
   }
+}
+
+interface NativeContext {
+  readonly kind: 'native';
+  readonly variables: ReadonlyMap<string, BasicValue>;
+  readonly arrays: () => ArrayStore;
+  readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
+  readonly random: (location: Location) => number;
+}
+interface Ma2Context {
+  readonly kind: 'ma2-conformance';
+}
+type Ma2Failure = Exclude<Ma2BinaryResult | ReturnType<typeof ma2Unary>, {kind: 'value'}>;
+export type Ma2ConstantResult =
+  Readonly<{kind: 'value'; value: Ma2Value}> | (Ma2Failure & Readonly<{location: Location}>);
+
+/** Internal source-only constant conformance; no Program or public dialect. */
+export function evaluateBasicPlusMa2Constant(
+  source: string,
+  options: Pick<SourceOptions, 'line' | 'offset'> = {},
+): Ma2ConstantResult {
+  const expression = parseBasicPlusMa2NumericExpression(source, options);
+  requireMa2ConstantSyntax(expression);
+  return evaluateTree(expression, {kind: 'ma2-conformance'});
+}
+
+/** Closed syntax inventory only; execution accepts canonical parser trees. */
+export function requireMa2ConstantSyntax(expression: Expression): void {
+  const reject = (code: string, message: string, location: Location): never => {
+    throw new BasicSyntaxError(code, message, location.start, location.label);
+  };
+  const pending: Expression[] = [expression];
+  while (pending.length) {
+    const node = pending.pop()!;
+    switch (node.type) {
+      case 'Ma2NumberLiteral':
+        break;
+      case 'NumberLiteral':
+      case 'StringLiteral':
+      case 'Variable':
+      case 'ArrayReference':
+        return reject(
+          'UNSUPPORTED_EXPRESSION',
+          'MA2 constant conformance requires constant MA2 numeric syntax',
+          node.location,
+        );
+      case 'GroupExpression':
+        pending.push(node.expression);
+        break;
+      case 'UnaryExpression':
+        if (node.operator !== '+' && node.operator !== '-')
+          reject(
+            'UNSUPPORTED_OPERATOR',
+            'Unsupported constant MA2 unary operator',
+            node.operatorLocation,
+          );
+        pending.push(node.argument);
+        break;
+      case 'BinaryExpression':
+        if (!['+', '-', '*', '/'].includes(node.operator))
+          reject(
+            'UNSUPPORTED_OPERATOR',
+            'Unsupported constant MA2 binary operator',
+            node.operatorLocation,
+          );
+        pending.push(node.right, node.left);
+        break;
+      case 'CallExpression':
+        if (node.name !== 'INT' && node.name !== 'ABS')
+          reject('UNSUPPORTED_FUNCTION', 'Unsupported constant MA2 intrinsic', node.nameLocation);
+        if (node.arguments.length !== 1)
+          reject(
+            'INVALID_ARGUMENT_COUNT',
+            'Constant MA2 intrinsics require one argument',
+            node.nameLocation,
+          );
+        pending.push(...node.arguments);
+        break;
+    }
+  }
+}
+
+function evaluateTree(expression: Expression, context: NativeContext): BasicValue;
+function evaluateTree(expression: Expression, context: Ma2Context): Ma2ConstantResult;
+function evaluateTree(
+  expression: Expression,
+  context: NativeContext | Ma2Context,
+): BasicValue | Ma2ConstantResult {
+  // A flat expression can contain thousands of left-associated nodes. An
+  // explicit traversal also preserves left-to-right host callback ordering.
+  const pending: Frame[] = [{node: expression, ready: false}];
+  const values: (BasicValue | Ma2Value)[] = [];
+  while (pending.length) {
+    const {node, ready} = pending.pop()!;
+    let ma2Operation:
+      {result: ReturnType<typeof ma2Unary> | Ma2BinaryResult; location: Location} | undefined;
+    switch (node.type) {
+      case 'Ma2NumberLiteral':
+        if (context.kind === 'native')
+          return fail(
+            'UNSUPPORTED_NUMERIC_LITERAL',
+            'MA2 literals require a supported historical context',
+            node.location,
+          );
+        // The source-only MA2 entry supplies validated immutable parser literals.
+        values.push(Object.freeze({kind: 'ma2', words: node.words}));
+        break;
+      case 'NumberLiteral':
+        values.push(number(node.value, node.location));
+        break;
+      case 'StringLiteral':
+        values.push(node.value);
+        break;
+      case 'Variable': {
+        const name = node.name.toUpperCase();
+        const value = (context as NativeContext).variables.get(name);
+        if (value === undefined) {
+          fail('UNDEFINED_VARIABLE', `Undefined variable ${name}`, node.location);
+        }
+        values.push(value);
+        break;
+      }
+      case 'ArrayReference':
+        if (!ready) {
+          (context as NativeContext).arrays().checkReference(node);
+          pending.push({node, ready: true});
+          for (let i = node.indices.length - 1; i >= 0; i--) {
+            pending.push({node: node.indices[i], ready: false});
+          }
+        } else {
+          const indices = values.splice(values.length - node.indices.length) as BasicValue[];
+          values.push((context as NativeContext).arrays().read(node, indices));
+        }
+        break;
+      case 'GroupExpression':
+        pending.push({node: node.expression, ready: false});
+        break;
+      case 'UnaryExpression':
+        if (!ready) {
+          pending.push({node, ready: true}, {node: node.argument, ready: false});
+        } else if (context.kind === 'ma2-conformance') {
+          const input = values.pop()! as Ma2Value;
+          ma2Operation = {
+            result:
+              node.operator === '+' ? {kind: 'value', value: input} : ma2Unary(input, 'negate'),
+            location: node.operatorLocation,
+          };
+        } else {
+          const value = number(values.pop()!, node.operatorLocation);
+          if (node.operator !== '+' && node.operator !== '-') {
+            fail(
+              'UNSUPPORTED_OPERATOR',
+              `Unsupported operator ${node.operator}`,
+              node.operatorLocation,
+            );
+          }
+          values.push(number(node.operator === '-' ? -value : value, node.operatorLocation));
+        }
+        break;
+      case 'BinaryExpression':
+        if (!ready) {
+          pending.push(
+            {node, ready: true},
+            {node: node.right, ready: false},
+            {node: node.left, ready: false},
+          );
+        } else {
+          const right = values.pop()!;
+          const left = values.pop()!;
+          if (context.kind === 'ma2-conformance') {
+            const operation =
+              node.operator === '+'
+                ? 'add'
+                : node.operator === '-'
+                  ? 'subtract'
+                  : node.operator === '*'
+                    ? 'multiply'
+                    : 'divide';
+            ma2Operation = {
+              result: ma2Binary(left as Ma2Value, operation, right as Ma2Value),
+              location: node.operatorLocation,
+            };
+          } else values.push(binary(node, left as BasicValue, right as BasicValue));
+        }
+        break;
+      case 'CallExpression':
+        if (!ready) {
+          if (context.kind === 'native') {
+            const signature = nativeIntrinsic(node.name);
+            if (signature === null)
+              fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
+            if (node.arguments.length !== signature.arity) {
+              fail(
+                'INVALID_ARGUMENT_COUNT',
+                `${signature.name} expects ${signature.arity} argument(s)`,
+                node.nameLocation,
+              );
+            }
+          }
+          pending.push({node, ready: true});
+          for (let i = node.arguments.length - 1; i >= 0; i--) {
+            pending.push({node: node.arguments[i], ready: false});
+          }
+        } else if (context.kind === 'ma2-conformance') {
+          ma2Operation = {
+            result: ma2Unary(
+              values.pop()! as Ma2Value,
+              node.name === 'ABS' ? 'absolute' : 'integer',
+            ),
+            location: node.nameLocation,
+          };
+        } else if (node.name === 'INKEY$') {
+          values.push(readKey(context.host, node.nameLocation));
+        } else if (node.name === 'KEYDOWN') {
+          values.push(keyDown(context.host, values.pop()! as BasicValue, node.nameLocation));
+        } else if (node.name === 'RND') {
+          values.push(context.random(node.nameLocation));
+        } else {
+          const value = number(values.pop()!, node.nameLocation);
+          values.push(node.name === 'ABS' ? Math.abs(value) : Math.floor(value));
+        }
+        break;
+    }
+    if (ma2Operation) {
+      const {result, location} = ma2Operation;
+      if (result.kind !== 'value') return Object.freeze({...result, location});
+      values.push(result.value);
+    }
+  }
+  return context.kind === 'native'
+    ? (values[0] as BasicValue)
+    : Object.freeze({kind: 'value', value: values[0] as Ma2Value});
 }

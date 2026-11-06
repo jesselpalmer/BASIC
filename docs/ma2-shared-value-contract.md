@@ -197,3 +197,15 @@ bounded first-game numeric grammar. It does not parse a historical Program,
 retain a hidden native execution context or expose public historical selection.
 Whole-program support validation, descriptor storage/evaluation and the rest of
 the closed activation matrix remain required.
+
+## Shared constant-expression evaluation stage
+
+The [constant MA2 expression entry](ma2-constant-evaluation.md) now binds the
+merged parser/value owners through the same iterative expression driver used
+by native Evaluator calls. A closed internal conformance context accepts only
+parsed constant numeric trees; no historical Program or public context exists.
+Intermediates retain descriptors, and a numeric event returns its original
+identity, continuation and operator location without resuming a parent expression.
+Native capability/array ownership and arity timing remain unchanged. This does
+not complete private runtime storage, statements/comparisons, diagnostic/handler
+policy, input/output or any remaining first-game activation row.

@@ -29,3 +29,15 @@ source-located events, preflight-before-events, depth/flat work, immutability an
 native effect traces. Keep coverage floors unchanged and installed/browser public
 context/export rejection intact. Shared storage, comparisons, statements, loops,
 I/O and full historical activation remain later gates; all corpus obligations stay.
+
+## Implemented evidence
+
+The 429 targeted tests include all 396 retained decimal captures and 28 source/
+arithmetic joins constructed from independently retained input/result captures.
+Five additional tests cover rounded chains, sign/group/INT/ABS behavior, located
+numeric events and preflight rejection, 6,000-term flat work/nesting limits,
+immutable results and native arity/callback order. A direct native callback resets
+arrays between reference checking and access, proving the shared driver resolves
+the live owner. The eleventh installed/browser consumer scenario repeats that
+owner check and confirms the conformance entry is not exported. These are pipeline
+checks against existing evidence, not new machine captures or game passes.

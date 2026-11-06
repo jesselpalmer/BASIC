@@ -46,7 +46,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/basic_plus_strings.ts`          | Internal bounded byte-string conformance helpers; unsupported historical edges remain explicit outcomes.                 |
 | `core/intrinsics.ts`                  | Immutable native signatures shared by parsing/inference/evaluation, plus the non-executable historical inventory.        |
 | `core/source_document.ts`             | Strict versioned source+dialect envelope codec; decoding never infers or executes a profile.                             |
-| `core/evaluator.ts`                   | Instance-local variables and iterative expression evaluation through injected host capabilities.                         |
+| `core/evaluator.ts`                   | Shared native/constant-MA2 iterative traversal; variables and host capabilities remain execution-owned.                  |
 | `core/array_declarations.ts`          | Whole-program array declarations, safe shape/cell limits and static reference validation before allocation.              |
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                             |
 | `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                          |
@@ -223,3 +223,10 @@ The [browser embedding guide](browser-embedding.md) documents supported imports,
 host ownership, draft-envelope composition, package pinning and installed/browser
 consumer checks. The playground's BrowserDocument remains a private strict
 complete-program import controller; its policy is separate from envelope decoding.
+
+The internal [constant MA2 entry](ma2-constant-evaluation.md) uses the same
+module-private expression driver with a closed conformance context and no Program.
+Its parsed-only constant trees carry immutable word values; numeric events stop
+calculation with their original continuation/location rather than selecting BASIC
+handler behavior. Native direct evaluation retains live array-owner lookup across
+host callbacks, native arity timing and the existing foreign-literal guards.

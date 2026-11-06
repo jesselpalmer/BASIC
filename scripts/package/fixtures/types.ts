@@ -428,3 +428,6 @@ ma2Literal.raw = '2';
 
 // @ts-expect-error The MA2 grammar conformance entry is internal.
 void rootAPI.parseBasicPlusMa2NumericExpression;
+
+// @ts-expect-error Constant MA2 evaluation is an internal conformance entry.
+void rootAPI.evaluateBasicPlusMa2Constant;

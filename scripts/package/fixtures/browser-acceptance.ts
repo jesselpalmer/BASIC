@@ -21,6 +21,7 @@ export const browserEmbeddingCases = [
   'unsupported context preserves prior state',
   'native supplied MA2 literals reject before effects',
   'historical numeric expression conformance stays internal',
+  'shared evaluator retains native callback array replacement',
 ] as const;
 
 function check(condition: unknown, message: string): void {
@@ -241,6 +242,33 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
       historicalRejected = error instanceof TypeError;
     }
     check(historicalRejected, 'Historical program context remains gated');
+    check(!('evaluateBasicPlusMa2Constant' in root), 'No public constant evaluator');
+    const resetting = root.parseProgram('10 DIM A(1)\n20 PRINT A(0)\n30 PRINT A(RND())');
+    const dim = resetting.lines[0].statement,
+      initial = resetting.lines[1].statement,
+      indexed = resetting.lines[2].statement;
+    if (
+      dim.type !== 'DimStatement' ||
+      initial.type !== 'PrintStatement' ||
+      indexed.type !== 'PrintStatement'
+    )
+      throw new Error('Expected native reset fixture');
+    const cell = initial.items[0];
+    if (cell.type !== 'ArrayReference') throw new Error('Expected array cell');
+    let resets = 0;
+    const resettingEvaluator = new root.Evaluator({
+      random: () => {
+        resets++;
+        resettingEvaluator.reset(dim.declarations);
+        return 0;
+      },
+    });
+    resettingEvaluator.reset(dim.declarations);
+    resettingEvaluator.assign(cell, 9);
+    check(
+      resettingEvaluator.evaluate(indexed.items[0]) === 0 && resets === 1,
+      'Read observes replacement array owner after native callback',
+    );
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {
     session.stop();
