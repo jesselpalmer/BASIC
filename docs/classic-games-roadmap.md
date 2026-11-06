@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `a14bca7a143a8032eceeab21c529aa1bd5645590` after merged
-[#199](https://github.com/jesselpalmer/BASIC/pull/199) and
-[#200](https://github.com/jesselpalmer/BASIC/pull/200). Native remains the only
+Reconciled against main `6c881d71c50fd61661bd85584b70ff465c2019d2` after merged
+[#201](https://github.com/jesselpalmer/BASIC/pull/201) and
+[#202](https://github.com/jesselpalmer/BASIC/pull/202). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -152,6 +152,12 @@ shared Parser's native IF comparison grammar to scalar conformance evaluation
 and exact word predicates. It preflights both sides and preserves operand event
 locations without writing cells. It does not parse/execute historical IF
 statements or activate a Program; all remaining support rows remain required.
+
+Word-preserving array storage is also merged. The
+[array-expression stage](ma2-array-expressions.md) binds explicit integer-index
+conformance reads/writes and scalar/array comparisons through the existing
+iterative evaluator. Fractional indices reject explicitly; historical defaults,
+subscript conversion/errors, statements and the full activation matrix stay open.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.

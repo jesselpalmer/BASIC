@@ -437,3 +437,6 @@ void rootAPI.createBasicPlusMa2ScalarSession;
 
 // @ts-expect-error Numeric comparison source conformance is internal.
 void rootAPI.parseBasicPlusMa2NumericComparison;
+
+// @ts-expect-error Array-expression conformance remains internal.
+void rootAPI.createBasicPlusMa2ArraySession;
