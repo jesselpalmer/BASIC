@@ -480,18 +480,20 @@ function ma2IntegerIndices(
   values: readonly Ma2Value[],
 ): number[] {
   return values.map((value, index) => {
-    // Canonical MA2 observations are exact; this conformance stage never truncates.
+    // Selected MA2 array subscripts use signed-word conversion before bounds
+    // checks. This is distinct from the native array's integer-only policy.
     const observed = observeMa2Value(value) as Extract<
       ReturnType<typeof observeMa2Value>,
       {kind: 'value'}
     >;
-    if (!Number.isSafeInteger(observed.value))
+    const word = Math.trunc(observed.value);
+    if (!Number.isFinite(word) || word < -32768 || word > 32767)
       fail(
         'UNSUPPORTED_MA2_INDEX',
-        'MA2 array conformance requires exact safe integer indices',
+        'MA2 subscript conversion is outside the supported signed-word range',
         reference.indices[index].location,
       );
-    return observed.value;
+    return word;
   });
 }
 
