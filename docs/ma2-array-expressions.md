@@ -17,11 +17,12 @@ all cells unchanged. These pure conformance ordering rules do not certify
 historical effectful operand order or statement/error handling.
 
 Selected MA2 subscript observations are truncated toward zero before bounds
-checks, including fractional reads and writes. Values whose truncated result
-falls outside the signed 16-bit word range still reject explicitly with
-UNSUPPORTED_MA2_INDEX; the internal session does not yet report BASIC error 51.
-Converted indices outside declared array bounds use the existing ARRAY_BOUNDS
-diagnostic; historical error 55/handler behavior remains for Program integration.
+checks, including fractional reads and writes. The internal session now uses
+the exact signed-word converter and distinguishes MA2_INTEGER_CONVERSION for
+out-of-word-range subscripts from MA2_SUBSCRIPT_BOUNDS for converted indices
+outside declared array bounds. These correspond to the selected handler's
+observed ERR 51 and ERR 55 cases, respectively; this internal path still does
+not implement BASIC's handler, untrapped continuation or replacement policy.
 Existing bounded shape/rank/offset checks and explicit zero descriptors remain implementation
 conformance rules, not historical DIM/default/index semantics. The mathematical
 word converter and retained 32 subscript observations supply the selected

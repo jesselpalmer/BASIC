@@ -116,19 +116,21 @@ describe('shared MA2 array-expression conformance', () => {
       code: 48,
     });
     for (const source of ['A(1E30)', 'A(32768)', 'A(-32769)']) {
-      expect(diagnostic(() => state.evaluate(source)).code).toBe('UNSUPPORTED_MA2_INDEX');
-      expect(diagnostic(() => state.assignElement(source, '9')).code).toBe('UNSUPPORTED_MA2_INDEX');
+      expect(diagnostic(() => state.evaluate(source)).code).toBe('MA2_INTEGER_CONVERSION');
+      expect(diagnostic(() => state.assignElement(source, '9')).code).toBe(
+        'MA2_INTEGER_CONVERSION',
+      );
     }
     for (const source of ['A(-1)', 'A(4)']) {
-      expect(diagnostic(() => state.evaluate(source)).code).toBe('ARRAY_BOUNDS');
-      expect(diagnostic(() => state.assignElement(source, '9')).code).toBe('ARRAY_BOUNDS');
+      expect(diagnostic(() => state.evaluate(source)).code).toBe('MA2_SUBSCRIPT_BOUNDS');
+      expect(diagnostic(() => state.assignElement(source, '9')).code).toBe('MA2_SUBSCRIPT_BOUNDS');
     }
     expect(state.snapshotArrays()).toEqual(before);
     const event = state.evaluate('A(1/0)');
     expect(Object.isFrozen(event)).toBe(true);
     if (event.kind === 'numeric-event') expect(Object.isFrozen(event.continuation)).toBe(true);
     expect(diagnostic(() => state.evaluate(' A(32768)', {line: 9, offset: 200}))).toMatchObject({
-      code: 'UNSUPPORTED_MA2_INDEX',
+      code: 'MA2_INTEGER_CONVERSION',
       line: 9,
       column: 4,
       offset: 203,
@@ -143,8 +145,8 @@ describe('shared MA2 array-expression conformance', () => {
     expect(state.evaluate('A(1.9)')).toEqual(normal([0x42b0, 0]));
     expect(state.evaluate('A(3.5)')).toEqual(normal([0x4304, 0]));
     for (const source of ['A(-1)', 'A(4.1)', 'A(32767)', 'A(-32768)'])
-      expect(diagnostic(() => state.evaluate(source)).code).toBe('ARRAY_BOUNDS');
-    expect(diagnostic(() => state.evaluate('A(32768)')).code).toBe('UNSUPPORTED_MA2_INDEX');
+      expect(diagnostic(() => state.evaluate(source)).code).toBe('MA2_SUBSCRIPT_BOUNDS');
+    expect(diagnostic(() => state.evaluate('A(32768)')).code).toBe('MA2_INTEGER_CONVERSION');
   });
   test('owns fresh stores, bounded detached snapshots and atomic declaration resets', () => {
     const dim = declarations();
