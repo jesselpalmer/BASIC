@@ -242,3 +242,11 @@ words. It separates those facts from array bounds and BASIC error/handler policy
 The 32 retained subscript observations remain bounded evidence; mathematical edge
 tests do not certify every historical normalization/range path. Native indices
 and public historical context rejection are unchanged.
+
+## Exact numeric relations
+
+The internal [MA2 numeric relation binding](ma2-numeric-relations.md) now feeds
+exact word ordering through the same six-operator relation switch used by native
+comparisons. It does not observe the operands as host numbers or add historical
+string/IF parsing or public selection. Unsupported encoding/operand outcomes
+remain explicit; native type diagnostics and direct primitive behavior stay intact.

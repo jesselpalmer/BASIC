@@ -21,3 +21,13 @@ four-word boundaries, detached immutable results, and native numeric/string/NaN
 behavior and diagnostic locations. Existing installed/browser consumers must keep
 the conformance function private. Shared historical comparison parsing and
 statement integration remain activation obligations, with every corpus gate open.
+
+## Implemented evidence
+
+The 758 tests exercise all six predicates for every retained CMPF capture, then
+check invalid operators before hostile operands, unsupported/tag/malformed
+boundaries, immutable results, native primitives including NaN/infinity, string
+restrictions and source-located type errors. Installed ESM/CommonJS, browser-bundle
+and negative type consumers guard the internal export boundary without widening
+public selection. This reuses 755 existing machine captures and adds no historical
+comparison statement or game certification.
