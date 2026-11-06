@@ -114,3 +114,8 @@ void rootAPI.compareMa2Relation;
 
 // @ts-expect-error Word-array conformance storage is internal.
 void rootAPI.createBasicPlusMa2ArrayStore;
+
+// @ts-expect-error Byte-string concatenation conformance stays internal.
+void rootAPI.basicPlusStringConcat;
+// @ts-expect-error Padded BASIC-PLUS comparison conformance stays internal.
+void rootAPI.compareBasicPlusStringRelation;

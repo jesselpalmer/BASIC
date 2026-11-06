@@ -5,6 +5,15 @@ export function runConsumer(api: typeof PublicApi): void {
   if ('compareMa2Relation' in api) throw new Error('MA2 relation conformance must remain private');
   if ('createBasicPlusMa2ArrayStore' in api)
     throw new Error('MA2 array conformance must remain private');
+  for (const name of ['basicPlusStringConcat', 'compareBasicPlusStringRelation'])
+    if (name in api) throw new Error('BASIC-PLUS string conformance must remain private');
+  let stringOutput = '';
+  new api.Basic({
+    write: (text) => {
+      stringOutput += text;
+    },
+  }).run('10 PRINT "🙂"+"é"\n20 IF "YES"="YES " THEN PRINT "wrong" ELSE PRINT "exact"');
+  if (stringOutput !== '🙂é\nexact\n') throw new Error('Native string semantics changed');
   new api.Basic();
   api.createHost();
   new api.Evaluator();

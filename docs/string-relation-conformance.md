@@ -56,3 +56,8 @@ Cover exact/over-limit lengths, malformed types/operators, immutable outcomes,
 independent calls and native exact equality/ordered-string rejection. Run the
 full quality/package gate; integration still requires Linux/macOS distribution
 validation. Passing relations closes no game or public profile gate.
+
+The [bounded string-value stage](basic-plus-string-values.md) now adds complete
+byte-preserving concatenation and boolean predicate binding through the shared
+comparison owner. It retains this document's limits and restricted ordering
+domain; historical source/evaluator/storage/INPUT integration remains gated.

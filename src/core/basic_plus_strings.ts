@@ -46,6 +46,15 @@ export function basicPlusStringLength(source: string): BasicPlusStringResult<num
   return problem ? unsupported(problem) : value(source.length);
 }
 
+/** Bounded byte concatenation; the cap is not a historical allocation rule. */
+export function basicPlusStringConcat(left: string, right: string): BasicPlusStringResult<string> {
+  const leftProblem = stringProblem(left);
+  const rightProblem = stringProblem(right);
+  if (leftProblem || rightProblem) return unsupported(leftProblem ?? rightProblem!);
+  if (left.length + right.length > BASIC_PLUS_STRING_LIMIT) return unsupported('string-limit');
+  return value(left + right);
+}
+
 export function basicPlusStringLeft(source: string, count: number): BasicPlusStringResult<string> {
   const problem = stringProblem(source);
   requireNumber(count);

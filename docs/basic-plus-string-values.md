@@ -6,8 +6,9 @@ through the shared comparison owner. No additional parser, evaluator or public
 profile is created. Native concatenation, exact equality and ordered-string
 rejection stay intact.
 
-The October 1972 BASIC-PLUS manual §5.1.4 (printed 5-3/5-4; one-based PDF 69/70)
-uses + to append string expressions, retaining their characters and blanks.
+The October 1972 BASIC-PLUS manual §5.5.1 (printed 5-12; one-based PDF 78)
+prints `DEF FNC$(X$,Y$)=X$+Y$` as a function combining two strings.
+Section 5.1.4 (printed 5-4; PDF 70) describes storage-limited string size.
 Section 5.1.5/table 5-1 (printed 5-4/5-5; PDF 70/71) supplies padded comparison;
 table 5-2 explicitly distinguishes high-bit character values. Use the same
 [primary manual and byte contract](string-conformance.md) already pinned by hash.
@@ -35,3 +36,12 @@ alphabet/padding expectations, composition and immutable results. Direct and
 installed/browser consumers keep the helpers private and native Unicode/string
 behavior intact. Full Linux/macOS, Chromium and exact archive checks are required;
 no corpus game or historical execution profile is certified and #109 is NOT READY.
+
+## Rechecked source and verification
+
+The downloaded primary PDF matches SHA-256
+`684b54d7218a2fb581bf324b175c1e37dc609e718218a81a51b22c31a1e936bd`.
+Visual review of printed 5-12 confirms the concatenation example; printed 5-4
+confirms the resource-versus-historical-length distinction. Five focused tests
+cover all 256 byte values, 27×27 independent alphabet/blank pairs for all six
+predicates, source composition, limits, invalid inputs and native boundaries.

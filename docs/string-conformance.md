@@ -62,3 +62,8 @@ blanks, controls/high bits, exact limits, invalid types, unsupported edges,
 immutable outcomes, independent calls, native names and native string errors.
 Require the full quality/package gate and Linux/macOS browser/archive checks.
 Passing these helpers certifies no complete corpus game; #109 stays NOT READY.
+
+The [bounded string-value stage](basic-plus-string-values.md) now adds complete
+byte-preserving concatenation and boolean predicate binding through the shared
+comparison owner. It retains this document's limits and restricted ordering
+domain; historical source/evaluator/storage/INPUT integration remains gated.
