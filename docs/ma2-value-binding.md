@@ -27,3 +27,13 @@ normal/exceptional paths, source/injection differences, hostile read-once words,
 immutable detached results and unchanged native rejection. Keep all coverage
 floors unchanged. Shared scalar/array/loop storage, parser integration, event
 observations, first-game I/O and public historical activation remain later gates.
+
+## Implemented evidence
+
+The 4,218 binding tests reuse 4,214 independent retained machine calls: 598
+completed add/subtract paths, 1,341 multiplication paths, 1,325 division paths,
+195 unary results and 755 comparisons. Additional tests prove word-rounded
+intermediates and operand ordering, source/injection differences, native guards,
+strict factory snapshots and immutable normal/event results. These are binding
+checks against existing captures, not new machine or historical game evidence.
+The functions remain internal and do not add shared execution storage yet.
