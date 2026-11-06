@@ -209,3 +209,14 @@ identity, continuation and operator location without resuming a parent expressio
 Native capability/array ownership and arity timing remain unchanged. This does
 not complete private runtime storage, statements/comparisons, diagnostic/handler
 policy, input/output or any remaining first-game activation row.
+
+## Internal numeric scalar storage stage
+
+The [scalar conformance session](ma2-scalar-storage.md) now retains canonical
+MA2 descriptors across parsed numeric assignments/reads on the shared driver.
+It commits only normal results and observes exact numbers only at detached
+snapshot boundaries. Exact host injection never guesses a source spelling.
+Unbound names reject as unbound conformance inputs rather than choosing a
+historical default. The constant entry remains constant-only; no Program,
+statement execution, public profile, arrays, loops or general event policy is
+activated by this storage stage.

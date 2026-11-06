@@ -8,7 +8,14 @@ import {firstMa2Literal} from './foreign_literal.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import {parseBasicPlusMa2NumericExpression} from '../parser/parser.ts';
-import {ma2Binary, ma2Unary, type Ma2Value, type Ma2BinaryResult} from './ma2_value.ts';
+import {
+  ma2Binary,
+  ma2Unary,
+  injectMa2Value,
+  observeMa2Value,
+  type Ma2Value,
+  type Ma2BinaryResult,
+} from './ma2_value.ts';
 import type {
   BasicValue,
   SourceOptions,
@@ -192,6 +199,7 @@ interface NativeContext {
 }
 interface Ma2Context {
   readonly kind: 'ma2-conformance';
+  readonly scalars: ReadonlyMap<string, Ma2Value> | null;
 }
 type Ma2Failure = Exclude<Ma2BinaryResult | ReturnType<typeof ma2Unary>, {kind: 'value'}>;
 export type Ma2ConstantResult =
@@ -204,11 +212,15 @@ export function evaluateBasicPlusMa2Constant(
 ): Ma2ConstantResult {
   const expression = parseBasicPlusMa2NumericExpression(source, options);
   requireMa2ConstantSyntax(expression);
-  return evaluateTree(expression, {kind: 'ma2-conformance'});
+  return evaluateTree(expression, {kind: 'ma2-conformance', scalars: null});
 }
 
 /** Closed syntax inventory only; execution accepts canonical parser trees. */
 export function requireMa2ConstantSyntax(expression: Expression): void {
+  requireMa2NumericSyntax(expression, false);
+}
+
+function requireMa2NumericSyntax(expression: Expression, scalars: boolean): void {
   const reject = (code: string, message: string, location: Location): never => {
     throw new BasicSyntaxError(code, message, location.start, location.label);
   };
@@ -220,13 +232,20 @@ export function requireMa2ConstantSyntax(expression: Expression): void {
         break;
       case 'NumberLiteral':
       case 'StringLiteral':
-      case 'Variable':
       case 'ArrayReference':
         return reject(
           'UNSUPPORTED_EXPRESSION',
           'MA2 constant conformance requires constant MA2 numeric syntax',
           node.location,
         );
+      case 'Variable':
+        if (!scalars)
+          return reject(
+            'UNSUPPORTED_EXPRESSION',
+            'Constant MA2 syntax cannot read scalar state',
+            node.location,
+          );
+        break;
       case 'GroupExpression':
         pending.push(node.expression);
         break;
@@ -263,6 +282,85 @@ export function requireMa2ConstantSyntax(expression: Expression): void {
   }
 }
 
+type ScalarInjectionFailure = Exclude<ReturnType<typeof injectMa2Value>, {kind: 'value'}>;
+export type Ma2ScalarInjectionResult =
+  | Extract<ReturnType<typeof injectMa2Value>, {kind: 'value'}>
+  | (ScalarInjectionFailure & Readonly<{location: Location}>);
+
+/** Internal numeric storage conformance; no Program, statements or public profile. */
+export function createBasicPlusMa2ScalarSession() {
+  return new Ma2ScalarSession();
+}
+
+class Ma2ScalarSession {
+  readonly #scalars = new Map<string, Ma2Value>();
+
+  evaluate(
+    source: string,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ConstantResult {
+    const expression = parseBasicPlusMa2NumericExpression(source, options);
+    requireMa2NumericSyntax(expression, true);
+    return evaluateTree(expression, {kind: 'ma2-conformance', scalars: this.#scalars});
+  }
+
+  assign(
+    name: string,
+    source: string,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ConstantResult {
+    const target = this.target(name, options);
+    const result = this.evaluate(source, options);
+    if (result.kind === 'value') this.#scalars.set(target.name, result.value);
+    return result;
+  }
+
+  inject(
+    name: string,
+    input: number,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ScalarInjectionResult {
+    const target = this.target(name, options);
+    const result = injectMa2Value(input);
+    if (result.kind !== 'value') return Object.freeze({...result, location: target.location});
+    this.#scalars.set(target.name, result.value);
+    return result;
+  }
+
+  snapshot(): readonly VariableSnapshot[] {
+    return Object.freeze(
+      Array.from(this.#scalars, ([name, value]) => {
+        // Only canonical parser/injection descriptors can enter this private Map.
+        const observation = observeMa2Value(value) as Extract<
+          ReturnType<typeof observeMa2Value>,
+          {kind: 'value'}
+        >;
+        return Object.freeze({name, value: observation.value});
+      }),
+    );
+  }
+
+  reset(): void {
+    this.#scalars.clear();
+  }
+
+  private target(
+    name: string,
+    options: Pick<SourceOptions, 'line' | 'offset'>,
+  ): NodeOf<'Variable'> {
+    if (typeof name !== 'string') throw new TypeError('Expected a scalar target spelling');
+    const target = parseBasicPlusMa2NumericExpression(name, options);
+    if (target.type !== 'Variable')
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_ASSIGNMENT_TARGET',
+        'MA2 scalar conformance requires one numeric scalar target',
+        target.location.start,
+        target.location.label,
+      );
+    return target;
+  }
+}
+
 function evaluateTree(expression: Expression, context: NativeContext): BasicValue;
 function evaluateTree(expression: Expression, context: Ma2Context): Ma2ConstantResult;
 function evaluateTree(
@@ -296,9 +394,16 @@ function evaluateTree(
         break;
       case 'Variable': {
         const name = node.name.toUpperCase();
-        const value = (context as NativeContext).variables.get(name);
+        const value =
+          context.kind === 'native' ? context.variables.get(name) : context.scalars?.get(name);
         if (value === undefined) {
-          fail('UNDEFINED_VARIABLE', `Undefined variable ${name}`, node.location);
+          fail(
+            context.kind === 'native' ? 'UNDEFINED_VARIABLE' : 'UNBOUND_MA2_SCALAR',
+            context.kind === 'native'
+              ? `Undefined variable ${name}`
+              : `Unbound MA2 conformance scalar ${name}`,
+            node.location,
+          );
         }
         values.push(value);
         break;

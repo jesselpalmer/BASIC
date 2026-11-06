@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `3b6d275a7ebc9f34681e835107ae4de433b5e4d1` after merged
-[#195](https://github.com/jesselpalmer/BASIC/pull/195) and
-[#196](https://github.com/jesselpalmer/BASIC/pull/196). Native remains the only
+Reconciled against main `90e522cbd19a6823136952bb158ef5f6f1f0e8a6` after merged
+[#197](https://github.com/jesselpalmer/BASIC/pull/197) and
+[#198](https://github.com/jesselpalmer/BASIC/pull/198). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -138,6 +138,13 @@ operation and stopping numeric events with explicit source locations. It accepts
 no variable/array state and creates no historical Program. Shared storage,
 comparison/statement integration, full event policy, loops and I/O remain gated;
 this adds no historical-game certification.
+
+The exact signed-word facts and shared constant-evaluation slice are now merged.
+The [internal scalar storage stage](ma2-scalar-storage.md) retains descriptors
+across assignments and later expression reads, with exact host injection and
+number-valued detached observations. It does not choose historical defaults or
+execute LET/INPUT/IF/loop statements. Program preparation, arrays/loops, comparison
+binding, complete event policy and I/O remain activation obligations.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.

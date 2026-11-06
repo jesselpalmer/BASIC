@@ -30,3 +30,13 @@ entry constant-only, preserve native host/error/array-owner traces, and maintain
 installed/browser private-export and historical-context rejection. Historical
 Program parsing, comparisons/statements, arrays/loops, event/handler policy and
 I/O remain separate gates; all corpus and release obligations remain unchanged.
+
+## Implemented evidence
+
+The 400 tests include all 396 retained decimal spellings through atomic scalar
+assignment, plus cross-assignment rounded chains and exact snapshots, host/source
+injection separation, physical rejection/event paths, failed writes, independent
+sessions/reset and 6,000-term variable expressions. The twelfth installed/browser
+embedding scenario keeps the factory private and verifies native scalar arithmetic,
+undefined-name behavior and detached snapshots. These are integration checks
+against existing captures, not new machine observations or historical game passes.
