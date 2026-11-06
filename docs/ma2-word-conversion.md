@@ -23,3 +23,13 @@ was observed at every boundary. Include hostile/malformed/noncanonical words,
 no coercion/iteration, canonical zero, immutable results, source limits and
 unchanged native fractional-index rejection. Before historical array activation,
 prove and bind the remaining index/error/normalization matrix in the shared owners.
+
+## Implemented evidence
+
+The 36 tests cover all 32 retained subscript observations plus 2,550 independent
+integer-rational values across every stored exponent, both signs and five fraction
+patterns; signed fractional endpoints, strict decoder/read-once boundaries,
+canonical zero and immutable outcomes are also checked. The source observations
+are reused without reinterpretation as new machine captures. The implementation
+is not bound to ArrayStore or any public profile; full index/error proof remains
+an activation obligation.
