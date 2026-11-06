@@ -16,12 +16,16 @@ events stop later work, retain their physical location/continuation, and leave
 all cells unchanged. These pure conformance ordering rules do not certify
 historical effectful operand order or statement/error handling.
 
-This stage accepts **exact integer observations only** for subscripts. Fractional
-or unsafe integer observations reject explicitly with UNSUPPORTED_MA2_INDEX;
-they are not truncated or reinterpreted as BASIC errors 51/55. Existing bounded
-shape/rank/offset checks and explicit zero descriptors remain implementation
+Selected MA2 subscript observations are truncated toward zero before bounds
+checks, including fractional reads and writes. Values whose truncated result
+falls outside the signed 16-bit word range still reject explicitly with
+UNSUPPORTED_MA2_INDEX; the internal session does not yet report BASIC error 51.
+Converted indices outside declared array bounds use the existing ARRAY_BOUNDS
+diagnostic; historical error 55/handler behavior remains for Program integration.
+Existing bounded shape/rank/offset checks and explicit zero descriptors remain implementation
 conformance rules, not historical DIM/default/index semantics. The mathematical
-word converter and retained 32 subscript observations remain separate facts.
+word converter and retained 32 subscript observations supply the selected
+conversion evidence; untrapped replacement behavior remains unknown.
 
 Snapshots are detached bounded number-valued observations; evaluation never
 reconstructs descriptors from snapshots. Reset allocates new arrays before
@@ -40,7 +44,7 @@ acceptance obligation remain open; #109 stays NOT READY.
 
 ## Implemented evidence
 
-Four hundred tests include all 396 retained source-conversion spellings through
+Four hundred and one tests include all 396 retained source-conversion spellings through
 array assignment, cross-cell/scalar rounded chains, nested indices/comparisons,
 exact injections, RHS/index numeric events, preflight and atomic reset failures.
 The fourteenth installed/browser embedding scenario preserves private exports,

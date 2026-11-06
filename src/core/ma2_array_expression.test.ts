@@ -115,7 +115,7 @@ describe('shared MA2 array-expression conformance', () => {
       kind: 'numeric-event',
       code: 48,
     });
-    for (const source of ['A(.5)', 'A(-.5)', 'A(1E30)']) {
+    for (const source of ['A(1E30)', 'A(32768)', 'A(-32769)']) {
       expect(diagnostic(() => state.evaluate(source)).code).toBe('UNSUPPORTED_MA2_INDEX');
       expect(diagnostic(() => state.assignElement(source, '9')).code).toBe('UNSUPPORTED_MA2_INDEX');
     }
@@ -127,12 +127,24 @@ describe('shared MA2 array-expression conformance', () => {
     const event = state.evaluate('A(1/0)');
     expect(Object.isFrozen(event)).toBe(true);
     if (event.kind === 'numeric-event') expect(Object.isFrozen(event.continuation)).toBe(true);
-    expect(diagnostic(() => state.evaluate(' A(.5)', {line: 9, offset: 200}))).toMatchObject({
+    expect(diagnostic(() => state.evaluate(' A(32768)', {line: 9, offset: 200}))).toMatchObject({
       code: 'UNSUPPORTED_MA2_INDEX',
       line: 9,
       column: 4,
       offset: 203,
     });
+  });
+  test('uses selected signed-word truncation for read and write subscripts', () => {
+    const state = session(declarations());
+    state.assignElement('A(.5)', '11');
+    state.assignElement('A(1.5)', '22');
+    state.assignElement('A(3.5)', '33');
+    expect(state.evaluate('A(-.9)')).toEqual(normal([0x4230, 0]));
+    expect(state.evaluate('A(1.9)')).toEqual(normal([0x42b0, 0]));
+    expect(state.evaluate('A(3.5)')).toEqual(normal([0x4304, 0]));
+    for (const source of ['A(-1)', 'A(4.1)', 'A(32767)', 'A(-32768)'])
+      expect(diagnostic(() => state.evaluate(source)).code).toBe('ARRAY_BOUNDS');
+    expect(diagnostic(() => state.evaluate('A(32768)')).code).toBe('UNSUPPORTED_MA2_INDEX');
   });
   test('owns fresh stores, bounded detached snapshots and atomic declaration resets', () => {
     const dim = declarations();
