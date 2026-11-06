@@ -28,3 +28,13 @@ writes, declaration/rank/resource validation, bounded exact snapshots, fresh
 stores and native regressions. Installed/browser/type consumers keep the factory
 private and native array behavior intact. Bind array expressions, historical
 conversion/default/error rules, control flow and complete game acceptance later.
+
+## Implemented evidence
+
+Five targeted tests cover word-rounded intermediates, 1D/2D cells, explicit zero,
+read-once copied writes, unsupported injection before index reads, failed-write
+atomicity, cross-context/CHANGE rejection, declaration/rank/resource checks,
+bounded immutable exact snapshots and fresh ownership. Existing installed library
+and actual browser bundles also guard the private factory and native array
+initialization/reruns. No new machine observation or historical default/index
+policy is inferred; array expression/statement binding remains outstanding.

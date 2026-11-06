@@ -1,29 +1,58 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {arrayShapes} from './array_declarations.ts';
 import {maxChangeLength} from './change.ts';
+import {bindMa2Words, injectMa2Value, observeMa2Value, type Ma2Value} from './ma2_value.ts';
 import type {ArrayShape} from './array_declarations.ts';
 import type {ArrayDeclaration, ArraySnapshot, BasicValue, Location, NodeOf} from './types.ts';
 
 interface ArrayStorage extends ArrayShape {
-  readonly values: BasicValue[];
+  readonly values: (BasicValue | Ma2Value)[];
 }
 
 function fail(code: string, message: string, location: Location): never {
   throw new BasicRuntimeError(code, message, location.start, location.label);
 }
 
+type Ma2WriteValue = Extract<ReturnType<typeof bindMa2Words>, {kind: 'value'}>;
+type Ma2WriteFailure = Exclude<
+  ReturnType<typeof bindMa2Words> | ReturnType<typeof injectMa2Value>,
+  {kind: 'value'}
+>;
+export type Ma2ArrayWriteResult =
+  Ma2WriteValue | (Ma2WriteFailure & Readonly<{location: Location}>);
+
+/** Internal explicit numeric-cell conformance; never a historical Program. */
+export function createBasicPlusMa2ArrayStore(declarations: readonly ArrayDeclaration[] = []) {
+  return new ArrayStore(declarations, 'ma2-conformance');
+}
+
 /** Mutable cells belong to one execution; declarations and observations never do. */
 export class ArrayStore {
   readonly #arrays: ReadonlyMap<string, ArrayStorage>;
+  readonly #mode: 'native' | 'ma2-conformance';
 
-  constructor(declarations: readonly ArrayDeclaration[] = []) {
+  constructor(
+    declarations: readonly ArrayDeclaration[] = [],
+    mode: 'native' | 'ma2-conformance' = 'native',
+  ) {
+    if (mode !== 'native' && mode !== 'ma2-conformance')
+      throw new TypeError('Unsupported array storage context');
+    this.#mode = mode;
     const shapes = arrayShapes(declarations);
+    if (mode === 'ma2-conformance' && shapes.some((shape) => !/^[A-Z][0-9]?$/.test(shape.name)))
+      throw new TypeError('MA2 array conformance requires short numeric names');
+    const zero =
+      mode === 'native'
+        ? 0
+        : Object.freeze({kind: 'ma2' as const, words: Object.freeze([0, 0] as const)});
     this.#arrays = new Map(
       shapes.map((shape) => [
         shape.name,
         {
           ...shape,
-          values: new Array<BasicValue>(shape.elementCount).fill(shape.name.endsWith('$') ? '' : 0),
+          values: new Array<BasicValue | Ma2Value>(shape.elementCount).fill(
+            shape.name.endsWith('$') ? '' : zero,
+          ),
         },
       ]),
     );
@@ -48,8 +77,9 @@ export class ArrayStore {
   }
 
   read(reference: NodeOf<'ArrayReference'>, indices: readonly BasicValue[]): BasicValue {
+    this.requireNative();
     const array = this.lookup(reference);
-    return array.values[this.offset(array, reference, indices)];
+    return array.values[this.offset(array, reference, indices)] as BasicValue;
   }
 
   write(
@@ -57,8 +87,64 @@ export class ArrayStore {
     indices: readonly BasicValue[],
     value: BasicValue,
   ): void {
+    this.requireNative();
     const array = this.lookup(reference);
     array.values[this.offset(array, reference, indices)] = value;
+  }
+
+  private requireNative(): void {
+    if (this.#mode !== 'native')
+      throw new TypeError('Native access is unavailable in MA2 array conformance');
+  }
+
+  private requireMa2(): void {
+    if (this.#mode !== 'ma2-conformance')
+      throw new TypeError('MA2 access requires its explicit array conformance context');
+  }
+
+  readMa2(reference: NodeOf<'ArrayReference'>, indices: readonly number[]): Ma2Value {
+    this.requireMa2();
+    const array = this.lookup(reference);
+    return array.values[this.offset(array, reference, indices)] as Ma2Value;
+  }
+
+  writeMa2(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly number[],
+    input: Ma2Value,
+  ): Ma2ArrayWriteResult {
+    this.requireMa2();
+    if (input === null || typeof input !== 'object' || input.kind !== 'ma2')
+      throw new TypeError('Expected a tagged MA2 array value');
+    return this.commitMa2(reference, indices, bindMa2Words(input.words));
+  }
+
+  injectMa2(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly number[],
+    input: number,
+  ): Ma2ArrayWriteResult {
+    this.requireMa2();
+    return this.commitMa2(reference, indices, injectMa2Value(input));
+  }
+
+  private commitMa2(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly number[],
+    result: Ma2WriteValue | Ma2WriteFailure,
+  ): Ma2ArrayWriteResult {
+    if (result.kind !== 'value') {
+      const {label, start, end} = reference.location;
+      const location = Object.freeze({
+        label,
+        start: Object.freeze({...start}),
+        end: Object.freeze({...end}),
+      });
+      return Object.freeze({...result, location});
+    }
+    const array = this.lookup(reference);
+    array.values[this.offset(array, reference, indices)] = result.value;
+    return result;
   }
 
   private changeArray(variable: NodeOf<'Variable'>): ArrayStorage {
@@ -74,6 +160,7 @@ export class ArrayStore {
   }
 
   changeToNumbers(variable: NodeOf<'Variable'>, source: BasicValue): void {
+    this.requireNative();
     const array = this.changeArray(variable);
     if (typeof source !== 'string')
       fail('TYPE_MISMATCH', 'CHANGE requires a string source', variable.location);
@@ -95,6 +182,7 @@ export class ArrayStore {
   }
 
   changeToString(variable: NodeOf<'Variable'>): string {
+    this.requireNative();
     const array = this.changeArray(variable);
     const length = array.values[0];
     if (
@@ -155,7 +243,19 @@ export class ArrayStore {
     let remaining = 256;
     return Object.freeze(
       Array.from(this.#arrays.values(), (array) => {
-        const values = Object.freeze(array.values.slice(0, Math.min(64, remaining)));
+        const prefix = array.values.slice(0, Math.min(64, remaining));
+        const values = Object.freeze(
+          this.#mode === 'native'
+            ? (prefix as BasicValue[])
+            : prefix.map((value) => {
+                // This context can store only factory-validated canonical descriptors.
+                const observation = observeMa2Value(value as Ma2Value) as Extract<
+                  ReturnType<typeof observeMa2Value>,
+                  {kind: 'value'}
+                >;
+                return observation.value;
+              }),
+        );
         remaining -= values.length;
         return Object.freeze({
           name: array.name,
