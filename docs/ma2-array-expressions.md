@@ -37,3 +37,12 @@ observations and long flat expressions. Require full local and installed/type
 checks plus Linux/macOS actual Chromium and exact archive gates. Historical
 activation, complete index/error/default rules, loops/I/O and every corpus
 acceptance obligation remain open; #109 stays NOT READY.
+
+## Implemented evidence
+
+Four hundred tests include all 396 retained source-conversion spellings through
+array assignment, cross-cell/scalar rounded chains, nested indices/comparisons,
+exact injections, RHS/index numeric events, preflight and atomic reset failures.
+The fourteenth installed/browser embedding scenario preserves private exports,
+native scalar/array namespaces, nested indices and fresh run ownership. These
+checks reuse existing captures and do not add historical game evidence.

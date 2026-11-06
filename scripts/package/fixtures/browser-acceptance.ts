@@ -11,6 +11,7 @@ type RootAPI = Pick<
   | 'BasicRuntimeError'
 >;
 export const browserEmbeddingCases = [
+  'shared native array expressions and conformance privacy',
   'unfinished draft envelope and validation on Run',
   'malformed envelope preserves draft',
   'PRINT graphics WAIT keyboard and submitted INPUT',
@@ -318,6 +319,21 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
     check(
       relationOutput === 'YES\n' && relationCalls === 2,
       'Native IF parsing/evaluation retains callback order',
+    );
+    check(!('createBasicPlusMa2ArraySession' in root), 'No public MA2 array session');
+    let arrayExpressionOutput = '';
+    const arrayExpressionBasic = new root.Basic({
+      write: (text) => {
+        arrayExpressionOutput += text;
+      },
+    });
+    for (let run = 0; run < 2; run++)
+      arrayExpressionBasic.run(
+        '10 DIM A(2),B(1,2)\n20 A=2:A(0)=1:B(A(0),A)=7\n30 PRINT A(1);B(1,2)',
+      );
+    check(
+      arrayExpressionOutput === '07\n07\n',
+      'Native scalar/array namespaces and nested indices reset',
     );
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {

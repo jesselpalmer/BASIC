@@ -2,7 +2,7 @@ import {BasicSyntaxError, BasicRuntimeError} from './diagnostic.ts';
 import {changeOperands} from './change.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
-import {ArrayStore} from './arrays.ts';
+import {ArrayStore, createBasicPlusMa2ArrayStore} from './arrays.ts';
 import {compareValues, compareMa2Relation, type Ma2RelationResult} from './comparison.ts';
 import {firstMa2Literal} from './foreign_literal.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
@@ -203,6 +203,7 @@ interface NativeContext {
 interface Ma2Context {
   readonly kind: 'ma2-conformance';
   readonly scalars: ReadonlyMap<string, Ma2Value> | null;
+  readonly arrays: ArrayStore | null;
 }
 type Ma2Failure = Exclude<Ma2BinaryResult | ReturnType<typeof ma2Unary>, {kind: 'value'}>;
 export type Ma2ConstantResult =
@@ -215,7 +216,7 @@ export function evaluateBasicPlusMa2Constant(
 ): Ma2ConstantResult {
   const expression = parseBasicPlusMa2NumericExpression(source, options);
   requireMa2ConstantSyntax(expression);
-  return evaluateTree(expression, {kind: 'ma2-conformance', scalars: null});
+  return evaluateTree(expression, {kind: 'ma2-conformance', scalars: null, arrays: null});
 }
 
 /** Closed syntax inventory only; execution accepts canonical parser trees. */
@@ -223,7 +224,11 @@ export function requireMa2ConstantSyntax(expression: Expression): void {
   requireMa2NumericSyntax(expression, false);
 }
 
-function requireMa2NumericSyntax(expression: Expression, scalars: boolean): void {
+function requireMa2NumericSyntax(
+  expression: Expression,
+  scalars: boolean,
+  arrays: ArrayStore | null = null,
+): void {
   const reject = (code: string, message: string, location: Location): never => {
     throw new BasicSyntaxError(code, message, location.start, location.label);
   };
@@ -235,12 +240,21 @@ function requireMa2NumericSyntax(expression: Expression, scalars: boolean): void
         break;
       case 'NumberLiteral':
       case 'StringLiteral':
-      case 'ArrayReference':
         return reject(
           'UNSUPPORTED_EXPRESSION',
           'MA2 constant conformance requires constant MA2 numeric syntax',
           node.location,
         );
+      case 'ArrayReference':
+        if (arrays === null)
+          return reject(
+            'UNSUPPORTED_EXPRESSION',
+            'MA2 array syntax requires an explicit array conformance session',
+            node.location,
+          );
+        arrays.checkReference(node);
+        pending.push(...node.indices.toReversed());
+        break;
       case 'Variable':
         if (!scalars)
           return reject(
@@ -299,16 +313,31 @@ export function createBasicPlusMa2ScalarSession() {
   return new Ma2ScalarSession();
 }
 
+/** Internal explicit array/scalar conformance; no historical index policy. */
+export function createBasicPlusMa2ArraySession(declarations: readonly ArrayDeclaration[] = []) {
+  if (!Array.isArray(declarations)) throw new TypeError('Expected explicit array declarations');
+  return new Ma2ScalarSession(declarations);
+}
+
 class Ma2ScalarSession {
   readonly #scalars = new Map<string, Ma2Value>();
+  #arrays: ArrayStore | null;
+
+  constructor(declarations: readonly ArrayDeclaration[] | null = null) {
+    this.#arrays = declarations === null ? null : createBasicPlusMa2ArrayStore(declarations);
+  }
+
+  private context(): Ma2Context {
+    return {kind: 'ma2-conformance', scalars: this.#scalars, arrays: this.#arrays};
+  }
 
   evaluate(
     source: string,
     options: Pick<SourceOptions, 'line' | 'offset'> = {},
   ): Ma2ConstantResult {
     const expression = parseBasicPlusMa2NumericExpression(source, options);
-    requireMa2NumericSyntax(expression, true);
-    return evaluateTree(expression, {kind: 'ma2-conformance', scalars: this.#scalars});
+    requireMa2NumericSyntax(expression, true, this.#arrays);
+    return evaluateTree(expression, this.context());
   }
 
   compare(
@@ -316,9 +345,9 @@ class Ma2ScalarSession {
     options: Pick<SourceOptions, 'line' | 'offset'> = {},
   ): Ma2ComparisonResult {
     const condition = parseBasicPlusMa2NumericComparison(source, options);
-    requireMa2NumericSyntax(condition.left, true);
-    requireMa2NumericSyntax(condition.right, true);
-    const context: Ma2Context = {kind: 'ma2-conformance', scalars: this.#scalars};
+    requireMa2NumericSyntax(condition.left, true, this.#arrays);
+    requireMa2NumericSyntax(condition.right, true, this.#arrays);
+    const context = this.context();
     const left = evaluateTree(condition.left, context);
     if (left.kind !== 'value') return left;
     const right = evaluateTree(condition.right, context);
@@ -365,8 +394,68 @@ class Ma2ScalarSession {
     );
   }
 
-  reset(): void {
+  snapshotArrays(): readonly ArraySnapshot[] {
+    return this.#arrays?.snapshot() ?? Object.freeze([]);
+  }
+
+  reset(declarations: readonly ArrayDeclaration[] = []): void {
+    const arrays = this.#arrays === null ? null : createBasicPlusMa2ArrayStore(declarations);
     this.#scalars.clear();
+    this.#arrays = arrays;
+  }
+
+  assignElement(
+    targetSource: string,
+    source: string,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ConstantResult {
+    const target = this.elementTarget(targetSource, options);
+    // Preflight both trees before any RHS/index numeric work.
+    const expression = parseBasicPlusMa2NumericExpression(source, options);
+    requireMa2NumericSyntax(expression, true, this.#arrays);
+    return this.writeElement(target, evaluateTree(expression, this.context()));
+  }
+
+  injectElement(
+    targetSource: string,
+    input: number,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ConstantResult | Ma2ScalarInjectionResult {
+    const target = this.elementTarget(targetSource, options);
+    const result = injectMa2Value(input);
+    if (result.kind !== 'value') return Object.freeze({...result, location: target.location});
+    return this.writeElement(target, result);
+  }
+
+  private elementTarget(
+    source: string,
+    options: Pick<SourceOptions, 'line' | 'offset'>,
+  ): NodeOf<'ArrayReference'> {
+    const target = parseBasicPlusMa2NumericExpression(source, options);
+    if (target.type !== 'ArrayReference')
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_ASSIGNMENT_TARGET',
+        'MA2 element conformance requires one array target',
+        target.location.start,
+        target.location.label,
+      );
+    requireMa2NumericSyntax(target, true, this.#arrays);
+    return target;
+  }
+
+  private writeElement(
+    target: NodeOf<'ArrayReference'>,
+    result: Ma2ConstantResult,
+  ): Ma2ConstantResult {
+    if (result.kind !== 'value') return result;
+    const indices: Ma2Value[] = [];
+    for (const expression of target.indices) {
+      const index = evaluateTree(expression, this.context());
+      if (index.kind !== 'value') return index;
+      indices.push(index.value);
+    }
+    this.#arrays!.writeMa2(target, ma2IntegerIndices(target, indices), result.value);
+    return result;
   }
 
   private target(
@@ -384,6 +473,26 @@ class Ma2ScalarSession {
       );
     return target;
   }
+}
+
+function ma2IntegerIndices(
+  reference: NodeOf<'ArrayReference'>,
+  values: readonly Ma2Value[],
+): number[] {
+  return values.map((value, index) => {
+    // Canonical MA2 observations are exact; this conformance stage never truncates.
+    const observed = observeMa2Value(value) as Extract<
+      ReturnType<typeof observeMa2Value>,
+      {kind: 'value'}
+    >;
+    if (!Number.isSafeInteger(observed.value))
+      fail(
+        'UNSUPPORTED_MA2_INDEX',
+        'MA2 array conformance requires exact safe integer indices',
+        reference.indices[index].location,
+      );
+    return observed.value;
+  });
 }
 
 function evaluateTree(expression: Expression, context: NativeContext): BasicValue;
@@ -435,14 +544,18 @@ function evaluateTree(
       }
       case 'ArrayReference':
         if (!ready) {
-          (context as NativeContext).arrays().checkReference(node);
+          (context.kind === 'native' ? context.arrays() : context.arrays!).checkReference(node);
           pending.push({node, ready: true});
           for (let i = node.indices.length - 1; i >= 0; i--) {
             pending.push({node: node.indices[i], ready: false});
           }
         } else {
-          const indices = values.splice(values.length - node.indices.length) as BasicValue[];
-          values.push((context as NativeContext).arrays().read(node, indices));
+          const indices = values.splice(values.length - node.indices.length);
+          values.push(
+            context.kind === 'native'
+              ? context.arrays().read(node, indices as BasicValue[])
+              : context.arrays!.readMa2(node, ma2IntegerIndices(node, indices as Ma2Value[])),
+          );
         }
         break;
       case 'GroupExpression':

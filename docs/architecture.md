@@ -243,3 +243,9 @@ the same comparison grammar method as native IF. Scalar conformance preflights
 both sides and evaluates them on the shared driver before exact word relations;
 events retain their operand locations and no cells are written. This returns a
 comparison fact, not a historical IF transfer or public Program context.
+
+The internal [MA2 array-expression session](ma2-array-expressions.md) joins the
+existing scalar context and ArrayStore in the same expression traversal. It
+accepts only exact safe-integer indices, preflights all references/ranks, and
+commits element writes after normal RHS/index results. It is not a public
+historical Program, fractional-index conversion policy or BASIC error handler.
