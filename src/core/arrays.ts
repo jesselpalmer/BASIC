@@ -229,7 +229,7 @@ export class ArrayStore {
         fail('TYPE_MISMATCH', 'Array indices must be numeric', location);
       if (!Number.isSafeInteger(index) || index < 0 || index > array.bounds[i]) {
         fail(
-          'ARRAY_BOUNDS',
+          this.#mode === 'ma2-conformance' ? 'MA2_SUBSCRIPT_BOUNDS' : 'ARRAY_BOUNDS',
           `Index must be an integer from 0 through ${array.bounds[i]}`,
           location,
         );

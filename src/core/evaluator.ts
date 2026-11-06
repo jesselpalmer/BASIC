@@ -5,6 +5,7 @@ import {validateDialect} from './dialect.ts';
 import {ArrayStore, createBasicPlusMa2ArrayStore} from './arrays.ts';
 import {compareValues, compareMa2Relation, type Ma2RelationResult} from './comparison.ts';
 import {firstMa2Literal} from './foreign_literal.ts';
+import {truncateMa2ToWord} from './ma2_word_conversion.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import {
@@ -482,18 +483,14 @@ function ma2IntegerIndices(
   return values.map((value, index) => {
     // Selected MA2 array subscripts use signed-word conversion before bounds
     // checks. This is distinct from the native array's integer-only policy.
-    const observed = observeMa2Value(value) as Extract<
-      ReturnType<typeof observeMa2Value>,
-      {kind: 'value'}
-    >;
-    const word = Math.trunc(observed.value);
-    if (!Number.isFinite(word) || word < -32768 || word > 32767)
+    const converted = truncateMa2ToWord(value.words);
+    if (converted.kind !== 'value')
       fail(
-        'UNSUPPORTED_MA2_INDEX',
-        'MA2 subscript conversion is outside the supported signed-word range',
+        'MA2_INTEGER_CONVERSION',
+        'MA2 subscript cannot be converted to a signed word',
         reference.indices[index].location,
       );
-    return word;
+    return converted.value;
   });
 }
 
