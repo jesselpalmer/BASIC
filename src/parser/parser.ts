@@ -15,6 +15,7 @@ import type {
   Statement,
   SimpleStatement,
   ComparisonOperator,
+  Comparison,
 } from '../core/types.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
@@ -57,15 +58,34 @@ export function parseProgram(source: string, options: LanguageOptions = {}): Pro
 /** Internal numeric grammar conformance only: no Program or execution context. */
 export function parseBasicPlusMa2NumericExpression(
   source: string,
-  {line = 1, offset = 0}: Pick<SourceOptions, 'line' | 'offset'> = {},
+  options: Pick<SourceOptions, 'line' | 'offset'> = {},
 ): Expression {
-  if (!Number.isSafeInteger(line) || line < 1 || !Number.isSafeInteger(offset) || offset < 0)
-    throw new RangeError('Invalid expression source position');
-  const parser = new Parser(source, {line, offset}, true);
+  const parser = ma2Parser(source, options);
   const expression = parser.expression();
   if (!parser.at('EOF'))
     parser.fail('UNEXPECTED_TOKEN', 'Expected one complete numeric expression');
   return freezeTree(expression);
+}
+
+/** Internal complete numeric relation only; no IF statement or Program. */
+export function parseBasicPlusMa2NumericComparison(
+  source: string,
+  options: Pick<SourceOptions, 'line' | 'offset'> = {},
+): Comparison {
+  const parser = ma2Parser(source, options);
+  const comparison = parser.comparison();
+  if (!parser.at('EOF'))
+    parser.fail('UNEXPECTED_TOKEN', 'Expected one complete numeric comparison');
+  return freezeTree(comparison);
+}
+
+function ma2Parser(
+  source: string,
+  {line = 1, offset = 0}: Pick<SourceOptions, 'line' | 'offset'>,
+): Parser {
+  if (!Number.isSafeInteger(line) || line < 1 || !Number.isSafeInteger(offset) || offset < 0)
+    throw new RangeError('Invalid expression source position');
+  return new Parser(source, {line, offset}, true);
 }
 
 class Parser {
@@ -336,19 +356,7 @@ class Parser {
           );
         this.conditionalDepth++;
         try {
-          const left = this.expression();
-          const operator = this.peek();
-          if (operator.type !== 'OPERATOR' || !comparisonOperators.has(operator.value)) {
-            this.fail('EXPECTED_COMPARISON', 'Expected one comparison operator', operator);
-          }
-          this.take();
-          const right = this.expression();
-          const condition = this.node('Comparison', left, right, {
-            left,
-            right,
-            operator: operator.value as ComparisonOperator,
-            operatorLocation: this.location(operator),
-          });
+          const condition = this.comparison();
           const transfer = this.peek();
           if (!this.at('KEYWORD', 'THEN') && !this.at('KEYWORD', 'GOTO'))
             this.fail('EXPECTED_TOKEN', 'Expected THEN or GOTO after the comparison');
@@ -759,6 +767,22 @@ class Parser {
     if (name.value.endsWith('$'))
       this.fail('TYPE_MISMATCH', 'Loop variables must be numeric', name);
     return this.node('Variable', name, name, {name: name.value});
+  }
+
+  comparison(): Comparison {
+    const left = this.expression();
+    const operator = this.peek();
+    if (operator.type !== 'OPERATOR' || !comparisonOperators.has(operator.value)) {
+      this.fail('EXPECTED_COMPARISON', 'Expected one comparison operator', operator);
+    }
+    this.take();
+    const right = this.expression();
+    return this.node('Comparison', left, right, {
+      left,
+      right,
+      operator: operator.value as ComparisonOperator,
+      operatorLocation: this.location(operator),
+    });
   }
 
   expression(): Expression {

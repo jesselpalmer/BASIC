@@ -434,3 +434,6 @@ void rootAPI.evaluateBasicPlusMa2Constant;
 
 // @ts-expect-error Scalar MA2 storage conformance is internal.
 void rootAPI.createBasicPlusMa2ScalarSession;
+
+// @ts-expect-error Numeric comparison source conformance is internal.
+void rootAPI.parseBasicPlusMa2NumericComparison;

@@ -237,3 +237,9 @@ Source assignments and exact host injection commit only normal values; numeric
 events and failed preparation leave prior cells intact. Number-valued snapshots
 are detached observations and never feed subsequent arithmetic. This is not a
 historical Program, public dialect, statement executor or default-variable policy.
+
+The internal [numeric comparison source entry](ma2-source-comparisons.md) reuses
+the same comparison grammar method as native IF. Scalar conformance preflights
+both sides and evaluates them on the shared driver before exact word relations;
+events retain their operand locations and no cells are written. This returns a
+comparison fact, not a historical IF transfer or public Program context.

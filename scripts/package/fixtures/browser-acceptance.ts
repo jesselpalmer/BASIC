@@ -23,6 +23,7 @@ export const browserEmbeddingCases = [
   'historical numeric expression conformance stays internal',
   'shared evaluator retains native callback array replacement',
   'native scalar observations stay isolated and conformance stays private',
+  'shared comparison grammar preserves native IF callback order',
 ] as const;
 
 function check(condition: unknown, message: string): void {
@@ -298,6 +299,26 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
         error instanceof root.BasicRuntimeError && error.diagnostic.code === 'UNDEFINED_VARIABLE';
     }
     check(unboundNative, 'Fresh native evaluators retain unbound-variable behavior');
+    check(
+      !('parseBasicPlusMa2NumericComparison' in root),
+      'No public comparison conformance parser',
+    );
+    let relationOutput = '',
+      relationCalls = 0;
+    const relationBasic = new root.Basic({
+      write: (text) => {
+        relationOutput += text;
+      },
+      random: () => {
+        relationCalls++;
+        return relationCalls / 10;
+      },
+    });
+    relationBasic.run('10 IF RND()<RND() THEN 30\n20 PRINT "NO":END\n30 PRINT "YES"');
+    check(
+      relationOutput === 'YES\n' && relationCalls === 2,
+      'Native IF parsing/evaluation retains callback order',
+    );
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {
     session.stop();
