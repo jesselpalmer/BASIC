@@ -1,5 +1,6 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
+import {compareMa2Values, type Ma2Value} from './ma2_value.ts';
 import type {BasicValue, Comparison, ComparisonOperator, Expression} from './types.ts';
 
 type ValueType = 'number' | 'string';
@@ -31,7 +32,11 @@ export function compareValues(left: BasicValue, right: BasicValue, condition: Co
       condition.location.label,
     );
   }
-  switch (condition.operator) {
+  return relation(left, condition.operator, right);
+}
+
+function relation(left: BasicValue, operator: ComparisonOperator, right: BasicValue): boolean {
+  switch (operator) {
     case '=':
       return left === right;
     case '<>':
@@ -45,6 +50,23 @@ export function compareValues(left: BasicValue, right: BasicValue, condition: Co
     case '>=':
       return left >= right;
   }
+}
+
+export type Ma2RelationResult =
+  | Readonly<{kind: 'value'; value: boolean}>
+  | Exclude<ReturnType<typeof compareMa2Values>, {kind: 'value'}>;
+
+/** Internal numeric relations only; no historical strings, IF or public context. */
+export function compareMa2Relation(
+  left: Ma2Value,
+  operator: ComparisonOperator,
+  right: Ma2Value,
+): Ma2RelationResult {
+  if (!['=', '<>', '<', '<=', '>', '>='].includes(operator))
+    throw new RangeError('Unsupported MA2 comparison operator');
+  const result = compareMa2Values(left, right);
+  if (result.kind !== 'value') return result;
+  return Object.freeze({kind: 'value', value: relation(result.order, operator, 0)});
 }
 
 // Infer result types without evaluating values, reading variables, or calling

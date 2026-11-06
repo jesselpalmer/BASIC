@@ -1,3 +1,4 @@
+import * as rootAPI from 'node-basic-lang';
 import {
   BrowserSession,
   KeyboardInput,
@@ -107,3 +108,6 @@ void BrowserDocument;
 // @ts-expect-error Package exports deny private deep imports.
 import {BrowserSession as InternalSession} from 'node-basic-lang/src/browser/session.ts';
 void InternalSession;
+
+// @ts-expect-error Numeric MA2 relation conformance is internal.
+void rootAPI.compareMa2Relation;

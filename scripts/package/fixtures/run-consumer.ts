@@ -2,6 +2,7 @@ import type * as PublicApi from 'node-basic-lang';
 import {runLibraryAcceptance} from '../../library-acceptance.ts';
 
 export function runConsumer(api: typeof PublicApi): void {
+  if ('compareMa2Relation' in api) throw new Error('MA2 relation conformance must remain private');
   new api.Basic();
   api.createHost();
   new api.Evaluator();
