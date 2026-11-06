@@ -24,3 +24,12 @@ immutable results, no writes and native IF/callback behavior. Keep public
 historical context and conformance exports rejected in installed/browser/type
 consumers. No historical Program, IF execution, string relation or release/game
 certification is added; the remaining first-game matrix stays gated.
+
+## Implemented evidence
+
+The 760 tests exercise six parsed scalar predicates for each of 755 retained CMPF
+pairs, then literal-source joins between independent decimal/CMPF captures,
+physical immutable spans/results, full-input/unsupported preflight, operand events
+and native IF/callback behavior. The thirteenth installed/browser embedding
+scenario retains private conformance exports and native IF operand order. These
+are binding checks against existing captures, not new machine/game evidence.

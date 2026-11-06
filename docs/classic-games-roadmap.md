@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `90e522cbd19a6823136952bb158ef5f6f1f0e8a6` after merged
-[#197](https://github.com/jesselpalmer/BASIC/pull/197) and
-[#198](https://github.com/jesselpalmer/BASIC/pull/198). Native remains the only
+Reconciled against main `a14bca7a143a8032eceeab21c529aa1bd5645590` after merged
+[#199](https://github.com/jesselpalmer/BASIC/pull/199) and
+[#200](https://github.com/jesselpalmer/BASIC/pull/200). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -145,6 +145,13 @@ across assignments and later expression reads, with exact host injection and
 number-valued detached observations. It does not choose historical defaults or
 execute LET/INPUT/IF/loop statements. Program preparation, arrays/loops, comparison
 binding, complete event policy and I/O remain activation obligations.
+
+Word-preserving scalar storage and exact numeric relation binding are now merged.
+The [numeric comparison source stage](ma2-source-comparisons.md) connects the
+shared Parser's native IF comparison grammar to scalar conformance evaluation
+and exact word predicates. It preflights both sides and preserves operand event
+locations without writing cells. It does not parse/execute historical IF
+statements or activate a Program; all remaining support rows remain required.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.

@@ -3,11 +3,14 @@ import {changeOperands} from './change.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {ArrayStore} from './arrays.ts';
-import {compareValues} from './comparison.ts';
+import {compareValues, compareMa2Relation, type Ma2RelationResult} from './comparison.ts';
 import {firstMa2Literal} from './foreign_literal.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {readKey, keyDown} from './keyboard.ts';
-import {parseBasicPlusMa2NumericExpression} from '../parser/parser.ts';
+import {
+  parseBasicPlusMa2NumericExpression,
+  parseBasicPlusMa2NumericComparison,
+} from '../parser/parser.ts';
 import {
   ma2Binary,
   ma2Unary,
@@ -287,6 +290,10 @@ export type Ma2ScalarInjectionResult =
   | Extract<ReturnType<typeof injectMa2Value>, {kind: 'value'}>
   | (ScalarInjectionFailure & Readonly<{location: Location}>);
 
+export type Ma2ComparisonResult =
+  | (Ma2RelationResult & Readonly<{location: Location}>)
+  | Exclude<Ma2ConstantResult, {kind: 'value'}>;
+
 /** Internal numeric storage conformance; no Program, statements or public profile. */
 export function createBasicPlusMa2ScalarSession() {
   return new Ma2ScalarSession();
@@ -302,6 +309,24 @@ class Ma2ScalarSession {
     const expression = parseBasicPlusMa2NumericExpression(source, options);
     requireMa2NumericSyntax(expression, true);
     return evaluateTree(expression, {kind: 'ma2-conformance', scalars: this.#scalars});
+  }
+
+  compare(
+    source: string,
+    options: Pick<SourceOptions, 'line' | 'offset'> = {},
+  ): Ma2ComparisonResult {
+    const condition = parseBasicPlusMa2NumericComparison(source, options);
+    requireMa2NumericSyntax(condition.left, true);
+    requireMa2NumericSyntax(condition.right, true);
+    const context: Ma2Context = {kind: 'ma2-conformance', scalars: this.#scalars};
+    const left = evaluateTree(condition.left, context);
+    if (left.kind !== 'value') return left;
+    const right = evaluateTree(condition.right, context);
+    if (right.kind !== 'value') return right;
+    return Object.freeze({
+      ...compareMa2Relation(left.value, condition.operator, right.value),
+      location: condition.operatorLocation,
+    });
   }
 
   assign(

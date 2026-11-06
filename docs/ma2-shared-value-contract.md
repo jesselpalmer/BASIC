@@ -220,3 +220,13 @@ Unbound names reject as unbound conformance inputs rather than choosing a
 historical default. The constant entry remains constant-only; no Program,
 statement execution, public profile, arrays, loops or general event policy is
 activated by this storage stage.
+
+## Internal numeric comparison source stage
+
+The [comparison source binding](ma2-source-comparisons.md) now parses one complete
+numeric condition through the shared native IF grammar method. The scalar session
+preflights both sides before arithmetic and uses stored descriptors through the
+same driver and exact relation owner. Normal booleans retain the comparison span;
+operand events retain their original span/continuation without subsequent work
+or writes. This is not historical IF execution, string comparison, a default or
+event/handler policy, or a public Program profile.
