@@ -250,3 +250,12 @@ exact word ordering through the same six-operator relation switch used by native
 comparisons. It does not observe the operands as host numbers or add historical
 string/IF parsing or public selection. Unsupported encoding/operand outcomes
 remain explicit; native type diagnostics and direct primitive behavior stay intact.
+
+## Shared MA2 word-cell storage
+
+The internal [word-array storage mode](ma2-array-storage.md) now retains canonical
+descriptors in the existing ArrayStore with validated word writes and exact host
+injection. It accepts already-computed integer indices and reuses bounded native
+structural shape rules. This does not adopt native index rules as historical
+semantics or activate the separate mathematical truncation fact as a BASIC
+conversion/error policy. Historical array expressions and full acceptance remain gated.

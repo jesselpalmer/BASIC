@@ -70,3 +70,13 @@ against checkout and the exact extracted static artifact on Linux/macOS. The
 separate corrected native 1CHECK path now exercises integer PRINT USING and
 adjacent items too; historical formatting/profile work remains open in the
 corpus ledger and #129/#109.
+
+## Internal word-cell conformance stage
+
+The [MA2 array storage stage](ma2-array-storage.md) reuses this same allocator,
+shape/rank/integer-offset checks and bounded snapshots in an explicit internal
+numeric-cell context. Canonical words are retained through reads/writes and
+observed as detached exact numbers only for snapshots. It is not bound to the
+historical expression evaluator or Program; converted fractional subscripts,
+defaults and BASIC error/handler rules remain activation obligations. Public
+native arrays and CHANGE retain their existing behavior.

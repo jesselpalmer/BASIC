@@ -111,3 +111,6 @@ void InternalSession;
 
 // @ts-expect-error Numeric MA2 relation conformance is internal.
 void rootAPI.compareMa2Relation;
+
+// @ts-expect-error Word-array conformance storage is internal.
+void rootAPI.createBasicPlusMa2ArrayStore;
