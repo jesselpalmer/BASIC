@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `874230ca7dc72284a2b6236da55140abb7dc1954` after merged
-[#193](https://github.com/jesselpalmer/BASIC/pull/193) and
-[#194](https://github.com/jesselpalmer/BASIC/pull/194). Native remains the only
+Reconciled against main `3b6d275a7ebc9f34681e835107ae4de433b5e4d1` after merged
+[#195](https://github.com/jesselpalmer/BASIC/pull/195) and
+[#196](https://github.com/jesselpalmer/BASIC/pull/196). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -130,6 +130,14 @@ accepted numeric syntax. It returns an expression only, never a historical
 Program; complete statement/program preparation, shared word storage/evaluation,
 events, loops and I/O remain outstanding. Unsupported syntax and public
 historical context remain rejected. All corpus counts above are unchanged.
+
+The internal numeric-expression parser and immutable MA2 operation binding are
+now merged. The [constant expression slice](ma2-constant-evaluation.md) connects
+them through the existing iterative evaluator, retaining words through each
+operation and stopping numeric events with explicit source locations. It accepts
+no variable/array state and creates no historical Program. Shared storage,
+comparison/statement integration, full event policy, loops and I/O remain gated;
+this adds no historical-game certification.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.
