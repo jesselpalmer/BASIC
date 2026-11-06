@@ -164,6 +164,7 @@ class Scanner {
 
   historicalWordAllowed(word: string): boolean {
     const entry = historicalWord(word, 0)!;
+    if (word === 'USING' && this.statementWord === 'PRINT') return true;
     if (entry.role === 'unsupported') return false;
     if (word === 'ELSE') return this.openConditionals > 0;
     if (this.statementStart) return entry.role === 'statement';
@@ -438,7 +439,9 @@ class Scanner {
       if (this.source[this.index] === '$') this.index++;
     }
     const value = this.source.slice(beginning, this.index).toUpperCase();
-    const type = (this.policy.compact ? historicalKeyword : reservedWords.has(value))
+    const type = (
+      this.policy.compact ? historicalKeyword && value !== 'USING' : reservedWords.has(value)
+    )
       ? 'KEYWORD'
       : 'IDENTIFIER';
     this.emit(type, start, value);

@@ -79,6 +79,11 @@ export function parseBasicPlusMa2NumericComparison(
   return freezeTree(comparison);
 }
 
+/** Internal candidate syntax only; no prepared Program or runnable profile. */
+export function parseBasicPlusMa2Candidate(source: string): readonly ParsedLine[] {
+  return freezeTree(new Parser(source, {}, true, true).parse());
+}
+
 function ma2Parser(
   source: string,
   {line = 1, offset = 0}: Pick<SourceOptions, 'line' | 'offset'>,
@@ -104,6 +109,7 @@ class Parser {
     source: string,
     {line = 1, offset = 0, dialect}: SourceOptions = {},
     readonly ma2 = false,
+    readonly candidate = false,
   ) {
     this.dialect = validateDialect(dialect);
     this.source = source;
@@ -112,8 +118,8 @@ class Parser {
       ? tokenize(source, {
           line,
           offset,
-          numbered: false,
-          expression: true,
+          numbered: candidate,
+          expression: !candidate,
           lexicalPolicy: 'basic-plus-1972-10',
         })
       : tokenize(source, {line, offset});
@@ -322,6 +328,10 @@ class Parser {
     }
     this.take();
     switch (command.value) {
+      case 'DIM':
+        // Native DIM is contextual IDENTIFIER syntax above; the selected
+        // historical scanner recognizes it as a statement keyword.
+        return this.dimension(command);
       case 'LET': {
         const name = this.expect('IDENTIFIER', undefined, 'Expected a variable name after LET');
         return this.assignment(command, name);
@@ -465,7 +475,7 @@ class Parser {
   }
 
   conditionalBranch(): NodeFields['InlineIfStatement']['consequent'] {
-    if (this.at('NUMBER')) return this.jumpTarget();
+    if (this.at('NUMBER') || (this.candidate && this.at('RAW_NUMBER'))) return this.jumpTarget();
     this.branchDepth++;
     try {
       const statement = this.statement();
@@ -548,9 +558,9 @@ class Parser {
       for (;;) {
         const bound = this.peek();
         if (
-          bound.type !== 'NUMBER' ||
+          (bound.type !== 'NUMBER' && !(this.candidate && bound.type === 'RAW_NUMBER')) ||
           !/^\d+$/.test(bound.raw) ||
-          !Number.isSafeInteger(bound.value)
+          !Number.isSafeInteger(Number(bound.raw))
         ) {
           this.fail(
             'INVALID_DIMENSION',
@@ -559,7 +569,9 @@ class Parser {
           );
         }
         this.take();
-        bounds.push(this.node('NumberLiteral', bound, bound, {value: bound.value, raw: bound.raw}));
+        bounds.push(
+          this.node('NumberLiteral', bound, bound, {value: Number(bound.raw), raw: bound.raw}),
+        );
         if (!this.at('PUNCTUATION', ',')) break;
         if (bounds.length === 2)
           this.fail('ARRAY_RANK_MISMATCH', 'Arrays support one or two dimensions');
@@ -666,6 +678,7 @@ class Parser {
           // unsigned primary can start another top-level PRINT item.
           if (
             next.type !== 'NUMBER' &&
+            !(this.candidate && next.type === 'RAW_NUMBER') &&
             next.type !== 'STRING' &&
             next.type !== 'IDENTIFIER' &&
             !(next.type === 'KEYWORD' && nativeIntrinsic(next.value) !== null) &&
@@ -751,15 +764,19 @@ class Parser {
   jumpTarget(): NodeOf<'NumberLiteral'> {
     const token = this.peek();
     if (
-      token.type !== 'NUMBER' ||
+      (token.type !== 'NUMBER' && !(this.candidate && token.type === 'RAW_NUMBER')) ||
       !/^\d+$/.test(token.raw) ||
-      token.value < 1 ||
-      token.value > 65535
+      Number(token.raw) < 1 ||
+      Number(token.raw) > (this.candidate ? 32767 : 65535)
     ) {
-      this.fail('INVALID_TARGET', 'Expected a literal line label from 1 through 65535', token);
+      this.fail(
+        'INVALID_TARGET',
+        `Expected a literal line label from 1 through ${this.candidate ? 32767 : 65535}`,
+        token,
+      );
     }
     this.take();
-    return this.node('NumberLiteral', token, token, {value: token.value, raw: token.raw});
+    return this.node('NumberLiteral', token, token, {value: Number(token.raw), raw: token.raw});
   }
 
   loopVariable(): NodeOf<'Variable'> {
@@ -868,6 +885,7 @@ class Parser {
     }
     if (
       this.ma2 &&
+      !this.candidate &&
       (token.type === 'STRING' || (token.type === 'IDENTIFIER' && /[$%]$/.test(token.value)))
     )
       this.fail('UNSUPPORTED_EXPRESSION', 'Expected a numeric MA2 expression', token);
