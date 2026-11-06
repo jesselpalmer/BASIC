@@ -27,7 +27,7 @@ are implementation modules, not additional public package entrypoints. See the
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `parser/tokenizer.ts`                 | Token spelling and physical source positions; no retained state between calls.                                           |
 | `dictionaries/reserved_words.ts`      | Active lexical keyword set, including session commands reserved against use as variables; not a statement registry.      |
-| `parser/parser.ts`                    | Statement and expression grammar, including bounded nesting.                                                             |
+| `parser/parser.ts`                    | Shared grammar and nesting; internal MA2 numeric-expression conformance returns no Program.                              |
 | `parser/program_validation.ts`        | Whole-program checks and immutable snapshots without retaining caller-owned objects.                                     |
 | `core/instructions.ts`                | Bounded sequence/conditional trees, real instruction positions and prepared branch/continuation destinations.            |
 | `core/prepared_program.ts`            | A validated program, flat real instructions and label/loop indexes derived from that exact snapshot.                     |

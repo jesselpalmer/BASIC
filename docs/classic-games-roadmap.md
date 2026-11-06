@@ -8,9 +8,9 @@ compatibility issue or approve a release.
 
 ## Current checkpoint
 
-Reconciled against main `b772f03af1edb2cfba3293271113221698eceff2` after merged
-[#191](https://github.com/jesselpalmer/BASIC/pull/191) and
-[#192](https://github.com/jesselpalmer/BASIC/pull/192). Native remains the only
+Reconciled against main `874230ca7dc72284a2b6236da55140abb7dc1954` after merged
+[#193](https://github.com/jesselpalmer/BASIC/pull/193) and
+[#194](https://github.com/jesselpalmer/BASIC/pull/194). Native remains the only
 executable profile. Merged prerequisites do not complete compatibility parent
 issues or certify historical games.
 
@@ -122,6 +122,14 @@ embedding issue #190 is closed. The [MA2 literal preparation seam](ma2-literal-p
 adds distinct raw/word literals and explicit native rejection, including supplied
 dead/late trees and host-effect ordering. It does not activate historical parsing
 or execution; the shared value/runtime matrix remains outstanding.
+
+The literal-preparation and [exact host injection](ma2-exact-injection.md)
+prerequisites are now merged. The [internal MA2 numeric expression path](ma2-expression-parser.md)
+feeds raw source through the existing Parser and retains literal words across
+accepted numeric syntax. It returns an expression only, never a historical
+Program; complete statement/program preparation, shared word storage/evaluation,
+events, loops and I/O remain outstanding. Unsupported syntax and public
+historical context remain rejected. All corpus counts above are unchanged.
 
 The next priorities are the unresolved source/dialect and numeric contracts in
 milestones 1 and 2 below, followed by one executable historical vertical slice.

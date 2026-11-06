@@ -187,3 +187,13 @@ context rejection remain unchanged. The [literal preparation seam](ma2-literal-p
 expression kind, exact raw/word validation and native supplied-tree rejection.
 Historical parser integration and shared word storage remain later stages;
 raw tokens and prepared literals are not executable historical programs.
+
+## Internal numeric-expression parser stage
+
+The [MA2 expression conformance path](ma2-expression-parser.md) now feeds the
+historical scanner into the same Parser for one complete numeric expression.
+It binds RAW_NUMBER directly to the prepared raw/word literal and accepts the
+bounded first-game numeric grammar. It does not parse a historical Program,
+retain a hidden native execution context or expose public historical selection.
+Whole-program support validation, descriptor storage/evaluation and the rest of
+the closed activation matrix remain required.

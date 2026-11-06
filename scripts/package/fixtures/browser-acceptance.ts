@@ -20,6 +20,7 @@ export const browserEmbeddingCases = [
   'Stop cancels WAIT',
   'unsupported context preserves prior state',
   'native supplied MA2 literals reject before effects',
+  'historical numeric expression conformance stays internal',
 ] as const;
 
 function check(condition: unknown, message: string): void {
@@ -232,6 +233,14 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
       effects === 0 && evaluator.snapshotVariables().length === 0,
       'Foreign tree has no native effects',
     );
+    check(!('parseBasicPlusMa2NumericExpression' in root), 'No public conformance parser');
+    let historicalRejected = false;
+    try {
+      root.parseProgram('10 PRINT 1', {dialect: 'basic-plus-v4a12-ma2' as 'native'});
+    } catch (error) {
+      historicalRejected = error instanceof TypeError;
+    }
+    check(historicalRejected, 'Historical program context remains gated');
     return {cases: [...browserEmbeddingCases], printed, command, draft};
   } finally {
     session.stop();
