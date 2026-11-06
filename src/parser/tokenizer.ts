@@ -23,7 +23,11 @@ const historicalDataPayloadLimit = 262144;
 // End positions are exclusive; tabs count as one source column.
 export function tokenize(
   source: string,
-  options: SourceOptions & {numbered?: boolean; lexicalPolicy?: LexicalPolicy} = {},
+  options: SourceOptions & {
+    numbered?: boolean;
+    expression?: boolean;
+    lexicalPolicy?: LexicalPolicy;
+  } = {},
 ): Token[] {
   return new Scanner(source, options).scan();
 }
@@ -46,15 +50,18 @@ class Scanner {
     source: string,
     {
       numbered = true,
+      expression = false,
       line = 1,
       offset = 0,
       lexicalPolicy,
     }: SourceOptions & {
       numbered?: boolean;
+      expression?: boolean;
       lexicalPolicy?: LexicalPolicy;
     },
   ) {
     this.policy = scannerPolicy(lexicalPolicy);
+    this.statementStart = !expression;
     this.source = source;
     this.numbered = numbered;
     this.line = line;

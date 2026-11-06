@@ -19,6 +19,7 @@ import type {
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
 import {nativeIntrinsic} from '../core/intrinsics.ts';
+import {prepareBasicPlusMa2Literal} from '../core/basic_plus_ma2_literal.ts';
 import {validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {changeOperands} from '../core/change.ts';
@@ -53,6 +54,20 @@ export function parseProgram(source: string, options: LanguageOptions = {}): Pro
   return validateProgram(new Parser(source, {dialect}).parse(), {dialect});
 }
 
+/** Internal numeric grammar conformance only: no Program or execution context. */
+export function parseBasicPlusMa2NumericExpression(
+  source: string,
+  {line = 1, offset = 0}: Pick<SourceOptions, 'line' | 'offset'> = {},
+): Expression {
+  if (!Number.isSafeInteger(line) || line < 1 || !Number.isSafeInteger(offset) || offset < 0)
+    throw new RangeError('Invalid expression source position');
+  const parser = new Parser(source, {line, offset}, true);
+  const expression = parser.expression();
+  if (!parser.at('EOF'))
+    parser.fail('UNEXPECTED_TOKEN', 'Expected one complete numeric expression');
+  return freezeTree(expression);
+}
+
 class Parser {
   readonly dialect: Dialect;
   readonly source: string;
@@ -65,11 +80,23 @@ class Parser {
   conditionalDepth = 0;
   branchDepth = 0;
   lineStatementCount = 0;
-  constructor(source: string, {line = 1, offset = 0, dialect}: SourceOptions = {}) {
+  constructor(
+    source: string,
+    {line = 1, offset = 0, dialect}: SourceOptions = {},
+    readonly ma2 = false,
+  ) {
     this.dialect = validateDialect(dialect);
     this.source = source;
     this.offset = offset;
-    this.tokens = tokenize(source, {line, offset});
+    this.tokens = ma2
+      ? tokenize(source, {
+          line,
+          offset,
+          numbered: false,
+          expression: true,
+          lexicalPolicy: 'basic-plus-1972-10',
+        })
+      : tokenize(source, {line, offset});
     this.index = 0;
     this.lineStart = 0;
     this.label = null;
@@ -775,6 +802,8 @@ class Parser {
     // its operand. Recursing through unary() here would make 2^-2^2 group wrong.
     let left = this.primary();
     while (this.at('OPERATOR', '^')) {
+      if (this.ma2)
+        this.fail('UNSUPPORTED_OPERATOR', 'MA2 expression conformance does not support power');
       const operator = this.take();
       const right = this.powerOperand();
       left = this.node('BinaryExpression', left, right, {
@@ -802,6 +831,22 @@ class Parser {
 
   primary(): Expression {
     const token = this.peek();
+    if (token.type === 'RAW_NUMBER') {
+      this.take();
+      const result = prepareBasicPlusMa2Literal(token);
+      if (result.kind === 'unsupported')
+        this.fail(
+          'UNSUPPORTED_NUMERIC_LITERAL',
+          `Unsupported MA2 literal: ${result.reason}`,
+          token,
+        );
+      return result.literal;
+    }
+    if (
+      this.ma2 &&
+      (token.type === 'STRING' || (token.type === 'IDENTIFIER' && /[$%]$/.test(token.value)))
+    )
+      this.fail('UNSUPPORTED_EXPRESSION', 'Expected a numeric MA2 expression', token);
     if (token.type === 'NUMBER' || token.type === 'STRING') {
       this.take();
       return token.type === 'NUMBER'
@@ -811,6 +856,15 @@ class Parser {
     if (token.type === 'IDENTIFIER') {
       this.take();
       return this.reference(token);
+    }
+    if (this.ma2 && token.type === 'KEYWORD') {
+      if (token.value !== 'INT' && token.value !== 'ABS')
+        this.fail(
+          'UNSUPPORTED_FUNCTION',
+          'Only INT and ABS belong to MA2 numeric expression conformance',
+          token,
+        );
+      return this.call();
     }
     if (token.type === 'KEYWORD' && nativeIntrinsic(token.value) !== null) {
       return this.call();
@@ -837,6 +891,8 @@ class Parser {
         }
       }
       const close = this.expect('PUNCTUATION', ')', 'Expected closing )');
+      if (this.ma2 && args.length !== 1)
+        this.fail('INVALID_ARGUMENT_COUNT', `${name.value} requires one argument`, name);
       return this.node('CallExpression', name, close, {
         name: name.value,
         nameLocation: this.location(name),

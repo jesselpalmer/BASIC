@@ -1,3 +1,4 @@
+import * as rootAPI from 'node-basic-lang';
 // Compile-only consumer: the rejected operations at the end must never execute.
 import {
   Basic,
@@ -424,3 +425,6 @@ void ma2Literal.value;
 ma2Literal.words[0] = 0;
 // @ts-expect-error Historical spelling is immutable.
 ma2Literal.raw = '2';
+
+// @ts-expect-error The MA2 grammar conformance entry is internal.
+void rootAPI.parseBasicPlusMa2NumericExpression;
