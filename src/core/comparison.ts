@@ -1,5 +1,6 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
+import {basicPlusStringRelation} from './basic_plus_strings.ts';
 import {compareMa2Values, type Ma2Value} from './ma2_value.ts';
 import type {BasicValue, Comparison, ComparisonOperator, Expression} from './types.ts';
 
@@ -67,6 +68,22 @@ export function compareMa2Relation(
   const result = compareMa2Values(left, right);
   if (result.kind !== 'value') return result;
   return Object.freeze({kind: 'value', value: relation(result.order, operator, 0)});
+}
+
+export type BasicPlusStringRelationResult =
+  | Readonly<{kind: 'value'; value: boolean}>
+  | Exclude<ReturnType<typeof basicPlusStringRelation>, {kind: 'value'}>;
+
+/** Internal padded string predicate; no source/IF or public profile binding. */
+export function compareBasicPlusStringRelation(
+  left: string,
+  operator: ComparisonOperator,
+  right: string,
+): BasicPlusStringRelationResult {
+  const result = basicPlusStringRelation(left, operator, right);
+  return result.kind === 'value'
+    ? Object.freeze({kind: 'value', value: result.value === -1})
+    : result;
 }
 
 // Infer result types without evaluating values, reading variables, or calling

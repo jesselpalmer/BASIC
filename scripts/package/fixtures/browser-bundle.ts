@@ -18,5 +18,15 @@ for (let run = 0; run < 2; run++) {
 if (nativeArrayOutput !== '02\n02\n')
   throw new Error('Native array defaults and fresh ownership changed');
 
+for (const name of ['basicPlusStringConcat', 'compareBasicPlusStringRelation'])
+  if (name in root) throw new Error('BASIC-PLUS string conformance must remain private');
+let nativeStringOutput = '';
+new root.Basic({
+  write: (text) => {
+    nativeStringOutput += text;
+  },
+}).run('10 PRINT "🙂"+"é"\n20 IF "YES"="YES " THEN PRINT "wrong" ELSE PRINT "exact"');
+if (nativeStringOutput !== '🙂é\nexact\n') throw new Error('Native string semantics changed');
+
 (globalThis as unknown as {basicEmbedding: ReturnType<typeof runBrowserEmbedding>}).basicEmbedding =
   runBrowserEmbedding(api, root);
