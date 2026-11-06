@@ -233,3 +233,12 @@ Numeric events retain their identity and separate continuation descriptor; they
 never become normal results implicitly. This is a pure numeric owner, not an
 alternate evaluator or historical activation. Shared storage, execution-owned
 event handling and the complete first-game matrix remain outstanding.
+
+## Exact signed-word conversion facts
+
+The internal [MA2 to signed-word converter](ma2-word-conversion.md) now computes
+mathematical truncation and signed 16-bit representability directly from decoded
+words. It separates those facts from array bounds and BASIC error/handler policy.
+The 32 retained subscript observations remain bounded evidence; mathematical edge
+tests do not certify every historical normalization/range path. Native indices
+and public historical context rejection are unchanged.
