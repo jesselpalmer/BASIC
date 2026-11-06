@@ -223,3 +223,13 @@ separate from source conversion: an exact MA2 host neighbor can be preserved eve
 when ATOF's decimal cutoff maps the corresponding long source spelling to 1.
 Public observations/assignment, supplied values and execution diagnostics remain
 subject to the shared value integration and activation gates.
+
+## Immutable selected-MA2 value binding
+
+The internal [MA2 value binding](ma2-value-binding.md) now wraps canonical words
+in the shared contract's closed immutable descriptor and binds the retained
+arithmetic, unary, ordering, source-literal and exact host-injection primitives.
+Numeric events retain their identity and separate continuation descriptor; they
+never become normal results implicitly. This is a pure numeric owner, not an
+alternate evaluator or historical activation. Shared storage, execution-owned
+event handling and the complete first-game matrix remain outstanding.
