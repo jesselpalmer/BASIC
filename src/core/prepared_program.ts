@@ -27,6 +27,7 @@ export type PreparedMa2Candidate = Pick<
 > & {
   readonly source: string;
   readonly lines: readonly ParsedLine[];
+  readonly arrayDeclarations: readonly ArrayDeclaration[];
 };
 
 function instructionTables(
@@ -55,6 +56,7 @@ export function prepareSelectedMa2Candidate(
   return Object.freeze({
     source: candidate.source,
     lines: candidate.lines,
+    arrayDeclarations: candidate.arrayDeclarations,
     ...instructionTables(candidate.instructions, candidate.loopPairs),
   });
 }

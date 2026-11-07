@@ -1,5 +1,5 @@
 import {BasicSyntaxError} from '../core/diagnostic.ts';
-import {validateArrays} from '../core/array_declarations.ts';
+import {selectedMa2ArrayDeclarations, validateArrays} from '../core/array_declarations.ts';
 import {programInstructions} from '../core/instructions.ts';
 import {pairLoops} from '../core/loops.ts';
 import type {ParsedLine} from '../core/types.ts';
@@ -47,13 +47,15 @@ export function validateBasicPlusMa2Candidate(source: string, supplied?: readonl
     }
   }
   const loopPairs = pairLoops(instructions);
-  validateArrays(lines);
+  const arrayDeclarations = selectedMa2ArrayDeclarations(lines);
+  validateArrays(lines, arrayDeclarations);
   return freezeTree({
     kind: 'ma2-candidate-syntax' as const,
     source,
     lines,
     instructions,
     loopPairs,
+    arrayDeclarations,
   });
 }
 

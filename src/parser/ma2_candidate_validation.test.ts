@@ -45,7 +45,9 @@ describe('internal complete MA2 candidate syntax validation', () => {
       line: 2,
     });
     expect(diagnostic('10 FOR I=1 TO 2\n20 END').code).toBe('MISSING_NEXT');
-    expect(diagnostic('10 DIM A(1)\n20 END\n30 PRINT B(0)').code).toBe('UNDECLARED_ARRAY');
+    expect(diagnostic('10 DIM A(1)\n20 END\n30 PRINT B(0,1)').code).toBe(
+      'UNSUPPORTED_MA2_ARRAY_DEFAULT',
+    );
     expect(validate('10 IF 1=1 THEN PRINT "ok"\n20 END').instructions).toHaveLength(3);
   });
 

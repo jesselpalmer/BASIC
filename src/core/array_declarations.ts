@@ -63,9 +63,55 @@ export function arrayDeclarations(lines: readonly ParsedLine[]): readonly ArrayD
   );
 }
 
+/** Selected BASIC-PLUS one-dimensional numeric arrays default to upper bound 10.
+ * These derived declarations are storage metadata, never inserted into source. */
+export function selectedMa2ArrayDeclarations(
+  lines: readonly ParsedLine[],
+): readonly ArrayDeclaration[] {
+  const declarations = [...arrayDeclarations(lines)];
+  const declared = new Set(declarations.map((declaration) => declaration.name.toUpperCase()));
+  const pending: unknown[] = [...lines];
+  const visited = new Set<object>();
+  while (pending.length) {
+    const value = pending.pop();
+    if (value === null || typeof value !== 'object' || visited.has(value)) continue;
+    visited.add(value);
+    if ('type' in value && value.type === 'ArrayReference') {
+      const reference = value as NodeOf<'ArrayReference'>;
+      const name = reference.name.toUpperCase();
+      if (!declared.has(name)) {
+        if (!/^[A-Z][0-9]?$/.test(name) || reference.indices.length !== 1)
+          fail(
+            'UNSUPPORTED_MA2_ARRAY_DEFAULT',
+            'Selected MA2 implicit arrays require one numeric dimension',
+            reference.nameLocation,
+          );
+        const location = reference.nameLocation;
+        declarations.push(
+          Object.freeze({
+            type: 'ArrayDeclaration',
+            name,
+            nameLocation: location,
+            location: reference.location,
+            bounds: Object.freeze([
+              Object.freeze({type: 'NumberLiteral', value: 10, raw: '10', location}),
+            ]),
+          }),
+        );
+        declared.add(name);
+      }
+    }
+    for (const child of Object.values(value)) pending.push(child);
+  }
+  return Object.freeze(declarations);
+}
+
 /** Resolve declarations across the whole snapshot, including unreachable source. */
-export function validateArrays(lines: readonly ParsedLine[]): void {
-  const shapes = new Map(arrayShapes(arrayDeclarations(lines)).map((shape) => [shape.name, shape]));
+export function validateArrays(
+  lines: readonly ParsedLine[],
+  declarations: readonly ArrayDeclaration[] = arrayDeclarations(lines),
+): void {
+  const shapes = new Map(arrayShapes(declarations).map((shape) => [shape.name, shape]));
   const pending: unknown[] = [...lines];
   const visited = new Set<object>();
   while (pending.length) {
