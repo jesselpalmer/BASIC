@@ -235,22 +235,24 @@ function prepareSelectedMa2Program(
   let reading = false;
   let terminated = false;
   let failure: Error | null = null;
-  const snapshot = (status: 'waiting' | 'halted', pendingInput: Location | null) =>
+  const snapshot = (status: 'running' | 'waiting' | 'halted', pendingInput: Location | null) =>
     Object.freeze({
       status,
       pendingInput,
+      nextLocation: status === 'halted' ? null : (flow.nextInstruction?.statement.location ?? null),
       executed,
       output: chunks.join(''),
       variables: state.snapshot(),
       arrays: state.snapshotArrays(),
     });
 
-  function advance() {
+  function advance(maxInstructions = Infinity) {
     if (reading) throw new Error('Selected MA2 input is pending');
     if (failure !== null) throw failure;
     if (terminated) return snapshot('halted', null);
     try {
-      while (flow.nextInstruction && !halted) {
+      let stepped = 0;
+      while (flow.nextInstruction && !halted && stepped < maxInstructions) {
         const next = flow.nextInstruction;
         if (executed === instructionLimit)
           throw new BasicRuntimeError(
@@ -264,6 +266,7 @@ function prepareSelectedMa2Program(
         const instruction = flow.takeInstruction()!;
         const statement = instruction.statement;
         executed++;
+        stepped++;
         // The preflight above excludes other statement kinds before state changes.
         // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
         switch (statement.type) {
@@ -320,6 +323,12 @@ function prepareSelectedMa2Program(
             break;
         }
         if (!halted) flow.finishInstruction();
+      }
+      if (!halted && flow.nextInstruction) {
+        const next = flow.nextInstruction;
+        return opening && next.statement.type === 'InputStatement'
+          ? snapshot('waiting', next.statement.location)
+          : snapshot('running', null);
       }
       terminated = true;
       return snapshot('halted', null);
@@ -378,5 +387,5 @@ function prepareSelectedMa2Program(
     return advance();
   }
 
-  return Object.freeze({advance, resumeInput});
+  return Object.freeze({advance: () => advance(), step: () => advance(1), resumeInput});
 }
