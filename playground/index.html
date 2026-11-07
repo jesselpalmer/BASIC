@@ -115,6 +115,42 @@
         </section>
       </div>
 
+      <section class="classic-panel" aria-labelledby="classic-heading">
+        <div class="panel-heading">
+          <h2 id="classic-heading">Experimental 1CHECK playtest</h2>
+          <span id="classic-status" class="status" role="status">Ready</span>
+        </div>
+        <p>
+          Play the fixed reviewed March 1975 checker source under the proposed V4A-12 MA2
+          configuration. This is an internal compatibility experiment, not a supported historical
+          dialect or certification of the game's original interpreter.
+        </p>
+        <details>
+          <summary>View the reviewed source</summary>
+          <pre id="classic-source"></pre>
+        </details>
+        <div class="run-controls">
+          <button id="classic-run" class="run-button" type="button">Start a fresh game</button>
+          <button id="classic-stop" class="stop-button" type="button" disabled>Stop game</button>
+        </div>
+        <div class="console-scroll classic-console" tabindex="0" aria-label="1CHECK output">
+          <p id="classic-truncated" class="console-truncated" hidden>
+            Earlier output removed. Showing the latest 50,000 characters.
+          </p>
+          <pre id="classic-output" aria-label="1CHECK transcript"></pre>
+        </div>
+        <p id="classic-diagnostic" class="diagnostic" role="alert" hidden></p>
+        <form id="classic-input-form" class="input-form" hidden>
+          <label id="classic-input-prompt" for="classic-input">Game input</label>
+          <div class="input-row">
+            <input id="classic-input" type="text" autocomplete="off" spellcheck="false" />
+            <button class="send-button" type="submit">
+              Send <span aria-hidden="true">↵</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
       <section class="graphics-panel" aria-labelledby="graphics-heading">
         <div class="panel-heading">
           <h2 id="graphics-heading">Graphics</h2>

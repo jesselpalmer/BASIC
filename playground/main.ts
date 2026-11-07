@@ -1,6 +1,7 @@
 import {BrowserSession, type BrowserState} from '../src/browser/session.ts';
 import {Transcript} from '../src/browser/transcript.ts';
 import {GameKeyboard} from '../src/browser/game_keyboard.ts';
+import {attachClassicPlaytest} from './classic.ts';
 import {createCanvasRenderer, GRAPHICS_WIDTH, GRAPHICS_HEIGHT} from '../src/browser/graphics.ts';
 import {
   BrowserDocument,
@@ -51,6 +52,7 @@ const exportDocumentButton = element<HTMLButtonElement>('export-document');
 const documentDialect = element('document-dialect');
 const storageStatus = element('storage-status');
 const fileStatus = element('file-status');
+attachClassicPlaytest();
 const examples: Readonly<Record<string, string>> = {
   greeting,
   'times-table': timesTable,
