@@ -82,6 +82,10 @@ records the review findings and their verification.
 
 ## Browser playground
 
+Try the [hosted BASIC playground](https://basic-playground-rho.vercel.app/).
+The editor runs native BASIC; the separate experimental 1CHECK panel runs only
+the fixed reviewed checker source under the proposed selected configuration.
+
 From a checkout, build and serve the static playground:
 
 ```sh

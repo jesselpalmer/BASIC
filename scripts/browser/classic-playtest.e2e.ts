@@ -13,6 +13,13 @@ test('fixed reviewed 1CHECK plays, reruns and keeps the native editor separate',
   await page.locator('#classic-input').fill('19');
   await page.locator('#classic-input').press('Enter');
   await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  const scroll = page.locator('#classic-scroll');
+  expect(await scroll.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  expect(
+    await scroll.evaluate(
+      (element) => element.scrollHeight - element.scrollTop - element.clientHeight,
+    ),
+  ).toBeLessThan(40);
   await page.locator('#classic-input').fill('0');
   await page.locator('#classic-input').press('Enter');
   await expect(page.locator('#classic-status')).toHaveText('Waiting for input');

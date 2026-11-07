@@ -6,7 +6,7 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-Through merged #254 and #255, the exact reviewed
+Through merged #257 and #258, the exact reviewed
 source runs internally through play, quit, invalid replay response, reset and
 exit. Independent expectations cover a seven-jump, 41-piece board and exact
 output through a second game. Supplied trees, later instructions and bad B$
@@ -21,8 +21,9 @@ replay retry, fresh board, second 47-piece result and exit. Selected F/T/A$
 INPUT, snapshots, cancellation and fresh resets have focused tests. A detached,
 source-bound internal selected Program now carries the reviewed source through
 Basic's replacement and rerun lifecycle, while a manual-backed regression
-confirms late DIM governs earlier array access. Public profile selection,
-cross-distribution acceptance and end-user play remain open. Detailed
+confirms late DIM governs earlier array access. The fixed-source experimental
+browser panel allows user play now; supported public profile selection and
+cross-distribution acceptance remain open. Detailed
 delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
 and linked issues.
 
@@ -49,6 +50,11 @@ printed sample's discontinuity with invented moves or repair game logic.
 The internal complete-session trace is delivered; the public game milestone
 remains blocked. See the roadmap and
 [support matrix](first-game-runtime-evidence.md) for component status.
+
+The [hosted experimental 1CHECK playtest](https://basic-playground-rho.vercel.app/)
+lets a user try the fixed reviewed source, including moves, quit, replay and
+fresh runs. The regular editor remains native. This playtest is not the public
+profile or cross-distribution acceptance required below.
 
 - [x] **Internal source trace** (#118/#121): selected MA2 state and output
       persist across F/T/A$ INPUT, legal and illegal moves, summary, invalid
