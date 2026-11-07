@@ -56,13 +56,14 @@ sizes before padding/output allocation. Return a frozen completed text/cursor
 pair or an explicit frozen unsupported outcome, with no partial text. Malformed
 host argument types/operators throw TypeError and an invalid initial cursor
 throws RangeError. Input operations are not mutated or retained. No Host call,
-runtime state, instruction, Step or asynchronous ownership is introduced. TAB
-pads only when its target exceeds the current cursor, without moving backward
-or wrapping. Source-level `PRINT TAB(X)` remains unsupported: selected parser
-recognition and whole-source expression preflight/evaluation must bind TAB as a
-print control instead of the current array reference before selected program
-execution can call this operation. That is the next #119 integration dependency
-and must preserve native TAB array/name behavior.
+runtime state, instruction, Step or asynchronous ownership is introduced by the
+pure layout. TAB pads only when its target exceeds the current cursor, without
+moving backward or wrapping. The selected candidate now binds top-level
+`PRINT TAB(X)` as a print control with one numeric MA2 expression, distinct from
+native TAB array/name parsing. Whole-source admission rejects malformed and
+literal out-of-domain positions before effects; a dynamic invalid position
+rejects its complete PRINT without a partial host write. The historical error
+continuation policy remains unsettled.
 
 Traversal uses the initially checked array length and numeric indices, ignoring
 caller iterators. Each payload is read once so validation and formatting consume
@@ -77,7 +78,7 @@ transition, cursor validation and atomic margin/resource failures. Assert native
 compact numeric output, existing names and native comma rejection remain intact.
 Run the full quality/package gate plus Linux/macOS browser/archive validation.
 
-Source-level TAB, arbitrary terminal widths, floating output, terminal controls, profile
-activation, public parser/evaluator integration, PRINT USING and complete game outcomes
-remain separate work. Passing this helper closes no historical game or release
+Arbitrary terminal widths, floating output, terminal controls, profile
+activation, public parser/evaluator integration, broader PRINT USING and complete game outcomes
+remain separate work. This candidate slice closes no historical game or release
 gate; #109 remains NOT READY.

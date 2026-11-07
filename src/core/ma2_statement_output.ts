@@ -54,13 +54,23 @@ export class Ma2StatementOutput {
       });
     } else {
       for (const [index, item] of statement.items.entries()) {
-        const value = resolve(item);
-        if (typeof value === 'string') operations.push({kind: 'text', value});
-        else {
-          const observed = observeMa2Value(value);
+        if (item.type === 'CallExpression' && item.name === 'TAB') {
+          const position = resolve(item.arguments[0]);
+          if (typeof position === 'string')
+            return Object.freeze({kind: 'unsupported', reason: 'tab-domain'});
+          const observed = observeMa2Value(position);
           if (observed.kind !== 'value')
             return Object.freeze({kind: 'unsupported', reason: 'numeric-observation'});
-          operations.push({kind: 'integer', value: observed.value});
+          operations.push({kind: 'tab', value: observed.value});
+        } else {
+          const value = resolve(item);
+          if (typeof value === 'string') operations.push({kind: 'text', value});
+          else {
+            const observed = observeMa2Value(value);
+            if (observed.kind !== 'value')
+              return Object.freeze({kind: 'unsupported', reason: 'numeric-observation'});
+            operations.push({kind: 'integer', value: observed.value});
+          }
         }
         const separator = statement.candidateSeparators?.[index];
         if (separator) operations.push({kind: separator});

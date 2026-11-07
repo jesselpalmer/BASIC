@@ -55,6 +55,7 @@ const words: readonly HistoricalWord[] = Object.freeze([
   ...historicalNumericIntrinsicNames.map((word) =>
     Object.freeze({word, role: 'function' as const}),
   ),
+  Object.freeze({word: 'TAB', role: 'function' as const}),
   ...[
     'IMAGE',
     'STOP',

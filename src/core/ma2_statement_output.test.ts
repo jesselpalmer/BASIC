@@ -4,7 +4,7 @@ import {join} from 'node:path';
 import {validateBasicPlusMa2Candidate} from '../parser/ma2_candidate_validation.ts';
 import {parseBasicPlusMa2Candidate} from '../parser/parser.ts';
 import {BasicSyntaxError} from './diagnostic.ts';
-import Basic from './runtime.ts';
+import Basic, {createInternalSelectedBasic} from './runtime.ts';
 import {createSelectedMa2Session} from './ma2_state_program.ts';
 import {injectMa2Value} from './ma2_value.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
@@ -29,6 +29,47 @@ function number(value: number) {
 }
 
 describe('selected MA2 statement output', () => {
+  test('binds source PRINT TAB as a selected forward cursor control', () => {
+    const source = '10 PRINT "X";TAB(2+2);"Y"\n20 PRINT "A";TAB(1);"B"\n30 END';
+    const parsed = parseBasicPlusMa2Candidate(source)[0].statement;
+    if (parsed.type !== 'PrintStatement') throw Error('Expected PRINT');
+    expect(parsed.items[1]).toMatchObject({type: 'CallExpression', name: 'TAB'});
+    expect(createSelectedMa2Session(source).advance().output).toBe('X   Y\nAB\n');
+    const supplied = structuredClone(parseBasicPlusMa2Candidate(source));
+    const first = supplied[0].statement;
+    if (first.type !== 'PrintStatement') throw Error('Expected PRINT');
+    Reflect.set(first.items[1], 'name', 'ABS');
+    expect(() => createSelectedMa2Session(source, 100, supplied)).toThrow(
+      'disagrees with its source',
+    );
+    expect(() => new Basic().run(source)).toThrow();
+  });
+
+  test('rejects bad TAB source before effects and dynamic bad positions atomically', () => {
+    for (const position of ['72', '-1', '1.5', '"X"']) {
+      const source = `10 PRINT "EARLY"\n20 PRINT TAB(${position})\n30 END`;
+      expect(() => createSelectedMa2Session(source)).toThrow();
+      const writes: string[] = [];
+      expect(() =>
+        createInternalSelectedBasic(source, {write: (text) => writes.push(text)}),
+      ).toThrow();
+      expect(writes).toEqual([]);
+    }
+    for (const source of [
+      '10 PRINT TAB(1,2)',
+      '10 PRINT 1+TAB(4)',
+      '10 PRINT TAB(4)+1',
+      '10 PRINT "EARLY"\n20 A=TAB(4)',
+    ])
+      expect(() => createSelectedMa2Session(source)).toThrow();
+    const dynamic = '10 T=72\n20 PRINT "A";TAB(T)\n30 END';
+    const writes: string[] = [];
+    const basic = createInternalSelectedBasic(dynamic, {write: (text) => writes.push(text)});
+    expect(() => basic.run()).toThrow();
+    expect(writes).toEqual([]);
+    expect(() => new Basic().run('10 DIM TAB(5)\n20 TAB(4)=3\n30 PRINT TAB(4)')).not.toThrow();
+  });
+
   test('runs source PRINT commas through the manual five 14-column zones', () => {
     // BASIC-PLUS Oct 1972 §3.3.2 shows five zones and a sixth item on a new line.
     const source = '10 PRINT 3,2,5,6,1,-1\n20 END';
@@ -216,6 +257,13 @@ describe('selected MA2 statement output', () => {
       ),
     ).toEqual({kind: 'unsupported', reason: 'numeric-observation'});
     expect(output.execute(statement(360), () => fourWords)).toEqual({
+      kind: 'unsupported',
+      reason: 'numeric-observation',
+    });
+    const tab = parseBasicPlusMa2Candidate('10 PRINT TAB(4)')[0].statement;
+    if (tab.type !== 'PrintStatement') throw Error('Expected PRINT TAB');
+    expect(output.execute(tab, () => 'X')).toEqual({kind: 'unsupported', reason: 'tab-domain'});
+    expect(output.execute(tab, () => fourWords)).toEqual({
       kind: 'unsupported',
       reason: 'numeric-observation',
     });
