@@ -10,6 +10,7 @@ import {SelectedMa2StringState} from './ma2_replay_strings.ts';
 import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
 import type {Expression, Host, Location, NodeOf, ParsedLine} from './types.ts';
+import type {Instruction} from './instructions.ts';
 
 /** Internal state/control execution slice. It has no host effects or public profile. */
 export function runSelectedMa2StateProgram(source: string, instructionLimit = 10_000) {
@@ -36,6 +37,8 @@ function prepareSelectedMa2Program(
   opening: boolean,
   firstInputOnly = false,
   supplied?: readonly ParsedLine[],
+  noInput = false,
+  externalWrite?: (text: string) => void,
 ) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
@@ -57,6 +60,7 @@ function prepareSelectedMa2Program(
         outputLocation.start,
         outputLocation.label,
       );
+    externalWrite?.(text);
     chunks.push(text);
     outputLength += text.length;
   });
@@ -69,7 +73,8 @@ function prepareSelectedMa2Program(
     'NextStatement',
     'RemStatement',
     'EndStatement',
-    ...(opening ? ['InputStatement', 'PrintStatement', 'PrintUsingStatement'] : []),
+    ...(opening ? ['PrintStatement', 'PrintUsingStatement'] : []),
+    ...(opening && !noInput ? ['InputStatement'] : []),
   ]);
   // Check every statement, including dead source, before changing state.
   for (const {statement} of candidate.instructions) {
@@ -250,6 +255,68 @@ function prepareSelectedMa2Program(
       arrays: state.snapshotArrays(),
     });
 
+  function executeInstruction(
+    instruction: Instruction,
+    currentFlow: ControlFlow,
+    halt: () => void,
+  ) {
+    const statement = instruction.statement;
+    // Whole-source admission rejects every unsupported statement before effects.
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+    switch (statement.type) {
+      case 'LetStatement': {
+        if (
+          opening &&
+          statement.target.type === 'Variable' &&
+          statement.target.name.endsWith('$') &&
+          statement.expression.type === 'StringLiteral'
+        ) {
+          strings.assignLiteral(statement);
+          break;
+        }
+        const result = state.assignNode(statement.target, statement.expression);
+        if (result.kind !== 'value') fail(result, statement.expression.location);
+        break;
+      }
+      case 'IfStatement': {
+        const matched =
+          statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$'
+            ? strings.compareReplay(statement.condition)
+            : (() => {
+                const result = state.compareNode(statement.condition);
+                return 'value' in result
+                  ? result.value
+                  : fail(result, statement.condition.location);
+              })();
+        if (matched === true) currentFlow.jump(statement.target.value, statement.target.location);
+        else currentFlow.skipLine(statement.location);
+        break;
+      }
+      case 'GotoStatement':
+        currentFlow.jump(statement.target.value, statement.target.location);
+        break;
+      case 'ForStatement':
+        currentFlow.beginLoop(statement);
+        break;
+      case 'NextStatement':
+        currentFlow.nextLoop(statement);
+        break;
+      case 'PrintStatement':
+      case 'PrintUsingStatement': {
+        outputLocation = statement.location;
+        const result = output.execute(statement, resolve);
+        if (result.kind !== 'value') fail(result, statement.location);
+        break;
+      }
+      case 'EndStatement':
+        halt();
+        break;
+      case 'DimStatement':
+      case 'RemStatement':
+        break;
+    }
+  }
+
   function advance(maxInstructions = Infinity) {
     if (cancellation.signal.aborted) return snapshot('halted', null);
     if (reading) throw new Error('Selected MA2 input is pending');
@@ -269,64 +336,12 @@ function prepareSelectedMa2Program(
         if (opening && next.statement.type === 'InputStatement')
           return snapshot('waiting', next.statement.location);
         const instruction = flow.takeInstruction()!;
-        const statement = instruction.statement;
         executed++;
         stepped++;
-        // The preflight above excludes other statement kinds before state changes.
-        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-        switch (statement.type) {
-          case 'LetStatement': {
-            if (
-              opening &&
-              statement.target.type === 'Variable' &&
-              statement.target.name.endsWith('$') &&
-              statement.expression.type === 'StringLiteral'
-            ) {
-              strings.assignLiteral(statement);
-              break;
-            }
-            const result = state.assignNode(statement.target, statement.expression);
-            if (result.kind !== 'value') fail(result, statement.expression.location);
-            break;
-          }
-          case 'IfStatement': {
-            const matched =
-              statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$'
-                ? strings.compareReplay(statement.condition)
-                : (() => {
-                    const result = state.compareNode(statement.condition);
-                    return 'value' in result
-                      ? result.value
-                      : fail(result, statement.condition.location);
-                  })();
-            if (matched === true) flow.jump(statement.target.value, statement.target.location);
-            else flow.skipLine(statement.location);
-            break;
-          }
-          case 'GotoStatement':
-            flow.jump(statement.target.value, statement.target.location);
-            break;
-          case 'ForStatement':
-            flow.beginLoop(statement);
-            break;
-          case 'NextStatement':
-            flow.nextLoop(statement);
-            break;
-          case 'PrintStatement':
-          case 'PrintUsingStatement': {
-            outputLocation = statement.location;
-            const result = output.execute(statement, resolve);
-            if (result.kind !== 'value') fail(result, statement.location);
-            break;
-          }
-          case 'EndStatement':
-            halted = true;
-            flow.clearFrames();
-            break;
-          case 'DimStatement':
-          case 'RemStatement':
-            break;
-        }
+        executeInstruction(instruction, flow, () => {
+          halted = true;
+          flow.clearFrames();
+        });
         if (!halted) flow.finishInstruction();
       }
       if (!halted && flow.nextInstruction) {
@@ -405,5 +420,30 @@ function prepareSelectedMa2Program(
     return advance();
   }
 
-  return Object.freeze({advance: () => advance(), step: () => advance(1), resumeInput, cancel});
+  const driver = Object.freeze({
+    prepared: candidate,
+    flow,
+    execute(this: void, instruction: Instruction, currentFlow: ControlFlow, halt: () => void) {
+      executeInstruction(instruction, currentFlow, halt);
+    },
+    variables: () => state.snapshot(),
+    arrays: () => state.snapshotArrays(),
+  });
+  return Object.freeze({
+    advance: () => advance(),
+    step: () => advance(1),
+    resumeInput,
+    cancel,
+    driver,
+  });
+}
+
+/** Internal, source-bound no-INPUT execution policy for Basic's existing driver. */
+export function prepareSelectedMa2Driver(
+  source: string,
+  externalWrite: (text: string) => void,
+  supplied?: readonly ParsedLine[],
+) {
+  return prepareSelectedMa2Program(source, 10_000, true, false, supplied, true, externalWrite)
+    .driver;
 }

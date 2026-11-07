@@ -10,13 +10,14 @@ import {readInput, inputTargets, isInputStatement} from './input.ts';
 import type {InputStatement} from './input.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
+import {prepareSelectedMa2Driver} from './ma2_state_program.ts';
 import {
   createNativeStatementPolicy,
   type StatementExecutionPolicy,
 } from './native_statement_policy.ts';
 import {programInstructions} from './instructions.ts';
 import type {Instruction} from './instructions.ts';
-import type {PreparedProgram} from './prepared_program.ts';
+import type {PreparedMa2Candidate, PreparedProgram} from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine} from '../parser/parser.ts';
 import type {
@@ -35,14 +36,24 @@ import type {
   NodeOf,
 } from './types.ts';
 
+const internalSelectedToken = Symbol('internal-selected-ma2');
+
+/** Internal selected experiment; the public Basic constructor remains native-only. */
+export function createInternalSelectedBasic(source: string, host: Partial<Host> = {}): Basic {
+  return new Basic(host, {}, {token: internalSelectedToken, source});
+}
+
 export default class Basic {
+  readonly #internalSelected: boolean;
   readonly #dialect: Dialect;
   readonly #emptyProgram: PreparedProgram;
   readonly #host: Host;
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
-  readonly #statementPolicy: StatementExecutionPolicy;
-  #prepared: PreparedProgram;
+  #statementPolicy: StatementExecutionPolicy;
+  #prepared: PreparedProgram | PreparedMa2Candidate;
+  #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
+  #selectedSteps = 0;
   #controlFlow: ControlFlow;
   #data: DataReader;
   #status: RunStatus = 'ready';
@@ -57,7 +68,14 @@ export default class Basic {
   // An async driver owns stepping until its promise settles, including yields.
   #activeRun: AbortController | null = null;
 
-  constructor(host: Partial<Host> = {}, options: LanguageOptions = {}) {
+  constructor(
+    host: Partial<Host> = {},
+    options: LanguageOptions = {},
+    internal?: {readonly token: symbol; readonly source: string},
+  ) {
+    if (internal && internal.token !== internalSelectedToken)
+      throw new TypeError('Unsupported internal execution context');
+    this.#internalSelected = internal !== undefined;
     this.#dialect = validateDialect(options.dialect);
     this.#emptyProgram = prepareProgram('', this.#dialect);
     this.#prepared = this.#emptyProgram;
@@ -70,6 +88,7 @@ export default class Basic {
       data: () => this.#data,
       graphics: this.#graphics,
     });
+    if (internal) this.reset(internal.source);
   }
 
   get host(): Readonly<Host> {
@@ -77,6 +96,8 @@ export default class Basic {
   }
 
   get dialect(): Dialect {
+    if (this.#internalSelected)
+      throw new TypeError('Internal selected MA2 execution has no public dialect');
     return this.#dialect;
   }
 
@@ -85,10 +106,12 @@ export default class Basic {
   }
 
   get variables(): readonly VariableSnapshot[] {
+    if (this.#selectedDriver) return this.#selectedDriver.variables();
     return this.#evaluator.snapshotVariables();
   }
 
   get arrays(): readonly ArraySnapshot[] {
+    if (this.#selectedDriver) return this.#selectedDriver.arrays();
     return this.#evaluator.snapshotArrays();
   }
 
@@ -109,6 +132,32 @@ export default class Basic {
   reset(program?: string | Program): RunResult {
     this.#assertIdle();
     this.#invalidateExecution();
+    if (this.#internalSelected) {
+      this.#selectedSteps = 0;
+      this.#status = 'ready';
+      this.#current = null;
+      this.#diagnostic = null;
+      try {
+        if (program !== undefined && typeof program !== 'string')
+          throw new TypeError('Internal selected execution requires exact source');
+        const source = program ?? this.#selectedDriver?.prepared.source;
+        if (source === undefined) throw new TypeError('Missing selected source');
+        const driver = prepareSelectedMa2Driver(source, (text) =>
+          this.#callHost('write', this.#current!, text),
+        );
+        this.#selectedDriver = driver;
+        this.#prepared = driver.prepared;
+        this.#controlFlow = driver.flow;
+        this.#statementPolicy = {
+          execute: (line, context) =>
+            driver.execute(line, context.controlFlow, () => context.halt()),
+        };
+      } catch (error) {
+        this.#recordFailure(error);
+        throw error;
+      }
+      return this.state;
+    }
     this.#evaluator.reset();
     this.#graphics.reset();
     this.#status = 'ready';
@@ -118,8 +167,10 @@ export default class Basic {
     this.#usedLabels.clear();
     try {
       // A failed candidate leaves both the previous snapshot and its tables intact.
-      const candidate =
-        program === undefined ? this.#prepared : prepareProgram(program, this.#dialect);
+      const candidate: PreparedProgram =
+        program === undefined
+          ? (this.#prepared as PreparedProgram)
+          : prepareProgram(program, this.#dialect);
       this.#evaluator.reset(candidate.arrayDeclarations);
       this.#prepared = candidate;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
@@ -264,6 +315,20 @@ export default class Basic {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     if (this.#immediate)
       throw new Error('Call reset before stepping a program after immediate input');
+    if (this.#internalSelected && this.#controlFlow.nextInstruction) {
+      const next = this.#controlFlow.nextInstruction;
+      if (this.#selectedSteps === 10_000) {
+        const error = new BasicRuntimeError(
+          'INSTRUCTION_LIMIT',
+          'Internal selected MA2 instruction limit of 10000 reached',
+          next.statement.location.start,
+          next.label,
+        );
+        this.#recordFailure(error);
+        throw error;
+      }
+      this.#selectedSteps++;
+    }
     const line = this.#controlFlow.takeInstruction();
     if (!line) {
       this.#halt();
@@ -331,6 +396,8 @@ export default class Basic {
 
   #prepareImmediate(source: string, options: SourceOptions): Instruction | null {
     this.#assertAvailable();
+    if (this.#internalSelected)
+      throw new TypeError('Internal selected execution requires a complete source program');
     if (this.#status === 'halted' || this.#status === 'error') return null;
     if (!this.#immediate && this.#status === 'running') {
       throw new Error('Call reset before mixing program steps and immediate input');
