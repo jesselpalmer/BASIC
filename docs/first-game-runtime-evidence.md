@@ -129,6 +129,18 @@ number or continuation for duplicate DIM. String arrays remain unsupported in
 the numeric selected session. These checks establish the source-order policy
 for that internal subset, without claiming general DIM event behavior.
 
+## Selected array event boundary through Basic
+
+The selected Basic driver now has source-level regression for both distinct
+subscript failures. A value outside the signed-word conversion range fails at
+the index with `MA2_INTEGER_CONVERSION`; a converted index outside `DIM A(2)`
+fails with `MA2_SUBSCRIPT_BOUNDS`. The captured handler observed ERR 51 and 55,
+respectively, but the internal driver reports diagnostics and stops; it does
+not implement a BASIC-PLUS handler or infer untrapped continuation. A failed
+write leaves the prior cell and output intact. An input-driven out-of-bounds
+run can be followed by a fresh successful run on the same Basic instance with
+new array cells and no stale input or diagnostic.
+
 ## Closed support matrix before activation
 
 Every row below remains an **activation obligation**, including forms that look
