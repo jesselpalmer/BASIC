@@ -33,7 +33,7 @@ describe('selected MA2 replay string state', () => {
     const state = new SelectedMa2StringState();
     const image = statement(72);
     if (image.type !== 'LetStatement') throw Error('Expected image assignment');
-    state.assignLiteral(image);
+    state.assignSource(image);
     expect(state.resolve(replay(570).condition.right)).toBe('YES');
     expect(state.snapshot()).toEqual([{name: 'B$', value: '## ##  ##  ##  ##  ##  ##  ##'}]);
     for (const [answer, yes, no] of [
@@ -65,13 +65,16 @@ describe('selected MA2 replay string state', () => {
     expect('SelectedMa2StringState' in publicAPI).toBe(false);
   });
 
-  test('rejects foreign assignments, mismatched input and unsupported comparisons before writes', () => {
+  test('rejects unsupported assignments, mismatched input and comparisons before writes', () => {
     const state = new SelectedMa2StringState();
-    const assign = publicAPI.parseProgram('10 A$="YES"').lines[0].statement;
+    const assign = publicAPI.parseProgram('10 A$=A$+"YES"').lines[0].statement;
     if (assign.type !== 'LetStatement') throw Error('Expected LET');
-    expect(() => state.assignLiteral(assign)).toThrow('literal B$');
+    expect(() => state.assignSource(assign)).toThrow('short string scalar or literal');
+    const arrayWrite = publicAPI.parseProgram('5 DIM A$(1)\n10 A$(1)="YES"').lines[1].statement;
+    if (arrayWrite.type !== 'LetStatement') throw Error('Expected LET');
+    expect(() => state.validateAssignment(arrayWrite)).toThrow('short scalar target');
     expect(() => state.commitInput(input(), {kind: 'value', target: 'F', value: 'YES'})).toThrow(
-      'selected A$',
+      'matching selected string',
     );
     expect(() => state.commitInput(input(), {kind: 'value', target: 'A$', value: 'Ω'})).toThrow(
       'character-domain',
@@ -79,8 +82,8 @@ describe('selected MA2 replay string state', () => {
     expect(state.snapshot()).toEqual([]);
     const numeric = publicAPI.parseProgram('10 IF 1=1 THEN 20\n20 END').lines[0].statement;
     if (numeric.type !== 'IfStatement') throw Error('Expected IF');
-    expect(() => state.validateReplay(numeric.condition)).toThrow('A$ YES/NO');
-    expect(() => state.resolve(numeric.condition.left)).toThrow('selected string');
+    expect(() => state.validateReplay(numeric.condition)).toThrow('short string scalar or literal');
+    expect(() => state.resolve(numeric.condition.left)).toThrow('selected short string');
     expect(state.resolve(replay(570).condition.left)).toBe('');
     expect(state.snapshot()).toEqual([]);
   });

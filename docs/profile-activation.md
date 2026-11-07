@@ -119,6 +119,14 @@ exact strings. `ControlFlow.nextLoop` writes the incremented out-of-range value
 when a loop completes, and native jumps discard exited loop frames. A historical
 label must not route those operations through unchanged native semantics.
 
+The internal selected runner admits source-backed short string scalars such as
+`C1$`: literal or scalar-copy assignment, empty unassigned reads, `=`/`<>`
+blank-padded relations and ordinary PRINT. The value is bounded to the selected
+byte domain before committing. PRINT USING still requires its statically proven
+literal `B$` image. String arrays, concatenation, ordering and other string
+expressions remain outside this execution slice and reject during whole-source
+preflight, including after END. This does not activate a public dialect.
+
 Create a closed support matrix owned by the selected profile. Each row identifies
 an AST form, its expression/value kinds, preparation checks, execution policy,
 source evidence and observable oracle. This is an exhaustive implementation

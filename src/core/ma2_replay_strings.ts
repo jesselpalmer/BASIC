@@ -10,7 +10,9 @@ function unsupported(message: string, location: Location): never {
   throw new BasicSyntaxError('UNSUPPORTED_MA2_STRING', message, location.start, location.label);
 }
 
-/** Execution-owned literal image and replay state for the reviewed first-game subset. */
+const shortStringName = /^[A-Z][0-9]?\$$/;
+
+/** Execution-owned bounded string scalars for the selected source subset. */
 export class SelectedMa2StringState {
   readonly #values = new Map<string, string>();
 
@@ -22,57 +24,65 @@ export class SelectedMa2StringState {
     return Object.freeze(Array.from(this.#values, ([name, value]) => Object.freeze({name, value})));
   }
 
-  /** The opening assigns the literal B$ image; other source string writes stay gated. */
-  assignLiteral(statement: NodeOf<'LetStatement'>): void {
+  validateAssignment(statement: NodeOf<'LetStatement'>): void {
     const {target, expression} = statement;
-    if (target.type !== 'Variable' || target.name !== 'B$' || expression.type !== 'StringLiteral')
-      unsupported('Expected the reviewed literal B$ assignment', statement.location);
-    this.#validate(expression.value, expression.location);
-    this.#values.set(target.name, expression.value);
+    if (target.type !== 'Variable' || !shortStringName.test(target.name))
+      unsupported('Selected string assignment requires a short scalar target', target.location);
+    this.validateOperand(expression);
   }
 
-  /** The input boundary reads first; commit only a matching validated A$ result. */
+  /** Validate the whole source before writes, then copy the current scalar value. */
+  assignSource(statement: NodeOf<'LetStatement'>): void {
+    this.validateAssignment(statement);
+    const value = this.resolve(statement.expression);
+    this.#validate(value, statement.expression.location);
+    this.#values.set(statement.target.name, value);
+  }
+
+  /** The input boundary reads first; commit only a matching validated result. */
   commitInput(statement: NodeOf<'InputStatement'>, result: InputValue): void {
     if (
-      statement.target.name !== 'A$' ||
-      result.target !== 'A$' ||
+      !shortStringName.test(statement.target.name) ||
+      result.target !== statement.target.name ||
       typeof result.value !== 'string'
     )
-      unsupported('Expected a selected A$ input response', statement.target.location);
+      unsupported('Expected a matching selected string input response', statement.target.location);
     this.#validate(result.value, statement.target.location);
-    this.#values.set('A$', result.value);
+    this.#values.set(statement.target.name, result.value);
+  }
+
+  validateOperand(expression: Expression): void {
+    if (expression.type === 'StringLiteral') {
+      this.#validate(expression.value, expression.location);
+      return;
+    }
+    if (expression.type !== 'Variable' || !shortStringName.test(expression.name))
+      unsupported('Expected a selected short string scalar or literal', expression.location);
   }
 
   resolve(expression: Expression): string {
+    this.validateOperand(expression);
     if (expression.type === 'StringLiteral') return expression.value;
-    if (expression.type !== 'Variable' || (expression.name !== 'A$' && expression.name !== 'B$'))
-      unsupported('Expected a selected string variable or literal', expression.location);
+    if (expression.type !== 'Variable') throw Error('Validated string operand changed');
     // BASIC-PLUS §§2.5.2/3.6.2/5.1.2 read an unassigned string as empty.
     // Keep the default implicit so a read does not become a stored assignment.
     return this.#values.get(expression.name) ?? '';
   }
 
   validateReplay(condition: Comparison): void {
-    if (
-      condition.operator !== '=' ||
-      condition.left.type !== 'Variable' ||
-      condition.left.name !== 'A$' ||
-      condition.right.type !== 'StringLiteral' ||
-      (condition.right.value !== 'YES' && condition.right.value !== 'NO')
-    )
-      unsupported('Expected the reviewed A$ YES/NO comparison', condition.location);
+    if (condition.operator !== '=' && condition.operator !== '<>')
+      unsupported('Selected string comparison requires = or <>', condition.location);
+    this.validateOperand(condition.left);
+    this.validateOperand(condition.right);
   }
 
   compareReplay(condition: Comparison): boolean {
     this.validateReplay(condition);
     const left = this.resolve(condition.left);
     const right = this.resolve(condition.right);
-    // Both operands were validated on entry and replay accepts only equality;
-    // the shared predicate's unsupported ordering/byte cases cannot occur here.
-    const result = compareBasicPlusStringRelation(left, condition.operator, right) as Readonly<{
-      kind: 'value';
-      value: boolean;
-    }>;
+    // Equality and inequality accept the complete selected byte domain.
+    const result = compareBasicPlusStringRelation(left, condition.operator, right);
+    if (result.kind !== 'value') unsupported(result.reason, condition.location);
     return result.value;
   }
 
