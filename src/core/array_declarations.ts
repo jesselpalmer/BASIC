@@ -63,7 +63,7 @@ export function arrayDeclarations(lines: readonly ParsedLine[]): readonly ArrayD
   );
 }
 
-/** Selected BASIC-PLUS one-dimensional numeric arrays default to upper bound 10.
+/** Selected BASIC-PLUS numeric arrays default to upper bound 10 per dimension.
  * These derived declarations are storage metadata, never inserted into source. */
 export function selectedMa2ArrayDeclarations(
   lines: readonly ParsedLine[],
@@ -80,10 +80,11 @@ export function selectedMa2ArrayDeclarations(
       const reference = value as NodeOf<'ArrayReference'>;
       const name = reference.name.toUpperCase();
       if (!declared.has(name)) {
-        if (!/^[A-Z][0-9]?$/.test(name) || reference.indices.length !== 1)
+        // The parser admits one or two indices; arrayShapes rejects any other rank.
+        if (!/^[A-Z][0-9]?$/.test(name))
           fail(
             'UNSUPPORTED_MA2_ARRAY_DEFAULT',
-            'Selected MA2 implicit arrays require one numeric dimension',
+            'Selected MA2 implicit arrays require numeric names',
             reference.nameLocation,
           );
         const location = reference.nameLocation;
@@ -93,9 +94,11 @@ export function selectedMa2ArrayDeclarations(
             name,
             nameLocation: location,
             location: reference.location,
-            bounds: Object.freeze([
-              Object.freeze({type: 'NumberLiteral', value: 10, raw: '10', location}),
-            ]),
+            bounds: Object.freeze(
+              Array.from({length: reference.indices.length}, () =>
+                Object.freeze({type: 'NumberLiteral' as const, value: 10, raw: '10', location}),
+              ),
+            ),
           }),
         );
         declared.add(name);
