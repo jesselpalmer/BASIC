@@ -4,9 +4,9 @@ import Basic from './runtime.ts';
 import {createSelectedMa2Session} from './ma2_state_program.ts';
 
 test('selected unassigned string reads are empty through comparison and PRINT', () => {
-  // BASIC-PLUS manual §§2.5.2, 3.6.2, 5.1.2; this is only the selected A$/B$
+  // BASIC-PLUS manual §§2.5.2, 3.6.2, 5.1.2; this is only the selected short
   // scalar subset, not a string-array or public-profile claim.
-  const source = '10 IF A$="YES" THEN 40\n20 PRINT "[";B$;"]"\n30 INPUT F\n40 END';
+  const source = '10 IF C1$="YES" THEN 40\n20 PRINT "[";D$;"]"\n30 INPUT F\n40 END';
   for (let run = 0; run < 2; run++) {
     const session = createSelectedMa2Session(source);
     const waiting = session.advance();

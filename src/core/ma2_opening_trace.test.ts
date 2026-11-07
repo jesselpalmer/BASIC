@@ -43,7 +43,9 @@ describe('reviewed 1CHECK opening execution', () => {
   test('bounds work and rejects unsupported pre-input source before output', () => {
     expect(() => run(source, 370)).toThrow('Instruction limit of 370');
     expect(() => run('10 INPUT F', 0)).toThrow('Instruction limit of 0');
-    expect(() => run('10 PRINT "A"\n20 A$=B$\n30 INPUT F')).toThrow('requires numeric targets');
+    expect(() => run('10 PRINT "A"\n20 A$=B$+"X"\n30 INPUT F')).toThrow(
+      'short string scalar or literal',
+    );
     expect(() => run('10 B$="Ω"\n20 INPUT F')).toThrow('character-domain');
     expect(run('10 PRINT B$\n20 INPUT F')).toMatchObject({output: '\n', pendingInput: {label: 20}});
     expect(() => run('10 B$="BAD"\n20 PRINT USING B$,1\n30 INPUT F')).toThrow(

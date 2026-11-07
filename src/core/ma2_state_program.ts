@@ -90,27 +90,8 @@ function prepareSelectedMa2Program(
         statement.location.label,
       );
     if (statement.type === 'LetStatement') {
-      if (
-        opening &&
-        statement.target.type === 'Variable' &&
-        statement.target.name.endsWith('$') &&
-        statement.expression.type === 'StringLiteral'
-      ) {
-        if (statement.target.name !== 'B$')
-          throw new BasicSyntaxError(
-            'UNSUPPORTED_MA2_STRING',
-            'Selected MA2 execution only supports literal B$ assignment',
-            statement.target.location.start,
-            statement.location.label,
-          );
-        const valid = basicPlusStringLength(statement.expression.value);
-        if (valid.kind !== 'value')
-          throw new BasicSyntaxError(
-            'UNSUPPORTED_MA2_STRING',
-            valid.reason,
-            statement.expression.location.start,
-            statement.location.label,
-          );
+      if (opening && statement.target.name.endsWith('$')) {
+        strings.validateAssignment(statement);
         continue;
       }
       if (statement.target.name.endsWith('$') || statement.target.name.endsWith('%'))
@@ -123,7 +104,11 @@ function prepareSelectedMa2Program(
       state.validateNode(statement.expression);
       if (statement.target.type === 'ArrayReference') state.validateNode(statement.target);
     } else if (statement.type === 'IfStatement') {
-      if (statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$')
+      if (
+        opening &&
+        (expressionType(statement.condition.left) === 'string' ||
+          expressionType(statement.condition.right) === 'string')
+      )
         strings.validateReplay(statement.condition);
       else state.validateComparison(statement.condition);
     } else if (statement.type === 'InputStatement') {
@@ -192,24 +177,8 @@ function prepareSelectedMa2Program(
           }
           continue;
         }
-        if (expression.type === 'StringLiteral') {
-          const valid = basicPlusStringLength(expression.value);
-          if (valid.kind !== 'value')
-            throw new BasicSyntaxError(
-              'UNSUPPORTED_MA2_STRING',
-              valid.reason,
-              expression.location.start,
-              statement.location.label,
-            );
-        } else if (expression.type === 'Variable' && expression.name.endsWith('$')) {
-          if (expression.name !== 'B$' && expression.name !== 'A$')
-            throw new BasicSyntaxError(
-              'UNSUPPORTED_MA2_STRING',
-              'Selected MA2 output requires A$ or B$',
-              expression.location.start,
-              statement.location.label,
-            );
-        } else state.validateNode(expression);
+        if (expressionType(expression) === 'string') strings.validateOperand(expression);
+        else state.validateNode(expression);
       }
       if (statement.type === 'PrintUsingStatement') {
         if (statement.format.type !== 'Variable' || statement.format.name !== 'B$')
@@ -301,13 +270,8 @@ function prepareSelectedMa2Program(
     // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
     switch (statement.type) {
       case 'LetStatement': {
-        if (
-          opening &&
-          statement.target.type === 'Variable' &&
-          statement.target.name.endsWith('$') &&
-          statement.expression.type === 'StringLiteral'
-        ) {
-          strings.assignLiteral(statement);
+        if (opening && statement.target.name.endsWith('$')) {
+          strings.assignSource(statement);
           break;
         }
         const result = state.assignNode(statement.target, statement.expression);
@@ -316,7 +280,9 @@ function prepareSelectedMa2Program(
       }
       case 'IfStatement': {
         const matched =
-          statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$'
+          opening &&
+          (expressionType(statement.condition.left) === 'string' ||
+            expressionType(statement.condition.right) === 'string')
             ? strings.compareReplay(statement.condition)
             : (() => {
                 const result = state.compareNode(statement.condition);
