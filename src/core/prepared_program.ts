@@ -93,6 +93,7 @@ export function prepareSelectedMa2Candidate(
 }
 
 export function prepareProgram(source: string | Program, dialect: Dialect): PreparedProgram {
+  validateDialect(dialect, 'native');
   if (typeof source !== 'string') validateDialect(source.dialect, dialect);
   const program =
     typeof source === 'string'

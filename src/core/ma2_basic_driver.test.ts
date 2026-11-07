@@ -34,7 +34,7 @@ test('internal Basic rejects unsupported/dead source before effects and preserve
   expect(() => basic.reset('10 END\n20 PRINT "LATE"\n30 INPUT Q%')).toThrow();
   expect(() => basic.reset(parseProgram('10 END'))).toThrow('requires exact source');
   expect(() => basic.readLine('PRINT 1')).toThrow('requires a complete source program');
-  expect(() => new Basic({}, {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow();
+  expect(new Basic({}, {dialect: 'basic-plus-v4a12-ma2'}).dialect).toBe('basic-plus-v4a12-ma2');
   expect(() => new Basic({}, {}, {token: Symbol('foreign'), program: source})).toThrow(
     'Unsupported internal execution context',
   );

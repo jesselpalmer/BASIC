@@ -17,7 +17,7 @@ describe('selected MA2 candidate statement-form preflight', () => {
     expect(candidate.instructions).toHaveLength(85);
     expect('preflightBasicPlusMa2Candidate' in publicAPI).toBe(false);
     expect(() =>
-      publicAPI.parseProgram(fixture, {dialect: 'basic-plus-v4a12-ma2' as 'native'}),
+      publicAPI.parseProgram(fixture, {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
     ).toThrow(TypeError);
   });
 

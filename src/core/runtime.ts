@@ -28,6 +28,7 @@ import type {
 } from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine} from '../parser/parser.ts';
+import {validateBasicPlusMa2Candidate} from '../parser/ma2_candidate_validation.ts';
 import type {
   Diagnostic,
   Dialect,
@@ -56,6 +57,7 @@ export function createInternalSelectedBasic(
 
 export default class Basic {
   readonly #internalSelected: boolean;
+  readonly #privateSelected: boolean;
   readonly #dialect: Dialect;
   readonly #emptyProgram: PreparedProgram;
   readonly #host: Host;
@@ -87,12 +89,13 @@ export default class Basic {
   ) {
     if (internal && internal.token !== internalSelectedToken)
       throw new TypeError('Unsupported internal execution context');
-    this.#internalSelected = internal !== undefined;
+    this.#privateSelected = internal !== undefined;
     this.#dialect = validateDialect(options.dialect);
-    this.#emptyProgram = prepareProgram('', this.#dialect);
+    this.#internalSelected = internal !== undefined || this.#dialect !== 'native';
+    this.#emptyProgram = prepareProgram('', 'native');
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    this.#evaluator = new Evaluator(this.#host, {dialect: this.#dialect});
+    this.#evaluator = new Evaluator(this.#host);
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     this.#data = new DataReader(this.#prepared.dataItems);
     this.#statementPolicy = createNativeStatementPolicy({
@@ -111,7 +114,7 @@ export default class Basic {
   }
 
   get dialect(): Dialect {
-    if (this.#internalSelected)
+    if (this.#privateSelected)
       throw new TypeError('Internal selected MA2 execution has no public dialect');
     return this.#dialect;
   }
@@ -176,7 +179,7 @@ export default class Basic {
 
   /** Internal source-bound Program replacement through the same Basic driver. */
   resetInternalSelectedProgram(program: InternalSelectedProgram): RunResult {
-    if (!this.#internalSelected || !isInternalSelectedProgram(program))
+    if (!this.#privateSelected || !isInternalSelectedProgram(program))
       throw new TypeError('Expected an internal selected Program and execution context');
     return this.#resetSelected(program);
   }
@@ -189,18 +192,27 @@ export default class Basic {
     this.#current = null;
     this.#diagnostic = null;
     try {
-      if (
-        program !== undefined &&
-        typeof program !== 'string' &&
-        !isInternalSelectedProgram(program)
-      )
-        throw new TypeError('Internal selected execution requires exact source');
+      if (program !== undefined && typeof program !== 'string') {
+        if (this.#privateSelected) {
+          if (!isInternalSelectedProgram(program))
+            throw new TypeError('Internal selected execution requires exact source');
+        } else {
+          if (isInternalSelectedProgram(program))
+            throw new TypeError('Internal selected Program cannot be installed publicly');
+          validateDialect(program.dialect, this.#dialect);
+          if (typeof program.source !== 'string')
+            throw new TypeError('Historical Program requires exact source');
+          validateBasicPlusMa2Candidate(program.source, program.lines, this.#dialect);
+        }
+      }
       const selected =
         program === undefined
           ? this.#selectedProgram
           : typeof program === 'string'
             ? prepareInternalSelectedProgram(program)
-            : program;
+            : isInternalSelectedProgram(program)
+              ? program
+              : prepareInternalSelectedProgram(program.source!);
       if (selected === null) throw new TypeError('Missing selected source');
       const driver = prepareSelectedMa2Driver(
         selected.source,

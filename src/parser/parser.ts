@@ -29,6 +29,7 @@ import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets, validateInputLineTarget} from '../core/input.ts';
 import {maxDispatchTargets} from '../core/dispatch.ts';
 import {freezeTree, validateProgram} from './program_validation.ts';
+import {preflightBasicPlusMa2Candidate} from './ma2_candidate_support.ts';
 
 export {validateProgram} from './program_validation.ts';
 import {tokenize} from './tokenizer.ts';
@@ -37,7 +38,13 @@ const maxNesting = 256;
 const comparisonOperators = new Set(['=', '<>', '<', '<=', '>', '>=']);
 
 export function parseLine(source: string, options: SourceOptions = {}): ParsedLine | null {
-  const lines = new Parser(source, options).parse();
+  const dialect = validateDialect(options.dialect);
+  const lines = new Parser(
+    source,
+    {...options, dialect},
+    dialect !== 'native',
+    dialect !== 'native',
+  ).parse();
   if (lines.length > 1) {
     const extra = lines[1];
     throw new BasicSyntaxError(
@@ -52,6 +59,10 @@ export function parseLine(source: string, options: SourceOptions = {}): ParsedLi
 
 export function parseProgram(source: string, options: LanguageOptions = {}): Program {
   const dialect = validateDialect(options.dialect);
+  if (dialect !== 'native') {
+    const candidate = preflightBasicPlusMa2Candidate(source, undefined, dialect);
+    return freezeTree({type: 'Program' as const, dialect, source, lines: candidate.lines});
+  }
   return validateProgram(new Parser(source, {dialect}).parse(), {dialect});
 }
 
@@ -80,8 +91,15 @@ export function parseBasicPlusMa2NumericComparison(
 }
 
 /** Internal candidate syntax only; no prepared Program or runnable profile. */
-export function parseBasicPlusMa2Candidate(source: string): readonly ParsedLine[] {
-  return freezeTree(new Parser(source, {}, true, true).parse());
+export function parseBasicPlusMa2Candidate(
+  source: string,
+  dialect: Dialect = 'native',
+): readonly ParsedLine[] {
+  return freezeTree(
+    new Parser(source, {dialect}, true, true)
+      .parse()
+      .sort((left, right) => left.label - right.label),
+  );
 }
 
 function ma2Parser(

@@ -23,7 +23,7 @@ export function validateProgram(
   lines: readonly ParsedLine[],
   options: LanguageOptions = {},
 ): Program {
-  const dialect = validateDialect(options.dialect);
+  const dialect = validateDialect(options.dialect, 'native');
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
   }

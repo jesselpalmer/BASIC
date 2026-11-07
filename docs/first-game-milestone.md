@@ -1,6 +1,6 @@
 # First complete game: reviewed 1CHECK
 
-**Status: blocked; no complete historical game pass yet.** This is the next
+**Status: public integration under review; no certified historical game pass yet.** This is the next
 outcome in the [roadmap](classic-games-roadmap.md), tracked by
 [acceptance #129](https://github.com/jesselpalmer/BASIC/issues/129). It is an
 intermediate delivery milestone; all 108 corpus files remain the eventual
@@ -22,8 +22,10 @@ INPUT, snapshots, cancellation and fresh resets have focused tests. A detached,
 source-bound internal selected Program now carries the reviewed source through
 Basic's replacement and rerun lifecycle, while a manual-backed regression
 confirms late DIM governs earlier array access. The fixed-source experimental
-browser panel allows user play now; supported public profile selection and
-cross-distribution acceptance remain open. Detailed
+browser panel allows user play now. A pending public branch runs the complete
+source through a selected library Program and offers the same reviewed text in
+the editable browser panel; cross-distribution acceptance and milestone review
+remain open. Detailed
 delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
 and linked issues.
 
@@ -53,8 +55,9 @@ remains blocked. See the roadmap and
 
 The [hosted experimental 1CHECK playtest](https://basic-playground-rho.vercel.app/)
 lets a user try the fixed reviewed source, including moves, quit, replay and
-fresh runs. The regular editor remains native. This playtest is not the public
-profile or cross-distribution acceptance required below.
+fresh runs. The pending editor integration will let users select and edit the
+reviewed source under the bounded profile when merged and deployed. The hosted
+version is not yet that public path or the cross-distribution acceptance below.
 
 - [x] **Internal source trace** (#118/#121): selected MA2 state and output
       persist across F/T/A$ INPUT, legal and illegal moves, summary, invalid

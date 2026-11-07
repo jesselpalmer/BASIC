@@ -5,6 +5,25 @@ import ProgramPersistence from './persistence.ts';
 import type {ProgramFiles, ProgramWrite} from './program_files.ts';
 import {encodeSourceDocument, decodeSourceDocument} from '../core/source_document.ts';
 
+it('loads exact selected portable source and rejects unsupported source before confirmation', async () => {
+  const f = fixture();
+  const dialect = 'basic-plus-v4a12-ma2' as const;
+  const source = '20 END\r\n10 PRINT "HELLO"\r\n';
+  f.destinations.set('selected.basic.json', encodeSourceDocument(source, {dialect}));
+  await f.execute('LOAD', 'selected.basic.json');
+  expect(f.source.document).toMatchObject({source, dialect});
+  f.source.edit('30 REM edited');
+  expect(f.source.document.dialect).toBe(dialect);
+  const before = f.state();
+  f.destinations.set('bad.basic.json', encodeSourceDocument('10 END\n20 PRINT RND()', {dialect}));
+  const confirmations = f.confirm.mock.calls.length;
+  expect(await f.execute('LOAD', 'bad.basic.json').catch((error: unknown) => error)).toBeInstanceOf(
+    Error,
+  );
+  expect(f.confirm.mock.calls.length).toBe(confirmations);
+  expect(f.state()).toEqual(before);
+});
+
 function fixture() {
   const source = new StoredProgram();
   source.replace(parseProgram('10 PRINT "original"'), 'Original.bas');

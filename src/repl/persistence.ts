@@ -1,5 +1,6 @@
 import {abortable} from '../core/cancellation.ts';
 import {parseProgram} from '../parser/parser.ts';
+import Basic from '../core/runtime.ts';
 import type {FileCommand} from './file_command.ts';
 import type {ProgramFiles} from './program_files.ts';
 import type StoredProgram from './program.ts';
@@ -33,6 +34,8 @@ export default class ProgramPersistence {
       const portable = command.path.toLowerCase().endsWith('.basic.json');
       const document = portable ? decodeSourceDocument(text) : createSourceDocument(text);
       const candidate = parseProgram(document.source, {dialect: document.dialect});
+      if (document.dialect !== 'native')
+        new Basic({}, {dialect: document.dialect}).reset(candidate);
       if (
         this.source.dirty &&
         !(await confirm('Discard unsaved changes and load a program? [y/N] ', signal))

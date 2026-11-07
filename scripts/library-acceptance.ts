@@ -25,6 +25,8 @@ type Api = Pick<
 
 export const libraryAcceptanceCases = [
   'public program execution and stepping',
+  'selected MA2 source-bound Program executes and isolates native',
+  'reviewed 1CHECK completes under the selected profile in installed consumers',
   'common classic spellings preserve native names and execution',
   'unchanged 23 Matches loss/replay path and explicit native RNG limit',
   'reviewed 23 Matches correction retains exact native retry/replay output',
@@ -122,6 +124,49 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
     basic.run('10 FOR I=1 TO 2\n20 PRINT I;\n30 NEXT I\n40 PRINT I');
     assert.equal(output.join(''), 'package 6\nstep\n123\n');
   });
+  await check('selected MA2 source-bound Program executes and isolates native', () => {
+    const source = '30 END\r\n10 A=12\r\n20 PRINT A\r\n';
+    const program = api.parseProgram(source, {dialect: 'basic-plus-v4a12-ma2'});
+    assert.equal(program.source, source);
+    assert.ok(program.lines.every((line) => line.dialect === 'basic-plus-v4a12-ma2'));
+    const output: string[] = [];
+    const selected = new api.Basic(
+      {write: (text) => output.push(text)},
+      {
+        dialect: 'basic-plus-v4a12-ma2',
+      },
+    );
+    selected.run(program);
+    assert.equal(selected.dialect, 'basic-plus-v4a12-ma2');
+    assert.equal(output.join(''), ' 12 \n');
+    assert.throws(() => new api.Basic().run(program), TypeError);
+    assert.throws(() => selected.run(api.parseProgram('10 END')), TypeError);
+  });
+  await check(
+    'reviewed 1CHECK completes under the selected profile in installed consumers',
+    async () => {
+      const source = readFileSync(
+        join(import.meta.dir, 'package/fixtures/classic/1check-mar75-text.bas'),
+        'utf8',
+      );
+      const answers = ['0', 'NO'];
+      let output = '';
+      const basic = new api.Basic(
+        {
+          write: (text) => {
+            output += text;
+          },
+          readLine: () => Promise.resolve(answers.shift() ?? null),
+        },
+        {dialect: 'basic-plus-v4a12-ma2'},
+      );
+      const program = api.parseProgram(source, {dialect: 'basic-plus-v4a12-ma2'});
+      assert.equal((await basic.runAsync(program)).status, 'halted');
+      assert.match(output, /YOU MADE 0 JUMPS AND HAD 48 PIECES/);
+      assert.deepEqual(answers, []);
+      assert.equal(program.source, source);
+    },
+  );
   await check('common classic spellings preserve native names and execution', () => {
     const source = [
       '10 go=4',

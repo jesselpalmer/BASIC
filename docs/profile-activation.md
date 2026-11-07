@@ -1,13 +1,13 @@
 # Historical profile activation and compact lexing
 
-**Status:** activation contract for #116/#117. Internal scanner, numeric expression,
-scalar/array storage and relation components are implemented; the internal
-selected runner completes a reviewed 1CHECK play/quit/replay trace and preflights
-the complete selected source, but public historical Program execution remains
-incomplete. `Dialect` still accepts only `native`.
-The portable document/CLI persistence mechanism preserves that context without
-enabling a historical runtime profile or `--dialect` option. Track the next
-runnable outcome and its blockers in the [first-game milestone](first-game-milestone.md).
+**Status:** the pending public integration branch exposes the bounded
+`basic-plus-v4a12-ma2` selected profile with exact-source Programs and a
+whole-source execution gate. The reviewed 1CHECK text completes a direct-library
+session; a portable `.basic.json` selects the profile for CLI/editor and browser
+import, and the normal browser editor offers the reviewed source. It remains a
+selected execution slice rather than a complete historical dialect or original
+interpreter attribution. Installed-consumer and extracted-browser acceptance are
+still required for the [first-game milestone](first-game-milestone.md).
 #115/#129 remain open and #109 is NOT READY.
 
 ## Decision
@@ -119,13 +119,14 @@ exact strings. `ControlFlow.nextLoop` writes the incremented out-of-range value
 when a loop completes, and native jumps discard exited loop frames. A historical
 label must not route those operations through unchanged native semantics.
 
-The internal selected runner admits source-backed short string scalars such as
+The selected runner admits source-backed short string scalars such as
 `C1$`: literal or scalar-copy assignment, empty unassigned reads, `=`/`<>`
 blank-padded relations and ordinary PRINT. The value is bounded to the selected
-byte domain before committing. PRINT USING still requires its statically proven
-literal `B$` image. String arrays, concatenation, ordering and other string
-expressions remain outside this execution slice and reject during whole-source
-preflight, including after END. This does not activate a public dialect.
+byte domain before committing. PRINT USING accepts statically proven integer
+images within the [bounded image contract](selected-ma2-print-using.md). String
+arrays, concatenation, ordering and other string expressions remain outside
+this execution slice and reject during whole-source preflight, including after
+END. The pending public profile selects precisely this bounded contract.
 
 Create a closed support matrix owned by the selected profile. Each row identifies
 an AST form, its expression/value kinds, preparation checks, execution policy,

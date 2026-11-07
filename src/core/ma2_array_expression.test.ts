@@ -186,7 +186,7 @@ describe('shared MA2 array-expression conformance', () => {
     expect(scalar.snapshot()).toEqual([]);
     expect('createBasicPlusMa2ArraySession' in api).toBe(false);
     expect(() =>
-      api.parseProgram('10 DIM A(1)', {dialect: 'basic-plus-v4a12-ma2' as 'native'}),
+      api.parseProgram('10 DIM A(1)', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
     ).toThrow(TypeError);
     const native = new api.Basic();
     expect(() => native.run('10 DIM A(1)\n20 PRINT A(.5)')).toThrow(api.BasicRuntimeError);

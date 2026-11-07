@@ -240,11 +240,11 @@ export async function runBrowserEmbedding(api: BrowserAPI, root: RootAPI) {
     check(!('parseBasicPlusMa2NumericExpression' in root), 'No public conformance parser');
     let historicalRejected = false;
     try {
-      root.parseProgram('10 PRINT 1', {dialect: 'basic-plus-v4a12-ma2' as 'native'});
+      root.parseProgram('10 PRINT 1', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'});
     } catch (error) {
       historicalRejected = error instanceof TypeError;
     }
-    check(historicalRejected, 'Historical program context remains gated');
+    check(historicalRejected, 'Unknown historical program context remains gated');
     check(!('evaluateBasicPlusMa2Constant' in root), 'No public constant evaluator');
     const resetting = root.parseProgram('10 DIM A(1)\n20 PRINT A(0)\n30 PRINT A(RND())');
     const dim = resetting.lines[0].statement,

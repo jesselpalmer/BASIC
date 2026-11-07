@@ -42,7 +42,7 @@ export default class StoredProgram {
     const dialect = validateDialect(program.dialect);
     this.#lines = new Map(program.lines.map((line) => [line.label, line.source]));
     this.#dialect = dialect;
-    this.#verbatim = verbatim ?? null;
+    this.#verbatim = verbatim ?? program.source ?? null;
     this.saved(filename);
   }
 

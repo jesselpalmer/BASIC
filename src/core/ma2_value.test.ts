@@ -148,9 +148,9 @@ describe('closed internal MA2 value binding', () => {
     expect(bindMa2Literal(invalid)).toEqual({kind: 'unsupported', reason: 'conversion-status'});
     expect(() => bindMa2Literal({...prepared.literal, words: [0x4080, 1]})).toThrow(RangeError);
     expect(() => new Evaluator().evaluate(prepared.literal)).toThrow('MA2 literals require');
-    expect(() => parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
+    ).toThrow(TypeError);
     const basic = new Basic();
     basic.run('10 N=1.0000001');
     expect(basic.variables).toEqual([{name: 'N', value: 1.0000001}]);

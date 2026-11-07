@@ -114,6 +114,8 @@ export class BrowserSession {
         this.#state = Object.freeze({...this.#state, status: 'error', source, dialect});
       throw optionError;
     }
+    // Selected programs are admitted as a whole before an active run or view is replaced.
+    if (dialect !== 'native') new Basic({}, {dialect}).reset(source);
     this.stop();
     const draw = this.#view.draw?.bind(this.#view);
     const readKey = this.#view.readKey?.bind(this.#view);

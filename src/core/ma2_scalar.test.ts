@@ -146,8 +146,8 @@ describe('word-preserving MA2 scalar conformance on the shared driver', () => {
     const native = new api.Basic();
     native.run('10 A=1.0000001\n20 B=A-1');
     expect(native.variables[0]).toEqual({name: 'A', value: 1.0000001});
-    expect(() => api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
+    ).toThrow(TypeError);
   });
 });

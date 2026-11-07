@@ -45,6 +45,40 @@ describe('portable CLI files', () => {
     expect(readFileSync(file, 'utf8')).toBe(serialized);
   });
 
+  it('runs an explicitly selected MA2 portable document while plain .bas stays native', async () => {
+    const source = '20 PRINT X\r\n10 X=12\r\n30 END';
+    const selected = join(directory, 'selected.basic.json');
+    writeFileSync(selected, encodeSourceDocument(source, {dialect: 'basic-plus-v4a12-ma2'}));
+    const output: string[] = [];
+    expect((await runFile(selected, {write: (text) => output.push(text)})).status).toBe('halted');
+    expect(output.join('')).toBe(' 12 \n');
+    const plain = join(directory, 'plain.bas');
+    writeFileSync(plain, source);
+    expect((await runFile(plain, {write: (text) => output.push(text)})).status).toBe('halted');
+    expect(output.at(-1)).toBe('12\n');
+  });
+
+  it('completes the reviewed 1CHECK game from a selected portable file', async () => {
+    const source = readFileSync(
+      join(import.meta.dir, '../../scripts/package/fixtures/classic/1check-mar75-text.bas'),
+      'utf8',
+    );
+    const file = join(directory, '1check.basic.json');
+    writeFileSync(file, encodeSourceDocument(source, {dialect: 'basic-plus-v4a12-ma2'}));
+    const answers = ['0', 'NO'];
+    const output: string[] = [];
+    expect(
+      (
+        await runFile(file, {
+          write: (text) => output.push(text),
+          readLine: () => Promise.resolve(answers.shift() ?? null),
+        })
+      ).status,
+    ).toBe('halted');
+    expect(output.join('')).toContain('YOU MADE 0 JUMPS AND HAD 48 PIECES');
+    expect(answers).toEqual([]);
+  });
+
   it('reports BASIC coordinates inside source, independent of JSON indentation', async () => {
     const file = join(directory, 'coordinates.basic.json');
     writeFileSync(

@@ -2,6 +2,26 @@ import {expect, it, jest} from 'bun:test';
 import {BrowserDocument, type DocumentStorage} from './document.ts';
 import {decodeSourceDocument, encodeSourceDocument} from '../core/source_document.ts';
 
+it('imports exact selected source and rejects unsupported source without changing the document', async () => {
+  const f = fixture();
+  const dialect = 'basic-plus-v4a12-ma2' as const;
+  const source = '20 END\r\n10 PRINT "HELLO"\r\n';
+  expect(
+    await f.document.importDocument(
+      () => Promise.resolve(encodeSourceDocument(source, {dialect})),
+      f.confirm,
+    ),
+  ).toEqual({kind: 'replaced'});
+  expect(f.document.context).toMatchObject({source, dialect});
+  const prior = f.document.exportDocument();
+  const rejected = await f.document.importDocument(
+    () => Promise.resolve(encodeSourceDocument('10 END\n20 PRINT RND()', {dialect})),
+    f.confirm,
+  );
+  expect(rejected.kind).toBe('invalid');
+  expect(f.document.exportDocument()).toBe(prior);
+});
+
 function fixture(restored: string | null = null) {
   const storage = {
     read: jest.fn(() => (restored === null ? null : encodeSourceDocument(restored))),
