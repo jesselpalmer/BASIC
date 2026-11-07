@@ -19,7 +19,7 @@ export function runSelectedMa2StateProgram(source: string, instructionLimit = 10
 
 /** Execute reviewed source through its first INPUT and return its rendered opening. */
 export function runSelectedMa2Opening(source: string, instructionLimit = 10_000) {
-  return createSelectedMa2Session(source, instructionLimit).advance();
+  return prepareSelectedMa2Program(source, instructionLimit, true, true).advance();
 }
 
 /** Internal run-owned continuation at selected INPUT boundaries. */
@@ -27,7 +27,12 @@ export function createSelectedMa2Session(source: string, instructionLimit = 10_0
   return prepareSelectedMa2Program(source, instructionLimit, true);
 }
 
-function prepareSelectedMa2Program(source: string, instructionLimit: number, opening: boolean) {
+function prepareSelectedMa2Program(
+  source: string,
+  instructionLimit: number,
+  opening: boolean,
+  firstInputOnly = false,
+) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
   const candidate = preflightBasicPlusMa2Candidate(source);
@@ -56,11 +61,13 @@ function prepareSelectedMa2Program(source: string, instructionLimit: number, ope
     'NextStatement',
     'RemStatement',
     'EndStatement',
-    ...(opening ? ['PrintStatement', 'PrintUsingStatement'] : []),
+    ...(opening ? ['InputStatement', 'PrintStatement', 'PrintUsingStatement'] : []),
   ]);
   // Check every statement, including dead source, before changing state.
   for (const {statement} of candidate.instructions) {
-    if (opening && statement.type === 'InputStatement') break;
+    // The legacy opening preview cannot resume; only the resumable session
+    // authorizes an entire source program and must inspect beyond INPUT.
+    if (firstInputOnly && statement.type === 'InputStatement') break;
     if (!supported.has(statement.type))
       throw new BasicSyntaxError(
         'UNSUPPORTED_MA2_EXECUTION',
@@ -75,6 +82,13 @@ function prepareSelectedMa2Program(source: string, instructionLimit: number, ope
         statement.target.name.endsWith('$') &&
         statement.expression.type === 'StringLiteral'
       ) {
+        if (statement.target.name !== 'B$')
+          throw new BasicSyntaxError(
+            'UNSUPPORTED_MA2_STRING',
+            'Selected MA2 execution only supports literal B$ assignment',
+            statement.target.location.start,
+            statement.location.label,
+          );
         const valid = basicPlusStringLength(statement.expression.value);
         if (valid.kind !== 'value')
           throw new BasicSyntaxError(
@@ -94,8 +108,29 @@ function prepareSelectedMa2Program(source: string, instructionLimit: number, ope
         );
       state.validateNode(statement.expression);
       if (statement.target.type === 'ArrayReference') state.validateNode(statement.target);
-    } else if (statement.type === 'IfStatement') state.validateComparison(statement.condition);
-    else if (statement.type === 'ForStatement') {
+    } else if (statement.type === 'IfStatement') {
+      if (statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$')
+        strings.validateReplay(statement.condition);
+      else state.validateComparison(statement.condition);
+    } else if (statement.type === 'InputStatement') {
+      if (!['F', 'T', 'A$'].includes(statement.target.name))
+        throw new BasicSyntaxError(
+          'UNSUPPORTED_MA2_INPUT',
+          'Selected MA2 input requires F, T or A$',
+          statement.target.location.start,
+          statement.location.label,
+        );
+      if (statement.prompt) {
+        const valid = basicPlusStringLength(statement.prompt.value);
+        if (valid.kind !== 'value')
+          throw new BasicSyntaxError(
+            'UNSUPPORTED_MA2_STRING',
+            valid.reason,
+            statement.prompt.location.start,
+            statement.location.label,
+          );
+      }
+    } else if (statement.type === 'ForStatement') {
       state.validateNode(statement.start);
       state.validateNode(statement.end);
       if (statement.step) state.validateNode(statement.step);
@@ -107,12 +142,36 @@ function prepareSelectedMa2Program(source: string, instructionLimit: number, ope
         statement.type === 'PrintUsingStatement'
           ? [statement.format, ...statement.items]
           : statement.items;
-      for (const expression of expressions)
-        if (
-          expression.type !== 'StringLiteral' &&
-          !(expression.type === 'Variable' && expression.name.endsWith('$'))
-        )
-          state.validateNode(expression);
+      for (const expression of expressions) {
+        if (expression.type === 'StringLiteral') {
+          const valid = basicPlusStringLength(expression.value);
+          if (valid.kind !== 'value')
+            throw new BasicSyntaxError(
+              'UNSUPPORTED_MA2_STRING',
+              valid.reason,
+              expression.location.start,
+              statement.location.label,
+            );
+        } else if (expression.type === 'Variable' && expression.name.endsWith('$')) {
+          if (expression.name !== 'B$' && expression.name !== 'A$')
+            throw new BasicSyntaxError(
+              'UNSUPPORTED_MA2_STRING',
+              'Selected MA2 output requires A$ or B$',
+              expression.location.start,
+              statement.location.label,
+            );
+        } else state.validateNode(expression);
+      }
+      if (statement.type === 'PrintUsingStatement') {
+        if (statement.format.type !== 'Variable' || statement.format.name !== 'B$')
+          throw new BasicSyntaxError(
+            'UNSUPPORTED_MA2_STRING',
+            'Selected MA2 PRINT USING requires B$ image',
+            statement.format.location.start,
+            statement.location.label,
+          );
+        for (const item of statement.items) state.validateNode(item);
+      }
     }
   }
   const instructions = candidate.instructions;
