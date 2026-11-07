@@ -196,6 +196,65 @@ test('portable document preserves CRLF, context, execution and export through re
   });
 });
 
+test('selected portable document survives export, reload and reimport with exact source', async ({
+  page,
+}) => {
+  const source = '20 PRINT "HI";A$\r\n10 A$="ADA"\r\n30 END\r\n';
+  const document = {
+    format: 'basic-program',
+    version: 1,
+    dialect: 'basic-plus-v4a12-ma2',
+    source,
+  };
+  page.once('dialog', (dialog) => void dialog.accept());
+  await importPortable(page, document);
+  await expect(page.locator('#file-status')).toHaveText('Portable document imported.');
+  await expect(page.locator('#document-dialect')).toHaveText(`Dialect: ${document.dialect}`);
+  await page.locator('#run').click();
+  await expect(page.locator('#console-output')).toHaveText('HIADA\n');
+
+  await page.reload();
+  await expect(page.locator('#source')).toHaveValue(source.replaceAll('\r\n', '\n'));
+  await expect(page.locator('#document-dialect')).toHaveText(`Dialect: ${document.dialect}`);
+  const downloaded = page.waitForEvent('download');
+  await page.locator('#export-document').click();
+  const file = await downloaded;
+  expect(file.suggestedFilename()).toBe('program.basic.json');
+  const path = await file.path();
+  expect(JSON.parse(await readFile(path, 'utf8'))).toEqual(document);
+
+  await page.locator('#source').fill('10 PRINT "changed"');
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.locator('#file-input').setInputFiles(path);
+  await expect(page.locator('#source')).toHaveValue(source.replaceAll('\r\n', '\n'));
+  await expect(page.locator('#document-dialect')).toHaveText(`Dialect: ${document.dialect}`);
+  await page.locator('#run').click();
+  await expect(page.locator('#console-output')).toHaveText('HIADA\n');
+});
+
+test('selected browser Step and Stop release input and allow a fresh run', async ({page}) => {
+  const source = '10 INPUT A$\n20 PRINT A$\n30 END';
+  page.once('dialog', (dialog) => void dialog.accept());
+  await importPortable(page, {
+    format: 'basic-program',
+    version: 1,
+    dialect: 'basic-plus-v4a12-ma2',
+    source,
+  });
+  await page.locator('#step').click();
+  await expect(page.locator('#status')).toHaveText('Waiting for input');
+  await page.locator('#stop').click();
+  await expect(page.locator('#status')).toHaveText('Stopped');
+  await expect(page.locator('#input-form')).toBeHidden();
+  await expect(page.locator('#source')).toHaveValue(source);
+  await page.locator('#run').click();
+  await expect(page.locator('#status')).toHaveText('Waiting for input');
+  await page.locator('#input-value').fill('FRESH');
+  await page.locator('#input-value').press('Enter');
+  await expect(page.locator('#status')).toHaveText('Finished');
+  await expect(page.locator('#console-output')).toHaveText('FRESH\nFRESH\n');
+});
+
 test('unsupported portable metadata preserves work and an active input run', async ({page}) => {
   const source = '10 INPUT NAME$\n20 PRINT NAME$';
   await page.locator('#source').fill(source);
