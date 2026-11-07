@@ -2,6 +2,9 @@ import {describe, expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {validateBasicPlusMa2Candidate} from '../parser/ma2_candidate_validation.ts';
+import {parseBasicPlusMa2Candidate} from '../parser/parser.ts';
+import Basic from './runtime.ts';
+import {createSelectedMa2Session} from './ma2_state_program.ts';
 import {injectMa2Value} from './ma2_value.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
 import type {Expression, NodeOf} from './types.ts';
@@ -25,6 +28,45 @@ function number(value: number) {
 }
 
 describe('selected MA2 statement output', () => {
+  test('runs source PRINT commas through the manual five 14-column zones', () => {
+    // BASIC-PLUS Oct 1972 §3.3.2 shows five zones and a sixth item on a new line.
+    const source = '10 PRINT 3,2,5,6,1,-1\n20 END';
+    const result = createSelectedMa2Session(source).advance();
+    expect(result.status).toBe('halted');
+    expect(result.output).toBe(
+      ' 3             2             5             6             1 \n-1 \n',
+    );
+    const line = parseBasicPlusMa2Candidate(source)[0].statement;
+    expect(line.type).toBe('PrintStatement');
+    if (line.type !== 'PrintStatement') throw Error('Expected PRINT');
+    expect(line.candidateSeparators).toEqual(['comma', 'comma', 'comma', 'comma', 'comma', null]);
+    expect(Object.isFrozen(line.candidateSeparators)).toBe(true);
+    expect(() => new Basic().run(source)).toThrow();
+  });
+
+  test('preserves mixed selected separators and source-bound supplied punctuation', () => {
+    const source = '10 PRINT 1;2,3;4\n20 PRINT 5,\n30 PRINT 6\n40 END';
+    expect(createSelectedMa2Session(source).advance().output).toBe(
+      ' 1  2          3  4 \n 5             6 \n',
+    );
+    const supplied = structuredClone(parseBasicPlusMa2Candidate(source));
+    const first = supplied[0].statement;
+    if (first.type !== 'PrintStatement') throw Error('Expected PRINT');
+    Reflect.set(first.candidateSeparators!, 0, 'comma');
+    expect(() => createSelectedMa2Session(source, 100, supplied)).toThrow(
+      'disagrees with its source',
+    );
+  });
+
+  test('keeps PRINT USING terminal semicolon separate from ordinary comma metadata', () => {
+    const parsed = parseBasicPlusMa2Candidate('10 PRINT USING B$,1;')[0].statement;
+    if (parsed.type !== 'PrintUsingStatement') throw Error('Expected PRINT USING');
+    const output = new Ma2StatementOutput(() => {});
+    expect(
+      output.execute(parsed, (expression) => (expression.type === 'Variable' ? '##' : number(1))),
+    ).toEqual({kind: 'value', text: ' 1', column: 2});
+  });
+
   test('renders the reviewed numbered board and initial 48-piece position through parsed statements', () => {
     const writes: string[] = [];
     const output = new Ma2StatementOutput((text) => writes.push(text));

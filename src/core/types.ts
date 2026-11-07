@@ -251,6 +251,8 @@ export interface NodeFields {
     readonly items: readonly Expression[];
     readonly separators: readonly Location[];
     readonly trailingSemicolon: boolean;
+    /** Selected candidate punctuation after each item; null means adjacency/end. */
+    readonly candidateSeparators?: readonly ('comma' | 'semicolon' | null)[];
   };
   PrintUsingStatement: {
     readonly format: Expression;
