@@ -6,7 +6,7 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `dfb455feaef47cc348f8b3c1170d1da1e349cda8`, an internal runner
+At main `80bcbe017bed0ba51ffa035ee07efad5f2e3af7d`, an internal runner
 executes the exact reviewed source through a supported play/quit/replay session.
 It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
 board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
@@ -15,7 +15,10 @@ and [#217](https://github.com/jesselpalmer/BASIC/pull/217) deliver this trace an
 cancellable INPUT continuation. Merged [#219](https://github.com/jesselpalmer/BASIC/pull/219)
 adds an independently enumerated two-jump board and 46-piece summary;
 [#220](https://github.com/jesselpalmer/BASIC/pull/220) rejects unsupported later
-source before effects. It remains internal: public historical profile
+source before effects. [#221](https://github.com/jesselpalmer/BASIC/pull/221)
+binds the captured loop completion/reentry cases and
+[#222](https://github.com/jesselpalmer/BASIC/pull/222) rejects bad B$ images
+before output. It remains internal: public historical profile
 selection, cross-distribution acceptance and independent end-user play are open.
 
 ## Demonstration to deliver
@@ -53,7 +56,7 @@ remains blocked. See the roadmap and
       physical spans and immutable snapshots; reject unsupported supplied trees
       before effects or failed replacement.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
-      scalars/arrays/loops; selected string replay and small-integer loops now
+      scalars/arrays/loops; selected string replay and six captured loop cases
       work internally. Complete accepted defaults, DIM/index conversion, errors
       51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
       range/error and cleanup paths needed by the selected profile.
@@ -96,9 +99,9 @@ results do not satisfy this checklist by themselves.
 
 The next implementation work should close supplied-tree preparation and remaining
 selected support rows, then connect the internal complete-session runner to an
-explicit public profile. [#221](https://github.com/jesselpalmer/BASIC/pull/221)
-and dependent [#222](https://github.com/jesselpalmer/BASIC/pull/222) are in
-review for narrow loop and image-preflight behavior. Resolve remaining index/loop and event evidence concurrently
+explicit public profile. [#224](https://github.com/jesselpalmer/BASIC/pull/224)
+and independent [#225](https://github.com/jesselpalmer/BASIC/pull/225) are in
+review for the seven-move source gap and supplied-tree admission. Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
 
