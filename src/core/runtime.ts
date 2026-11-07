@@ -9,7 +9,11 @@ import {validateDialect} from './dialect.ts';
 import {readInput, inputTargets, isInputStatement} from './input.ts';
 import type {InputStatement} from './input.ts';
 import {waitFor} from './wait.ts';
-import {prepareProgram} from './prepared_program.ts';
+import {
+  isInternalSelectedProgram,
+  prepareInternalSelectedProgram,
+  prepareProgram,
+} from './prepared_program.ts';
 import {prepareSelectedMa2Driver} from './ma2_state_program.ts';
 import {
   createNativeStatementPolicy,
@@ -17,7 +21,11 @@ import {
 } from './native_statement_policy.ts';
 import {programInstructions} from './instructions.ts';
 import type {Instruction} from './instructions.ts';
-import type {PreparedMa2Candidate, PreparedProgram} from './prepared_program.ts';
+import type {
+  InternalSelectedProgram,
+  PreparedMa2Candidate,
+  PreparedProgram,
+} from './prepared_program.ts';
 import {defaultScheduler, yieldExecution} from './scheduling.ts';
 import {parseLine} from '../parser/parser.ts';
 import type {
@@ -39,8 +47,11 @@ import type {
 const internalSelectedToken = Symbol('internal-selected-ma2');
 
 /** Internal selected experiment; the public Basic constructor remains native-only. */
-export function createInternalSelectedBasic(source: string, host: Partial<Host> = {}): Basic {
-  return new Basic(host, {}, {token: internalSelectedToken, source});
+export function createInternalSelectedBasic(
+  program: string | InternalSelectedProgram,
+  host: Partial<Host> = {},
+): Basic {
+  return new Basic(host, {}, {token: internalSelectedToken, program});
 }
 
 export default class Basic {
@@ -53,6 +64,7 @@ export default class Basic {
   #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
+  #selectedProgram: InternalSelectedProgram | null = null;
   #selectedSteps = 0;
   #controlFlow: ControlFlow;
   #data: DataReader;
@@ -71,7 +83,7 @@ export default class Basic {
   constructor(
     host: Partial<Host> = {},
     options: LanguageOptions = {},
-    internal?: {readonly token: symbol; readonly source: string},
+    internal?: {readonly token: symbol; readonly program: string | InternalSelectedProgram},
   ) {
     if (internal && internal.token !== internalSelectedToken)
       throw new TypeError('Unsupported internal execution context');
@@ -88,7 +100,10 @@ export default class Basic {
       data: () => this.#data,
       graphics: this.#graphics,
     });
-    if (internal) this.reset(internal.source);
+    if (internal) {
+      if (typeof internal.program === 'string') this.reset(internal.program);
+      else this.resetInternalSelectedProgram(internal.program);
+    }
   }
 
   get host(): Readonly<Host> {
@@ -130,34 +145,11 @@ export default class Basic {
 
   /** Prepare a fresh run, retaining the loaded program when omitted. */
   reset(program?: string | Program): RunResult {
+    if (this.#internalSelected) {
+      return this.#resetSelected(program);
+    }
     this.#assertIdle();
     this.#invalidateExecution();
-    if (this.#internalSelected) {
-      this.#selectedSteps = 0;
-      this.#status = 'ready';
-      this.#current = null;
-      this.#diagnostic = null;
-      try {
-        if (program !== undefined && typeof program !== 'string')
-          throw new TypeError('Internal selected execution requires exact source');
-        const source = program ?? this.#selectedDriver?.prepared.source;
-        if (source === undefined) throw new TypeError('Missing selected source');
-        const driver = prepareSelectedMa2Driver(source, (text) =>
-          this.#callHost('write', this.#current!, text),
-        );
-        this.#selectedDriver = driver;
-        this.#prepared = driver.prepared;
-        this.#controlFlow = driver.flow;
-        this.#statementPolicy = {
-          execute: (line, context) =>
-            driver.execute(line, context.controlFlow, () => context.halt()),
-        };
-      } catch (error) {
-        this.#recordFailure(error);
-        throw error;
-      }
-      return this.state;
-    }
     this.#evaluator.reset();
     this.#graphics.reset();
     this.#status = 'ready';
@@ -175,6 +167,53 @@ export default class Basic {
       this.#prepared = candidate;
       this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
       this.#data = new DataReader(this.#prepared.dataItems);
+    } catch (error) {
+      this.#recordFailure(error);
+      throw error;
+    }
+    return this.state;
+  }
+
+  /** Internal source-bound Program replacement through the same Basic driver. */
+  resetInternalSelectedProgram(program: InternalSelectedProgram): RunResult {
+    if (!this.#internalSelected || !isInternalSelectedProgram(program))
+      throw new TypeError('Expected an internal selected Program and execution context');
+    return this.#resetSelected(program);
+  }
+
+  #resetSelected(program?: string | Program | InternalSelectedProgram): RunResult {
+    this.#assertIdle();
+    this.#invalidateExecution();
+    this.#selectedSteps = 0;
+    this.#status = 'ready';
+    this.#current = null;
+    this.#diagnostic = null;
+    try {
+      if (
+        program !== undefined &&
+        typeof program !== 'string' &&
+        !isInternalSelectedProgram(program)
+      )
+        throw new TypeError('Internal selected execution requires exact source');
+      const selected =
+        program === undefined
+          ? this.#selectedProgram
+          : typeof program === 'string'
+            ? prepareInternalSelectedProgram(program)
+            : program;
+      if (selected === null) throw new TypeError('Missing selected source');
+      const driver = prepareSelectedMa2Driver(
+        selected.source,
+        (text) => this.#callHost('write', this.#current!, text),
+        selected.lines,
+      );
+      this.#selectedProgram = selected;
+      this.#selectedDriver = driver;
+      this.#prepared = driver.prepared;
+      this.#controlFlow = driver.flow;
+      this.#statementPolicy = {
+        execute: (line, context) => driver.execute(line, context.controlFlow, () => context.halt()),
+      };
     } catch (error) {
       this.#recordFailure(error);
       throw error;

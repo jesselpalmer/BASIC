@@ -30,6 +30,37 @@ export type PreparedMa2Candidate = Pick<
   readonly arrayDeclarations: readonly ArrayDeclaration[];
 };
 
+// A nominal, source-bound internal Program transport. No caller-owned tree or
+// derived index is trusted when this is installed into an execution.
+const selectedProgramBrand: unique symbol = Symbol('selected-ma2-program');
+const selectedPrograms = new WeakSet<object>();
+export type InternalSelectedProgram = Readonly<{
+  readonly kind: 'selected-ma2-program';
+  readonly source: string;
+  readonly lines: readonly ParsedLine[];
+  readonly [selectedProgramBrand]: true;
+}>;
+
+/** Prepare an internal selected Program without declaring a public dialect. */
+export function prepareInternalSelectedProgram(
+  source: string,
+  supplied?: readonly ParsedLine[],
+): InternalSelectedProgram {
+  const candidate = prepareSelectedMa2Candidate(source, supplied);
+  const program = Object.freeze({
+    kind: 'selected-ma2-program' as const,
+    source: candidate.source,
+    lines: candidate.lines,
+    [selectedProgramBrand]: true as const,
+  });
+  selectedPrograms.add(program);
+  return program;
+}
+
+export function isInternalSelectedProgram(value: unknown): value is InternalSelectedProgram {
+  return value !== null && typeof value === 'object' && selectedPrograms.has(value);
+}
+
 function instructionTables(
   instructions: readonly Instruction[],
   loopPairs: readonly LoopPair[] = pairLoops(instructions),
