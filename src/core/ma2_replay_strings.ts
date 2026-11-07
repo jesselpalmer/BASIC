@@ -1,6 +1,6 @@
 import {basicPlusStringLength} from './basic_plus_strings.ts';
 import {compareBasicPlusStringRelation} from './comparison.ts';
-import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
+import {BasicSyntaxError} from './diagnostic.ts';
 import type {readSelectedMa2Input} from './ma2_statement_input.ts';
 import type {Comparison, Expression, Location, NodeOf} from './types.ts';
 
@@ -47,15 +47,9 @@ export class SelectedMa2StringState {
     if (expression.type === 'StringLiteral') return expression.value;
     if (expression.type !== 'Variable' || (expression.name !== 'A$' && expression.name !== 'B$'))
       unsupported('Expected a selected string variable or literal', expression.location);
-    const value = this.#values.get(expression.name);
-    if (value === undefined)
-      throw new BasicRuntimeError(
-        'UNBOUND_MA2_STRING',
-        `String ${expression.name} is unbound`,
-        expression.location.start,
-        expression.location.label,
-      );
-    return value;
+    // BASIC-PLUS §§2.5.2/3.6.2/5.1.2 read an unassigned string as empty.
+    // Keep the default implicit so a read does not become a stored assignment.
+    return this.#values.get(expression.name) ?? '';
   }
 
   validateReplay(condition: Comparison): void {
