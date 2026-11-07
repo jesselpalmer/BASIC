@@ -225,7 +225,12 @@ test('selected portable document survives export, reload and reimport with exact
 
   await page.locator('#source').fill('10 PRINT "changed"');
   page.once('dialog', (dialog) => void dialog.accept());
-  await page.locator('#file-input').setInputFiles(path);
+  await page.locator('#file-input').setInputFiles({
+    name: file.suggestedFilename(),
+    mimeType: 'application/json',
+    buffer: await readFile(path),
+  });
+  await expect(page.locator('#file-status')).toHaveText('Portable document imported.');
   await expect(page.locator('#source')).toHaveValue(source.replaceAll('\r\n', '\n'));
   await expect(page.locator('#document-dialect')).toHaveText(`Dialect: ${document.dialect}`);
   await page.locator('#run').click();
