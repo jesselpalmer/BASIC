@@ -8,6 +8,7 @@ import {basicPlusStringLength} from './basic_plus_strings.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
 import {readSelectedMa2Input} from './ma2_statement_input.ts';
 import {SelectedMa2StringState} from './ma2_replay_strings.ts';
+import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
 import {preflightBasicPlusMa2Candidate} from '../parser/ma2_candidate_support.ts';
 import type {Expression, Host, Location, NodeOf} from './types.ts';
@@ -174,6 +175,7 @@ function prepareSelectedMa2Program(
       }
     }
   }
+  if (opening && !firstInputOnly) selectedMa2CandidateImages(source);
   const instructions = candidate.instructions;
   const loopPairs = pairLoops(instructions);
   const prepared = {
