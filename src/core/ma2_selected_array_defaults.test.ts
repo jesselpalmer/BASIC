@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import Basic from './runtime.ts';
-import {BasicRuntimeError} from './diagnostic.ts';
+import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {createBasicPlusMa2ArraySession} from './evaluator.ts';
 import {createSelectedMa2Session, runSelectedMa2StateProgram} from './ma2_state_program.ts';
 
@@ -72,6 +72,36 @@ test('explicit DIM uses its declared bound rather than the implicit bound', () =
   const matrix = runSelectedMa2StateProgram('10 DIM A(12,2)\n20 A(12,2)=9\n30 END');
   expect(matrix.arrays[0].bounds).toEqual([12, 2]);
   expect(matrix.arrays[0].values.filter((value) => value !== 0)).toEqual([9]);
+});
+
+test('later explicit DIM controls an earlier selected array access', () => {
+  // BASIC-PLUS October 1972 §3.6.2 permits DIM after the first reference,
+  // including later on the same multiple-statement line.
+  for (const source of [
+    '10 A(12)=5:DIM A(12)\n20 B=A(12)\n30 END',
+    '10 A(12)=5\n20 GOTO 40\n30 DIM A(12)\n40 B=A(12)\n50 END',
+  ]) {
+    const first = runSelectedMa2StateProgram(source);
+    const second = runSelectedMa2StateProgram(source);
+    expect(first.variables).toContainEqual({name: 'B', value: 5});
+    expect(first.arrays[0]).toMatchObject({name: 'A', bounds: [12], elementCount: 13});
+    expect(first.arrays[0].values[12]).toBe(5);
+    expect(second.arrays).toEqual(first.arrays);
+  }
+});
+
+test('duplicate selected DIM is rejected at preparation before any execution', () => {
+  // The current safe declaration policy rejects duplicate names. This test
+  // does not claim a historical error number or continuation rule.
+  const source = '10 A(12)=5\n20 DIM A(12)\n30 DIM A(12)\n40 END';
+  try {
+    createSelectedMa2Session(source);
+    throw new Error('Expected duplicate declaration failure');
+  } catch (error) {
+    expect(error).toBeInstanceOf(BasicSyntaxError);
+    if (!(error instanceof BasicSyntaxError)) throw error;
+    expect(error.diagnostic).toMatchObject({code: 'DUPLICATE_DIM', label: 30});
+  }
 });
 
 test('mixed implicit ranks reject before selected output; native and conformance stay explicit', () => {
