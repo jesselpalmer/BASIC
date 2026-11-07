@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {validateBasicPlusMa2Candidate} from '../parser/ma2_candidate_validation.ts';
 import {parseBasicPlusMa2Candidate} from '../parser/parser.ts';
+import {BasicSyntaxError} from './diagnostic.ts';
 import Basic from './runtime.ts';
 import {createSelectedMa2Session} from './ma2_state_program.ts';
 import {injectMa2Value} from './ma2_value.ts';
@@ -42,6 +43,34 @@ describe('selected MA2 statement output', () => {
     expect(line.candidateSeparators).toEqual(['comma', 'comma', 'comma', 'comma', 'comma', null]);
     expect(Object.isFrozen(line.candidateSeparators)).toBe(true);
     expect(() => new Basic().run(source)).toThrow();
+  });
+
+  test('skips zones for source consecutive commas, carrying a final comma into the next PRINT', () => {
+    // BASIC-PLUS Oct 1972 §3.3.2 gives 1,2,,3 as the skipped-zone example.
+    const source = '10 PRINT 1,2,,3,\n20 PRINT 4\n30 END';
+    const first = parseBasicPlusMa2Candidate(source)[0].statement;
+    if (first.type !== 'PrintStatement') throw Error('Expected PRINT');
+    expect(first.items).toHaveLength(3);
+    expect(first.candidateSeparators).toEqual(['comma', 'comma', 'comma']);
+    expect(first.candidateCommaSkips).toEqual([0, 1, 0]);
+    expect(first.separators.map((location) => location.start.column)).toEqual([11, 13, 14, 16]);
+    expect(Object.isFrozen(first.candidateCommaSkips)).toBe(true);
+    expect(createSelectedMa2Session(source).advance().output).toBe(
+      ' 1 ' + ' '.repeat(11) + ' 2 ' + ' '.repeat(25) + ' 3 ' + ' '.repeat(11) + ' 4 \n',
+    );
+    const supplied = structuredClone(parseBasicPlusMa2Candidate(source));
+    const altered = supplied[0].statement;
+    if (altered.type !== 'PrintStatement') throw Error('Expected PRINT');
+    (altered.candidateCommaSkips as number[])[1] = 2;
+    expect(() => createSelectedMa2Session(source, 100, supplied)).toThrow(
+      'disagrees with its source',
+    );
+    expect(() => new Basic().run(source)).toThrow(BasicSyntaxError);
+  });
+
+  test('keeps unsupported leading or final comma runs malformed', () => {
+    for (const source of ['10 PRINT ,1', '10 PRINT 1,,', '10 PRINT 1;,2'])
+      expect(() => parseBasicPlusMa2Candidate(source)).toThrow(BasicSyntaxError);
   });
 
   test('preserves mixed selected separators and source-bound supplied punctuation', () => {

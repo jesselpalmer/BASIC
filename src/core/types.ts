@@ -253,6 +253,8 @@ export interface NodeFields {
     readonly trailingSemicolon: boolean;
     /** Selected candidate punctuation after each item; null means adjacency/end. */
     readonly candidateSeparators?: readonly ('comma' | 'semicolon' | null)[];
+    /** Extra consecutive commas after each candidate item's first comma. */
+    readonly candidateCommaSkips?: readonly number[];
   };
   PrintUsingStatement: {
     readonly format: Expression;
