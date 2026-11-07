@@ -6,7 +6,7 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `80bcbe017bed0ba51ffa035ee07efad5f2e3af7d`, an internal runner
+At main `6a5eb43639fa4af461fd8f427cd2590b4f78229e`, an internal runner
 executes the exact reviewed source through a supported play/quit/replay session.
 It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
 board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
@@ -18,7 +18,10 @@ adds an independently enumerated two-jump board and 46-piece summary;
 source before effects. [#221](https://github.com/jesselpalmer/BASIC/pull/221)
 binds the captured loop completion/reentry cases and
 [#222](https://github.com/jesselpalmer/BASIC/pull/222) rejects bad B$ images
-before output. It remains internal: public historical profile
+before output. [#224](https://github.com/jesselpalmer/BASIC/pull/224)
+adds the seven-jump, 41-piece source-backed board and printed-sample gap;
+[#225](https://github.com/jesselpalmer/BASIC/pull/225) checks supplied candidate
+trees against exact source before internal execution. It remains internal: public historical profile
 selection, cross-distribution acceptance and independent end-user play are open.
 
 ## Demonstration to deliver
@@ -53,17 +56,22 @@ remains blocked. See the roadmap and
       parse, and the selected source session checks later/dead instructions before
       effects and executes internally. Bind the supported
       forms through public Program preparation and the shared lifecycle. Preserve
-      physical spans and immutable snapshots; reject unsupported supplied trees
-      before effects or failed replacement.
+      physical spans and immutable snapshots; the internal selected session now
+      rejects unsupported supplied trees before effects, while public failed
+      replacement remains to be proved.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and six captured loop cases
       work internally. Complete accepted defaults, DIM/index conversion, errors
       51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
-      range/error and cleanup paths needed by the selected profile.
+      range/error and cleanup paths needed by the selected profile. In review
+      #227 rejects unsupported NEXT increments before termination decisions and
+      checks nested unfinished-loop reentry without changing native.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
       selected committed F/T/A$ reads cover the internal session. Complete
       accepted input/output forms, source-located numeric event policy and
-      independently checked move/summary/replay output. The limited reference
+      independently checked move/summary/replay output. A selected-session
+      transcript now checks the seven-move board, invalid move, retry, replay
+      and second-game result exactly in #228; public host output is still open. The limited reference
       installation's normalized transport is not an output oracle.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
       moves, state/count/result, quit and replay through public selected execution
@@ -97,11 +105,11 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next implementation work should close supplied-tree preparation and remaining
-selected support rows, then connect the internal complete-session runner to an
-explicit public profile. [#224](https://github.com/jesselpalmer/BASIC/pull/224)
-and independent [#225](https://github.com/jesselpalmer/BASIC/pull/225) are in
-review for the seven-move source gap and supplied-tree admission. Resolve remaining index/loop and event evidence concurrently
+The next implementation work should close remaining selected support rows, then
+connect the internal complete-session runner to an explicit public profile.
+The seven-move source gap and supplied-tree admission are merged in #224/#225;
+#227/#228 are independent reviewable loop-domain and exact-output slices.
+Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
 

@@ -12,16 +12,15 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `80bcbe017bed0ba51ffa035ee07efad5f2e3af7d`, including
-merged [#221](https://github.com/jesselpalmer/BASIC/pull/221) and
-[#222](https://github.com/jesselpalmer/BASIC/pull/222).
+Reconciled against main `6a5eb43639fa4af461fd8f427cd2590b4f78229e`, including
+merged [#221](https://github.com/jesselpalmer/BASIC/pull/221)–[#225](https://github.com/jesselpalmer/BASIC/pull/225).
 
-| Capability                       | Current result                                                                                                                                                                                                                                                                                       |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                    |
-| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                           |
-| Selected MA2 implementation      | The exact reviewed 1CHECK source has an **internal complete-session trace**: illegal 1→2 leaves 48 pieces, legal 1→19 leaves 47, quit prints the summary, invalid replay text retries, YES rebuilds the board and NO exits. The run retains state across cancellable INPUT; it is not a public game. |
-| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                          |
+| Capability                       | Current result                                                                                                                                                                                                                                                                                                                               |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                                                            |
+| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                                                                   |
+| Selected MA2 implementation      | The exact reviewed 1CHECK source has an **internal complete-session trace** through quit/replay. A seven-jump prefix reaches 41 pieces; the printed sample's following 12→26 is invalid because square 12 was cleared earlier. Caller-supplied candidate trees are checked against exact source before execution. This is not a public game. |
+| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                                                                  |
 
 The [corpus ledger](classic-games-ledger.json) records **3 reviewed source
 differences / 105 unresolved**, **1 printed-system identification / 107
@@ -44,28 +43,35 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 ## Remaining blockers for that outcome
 
-| Workstream and issue owners                       | Already available                                                                                                                                                 | What must be completed                                                                                                                                                                   |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the selected source runner validates instructions after INPUT and in dead lines before effects, then executes through END.          | Validate supplied Program trees and remaining support rows before effects; integrate with the public Program/Basic lifecycle and explicit profile selection.                             |
-| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the game; six captured completion/reentry cases now use selected policy without changing native.           | Settle broader defaults, index/loop/error policies and numeric events required for the accepted profile; the current small-integer loop policy is not general historical semantics.      |
-| Input, output and events — #119, #120, #121, #128 | F/T/A$ responses commit under execution ownership; selected output prints boards and summary; source image preflight rejects late bad B$ images before effects.   | Verify exact output and historical input/error continuation independently across hosts and accepted forms; the limited reference installation is not a complete output oracle.           |
-| Complete-game proof — #115, #129                  | Internal exact-source traces cover illegal/legal moves, two consecutive legal jumps with 46 pieces, quit, replay and exit. Partial native checks remain distinct. | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
+| Workstream and issue owners                       | Already available                                                                                                                                                                                                                                         | What must be completed                                                                                                                                                                   |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the selected runner validates later/dead instructions and exact source-matched supplied candidate trees before effects, then executes through END.                                                                          | Complete remaining support rows; integrate with the public Program/Basic lifecycle and explicit profile selection.                                                                       |
+| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the game; six captured completion/reentry cases work without changing native. In review #227 bounds NEXT candidate increments to the selected signed-word domain.                                  | Settle broader defaults, index/loop/error policies and numeric events required for the accepted profile; conservative overflow rejection is not historical overflow semantics.           |
+| Input, output and events — #119, #120, #121, #128 | F/T/A$ responses commit under execution ownership; selected output prints boards and summary; source image preflight rejects late bad B$ images before effects. In review #228 checks an exact longer game transcript through replay and a second result. | Verify historical input/error continuation and output across public hosts and accepted forms; the limited reference installation is not a complete output oracle.                        |
+| Complete-game proof — #115, #129                  | Internal exact-source traces cover a seven-jump, 41-piece board and the printed sample discontinuity, plus quit/replay/exit. Partial native checks remain distinct.                                                                                       | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
 and linked feature issues retain the technical contracts.
 
-**In review:** [#224](https://github.com/jesselpalmer/BASIC/pull/224) checks the
-source-reviewed seven-move board and distinguishes the printed sample's invalid
-next move; independent [#225](https://github.com/jesselpalmer/BASIC/pull/225)
-admits exact source-matched supplied trees to the internal selected runner.
-Neither activates a public profile or settles general loop, numeric event or
-host policies.
+Merged [#224](https://github.com/jesselpalmer/BASIC/pull/224) checks the
+source-reviewed seven-move board and printed sample discontinuity;
+[#225](https://github.com/jesselpalmer/BASIC/pull/225) admits exact source-matched
+supplied trees to the internal selected runner. Neither activates a public
+profile or settles general loop, numeric event or host policies.
+
+**In review:** [#227](https://github.com/jesselpalmer/BASIC/pull/227)
+rejects out-of-domain selected NEXT candidates before a termination decision and
+checks nested unfinished-loop reentry. Independent
+[#228](https://github.com/jesselpalmer/BASIC/pull/228) asserts exact numbered,
+opening, seven-move, summary, retry, replay, second-game and exit output. The
+combined tree passes the full local gate. These remain internal selected-session
+work; neither is public host acceptance or a general historical loop policy.
 
 ## How the next work is selected
 
-1. Close supplied-tree preparation and remaining support rows, then connect the
-   proven internal run to explicit library selection.
+1. Close remaining support rows, then connect the proven internal run to
+   explicit library selection. Supplied-tree admission is delivered internally.
 2. Resolve independent subscript, loop, INPUT/output and event evidence while
    implementing the public execution path. Carry source context through CLI and
    browser after the supported profile is ready.
