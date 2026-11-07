@@ -23,6 +23,9 @@ export interface LoopValues {
   assign(target: NodeOf<'Variable'>, value: number): void;
 }
 
+/** Selected MA2 loop observations retain the value present at terminating NEXT. */
+export type LoopPolicy = 'native' | 'selected-ma2';
+
 type FlowProgram = Pick<
   PreparedProgram,
   'instructions' | 'labelIndices' | 'loopPairs' | 'pairsByFor' | 'pairsByNext'
@@ -41,6 +44,7 @@ export class ControlFlow {
   constructor(
     private readonly prepared: FlowProgram,
     private readonly evaluator: LoopValues,
+    private readonly loopPolicy: LoopPolicy = 'native',
   ) {}
 
   get nextInstruction(): Instruction | undefined {
@@ -189,10 +193,11 @@ export class ControlFlow {
         statement.location.label,
       );
     }
-    this.evaluator.assign(statement.variable, value);
-    if (frame.step > 0 ? value <= frame.limit : value >= frame.limit)
+    if (frame.step > 0 ? value <= frame.limit : value >= frame.limit) {
+      this.evaluator.assign(statement.variable, value);
       this.#moveTo(frame.forIndex + 1, statement.location);
-    else {
+    } else {
+      if (this.loopPolicy === 'native') this.evaluator.assign(statement.variable, value);
       this.#loopFrames.delete(frame.forIndex);
       this.#activeLoopVariables.delete(frame.variable);
     }
@@ -200,10 +205,14 @@ export class ControlFlow {
 
   #moveTo(index: number, location: Location): void {
     this.#checkDestination(index, location, this.#loopFrames);
-    for (const [key, frame] of this.#loopFrames) {
-      if (!containsLoopBody(frame, index)) {
-        this.#loopFrames.delete(key);
-        this.#activeLoopVariables.delete(frame.variable);
+    // The selected reference allows a transfer out of an unfinished loop and
+    // back to its NEXT; native drops the exited frame immediately.
+    if (this.loopPolicy === 'native') {
+      for (const [key, frame] of this.#loopFrames) {
+        if (!containsLoopBody(frame, index)) {
+          this.#loopFrames.delete(key);
+          this.#activeLoopVariables.delete(frame.variable);
+        }
       }
     }
     this.#index = index;

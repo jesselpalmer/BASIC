@@ -231,7 +231,7 @@ function prepareSelectedMa2Program(
       if (result.kind !== 'value') fail(result, target.location);
     },
   };
-  const flow = new ControlFlow(prepared, loopValues);
+  const flow = new ControlFlow(prepared, loopValues, 'selected-ma2');
   let executed = 0;
   let halted = false;
   let reading = false;
