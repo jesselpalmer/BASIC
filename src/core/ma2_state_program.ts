@@ -1,4 +1,3 @@
-import {arrayDeclarations} from './array_declarations.ts';
 import {ControlFlow, type LoopValues} from './control_flow.ts';
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {createBasicPlusMa2ArraySession} from './evaluator.ts';
@@ -43,7 +42,7 @@ function prepareSelectedMa2Program(
   const candidate = prepareSelectedMa2Candidate(source, supplied);
   // BASIC-PLUS numeric scalars start at zero (§§2.5.2, 3.6.2). The generic
   // MA2 conformance helper keeps its explicit-unbound diagnostic policy.
-  const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines), {
+  const state = createBasicPlusMa2ArraySession(candidate.arrayDeclarations, {
     defaultNumericScalars: true,
   });
   const strings = new SelectedMa2StringState();
