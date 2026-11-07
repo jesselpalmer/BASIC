@@ -12,16 +12,18 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `559e533ecb098a443f84dc6b03adc8352da4344a`, including
-merged [#230](https://github.com/jesselpalmer/BASIC/pull/230) and
-[#231](https://github.com/jesselpalmer/BASIC/pull/231).
+Reconciled against main `9453ba88d2c3b0abcee8e256af89837aefdadfea`,
+including merged [#233](https://github.com/jesselpalmer/BASIC/pull/233),
+[#234](https://github.com/jesselpalmer/BASIC/pull/234),
+[#236](https://github.com/jesselpalmer/BASIC/pull/236) and
+[#237](https://github.com/jesselpalmer/BASIC/pull/237).
 
-| Capability                       | Current result                                                                                                                                                                                                                                                                                                                               |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                                                            |
-| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                                                                   |
-| Selected MA2 implementation      | The exact reviewed 1CHECK source has an **internal complete-session trace** through quit/replay. A seven-jump prefix reaches 41 pieces; the printed sample's following 12→26 is invalid because square 12 was cleared earlier. Caller-supplied candidate trees are checked against exact source before execution. This is not a public game. |
-| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                                                                  |
+| Capability                       | Current result                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                                                                                                                                                                 |
+| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                                                                                                                                                                        |
+| Selected MA2 implementation      | The exact reviewed 1CHECK source has an **internal complete-session trace** through quit/replay and one-instruction stepping with real next locations. Selected numeric scalar reads default to zero. A seven-jump prefix reaches 41 pieces; the printed sample's following 12→26 is invalid because square 12 was cleared earlier. Caller-supplied candidate trees are checked against exact source before execution. This is not a public game. |
+| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                                                                                                                                                                       |
 
 The [corpus ledger](classic-games-ledger.json) records **3 reviewed source
 differences / 105 unresolved**, **1 printed-system identification / 107
@@ -44,22 +46,23 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 ## Remaining blockers for that outcome
 
-| Workstream and issue owners                       | Already available                                                                                                                                                                                     | What must be completed                                                                                                                                                              |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse. The selected source-bound candidate carries detached lines and shared prepared indexes; later/dead instructions reject before effects and the internal run reaches END. | Complete remaining support rows and bind this candidate to public Program/Basic lifecycle with explicit profile selection.                                                          |
-| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the game. In review #233 gives numeric scalars the documented zero default only in selected execution.                                         | Settle implicit arrays, remaining index/loop/error and numeric event policies for the accepted profile; conservative bounds are not historical overflow semantics.                  |
-| Input, output and events — #119, #120, #121, #128 | Internal F/T/A$ responses, seven-move output, cancellation after F and source-located TO failures have focused evidence.                                                                              | Verify historical input/error continuation and exact output across public hosts; the limited reference installation is not a complete output oracle.                                |
-| Complete-game proof — #115, #129                  | Internal exact-source traces cover seven jumps, 41 pieces, the printed sample discontinuity, quit/replay/exit and a second result. In review #234 adds instruction-level selected Step.               | Public direct/installed library, CLI/editor and extracted-browser playthrough; Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
+| Workstream and issue owners                       | Already available                                                                                                                                                                                                             | What must be completed                                                                                                                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse. The selected source-bound candidate carries detached lines and shared prepared indexes; later/dead instructions reject before effects and the internal run reaches END.                         | Complete remaining support rows and bind this candidate to public Program/Basic lifecycle with explicit profile selection.                                                    |
+| State and control — #58, #59, #123, #126          | Word-preserving state, selected numeric zero defaults and bounded loops drive the game. Merged #236 adds documented one-dimensional implicit numeric arrays with bound 10 and zero-filled cells.                              | Settle remaining rank/index/loop/error and numeric event policies for the accepted profile; conservative bounds are not historical overflow semantics.                        |
+| Input, output and events — #119, #120, #121, #128 | Internal F/T/A$ responses, seven-move output, cancellation after F and source-located TO failures have focused evidence.                                                                                                      | Verify historical input/error continuation and exact output across public hosts; the limited reference installation is not a complete output oracle.                          |
+| Complete-game proof — #115, #129                  | Internal exact-source traces cover seven jumps, 41 pieces, the printed sample discontinuity, quit/replay/exit, a second result and instruction-level Step. Merged #237 adds internal Stop ownership, including pending input. | Public direct/installed library, CLI/editor and extracted-browser playthrough; replacement, source transport and fresh-run acceptance; original attribution remains separate. |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
 and linked feature issues retain the technical contracts.
 
-**In review:** [#233](https://github.com/jesselpalmer/BASIC/pull/233) adds
-selected numeric scalar zero defaults, and independent
-[#234](https://github.com/jesselpalmer/BASIC/pull/234) steps one real selected
-instruction at a time. Their combined tree passes the full local gate. Public
-`Dialect` remains native until the support and host obligations close.
+**Newly merged:** [#236](https://github.com/jesselpalmer/BASIC/pull/236) adds
+selected implicit numeric array defaults, and independent
+[#237](https://github.com/jesselpalmer/BASIC/pull/237) cancels an internal
+stepped session safely, including pending input. Their combined tree passed the
+full local gate. Public `Dialect` remains native until the support and host
+obligations close.
 
 ## How the next work is selected
 
