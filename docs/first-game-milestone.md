@@ -6,16 +6,17 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `9453ba88d2c3b0abcee8e256af89837aefdadfea`, the exact reviewed
+At main `5ff720318222f593534656ac55a4997bb850bba2`, the exact reviewed
 source runs internally through play, quit, invalid replay response, reset and
 exit. Independent expectations cover a seven-jump, 41-piece board and exact
 output through a second game. Supplied trees, later instructions and bad B$
 images are checked before effects; selected INPUT cancellation preserves a
 fresh game. The candidate now carries exact source and detached lines through
-shared prepared indexes. Selected numeric scalars now read as zero before
-assignment, and the internal session can step by instruction. This remains an
-internal session: public profile
-selection, cross-distribution acceptance and end-user play are open. Detailed
+shared prepared indexes. Selected numeric scalars read as zero and A$/B$ as
+empty before assignment; implicit numeric arrays default to bound 10 in one or
+two dimensions. The internal session steps by instruction and owns cancellation.
+Public profile selection, cross-distribution acceptance and end-user play remain
+open. Detailed
 delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
 and linked issues.
 
@@ -63,8 +64,10 @@ remains blocked. See the roadmap and
       #227 rejects unsupported NEXT increments before termination decisions and
       checks nested unfinished-loop reentry without changing native. Merged
       #233 gives selected numeric scalars the documented zero default. Merged
-      #236 adds one-dimensional implicit numeric array bound 10 and zero cells;
-      rank, DIM ordering and other state policies remain open.
+      #236 adds one-dimensional implicit numeric array bound 10 and zero cells.
+      Merged #239 extends this to two dimensions; #240 supplies selected empty
+      A$/B$ scalar reads. DIM ordering, string arrays and other state policies
+      remain open.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
       selected committed F/T/A$ reads cover the internal session. Complete
       accepted input/output forms, source-located numeric event policy and
@@ -112,8 +115,8 @@ results do not satisfy this checklist by themselves.
 The next implementation work should close remaining selected support rows, then
 connect the internal complete-session runner to an explicit public profile.
 The seven-move output, bounded loop, input lifecycle and source-bound candidate
-preparation, numeric scalar defaults and instruction stepping are merged.
-Independent #236/#237 now deliver implicit-array and internal Stop behavior.
+preparation, numeric and string defaults, implicit numeric arrays and internal
+Step/Stop are merged.
 Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
