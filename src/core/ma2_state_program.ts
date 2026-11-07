@@ -11,7 +11,7 @@ import {SelectedMa2StringState} from './ma2_replay_strings.ts';
 import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
 import {preflightBasicPlusMa2Candidate} from '../parser/ma2_candidate_support.ts';
-import type {Expression, Host, Location, NodeOf} from './types.ts';
+import type {Expression, Host, Location, NodeOf, ParsedLine} from './types.ts';
 
 /** Internal state/control execution slice. It has no host effects or public profile. */
 export function runSelectedMa2StateProgram(source: string, instructionLimit = 10_000) {
@@ -24,8 +24,12 @@ export function runSelectedMa2Opening(source: string, instructionLimit = 10_000)
 }
 
 /** Internal run-owned continuation at selected INPUT boundaries. */
-export function createSelectedMa2Session(source: string, instructionLimit = 10_000) {
-  return prepareSelectedMa2Program(source, instructionLimit, true);
+export function createSelectedMa2Session(
+  source: string,
+  instructionLimit = 10_000,
+  supplied?: readonly ParsedLine[],
+) {
+  return prepareSelectedMa2Program(source, instructionLimit, true, false, supplied);
 }
 
 function prepareSelectedMa2Program(
@@ -33,10 +37,11 @@ function prepareSelectedMa2Program(
   instructionLimit: number,
   opening: boolean,
   firstInputOnly = false,
+  supplied?: readonly ParsedLine[],
 ) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
-  const candidate = preflightBasicPlusMa2Candidate(source);
+  const candidate = preflightBasicPlusMa2Candidate(source, supplied);
   const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines));
   const strings = new SelectedMa2StringState();
   const chunks: string[] = [];
