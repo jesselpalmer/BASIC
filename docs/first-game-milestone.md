@@ -6,7 +6,7 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `6a5eb43639fa4af461fd8f427cd2590b4f78229e`, an internal runner
+At main `dd1519bf933e3211bb319dca5af3cabfcda3caa9`, an internal runner
 executes the exact reviewed source through a supported play/quit/replay session.
 It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
 board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
@@ -58,12 +58,13 @@ remains blocked. See the roadmap and
       forms through public Program preparation and the shared lifecycle. Preserve
       physical spans and immutable snapshots; the internal selected session now
       rejects unsupported supplied trees before effects, while public failed
-      replacement remains to be proved.
+      replacement remains to be proved. In review #231 carries exact source,
+      detached lines and shared prepared indexes into selected execution.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and six captured loop cases
       work internally. Complete accepted defaults, DIM/index conversion, errors
       51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
-      range/error and cleanup paths needed by the selected profile. In review
+      range/error and cleanup paths needed by the selected profile. Merged
       #227 rejects unsupported NEXT increments before termination decisions and
       checks nested unfinished-loop reentry without changing native.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
@@ -71,8 +72,11 @@ remains blocked. See the roadmap and
       accepted input/output forms, source-located numeric event policy and
       independently checked move/summary/replay output. A selected-session
       transcript now checks the seven-move board, invalid move, retry, replay
-      and second-game result exactly in #228; public host output is still open. The limited reference
-      installation's normalized transport is not an output oracle.
+      and second-game result exactly in merged #228; public host output is still
+      open. The limited reference installation's normalized transport is not an
+      output oracle. In review
+      #230 checks cancellation at the second input after the first has committed,
+      source-located EOF/host errors and a fresh opening.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
       moves, state/count/result, quit and replay through public selected execution
       with independent expected state and output. Distinguish source defects from
@@ -108,7 +112,8 @@ results do not satisfy this checklist by themselves.
 The next implementation work should close remaining selected support rows, then
 connect the internal complete-session runner to an explicit public profile.
 The seven-move source gap and supplied-tree admission are merged in #224/#225;
-#227/#228 are independent reviewable loop-domain and exact-output slices.
+#227/#228 deliver independent loop-domain and exact-output slices.
+#230/#231 review independent input-lifecycle and source-bound preparation seams.
 Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
