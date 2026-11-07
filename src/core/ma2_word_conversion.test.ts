@@ -143,8 +143,8 @@ describe('exact mathematical MA2 to signed-word conversion', () => {
     expect('truncateMa2ToWord' in api).toBe(false);
     const basic = new api.Basic();
     expect(() => basic.run('10 DIM A(3)\n20 A(.5)=1')).toThrow(api.BasicRuntimeError);
-    expect(() => api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
+    ).toThrow(TypeError);
   });
 });

@@ -33,7 +33,7 @@ describe('internal selected MA2 candidate syntax', () => {
     expect(Object.isFrozen(lines[0].statement)).toBe(true);
     expect('parseBasicPlusMa2Candidate' in publicAPI).toBe(false);
     expect(() =>
-      publicAPI.parseProgram(fixture, {dialect: 'basic-plus-v4a12-ma2' as 'native'}),
+      publicAPI.parseProgram(fixture, {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
     ).toThrow(TypeError);
   });
 

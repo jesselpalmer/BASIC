@@ -69,8 +69,8 @@ export interface Location {
   readonly start: Position;
   readonly end: Position;
 }
-/** Historical profiles are unavailable until their semantics are implemented. */
-export type Dialect = 'native';
+/** A bounded, source-checked BASIC-PLUS V4A MA2 execution profile. */
+export type Dialect = 'native' | 'basic-plus-v4a12-ma2';
 export interface LanguageOptions {
   dialect?: Dialect;
 }
@@ -347,5 +347,7 @@ export interface Program {
   readonly type: 'Program';
   /** Omitted only in legacy caller-supplied trees; omission means native. */
   readonly dialect?: Dialect;
+  /** Exact source is required for historical programs and is never reconstructed from lines. */
+  readonly source?: string;
   readonly lines: readonly ParsedLine[];
 }

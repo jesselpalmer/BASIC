@@ -1,4 +1,5 @@
 import {parseProgram} from '../parser/parser.ts';
+import Basic from '../core/runtime.ts';
 import {
   createSourceDocument,
   decodeSourceDocument,
@@ -185,6 +186,8 @@ export class BrowserDocument {
   ): Promise<DocumentReplacementResult> {
     try {
       parseProgram(candidate.source, {dialect: candidate.dialect});
+      if (candidate.dialect !== 'native')
+        new Basic({}, {dialect: candidate.dialect}).reset(candidate.source);
     } catch (error) {
       return {kind: 'invalid', message: message(error)};
     }

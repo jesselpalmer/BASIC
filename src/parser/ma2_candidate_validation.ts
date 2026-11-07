@@ -2,16 +2,20 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {selectedMa2ArrayDeclarations, validateArrays} from '../core/array_declarations.ts';
 import {programInstructions} from '../core/instructions.ts';
 import {pairLoops} from '../core/loops.ts';
-import type {ParsedLine} from '../core/types.ts';
+import type {Dialect, ParsedLine} from '../core/types.ts';
 import {freezeTree} from './program_validation.ts';
 import {parseBasicPlusMa2Candidate} from './parser.ts';
 
 /** Internal syntax snapshot; this does not authorize any statement to execute. */
-export function validateBasicPlusMa2Candidate(source: string, supplied?: readonly ParsedLine[]) {
+export function validateBasicPlusMa2Candidate(
+  source: string,
+  supplied?: readonly ParsedLine[],
+  dialect: Dialect = 'native',
+) {
   if (typeof source !== 'string') throw new TypeError('Expected candidate source');
   // Reparse the exact source rather than trusting caller-owned word values,
   // locations, descendants or dialect metadata. The resulting tree is detached.
-  const lines = parseBasicPlusMa2Candidate(source);
+  const lines = parseBasicPlusMa2Candidate(source, dialect);
   if (supplied !== undefined && !sameTree(lines, supplied))
     throw new TypeError('Supplied candidate tree disagrees with its source');
 

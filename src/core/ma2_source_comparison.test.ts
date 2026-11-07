@@ -150,9 +150,9 @@ describe('MA2 comparison source through shared parser and scalar evaluation', ()
     }
     expect(state.snapshot()).toEqual(before);
     expect('parseBasicPlusMa2NumericComparison' in api).toBe(false);
-    expect(() => api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
+    ).toThrow(TypeError);
   });
   test('keeps operand events and their own operator locations without committing or resuming', () => {
     const state = session();

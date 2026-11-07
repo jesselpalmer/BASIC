@@ -15,6 +15,8 @@ import picture from '../examples/picture.bas' with {type: 'text'};
 import bounce from '../examples/bounce.bas' with {type: 'text'};
 import move from '../examples/move.bas' with {type: 'text'};
 import pong from '../examples/pong.bas' with {type: 'text'};
+import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
+import type {Dialect} from '../src/core/types.ts';
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -53,14 +55,15 @@ const documentDialect = element('document-dialect');
 const storageStatus = element('storage-status');
 const fileStatus = element('file-status');
 attachClassicPlaytest();
-const examples: Readonly<Record<string, string>> = {
-  greeting,
-  'times-table': timesTable,
-  guess,
-  picture,
-  bounce,
-  move,
-  pong,
+const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
+  greeting: {source: greeting, dialect: 'native'},
+  'times-table': {source: timesTable, dialect: 'native'},
+  guess: {source: guess, dialect: 'native'},
+  picture: {source: picture, dialect: 'native'},
+  bounce: {source: bounce, dialect: 'native'},
+  move: {source: move, dialect: 'native'},
+  pong: {source: pong, dialect: 'native'},
+  checker: {source: checker, dialect: 'basic-plus-v4a12-ma2'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
@@ -91,7 +94,12 @@ let runRequest = 0;
 let inspectionState: BrowserState | null = null;
 
 function renderDocumentStatus(): void {
-  example.value = Object.keys(examples).find((key) => examples[key] === documentModel.source) ?? '';
+  example.value =
+    Object.keys(examples).find(
+      (key) =>
+        examples[key].source === documentModel.source &&
+        examples[key].dialect === documentModel.dialect,
+    ) ?? '';
   documentDialect.textContent = `Dialect: ${documentModel.dialect}`;
   const state = documentModel.storageStatus;
   storageStatus.dataset.error = String(state.kind === 'error' || state.kind === 'unavailable');
@@ -292,7 +300,9 @@ async function loadExample(): Promise<void> {
   const candidate = examples[example.value];
   if (candidate === undefined) return;
   finishReplacement(
-    await documentModel.replaceWithExample(candidate, confirmReplacement),
+    await documentModel.replaceWithExample(candidate.source, confirmReplacement, {
+      dialect: candidate.dialect,
+    }),
     'Example loaded.',
   );
 }

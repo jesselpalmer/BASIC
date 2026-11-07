@@ -169,8 +169,8 @@ describe('MA2 word cells in the shared ArrayStore', () => {
     if (failure.kind !== 'unsupported') throw new Error('Expected failure');
     expect(Object.isFrozen(failure.location.start)).toBe(true);
     expect('createBasicPlusMa2ArrayStore' in api).toBe(false);
-    expect(() => api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      api.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
+    ).toThrow(TypeError);
   });
 });

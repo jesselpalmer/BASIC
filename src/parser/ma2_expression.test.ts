@@ -218,7 +218,7 @@ describe('internal MA2 numeric expression path through the shared parser', () =>
     });
     expect('parseBasicPlusMa2NumericExpression' in publicAPI).toBe(false);
     expect(() =>
-      publicAPI.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'}),
+      publicAPI.parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2-unknown' as 'native'}),
     ).toThrow(TypeError);
     expect(() => new Evaluator().evaluate(parseMa2('1+2'))).toThrow('MA2 literals require');
     expect(

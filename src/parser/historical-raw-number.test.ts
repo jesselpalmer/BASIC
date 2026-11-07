@@ -90,7 +90,7 @@ describe('raw historical numeric tokens', () => {
     ]);
     expect(tokens.find((token) => token.type === 'COMMENT')?.raw).toBe(' 1E999');
   });
-  test('preserves native numeric tokens and AST values while public activation stays rejected', () => {
+  test('preserves native numeric tokens and AST values alongside selected execution', () => {
     const raw = '1.0000001';
     expect(tokenize('10 PRINT ' + raw)[2]).toMatchObject({type: 'NUMBER', raw, value: 1.0000001});
     const statement = parseProgram('10 PRINT ' + raw).lines[0].statement;
@@ -98,8 +98,8 @@ describe('raw historical numeric tokens', () => {
     expect(statement.items[0]).toMatchObject({type: 'NumberLiteral', raw, value: 1.0000001});
     const options = {dialect: 'native' as const, lexicalPolicy};
     expect(() => parseProgram('10 PRINT 1E999', options)).toThrow(BasicSyntaxError);
-    expect(() => new Basic(undefined, {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
+    expect(new Basic(undefined, {dialect: 'basic-plus-v4a12-ma2'}).dialect).toBe(
+      'basic-plus-v4a12-ma2',
     );
     const output: string[] = [];
     expect(() =>

@@ -88,7 +88,6 @@ void format;
 void version;
 // @ts-expect-error Source envelopes are immutable.
 document.source = '10 END';
-// @ts-expect-error A portable envelope does not enable a historical profile.
 createSourceDocument('10 END', {dialect: 'basic-plus-v4a12-ma2'});
 // @ts-expect-error Session context accepts only supported dialects.
 void session.run('10 END', {dialect: 'other'});

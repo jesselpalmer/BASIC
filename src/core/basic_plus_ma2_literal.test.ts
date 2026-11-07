@@ -312,8 +312,8 @@ describe('internal selected-MA2 literal preparation and native boundary', () => 
       raw: '1.0000001',
       value: 1.0000001,
     });
-    expect(() => parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow(
-      TypeError,
+    expect(parseProgram('10 END', {dialect: 'basic-plus-v4a12-ma2'}).dialect).toBe(
+      'basic-plus-v4a12-ma2',
     );
     expect(
       expressionType({type: 'GroupExpression', expression: node, location: node.location}),

@@ -98,7 +98,7 @@ export class Evaluator {
     host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
     options: LanguageOptions = {},
   ) {
-    this.#dialect = validateDialect(options.dialect);
+    this.#dialect = validateDialect(options.dialect, 'native');
     this.host = createHost(host);
   }
 

@@ -131,8 +131,8 @@ describe('bounded BASIC-PLUS string values through shared comparison', () => {
     expect(() => api.parseProgram('10 IF "A"<"B" THEN 20\n20 END')).toThrow(api.BasicSyntaxError);
     expect('basicPlusStringConcat' in api).toBe(false);
     expect('compareBasicPlusStringRelation' in api).toBe(false);
-    expect(() =>
-      api.parseProgram('10 PRINT "A"', {dialect: 'basic-plus-v4a12-ma2' as 'native'}),
-    ).toThrow(TypeError);
+    expect(api.parseProgram('10 PRINT "A"', {dialect: 'basic-plus-v4a12-ma2'}).dialect).toBe(
+      'basic-plus-v4a12-ma2',
+    );
   });
 });

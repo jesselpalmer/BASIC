@@ -1,5 +1,5 @@
 import {BasicSyntaxError} from '../core/diagnostic.ts';
-import type {ParsedLine, SimpleStatement} from '../core/types.ts';
+import type {Dialect, ParsedLine, SimpleStatement} from '../core/types.ts';
 import {validateBasicPlusMa2Candidate} from './ma2_candidate_validation.ts';
 
 // Accepted syntax is deliberately narrower than the shared native AST. This
@@ -20,8 +20,12 @@ const candidateStatements = new Set<SimpleStatement['type']>([
 ]);
 
 /** Internal first-game statement-form preflight; semantic support is separate. */
-export function preflightBasicPlusMa2Candidate(source: string, supplied?: readonly ParsedLine[]) {
-  const candidate = validateBasicPlusMa2Candidate(source, supplied);
+export function preflightBasicPlusMa2Candidate(
+  source: string,
+  supplied?: readonly ParsedLine[],
+  dialect: Dialect = 'native',
+) {
+  const candidate = validateBasicPlusMa2Candidate(source, supplied, dialect);
   for (const {statement} of candidate.instructions) {
     if (!candidateStatements.has(statement.type))
       throw new BasicSyntaxError(

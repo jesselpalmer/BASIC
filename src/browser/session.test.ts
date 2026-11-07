@@ -41,6 +41,23 @@ async function rejection(promise: Promise<BrowserState>): Promise<unknown> {
 }
 
 describe('browser session', () => {
+  test('runs selected source and rejects unsupported dead source before replacing the view', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const dialect = 'basic-plus-v4a12-ma2' as const;
+    const active = session.run('10 INPUT "Z";Z\n20 PRINT Z\n30 END', {dialect});
+    expect(session.state).toMatchObject({status: 'waiting', dialect});
+    const clears = ui.clears();
+    expect(
+      await rejection(session.run('10 PRINT "NEVER"\n20 END\n30 PRINT RND()', {dialect})),
+    ).toMatchObject({diagnostic: {code: 'UNSUPPORTED_FUNCTION'}});
+    expect(ui.clears()).toBe(clears);
+    expect(session.state.status).toBe('waiting');
+    expect(ui.requests[0].submit('12')).toBe(true);
+    expect((await active).status).toBe('finished');
+    expect(ui.output.join('')).toContain('12');
+  });
+
   test('steps exactly one statement through labels, branches, loops and END', async () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);
