@@ -41,7 +41,11 @@ function prepareSelectedMa2Program(
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
   const candidate = prepareSelectedMa2Candidate(source, supplied);
-  const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines));
+  // BASIC-PLUS numeric scalars start at zero (§§2.5.2, 3.6.2). The generic
+  // MA2 conformance helper keeps its explicit-unbound diagnostic policy.
+  const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines), {
+    defaultNumericScalars: true,
+  });
   const strings = new SelectedMa2StringState();
   const chunks: string[] = [];
   let outputLength = 0;
