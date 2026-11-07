@@ -6,25 +6,33 @@ import {pairLoops} from './loops.ts';
 import {observeMa2Value} from './ma2_value.ts';
 import {basicPlusStringLength} from './basic_plus_strings.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
+import {readSelectedMa2Input} from './ma2_statement_input.ts';
+import {SelectedMa2StringState} from './ma2_replay_strings.ts';
+import {abortError} from './cancellation.ts';
 import {preflightBasicPlusMa2Candidate} from '../parser/ma2_candidate_support.ts';
-import type {Expression, Location, NodeOf} from './types.ts';
+import type {Expression, Host, Location, NodeOf} from './types.ts';
 
 /** Internal state/control execution slice. It has no host effects or public profile. */
 export function runSelectedMa2StateProgram(source: string, instructionLimit = 10_000) {
-  return runSelectedMa2Program(source, instructionLimit, false);
+  return prepareSelectedMa2Program(source, instructionLimit, false).advance();
 }
 
 /** Execute reviewed source through its first INPUT and return its rendered opening. */
 export function runSelectedMa2Opening(source: string, instructionLimit = 10_000) {
-  return runSelectedMa2Program(source, instructionLimit, true);
+  return createSelectedMa2Session(source, instructionLimit).advance();
 }
 
-function runSelectedMa2Program(source: string, instructionLimit: number, opening: boolean) {
+/** Internal run-owned continuation at selected INPUT boundaries. */
+export function createSelectedMa2Session(source: string, instructionLimit = 10_000) {
+  return prepareSelectedMa2Program(source, instructionLimit, true);
+}
+
+function prepareSelectedMa2Program(source: string, instructionLimit: number, opening: boolean) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
   const candidate = preflightBasicPlusMa2Candidate(source);
   const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines));
-  const strings = new Map<string, string>();
+  const strings = new SelectedMa2StringState();
   const chunks: string[] = [];
   let outputLength = 0;
   let outputLocation = candidate.instructions[0]?.statement.location;
@@ -138,17 +146,8 @@ function runSelectedMa2Program(source: string, instructionLimit: number, opening
   };
   const resolve = (expression: Expression) => {
     if (expression.type === 'StringLiteral') return expression.value;
-    if (expression.type === 'Variable' && expression.name.endsWith('$')) {
-      const value = strings.get(expression.name);
-      if (value === undefined)
-        throw new BasicRuntimeError(
-          'UNBOUND_MA2_STRING',
-          `String ${expression.name} is unbound`,
-          expression.location.start,
-          expression.location.label,
-        );
-      return value;
-    }
+    if (expression.type === 'Variable' && expression.name.endsWith('$'))
+      return strings.resolve(expression);
     const result = state.evaluateNode(expression);
     if (result.kind !== 'value') return fail(result, expression.location);
     return result.value;
@@ -176,84 +175,151 @@ function runSelectedMa2Program(source: string, instructionLimit: number, opening
   const flow = new ControlFlow(prepared, loopValues);
   let executed = 0;
   let halted = false;
-  while (flow.nextInstruction && !halted) {
-    const next = flow.nextInstruction;
+  let reading = false;
+  let terminated = false;
+  let failure: Error | null = null;
+  const snapshot = (status: 'waiting' | 'halted', pendingInput: Location | null) =>
+    Object.freeze({
+      status,
+      pendingInput,
+      executed,
+      output: chunks.join(''),
+      variables: state.snapshot(),
+      arrays: state.snapshotArrays(),
+    });
+
+  function advance() {
+    if (reading) throw new Error('Selected MA2 input is pending');
+    if (failure !== null) throw failure;
+    if (terminated) return snapshot('halted', null);
+    try {
+      while (flow.nextInstruction && !halted) {
+        const next = flow.nextInstruction;
+        if (executed === instructionLimit)
+          throw new BasicRuntimeError(
+            'INSTRUCTION_LIMIT',
+            `Instruction limit of ${instructionLimit} reached`,
+            next.statement.location.start,
+            next.label,
+          );
+        if (opening && next.statement.type === 'InputStatement')
+          return snapshot('waiting', next.statement.location);
+        const instruction = flow.takeInstruction()!;
+        const statement = instruction.statement;
+        executed++;
+        // The preflight above excludes other statement kinds before state changes.
+        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+        switch (statement.type) {
+          case 'LetStatement': {
+            if (
+              opening &&
+              statement.target.type === 'Variable' &&
+              statement.target.name.endsWith('$') &&
+              statement.expression.type === 'StringLiteral'
+            ) {
+              strings.assignLiteral(statement);
+              break;
+            }
+            const result = state.assignNode(statement.target, statement.expression);
+            if (result.kind !== 'value') fail(result, statement.expression.location);
+            break;
+          }
+          case 'IfStatement': {
+            const matched =
+              statement.condition.left.type === 'Variable' && statement.condition.left.name === 'A$'
+                ? strings.compareReplay(statement.condition)
+                : (() => {
+                    const result = state.compareNode(statement.condition);
+                    return 'value' in result
+                      ? result.value
+                      : fail(result, statement.condition.location);
+                  })();
+            if (matched === true) flow.jump(statement.target.value, statement.target.location);
+            else flow.skipLine(statement.location);
+            break;
+          }
+          case 'GotoStatement':
+            flow.jump(statement.target.value, statement.target.location);
+            break;
+          case 'ForStatement':
+            flow.beginLoop(statement);
+            break;
+          case 'NextStatement':
+            flow.nextLoop(statement);
+            break;
+          case 'PrintStatement':
+          case 'PrintUsingStatement': {
+            outputLocation = statement.location;
+            const result = output.execute(statement, resolve);
+            if (result.kind !== 'value') fail(result, statement.location);
+            break;
+          }
+          case 'EndStatement':
+            halted = true;
+            flow.clearFrames();
+            break;
+          case 'DimStatement':
+          case 'RemStatement':
+            break;
+        }
+        if (!halted) flow.finishInstruction();
+      }
+      terminated = true;
+      return snapshot('halted', null);
+    } catch (error) {
+      terminated = true;
+      failure = error instanceof Error ? error : new Error(String(error));
+      flow.clearFrames();
+      throw failure;
+    }
+  }
+
+  async function resumeInput(host: Pick<Host, 'readLine'>, signal: AbortSignal) {
+    if (reading) throw new Error('Selected MA2 input is already pending');
+    if (terminated) throw new Error('Selected MA2 run has ended');
+    const instruction = flow.nextInstruction;
+    if (!opening || instruction?.statement.type !== 'InputStatement')
+      throw new Error('Selected MA2 run is not at INPUT');
     if (executed === instructionLimit)
       throw new BasicRuntimeError(
         'INSTRUCTION_LIMIT',
         `Instruction limit of ${instructionLimit} reached`,
-        next.statement.location.start,
-        next.label,
+        instruction.statement.location.start,
+        instruction.label,
       );
-    if (opening && next.statement.type === 'InputStatement')
-      return Object.freeze({
-        status: 'waiting' as const,
-        pendingInput: next.statement.location,
-        executed,
-        output: chunks.join(''),
-        variables: state.snapshot(),
-        arrays: state.snapshotArrays(),
-      });
-    const instruction = flow.takeInstruction()!;
     const statement = instruction.statement;
-    executed++;
-    // The preflight above excludes other statement kinds before state changes.
-    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-    switch (statement.type) {
-      case 'LetStatement': {
-        if (
-          opening &&
-          statement.target.type === 'Variable' &&
-          statement.target.name.endsWith('$') &&
-          statement.expression.type === 'StringLiteral'
-        ) {
-          strings.set(statement.target.name, statement.expression.value);
-          break;
-        }
-        const result = state.assignNode(statement.target, statement.expression);
-        if (result.kind !== 'value') fail(result, statement.expression.location);
-        break;
+    reading = true;
+    try {
+      const result = await readSelectedMa2Input(host, statement, signal);
+      if (signal.aborted) throw abortError();
+      if (result.kind !== 'value')
+        throw new BasicRuntimeError(
+          'UNSUPPORTED_MA2_INPUT',
+          `Selected MA2 input: ${result.reason}`,
+          statement.location.start,
+          statement.location.label,
+        );
+      if (typeof result.value === 'string') strings.commitInput(statement, result);
+      else {
+        const observed = observeMa2Value(result.value);
+        const input =
+          'value' in observed ? observed.value : fail(observed, statement.target.location);
+        const committed = state.injectNode(statement.target, input);
+        if (committed.kind !== 'value') fail(committed, statement.target.location);
       }
-      case 'IfStatement': {
-        const result = state.compareNode(statement.condition);
-        const matched =
-          'value' in result ? result.value : fail(result, statement.condition.location);
-        if (matched === true) flow.jump(statement.target.value, statement.target.location);
-        else flow.skipLine(statement.location);
-        break;
-      }
-      case 'GotoStatement':
-        flow.jump(statement.target.value, statement.target.location);
-        break;
-      case 'ForStatement':
-        flow.beginLoop(statement);
-        break;
-      case 'NextStatement':
-        flow.nextLoop(statement);
-        break;
-      case 'PrintStatement':
-      case 'PrintUsingStatement': {
-        outputLocation = statement.location;
-        const result = output.execute(statement, resolve);
-        if (result.kind !== 'value') fail(result, statement.location);
-        break;
-      }
-      case 'EndStatement':
-        halted = true;
-        flow.clearFrames();
-        break;
-      case 'DimStatement':
-      case 'RemStatement':
-        break;
+      flow.takeInstruction();
+      executed++;
+      flow.finishInstruction();
+    } catch (error) {
+      terminated = true;
+      failure = error instanceof Error ? error : new Error(String(error));
+      flow.clearFrames();
+      throw failure;
+    } finally {
+      reading = false;
     }
-    if (!halted) flow.finishInstruction();
+    return advance();
   }
-  return Object.freeze({
-    status: 'halted' as const,
-    pendingInput: null,
-    executed,
-    output: chunks.join(''),
-    variables: state.snapshot(),
-    arrays: state.snapshotArrays(),
-  });
+
+  return Object.freeze({advance, resumeInput});
 }
