@@ -5,6 +5,7 @@ export const BASIC_PLUS_PRINT_OUTPUT_LIMIT = 65536;
 export type BasicPlusPrintOperation =
   | Readonly<{kind: 'text'; value: string}>
   | Readonly<{kind: 'integer'; value: number}>
+  | Readonly<{kind: 'tab'; value: number}>
   | Readonly<{kind: 'comma'}>
   | Readonly<{kind: 'semicolon'}>;
 
@@ -12,7 +13,13 @@ export type BasicPlusPrintResult =
   | Readonly<{kind: 'value'; text: string; column: number}>
   | Readonly<{
       kind: 'unsupported';
-      reason: 'operation-limit' | 'output-limit' | 'integer-domain' | 'text-domain' | 'line-width';
+      reason:
+        | 'operation-limit'
+        | 'output-limit'
+        | 'integer-domain'
+        | 'tab-domain'
+        | 'text-domain'
+        | 'line-width';
     }>;
 
 type UnsupportedReason = Extract<BasicPlusPrintResult, {kind: 'unsupported'}>['reason'];
@@ -63,6 +70,19 @@ export function basicPlusPrintLayout(
       case 'semicolon':
         suppressNewline = true;
         continue;
+      case 'tab': {
+        const position = operation.value;
+        if (typeof position !== 'number') throw new TypeError('Expected PRINT TAB position');
+        // The selected 72-column terminal numbers printable positions 0..71.
+        if (!Number.isInteger(position) || position < 0 || position > 71)
+          return unsupported('tab-domain');
+        if (position > column) {
+          if (!append(' '.repeat(position - column))) return unsupported('output-limit');
+          column = position;
+        }
+        suppressNewline = false;
+        continue;
+      }
       case 'text': {
         const input = operation.value;
         if (typeof input !== 'string') throw new TypeError('Expected PRINT text');

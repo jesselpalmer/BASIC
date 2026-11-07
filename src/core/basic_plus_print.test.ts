@@ -9,6 +9,7 @@ import {
 
 const integer = (value: number): BasicPlusPrintOperation => ({kind: 'integer', value});
 const text = (value: string): BasicPlusPrintOperation => ({kind: 'text', value});
+const tab = (value: number): BasicPlusPrintOperation => ({kind: 'tab', value});
 const comma = Object.freeze({kind: 'comma'} as const);
 const semicolon = Object.freeze({kind: 'semicolon'} as const);
 
@@ -80,6 +81,49 @@ describe('internal BASIC-PLUS PRINT layout', () => {
     expect(second).toEqual({kind: 'value', text: ' 2 \n', column: 0});
     expect(layout([integer(1), semicolon])).toEqual({kind: 'value', text: ' 1 ', column: 3});
     expect(layout([integer(2)], 3)).toEqual({kind: 'value', text: ' 2 \n', column: 0});
+  });
+
+  it('moves TAB forward to a zero-based column and never backs up the print head', () => {
+    expect(layout([text('X'), tab(4), text('Y')])).toEqual({
+      kind: 'value',
+      text: 'X   Y\n',
+      column: 0,
+    });
+    expect(layout([text('X'), tab(1), text('Y')])).toEqual({
+      kind: 'value',
+      text: 'XY\n',
+      column: 0,
+    });
+    expect(layout([tab(0), text('A'), tab(0), text('B'), tab(71), semicolon])).toEqual({
+      kind: 'value',
+      text: 'AB' + ' '.repeat(69),
+      column: 71,
+    });
+    expect(layout([tab(4), semicolon], 6)).toEqual({kind: 'value', text: '', column: 6});
+    expect(layout([tab(4)], 72)).toEqual({kind: 'value', text: '\n', column: 0});
+  });
+
+  it.each([-1, 72, 0.5, NaN, Infinity, -Infinity])(
+    'rejects unsettled TAB position %s atomically',
+    (value) => {
+      expect(layout([text('before'), tab(value)])).toEqual({
+        kind: 'unsupported',
+        reason: 'tab-domain',
+      });
+    },
+  );
+
+  it('bounds TAB padding atomically at the output cap', () => {
+    const lines: BasicPlusPrintOperation[] = [];
+    for (let count = 0; count < 897; count++) lines.push(text('X'.repeat(72)), comma);
+    expect(layout([...lines, text('X'.repeat(54)), tab(55), semicolon])).toMatchObject({
+      kind: 'value',
+      column: 55,
+    });
+    expect(layout([...lines, text('X'.repeat(54)), tab(56), semicolon])).toEqual({
+      kind: 'unsupported',
+      reason: 'output-limit',
+    });
   });
 
   it.each([
@@ -235,7 +279,8 @@ describe('internal BASIC-PLUS PRINT layout', () => {
       'text',
       [null],
       [1],
-      [{kind: 'tab', value: 5}],
+      [{kind: 'tab', value: '5'}],
+      [{kind: 'unknown'}],
       [{kind: 'text', value: 3}],
       [{kind: 'integer', value: '1'}],
     ])

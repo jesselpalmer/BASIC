@@ -9,14 +9,16 @@ output. It handles settled layout operations after expression evaluation.
 Visually checked §3.3.2, printed pages 3-6 through 3-9 (one-based PDF pages
 33 through 36) of the October 1972 [BASIC-PLUS manual](https://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf),
 SHA-256 `684b54d7218a2fb581bf324b175c1e37dc609e718218a81a51b22c31a1e936bd`.
+The same manual's printed page 10-14 (§10.4.3) defines TAB(X).
 
-| Location | Settled rule                                                                                                                                                         |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3-6      | A number has a leading sign position (blank or minus) and a trailing blank. Bare PRINT ends a line.                                                                  |
-| 3-7      | A 72-character terminal has five zones of 14 columns. A comma advances to the next available zone; the sixth entry begins a new line. Consecutive commas skip zones. |
-| 3-7/3-9  | A final comma suppresses the statement's final newline and leaves subsequent output in the next zone.                                                                |
-| 3-8      | Semicolons add no separator spaces. A comma moves at least one column, possibly onto a new line. Strings receive no added leading or trailing blanks.                |
-| 3-9      | A final semicolon also suppresses the statement's final newline.                                                                                                     |
+| Location | Settled rule                                                                                                                                                              |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3-6      | A number has a leading sign position (blank or minus) and a trailing blank. Bare PRINT ends a line.                                                                       |
+| 3-7      | A 72-character terminal has five zones of 14 columns. A comma advances to the next available zone; the sixth entry begins a new line. Consecutive commas skip zones.      |
+| 3-7/3-9  | A final comma suppresses the statement's final newline and leaves subsequent output in the next zone.                                                                     |
+| 3-8      | Semicolons add no separator spaces. A comma moves at least one column, possibly onto a new line. Strings receive no added leading or trailing blanks.                     |
+| 3-9      | A final semicolon also suppresses the statement's final newline.                                                                                                          |
+| 10-14    | TAB(X) moves forward with spaces to zero-based column X; if the print head is already past X, it emits no spaces. A standard Teletype has printable columns 0 through 71. |
 
 The manual notes more zones on terminals wider than 83 columns. This first
 conformance layer deliberately selects the documented 72-column configuration;
@@ -30,11 +32,13 @@ host adapters own terminal CR/LF encoding.
 ## Closed implementation subset
 
 Use decoded operations for printable ASCII strings, already-selected signed-word
-integers, comma and semicolon. This is not an AST or another source parser.
+integers, comma, semicolon and bounded TAB positions. This is not an AST or another source parser.
 Integers must be in -32768..32767; floats, nonfinite values, controls, high-bit
 characters, Unicode and terminal movement sequences remain unsupported. Integer
-zero has no negative-zero encoding. Numeric output therefore needs no unresolved
-floating representation or decimal precision rule.
+zero has no negative-zero encoding. TAB positions are accepted only as integral
+0..71 values; fractional and out-of-range arguments require a later profile
+event policy. Numeric output therefore needs no unresolved floating
+representation or decimal precision rule.
 
 The operation list permits consecutive separators so the manual's skipped-zone
 behavior can be checked. The selected source candidate accepts consecutive commas
@@ -52,7 +56,14 @@ sizes before padding/output allocation. Return a frozen completed text/cursor
 pair or an explicit frozen unsupported outcome, with no partial text. Malformed
 host argument types/operators throw TypeError and an invalid initial cursor
 throws RangeError. Input operations are not mutated or retained. No Host call,
-runtime state, instruction, Step or asynchronous ownership is introduced.
+runtime state, instruction, Step or asynchronous ownership is introduced. TAB
+pads only when its target exceeds the current cursor, without moving backward
+or wrapping. Source-level `PRINT TAB(X)` remains unsupported: selected parser
+recognition and whole-source expression preflight/evaluation must bind TAB as a
+print control instead of the current array reference before selected program
+execution can call this operation. That is the next #119 integration dependency
+and must preserve native TAB array/name behavior.
+
 Traversal uses the initially checked array length and numeric indices, ignoring
 caller iterators. Each payload is read once so validation and formatting consume
 the same value even when callers supply accessors.
@@ -66,7 +77,7 @@ transition, cursor validation and atomic margin/resource failures. Assert native
 compact numeric output, existing names and native comma rejection remain intact.
 Run the full quality/package gate plus Linux/macOS browser/archive validation.
 
-TAB, arbitrary terminal widths, floating output, terminal controls, profile
+Source-level TAB, arbitrary terminal widths, floating output, terminal controls, profile
 activation, public parser/evaluator integration, PRINT USING and complete game outcomes
 remain separate work. Passing this helper closes no historical game or release
 gate; #109 remains NOT READY.
