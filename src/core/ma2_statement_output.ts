@@ -1,4 +1,8 @@
-import {basicPlusPrintLayout, type BasicPlusPrintOperation} from './basic_plus_print.ts';
+import {
+  basicPlusPrintLayout,
+  type BasicPlusPrintOperation,
+  type BasicPlusPrintResult,
+} from './basic_plus_print.ts';
 import {observeMa2Value, type Ma2Value} from './ma2_value.ts';
 import {formatPrintUsing} from './print_using.ts';
 import type {Expression, NodeOf} from './types.ts';
@@ -12,11 +16,7 @@ export type Ma2OutputResult =
       reason:
         | 'numeric-observation'
         | 'image'
-        | 'operation-limit'
-        | 'output-limit'
-        | 'integer-domain'
-        | 'text-domain'
-        | 'line-width';
+        | Extract<BasicPlusPrintResult, {kind: 'unsupported'}>['reason'];
     }>;
 
 /** Execution-owned cursor and atomic output for the selected first-game PRINT subset. */
