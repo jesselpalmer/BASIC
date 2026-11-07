@@ -13,8 +13,9 @@ See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The next compatibility milestone is a [complete reviewed 1CHECK game session](docs/first-game-milestone.md)
 under the selected historical configuration. Native BASIC runs today; historical
-execution remains unavailable. The roadmap shows current capabilities and the
-remaining blockers for that outcome.
+execution is not publicly available. An internal path now runs the reviewed
+1CHECK source through its opening board and first INPUT; it cannot yet resume
+for a complete game. The roadmap shows current capabilities and remaining blockers.
 The [language reference](docs/language-v1.md) describes current native behavior;
 explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
 and typed DATA/READ/RESTORE

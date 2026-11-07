@@ -12,16 +12,16 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `870efd08ebe2fd98172929b2e33664131a5eb7fa`, including
-merged [#203](https://github.com/jesselpalmer/BASIC/pull/203) and
-[#204](https://github.com/jesselpalmer/BASIC/pull/204).
+Reconciled against main `9fc47a2bbdfafe4895c504a4134c1d405a982cfa`, including
+merged [#214](https://github.com/jesselpalmer/BASIC/pull/214) and
+[#215](https://github.com/jesselpalmer/BASIC/pull/215).
 
-| Capability                       | Current result                                                                                                                                                                                                                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md). |
-| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                        |
-| Selected MA2 implementation      | Internal source conversion, arithmetic, scalar/array word storage, numeric expressions/comparisons and byte-string operations are implemented and tested. Historical Program execution is still unavailable.                      |
-| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                       |
+| Capability                       | Current result                                                                                                                                                                                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                  |
+| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                         |
+| Selected MA2 implementation      | The exact reviewed 1CHECK source now executes 371 statements through the numbered and 48-piece opening boards, stopping at its first INPUT. Internal F/T/A$ reads are available but not committed to a resumable run. This is not a complete game. |
+| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                        |
 
 The [corpus ledger](classic-games-ledger.json) records **3 reviewed source
 differences / 105 unresolved**, **1 printed-system identification / 107
@@ -44,12 +44,12 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 ## Remaining blockers for that outcome
 
-| Workstream and issue owners                       | Already available                                                                                                               | What must be completed                                                                                                                                                                                                      |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | Shared grammar, historical scanner, raw/word literals and internal expression/comparison evaluation.                            | Complete Program parsing/preflight and runtime statement binding for the candidate. Validate all accepted forms before effects, including supplied/dead trees.                                                              |
-| State and control — #58, #59, #123, #126          | Word-preserving scalar/array storage and exact arithmetic; bounded string operations; selected subscript and loop observations. | Historical defaults, string state, DIM/index conversion and errors, IF/GOTO transfers and FOR/NEXT completion/reentry. Current exact-integer array conformance does not implement fractional subscript policy.              |
-| Input, output and events — #119, #120, #121, #128 | Native host/cancellation plumbing, bounded conversion/layout components and captured numeric events.                            | Source-backed numeric/string INPUT, padded string conditions, PRINT/USING output and required diagnostic/continuation behavior, with an adequate output reference. The existing reference installation is not I/O complete. |
-| Complete-game proof — #115, #129                  | Reviewed source, independent opening-state expectations and partial native tests.                                               | Full supported play/result/quit/replay traces, source-bug distinctions, lifecycle and cross-distribution checks. Keep original attribution and broader corpus certification explicit.                                       |
+| Workstream and issue owners                       | Already available                                                                                                                                              | What must be completed                                                                                                                                                                                                |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse and pass structural preflight; the internal runner reaches line 100 from exact source.                                            | Resume the shared run after INPUT and bind the remaining accepted statement semantics. Validate unsupported requirements before effects, including supplied/dead trees.                                               |
+| State and control — #58, #59, #123, #126          | Word-preserving scalars/arrays, selected fractional subscript conversion, exact comparisons and small-integer loop control produce the opening 48-piece board. | Bind replay string state/conditions and remaining defaults, index/loop/error policies needed for a full run. Do not extend the narrow integer loop policy by native arithmetic.                                       |
+| Input, output and events — #119, #120, #121, #128 | Parsed PRINT/USING renders the opening; a cancellable selected F/T/A$ input boundary returns values without committing them.                                   | Commit responses under execution ownership, implement retry/continuation and required numeric events, and verify full move/summary/replay output. The limited reference installation is not a complete output oracle. |
+| Complete-game proof — #115, #129                  | Exact reviewed opening output and state reach the first prompt; partial native checks remain distinct.                                                         | Full supported play/result/quit/replay traces, source-bug distinctions, lifecycle and cross-distribution checks. Keep original attribution and broader corpus certification explicit.                                 |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
@@ -57,9 +57,9 @@ and linked feature issues retain the technical contracts.
 
 ## How the next work is selected
 
-1. Prioritize shared Program/preparation and statement integration, followed by
-   the state/control and I/O behavior needed for the complete game. Build on the
-   merged numeric implementation; do not restart completed arithmetic research.
+1. Connect the merged input boundary to a resumable shared runner, then prove
+   the reviewed game's move, quit and replay behavior. Build on the existing
+   opening trace and numeric implementation.
 2. Resolve missing subscript, loop, INPUT/output and event evidence alongside
    implementation where files and dependencies permit independent work.
 3. Require each implementation batch to identify the milestone behavior it

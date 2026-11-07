@@ -6,6 +6,13 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
+At main `9fc47a2bbdfafe4895c504a4134c1d405a982cfa`, an internal runner
+executes the exact reviewed source through 371 statements: it prints the
+numbered board, initializes 48 pieces with 16 empty center squares, and stops
+at the first `INPUT` on line 100. The selected F/T/A$ read boundary is merged
+but not connected to a resumable run. This is a concrete opening trace, not a
+completed game or a public historical profile.
+
 ## Demonstration to deliver
 
 The reviewed March 1975 source runs a complete supported play/quit/replay session
@@ -26,23 +33,24 @@ printed sample's discontinuity with invented moves or repair game logic.
 
 ## Remaining delivery checklist
 
-All items below are still open at main
-`870efd08ebe2fd98172929b2e33664131a5eb7fa`. Internal components already delivered
-are listed in the roadmap and [support matrix](first-game-runtime-evidence.md).
+The syntax and opening slices are delivered, but every complete-game checklist
+item below remains open. See the roadmap and
+[support matrix](first-game-runtime-evidence.md) for component status.
 
-- [ ] **Program/statement integration** (#116/#117/#118): prepare all 85 candidate
-      statements under the selected context and execute them through the shared
-      runtime. Preserve physical spans, immutable snapshots and failed-replacement
-      atomicity. Reject unsupported source and supplied/dead trees before effects.
+- [ ] **Program/statement integration** (#116/#117/#118): the 85 candidate forms
+      parse and the opening executes internally; make execution resumable at
+      INPUT and bind all accepted forms through the shared runtime. Preserve
+      physical spans, immutable snapshots and failed-replacement atomicity.
+      Reject unsupported source and supplied/dead trees before effects.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; bind string/default rules, supported DIM/index conversion
       and errors 51/55, IF/GOTO and FOR/NEXT completion/reentry. Verify nested,
       repeated-entry, range/error and cleanup paths needed by the accepted subset.
-- [ ] **I/O/event semantics** (#119/#120/#121/#128): settle and implement accepted
-      numeric/string input, retry/continuation, byte/padded comparisons, PRINT/USING
-      images and source-located numeric diagnostics/continuations. Obtain adequate
-      independent expected output; the limited reference installation's normalized
-      transport is not a terminal/output oracle.
+- [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
+      selected uncommitted F/T/A$ reads exist; integrate owned input commit,
+      retry/continuation, byte/padded comparisons and source-located numeric
+      diagnostics. Verify move/summary/replay output independently; the limited
+      reference installation's normalized transport is not an output oracle.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
       moves, state/count/result, quit and replay with independent expected state and
       output. Distinguish source defects from runtime diagnostics and preserve all
@@ -75,9 +83,11 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next implementation work should target complete Program/preparation and
-statement binding in the existing owners. Resolve the remaining index/loop and
-input/output/event evidence concurrently where dependencies permit. Public
+The next implementation work should connect the selected input boundary to
+the shared runner, retaining state across suspension and enforcing cancellation,
+budgets and clean reruns. Prove legal/illegal moves, quit and replay in the exact
+source. Resolve remaining string/index/loop and event evidence concurrently
+where dependencies permit. Public
 activation still requires the entire accepted support matrix; an internal
 integration demonstration must be reported with its limits.
 
