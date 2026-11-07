@@ -653,6 +653,21 @@ class Parser {
     }
   }
 
+  /** Candidate-only PRINT control; TAB remains an ordinary native array name. */
+  printTab(): NodeOf<'CallExpression'> {
+    const name = this.expect('KEYWORD', 'TAB', 'Expected TAB');
+    const open = this.expect('PUNCTUATION', '(', 'Expected ( after TAB');
+    return this.nested(open, () => {
+      const argument = this.expression();
+      const close = this.expect('PUNCTUATION', ')', 'TAB requires one argument');
+      return this.node('CallExpression', name, close, {
+        name: 'TAB',
+        nameLocation: this.location(name),
+        arguments: [argument],
+      });
+    });
+  }
+
   print(command: Token) {
     const items: Expression[] = [];
     const separators: Location[] = [];
@@ -664,7 +679,13 @@ class Parser {
       let adjacent = false;
       for (;;) {
         const first = this.peek();
-        last = this.expression();
+        last =
+          this.candidate &&
+          this.at('KEYWORD', 'TAB') &&
+          this.tokens[this.index + 1]?.type === 'PUNCTUATION' &&
+          this.tokens[this.index + 1]?.value === '('
+            ? this.printTab()
+            : this.expression();
         if (
           adjacent &&
           expressionType(items[items.length - 1]) !== 'string' &&

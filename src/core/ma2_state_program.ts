@@ -9,6 +9,7 @@ import {readSelectedMa2Input} from './ma2_statement_input.ts';
 import {SelectedMa2StringState} from './ma2_replay_strings.ts';
 import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
+import {expressionType} from './comparison.ts';
 import type {Expression, Host, Location, NodeOf, ParsedLine} from './types.ts';
 import type {Instruction} from './instructions.ts';
 
@@ -156,6 +157,41 @@ function prepareSelectedMa2Program(
           ? [statement.format, ...statement.items]
           : statement.items;
       for (const expression of expressions) {
+        if (
+          statement.type === 'PrintStatement' &&
+          expression.type === 'CallExpression' &&
+          expression.name === 'TAB'
+        ) {
+          const argument = expression.arguments[0];
+          if (expressionType(argument) === 'string')
+            throw new BasicSyntaxError(
+              'UNSUPPORTED_MA2_TAB',
+              'TAB requires a numeric position',
+              argument.location.start,
+              statement.location.label,
+            );
+          state.validateNode(argument);
+          if (
+            argument.type === 'Ma2NumberLiteral' ||
+            (argument.type === 'UnaryExpression' && argument.argument.type === 'Ma2NumberLiteral')
+          ) {
+            const result = state.evaluateNode(argument);
+            const observed = result.kind === 'value' ? observeMa2Value(result.value) : result;
+            if (
+              observed.kind !== 'value' ||
+              !Number.isInteger(observed.value) ||
+              observed.value < 0 ||
+              observed.value > 71
+            )
+              throw new BasicSyntaxError(
+                'UNSUPPORTED_MA2_TAB',
+                'TAB position is outside the selected 72-column domain',
+                argument.location.start,
+                statement.location.label,
+              );
+          }
+          continue;
+        }
         if (expression.type === 'StringLiteral') {
           const valid = basicPlusStringLength(expression.value);
           if (valid.kind !== 'value')
