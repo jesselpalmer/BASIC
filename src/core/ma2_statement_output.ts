@@ -53,7 +53,7 @@ export class Ma2StatementOutput {
         value: formatPrintUsing(image, values, statement.format.location),
       });
     } else {
-      for (const item of statement.items) {
+      for (const [index, item] of statement.items.entries()) {
         const value = resolve(item);
         if (typeof value === 'string') operations.push({kind: 'text', value});
         else {
@@ -62,9 +62,15 @@ export class Ma2StatementOutput {
             return Object.freeze({kind: 'unsupported', reason: 'numeric-observation'});
           operations.push({kind: 'integer', value: observed.value});
         }
+        const separator = statement.candidateSeparators?.[index];
+        if (separator) operations.push({kind: separator});
       }
     }
-    if (statement.trailingSemicolon) operations.push({kind: 'semicolon'});
+    if (
+      statement.trailingSemicolon &&
+      (statement.type === 'PrintUsingStatement' || statement.candidateSeparators === undefined)
+    )
+      operations.push({kind: 'semicolon'});
     const result = basicPlusPrintLayout(operations, this.#column);
     if (result.kind !== 'value') return result;
     this.write(result.text);

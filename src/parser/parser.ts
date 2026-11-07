@@ -656,6 +656,7 @@ class Parser {
   print(command: Token) {
     const items: Expression[] = [];
     const separators: Location[] = [];
+    const candidateSeparators: ('comma' | 'semicolon' | null)[] = [];
     let trailingSemicolon = false;
     let last: Token | Expression = command;
     if (!this.atStatementEnd()) {
@@ -671,8 +672,9 @@ class Parser {
           this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(first.raw)}`, first);
         }
         items.push(last);
+        if (this.candidate) candidateSeparators.push(null);
         if (this.branchDepth > 0 && this.atElse()) break;
-        if (!this.at('PUNCTUATION', ';')) {
+        if (!this.at('PUNCTUATION', ';') && !(this.candidate && this.at('PUNCTUATION', ','))) {
           const next = this.peek();
           // Operators still belong to the current expression; only a new
           // unsigned primary can start another top-level PRINT item.
@@ -689,15 +691,24 @@ class Parser {
           continue;
         }
         adjacent = false;
-        last = this.take();
-        separators.push(this.location(last));
+        const separator = this.take();
+        last = separator;
+        separators.push(this.location(separator));
+        if (this.candidate)
+          candidateSeparators[candidateSeparators.length - 1] =
+            separator.value === ',' ? 'comma' : 'semicolon';
         if (this.atStatementEnd()) {
-          trailingSemicolon = true;
+          trailingSemicolon = separator.value === ';';
           break;
         }
       }
     }
-    return this.node('PrintStatement', command, last, {items, separators, trailingSemicolon});
+    return this.node('PrintStatement', command, last, {
+      items,
+      separators,
+      trailingSemicolon,
+      ...(this.candidate ? {candidateSeparators} : {}),
+    });
   }
 
   isPrintUsing(): boolean {
