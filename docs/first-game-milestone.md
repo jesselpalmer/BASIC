@@ -6,7 +6,7 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-Through merged #248 and #249, the exact reviewed
+Through merged #251 and #252, the exact reviewed
 source runs internally through play, quit, invalid replay response, reset and
 exit. Independent expectations cover a seven-jump, 41-piece board and exact
 output through a second game. Supplied trees, later instructions and bad B$
@@ -15,10 +15,10 @@ fresh game. The candidate now carries exact source and detached lines through
 shared prepared indexes. Selected numeric scalars read as zero and A$/B$ as
 empty before assignment; implicit numeric arrays default to bound 10 in one or
 two dimensions. The internal session steps by instruction and owns cancellation.
-A source-bound selected loop/output program and the reviewed game's quit/replay
-path now run through Basic's step/run/async driver with selected snapshots,
-F/T/A$ INPUT, cancellation and fresh resets. The seven-jump full transcript
-remains under the internal session. Public profile selection,
+A source-bound selected full-game path now runs through Basic's async driver:
+seven legal jumps, rejected printed continuation, 41-piece result, invalid
+replay retry, fresh board, second 47-piece result and exit. Selected F/T/A$
+INPUT, snapshots, cancellation and fresh resets have focused tests. Public profile selection,
 cross-distribution acceptance and end-user play remain open. Detailed
 delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
 and linked issues.
@@ -65,7 +65,8 @@ remains blocked. See the roadmap and
       path, including selected state snapshots, fresh reset and step/run. Merged
       #249 routes selected F/T/A$ INPUT through Basic's async owner, with
       committed prior responses and owned cancellation. The full game under
-      Basic and the supported public Program/profile path remain open.
+      Basic is now covered by merged #251's exact reviewed full-game path. The
+      supported public Program/profile path remains open.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and six captured loop cases
       work internally. Complete accepted defaults, DIM/index conversion, errors
@@ -90,12 +91,14 @@ remains blocked. See the roadmap and
       source-bound 14-column ordinary PRINT comma zones in selected execution.
       Merged #245 retains consecutive commas as skipped zones in that selected
       source, with leading empty fields still unsupported. Merged #248 adds a
-      pure bounded TAB layout operation; source-level `PRINT TAB(X)` still needs
-      selected parsing and preflight/evaluation binding.
+      pure bounded TAB layout operation; merged #252 binds candidate-only
+      source `PRINT TAB(X)` while preserving native TAB names and arrays.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
       moves, state/count/result, quit and replay through public selected execution
       with independent expected state and output. Distinguish source defects from
-      runtime diagnostics and preserve all three fixture identities.
+      runtime diagnostics and preserve all three fixture identities. Merged #251
+      proves the exact reviewed seven-jump/replay/second-result path through
+      Basic's internal async driver; public host acceptance remains open.
 - [ ] **Public selection and distributions** (#116/#129): after the accepted
       support matrix is complete, exercise explicit selection and source/context
       preservation through direct and installed ESM/CommonJS, types, CLI/editor and
@@ -127,14 +130,15 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next integrated batch should prove the full reviewed play/quit/replay path
-through Basic's selected driver, including legal and illegal moves, exact
-state/output, Step/Stop and fresh runs. Close remaining support rows and public
-Program/source transport before explicit profile selection.
+The next integrated batch should settle remaining first-game support and event
+rows, carry selected source/context through public Program preparation and
+explicit profile selection, and then prove direct/installed library, CLI/editor
+and browser play with Step/Stop, replacement and fresh runs.
 The seven-move output, bounded loop, input lifecycle and source-bound candidate
 preparation, numeric and string defaults, implicit numeric arrays, internal
 Step/Stop, native policy seam, selected Basic driver and INPUT, selected PRINT
-comma zones (including consecutive skips) and pure TAB layout are merged.
+comma zones and source-bound TAB layout, and the internal full-game driver proof
+are merged.
 Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
