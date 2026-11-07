@@ -239,6 +239,7 @@ function prepareSelectedMa2Program(
   let reading = false;
   let terminated = false;
   let failure: Error | null = null;
+  const cancellation = new AbortController();
   const snapshot = (status: 'running' | 'waiting' | 'halted', pendingInput: Location | null) =>
     Object.freeze({
       status,
@@ -251,6 +252,7 @@ function prepareSelectedMa2Program(
     });
 
   function advance(maxInstructions = Infinity) {
+    if (cancellation.signal.aborted) return snapshot('halted', null);
     if (reading) throw new Error('Selected MA2 input is pending');
     if (failure !== null) throw failure;
     if (terminated) return snapshot('halted', null);
@@ -344,9 +346,20 @@ function prepareSelectedMa2Program(
     }
   }
 
+  function cancel() {
+    if (failure !== null) throw failure;
+    if (!terminated) {
+      terminated = true;
+      halted = true;
+      flow.clearFrames();
+      cancellation.abort();
+    }
+    return snapshot('halted', null);
+  }
+
   async function resumeInput(host: Pick<Host, 'readLine'>, signal: AbortSignal) {
-    if (reading) throw new Error('Selected MA2 input is already pending');
     if (terminated) throw new Error('Selected MA2 run has ended');
+    if (reading) throw new Error('Selected MA2 input is already pending');
     const instruction = flow.nextInstruction;
     if (!opening || instruction?.statement.type !== 'InputStatement')
       throw new Error('Selected MA2 run is not at INPUT');
@@ -359,9 +372,10 @@ function prepareSelectedMa2Program(
       );
     const statement = instruction.statement;
     reading = true;
+    const ownedSignal = AbortSignal.any([signal, cancellation.signal]);
     try {
-      const result = await readSelectedMa2Input(host, statement, signal);
-      if (signal.aborted) throw abortError();
+      const result = await readSelectedMa2Input(host, statement, ownedSignal);
+      if (ownedSignal.aborted) throw abortError();
       if (result.kind !== 'value')
         throw new BasicRuntimeError(
           'UNSUPPORTED_MA2_INPUT',
@@ -381,6 +395,7 @@ function prepareSelectedMa2Program(
       executed++;
       flow.finishInstruction();
     } catch (error) {
+      if (cancellation.signal.aborted) throw abortError();
       terminated = true;
       failure = error instanceof Error ? error : new Error(String(error));
       flow.clearFrames();
@@ -391,5 +406,5 @@ function prepareSelectedMa2Program(
     return advance();
   }
 
-  return Object.freeze({advance: () => advance(), step: () => advance(1), resumeInput});
+  return Object.freeze({advance: () => advance(), step: () => advance(1), resumeInput, cancel});
 }
