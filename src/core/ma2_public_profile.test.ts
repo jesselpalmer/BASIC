@@ -13,6 +13,71 @@ const game = readFileSync(
   'utf8',
 );
 
+test('public selected Basic retains exact board state across seven jumps, retry and replay', async () => {
+  const answers = [
+    '1',
+    '19',
+    '2',
+    '20',
+    '3',
+    '21',
+    '8',
+    '22',
+    '16',
+    '30',
+    '24',
+    '38',
+    '64',
+    '46',
+    '12',
+    '26',
+    '0',
+    'MAYBE',
+    'YES',
+    '1',
+    '19',
+    '0',
+    'NO',
+  ];
+  const writes: string[] = [];
+  const checkpoints: Array<{
+    moves: number;
+    square12: number;
+    cells: readonly (number | string)[];
+    output: string;
+  }> = [];
+  const basic = new Basic(
+    {
+      write: (text) => writes.push(text),
+      readLine: (prompt) => {
+        if (prompt === 'JUMP FROM') {
+          checkpoints.push({
+            moves: basic.variables.find(({name}) => name === 'M')!.value as number,
+            square12: basic.arrays.find(({name}) => name === 'A')!.values[12] as number,
+            cells: basic.arrays.find(({name}) => name === 'A')!.values.slice(1),
+            output: writes.join(''),
+          });
+        }
+        return Promise.resolve(answers.shift() ?? null);
+      },
+    },
+    {dialect},
+  );
+  expect((await basic.runAsync(parseProgram(game, {dialect}))).status).toBe('halted');
+  expect(checkpoints).toHaveLength(11);
+  expect(checkpoints[7]).toMatchObject({moves: 7, square12: 0});
+  expect(checkpoints[8].cells).toEqual(checkpoints[7].cells);
+  expect(checkpoints[8].output.slice(checkpoints[7].output.length)).toBe(
+    '\nILLEGAL MOVE.  TRY AGAIN...\n',
+  );
+  expect(checkpoints[9]).toMatchObject({moves: 0, square12: 1});
+  expect(checkpoints[9].cells).toEqual(checkpoints[0].cells);
+  expect(checkpoints[10].moves).toBe(1);
+  expect(writes.join('')).toContain('YOU MADE 7 JUMPS AND HAD 41 PIECES');
+  expect(writes.join('')).toContain('YOU MADE 1 JUMPS AND HAD 47 PIECES');
+  expect(answers).toEqual([]);
+});
+
 test('public selected Program retains exact source and runs a complete 1CHECK session', async () => {
   const parsed = parseProgram(game, {dialect});
   expect(parsed.source).toBe(game);

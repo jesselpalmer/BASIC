@@ -149,20 +149,63 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
         join(import.meta.dir, 'package/fixtures/classic/1check-mar75-text.bas'),
         'utf8',
       );
-      const answers = ['0', 'NO'];
+      // The printed continuation 12→26 follows a cleared square and is rejected.
+      const answers = [
+        '1',
+        '19',
+        '2',
+        '20',
+        '3',
+        '21',
+        '8',
+        '22',
+        '16',
+        '30',
+        '24',
+        '38',
+        '64',
+        '46',
+        '12',
+        '26',
+        '0',
+        'MAYBE',
+        'YES',
+        '1',
+        '19',
+        '0',
+        'NO',
+      ];
+      const prompts: string[] = [];
       let output = '';
       const basic = new api.Basic(
         {
           write: (text) => {
             output += text;
           },
-          readLine: () => Promise.resolve(answers.shift() ?? null),
+          readLine: (prompt) => {
+            prompts.push(prompt ?? '');
+            return Promise.resolve(answers.shift() ?? null);
+          },
         },
         {dialect: 'basic-plus-v4a12-ma2'},
       );
       const program = api.parseProgram(source, {dialect: 'basic-plus-v4a12-ma2'});
       assert.equal((await basic.runAsync(program)).status, 'halted');
-      assert.match(output, /YOU MADE 0 JUMPS AND HAD 48 PIECES/);
+      assert.match(output, /ILLEGAL MOVE\. {2}TRY AGAIN\.\.\./);
+      assert.match(output, /PLEASE ANSWER 'YES' OR 'NO'\./);
+      assert.equal((output.match(/YOU MADE 7 JUMPS AND HAD 41 PIECES/g) ?? []).length, 1);
+      assert.match(output, /YOU MADE 1 JUMPS AND HAD 47 PIECES/);
+      assert.ok(output.endsWith('\nO. K.  HOPE YOU HAD FUN!\n'));
+      assert.deepEqual(prompts, [
+        ...Array.from({length: 8}, () => ['JUMP FROM', 'TO']).flat(),
+        'JUMP FROM',
+        'TRY AGAIN',
+        'TRY AGAIN',
+        'JUMP FROM',
+        'TO',
+        'JUMP FROM',
+        'TRY AGAIN',
+      ]);
       assert.deepEqual(answers, []);
       assert.equal(program.source, source);
     },

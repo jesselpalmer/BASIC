@@ -1,5 +1,47 @@
 import {expect, test} from '@playwright/test';
 
+test('selected editor follows seven legal jumps, rejects printed continuation and replays', async ({
+  page,
+}) => {
+  await page.goto('/');
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.locator('#example').selectOption('checker');
+  await page.locator('#run').click();
+  for (const answer of [
+    '1',
+    '19',
+    '2',
+    '20',
+    '3',
+    '21',
+    '8',
+    '22',
+    '16',
+    '30',
+    '24',
+    '38',
+    '64',
+    '46',
+    '12',
+    '26',
+  ]) {
+    await expect(page.locator('#status')).toHaveText('Waiting for input');
+    await page.locator('#input-value').fill(answer);
+    await page.locator('#input-value').press('Enter');
+  }
+  await expect(page.locator('#console-output')).toContainText('ILLEGAL MOVE.  TRY AGAIN...');
+  for (const answer of ['0', 'MAYBE', 'YES', '1', '19', '0', 'NO']) {
+    await expect(page.locator('#status')).toHaveText('Waiting for input');
+    await page.locator('#input-value').fill(answer);
+    await page.locator('#input-value').press('Enter');
+  }
+  await expect(page.locator('#status')).toHaveText('Finished');
+  await expect(page.locator('#console-output')).toContainText('YOU MADE 7 JUMPS AND HAD 41 PIECES');
+  await expect(page.locator('#console-output')).toContainText("PLEASE ANSWER 'YES' OR 'NO'.");
+  await expect(page.locator('#console-output')).toContainText('YOU MADE 1 JUMPS AND HAD 47 PIECES');
+  await expect(page.locator('#console-output')).toContainText('O. K.  HOPE YOU HAD FUN!');
+});
+
 test('editable 1CHECK runs in the public selected profile and retains its portable context', async ({
   page,
 }) => {
