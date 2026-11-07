@@ -59,7 +59,9 @@ describe('selected MA2 replay string state', () => {
     state.reset();
     expect(state.snapshot()).toEqual([]);
     expect(prior).toContainEqual({name: 'A$', value: ''});
-    expect(() => state.compareReplay(replay(570).condition)).toThrow('unbound');
+    expect(state.compareReplay(replay(570).condition)).toBe(false);
+    expect(state.resolve(replay(570).condition.left)).toBe('');
+    expect(state.snapshot()).toEqual([]);
     expect('SelectedMa2StringState' in publicAPI).toBe(false);
   });
 
@@ -79,6 +81,7 @@ describe('selected MA2 replay string state', () => {
     if (numeric.type !== 'IfStatement') throw Error('Expected IF');
     expect(() => state.validateReplay(numeric.condition)).toThrow('A$ YES/NO');
     expect(() => state.resolve(numeric.condition.left)).toThrow('selected string');
-    expect(() => state.resolve(replay(570).condition.left)).toThrow('unbound');
+    expect(state.resolve(replay(570).condition.left)).toBe('');
+    expect(state.snapshot()).toEqual([]);
   });
 });
