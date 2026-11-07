@@ -16,7 +16,7 @@ interface CoveragePolicy {
 // This is the single policy for product coverage. Entrypoints are exercised in
 // child processes, whose coverage is not merged into the unit-test report.
 const policy: CoveragePolicy = {
-  subprocessOnly: ['src/cli/main.ts', 'playground/main.ts'],
+  subprocessOnly: ['src/cli/main.ts', 'playground/main.ts', 'playground/classic.ts'],
   floors: {
     // Validated targets and destination checks make two defensive guards unreachable.
     // Their 12 lines moved from runtime.ts; the smaller module changes the percentage.

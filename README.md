@@ -13,9 +13,10 @@ See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The next compatibility milestone is a [complete reviewed 1CHECK game session](docs/first-game-milestone.md)
 under the selected historical configuration. Native BASIC runs today; historical
-execution is not publicly available. An internal path now runs the reviewed
-1CHECK source through its opening board and first INPUT; it cannot yet resume
-for a complete game. The roadmap shows current capabilities and remaining blockers.
+execution is not publicly available. The reviewed 1CHECK source completes a
+full game internally, and the browser includes a fixed-source experimental
+playtest of that path. The roadmap shows current capabilities and remaining
+public-profile blockers.
 The [language reference](docs/language-v1.md) describes current native behavior;
 explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
 and typed DATA/READ/RESTORE
@@ -43,6 +44,10 @@ The TypeScript package and terminal require Bun >=1.4.4. Linux and macOS are
 validated in CI using Bun 1.4.4; Node.js alone is unsupported; Windows execution is not a validated 1.0 target. The desktop browser playground is tested with the pinned Playwright
 Chromium on Linux/macOS. Other browsers and mobile input are not validated targets.
 The static playground needs only an HTTP server; it has no application backend.
+The root `vercel.json` can deploy that same static artifact. The editor runs
+native BASIC. A separate fixed-source experimental 1CHECK panel runs the
+reviewed text under the proposed selected MA2 configuration; it is not a public
+historical dialect or original-interpreter certification.
 See [support and compatibility](docs/compatibility.md) for the 1.0 contract.
 
 ## Quick start

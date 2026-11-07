@@ -23,6 +23,16 @@ then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
 `dist/playground` contains only static files and can be served by another static
 server. No public hosting is configured by these commands.
 
+For a hosted test URL, import this repository as a Vercel project. The root
+`vercel.json` builds the same static `dist/playground` artifact without a runtime
+server. The editor executes the public **native** dialect. A separate
+**Experimental 1CHECK playtest** panel runs only the fixed reviewed March 1975
+source under the proposed V4A-12 MA2 configuration. Its Start, input, Stop and
+fresh-run controls do not accept editor source or import an arbitrary historical
+program. This internal experiment is not public profile activation or original
+interpreter certification; public selected-profile and cross-host acceptance
+remain on the [first-game checklist](first-game-milestone.md).
+
 Edit the source and choose **Run program**, or press Ctrl+Enter (Command+Enter on
 macOS). Each run clears the console and executes a fresh snapshot. You can keep
 editing while it runs; those changes take effect on the next run. Switching

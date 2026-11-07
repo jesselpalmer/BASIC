@@ -1,0 +1,42 @@
+import {expect, test} from '@playwright/test';
+
+test('fixed reviewed 1CHECK plays, reruns and keeps the native editor separate', async ({page}) => {
+  await page.goto('/');
+  const nativeSource = await page.locator('#source').inputValue();
+  await expect(page.locator('#classic-source')).toContainText('SOLITAIRE CHECKER PUZZLE');
+  await page.locator('#classic-run').click();
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await expect(page.locator('#classic-output')).toContainText('OPENING POSITION OF THE CHECKERS');
+  await page.locator('#classic-input').fill('1');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await page.locator('#classic-input').fill('19');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await page.locator('#classic-input').fill('0');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await expect(page.locator('#classic-output')).toContainText('YOU MADE 1 JUMPS AND HAD 47 PIECES');
+  await page.locator('#classic-input').fill('YES');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await expect(page.locator('#classic-output')).toContainText('OPENING POSITION OF THE CHECKERS');
+  await page.locator('#classic-input').fill('0');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await page.locator('#classic-input').fill('NO');
+  await page.locator('#classic-input').press('Enter');
+  await expect(page.locator('#classic-status')).toHaveText('Finished');
+  await expect(page.locator('#classic-output')).toContainText('YOU MADE 0 JUMPS AND HAD 48 PIECES');
+  await expect(page.locator('#source')).toHaveValue(nativeSource);
+  await expect(page.locator('#document-dialect')).toHaveText('Dialect: native');
+
+  await page.locator('#classic-run').click();
+  await expect(page.locator('#classic-status')).toHaveText('Waiting for input');
+  await expect(page.locator('#classic-output')).toContainText('OPENING POSITION OF THE CHECKERS');
+  await expect(page.locator('#classic-output')).not.toContainText('YOU MADE 0 JUMPS');
+  await page.locator('#classic-stop').click();
+  await expect(page.locator('#classic-status')).toHaveText('Stopped');
+  await expect(page.locator('#classic-input-form')).toBeHidden();
+  await expect(page.locator('#source')).toHaveValue(nativeSource);
+});

@@ -51,6 +51,31 @@ button {
   padding: 30px 48px 24px;
   margin: auto;
 }
+.classic-panel {
+  margin-top: 28px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+.classic-panel > p {
+  max-width: 78ch;
+  line-height: 1.55;
+}
+.classic-panel details pre {
+  max-height: 240px;
+  overflow: auto;
+  font: 12px/1.4 var(--mono);
+}
+.classic-console {
+  margin-top: 18px;
+  min-height: 240px;
+  max-height: 500px;
+}
+.classic-console pre {
+  white-space: pre;
+  font: 14px/1.4 var(--mono);
+}
 .page-header {
   display: flex;
   align-items: center;
