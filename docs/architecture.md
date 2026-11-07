@@ -51,7 +51,8 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/arrays.ts`                      | Fresh execution-owned element storage, bounds/rank checks and detached bounded observations.                             |
 | `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                          |
 | `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                             |
-| `core/runtime.ts`                     | Public lifecycle, statement dispatch, async execution ownership, and source-located failures.                            |
+| `core/runtime.ts`                     | Public lifecycle, one step/async driver, cancellation, guarded host effects, and source-located failures.                |
+| `core/native_statement_policy.ts`     | Native statement dispatch under that driver; selected MA2 policy and state lifetime are not connected yet.               |
 | `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                                 |
 | `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization.     |
 
