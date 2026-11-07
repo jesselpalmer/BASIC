@@ -315,20 +315,8 @@ export default class Basic {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     if (this.#immediate)
       throw new Error('Call reset before stepping a program after immediate input');
-    if (this.#internalSelected && this.#controlFlow.nextInstruction) {
-      const next = this.#controlFlow.nextInstruction;
-      if (this.#selectedSteps === 10_000) {
-        const error = new BasicRuntimeError(
-          'INSTRUCTION_LIMIT',
-          'Internal selected MA2 instruction limit of 10000 reached',
-          next.statement.location.start,
-          next.label,
-        );
-        this.#recordFailure(error);
-        throw error;
-      }
-      this.#selectedSteps++;
-    }
+    if (this.#internalSelected && this.#controlFlow.nextInstruction)
+      this.#consumeSelectedStep(this.#controlFlow.nextInstruction);
     const line = this.#controlFlow.takeInstruction();
     if (!line) {
       this.#halt();
@@ -357,6 +345,7 @@ export default class Basic {
     )
       return this.#step();
     const generation = this.#generation;
+    if (this.#internalSelected) this.#consumeSelectedStep(line);
     this.#controlFlow.takeInstruction();
     await this.#executeSuspension(line, line.statement, signal);
     if (generation !== this.#generation) throw abortError();
@@ -481,6 +470,20 @@ export default class Basic {
     }
   }
 
+  #consumeSelectedStep(line: Instruction): void {
+    if (this.#selectedSteps === 10_000) {
+      const error = new BasicRuntimeError(
+        'INSTRUCTION_LIMIT',
+        'Internal selected MA2 instruction limit of 10000 reached',
+        line.statement.location.start,
+        line.label,
+      );
+      this.#recordFailure(error);
+      throw error;
+    }
+    this.#selectedSteps++;
+  }
+
   async #executeSuspension(
     line: Instruction,
     statement: InputStatement | NodeOf<'WaitStatement'>,
@@ -506,6 +509,31 @@ export default class Basic {
           this.#executing = false;
         }
         await pending;
+      } else if (this.#internalSelected) {
+        // Whole-source selected admission excludes other suspending forms.
+        const selectedStatement = statement as NodeOf<'InputStatement'>;
+        const selected = this.#selectedDriver!;
+        const result = await selected.readInput(
+          {
+            readLine: (prompt, options) => {
+              this.#executing = true;
+              try {
+                return this.#host.readLine(prompt, options);
+              } finally {
+                this.#executing = false;
+              }
+            },
+          },
+          selectedStatement,
+          controller.signal,
+        );
+        if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+        this.#executing = true;
+        try {
+          selected.commitInput(selectedStatement, result);
+        } finally {
+          this.#executing = false;
+        }
       } else {
         const values = await readInput(
           {

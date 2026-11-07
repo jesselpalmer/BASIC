@@ -311,6 +311,13 @@ function prepareSelectedMa2Program(
       case 'EndStatement':
         halt();
         break;
+      case 'InputStatement':
+        throw new BasicRuntimeError(
+          'ASYNC_INPUT_REQUIRED',
+          'Use runAsync or stepAsync for selected INPUT',
+          statement.location.start,
+          instruction.label,
+        );
       case 'DimStatement':
       case 'RemStatement':
         break;
@@ -390,21 +397,7 @@ function prepareSelectedMa2Program(
     try {
       const result = await readSelectedMa2Input(host, statement, ownedSignal);
       if (ownedSignal.aborted) throw abortError();
-      if (result.kind !== 'value')
-        throw new BasicRuntimeError(
-          'UNSUPPORTED_MA2_INPUT',
-          `Selected MA2 input: ${result.reason}`,
-          statement.location.start,
-          statement.location.label,
-        );
-      if (typeof result.value === 'string') strings.commitInput(statement, result);
-      else {
-        const observed = observeMa2Value(result.value);
-        const input =
-          'value' in observed ? observed.value : fail(observed, statement.target.location);
-        const committed = state.injectNode(statement.target, input);
-        if (committed.kind !== 'value') fail(committed, statement.target.location);
-      }
+      commitInput(statement, result);
       flow.takeInstruction();
       executed++;
       flow.finishInstruction();
@@ -420,6 +413,27 @@ function prepareSelectedMa2Program(
     return advance();
   }
 
+  function commitInput(
+    statement: NodeOf<'InputStatement'>,
+    result: Awaited<ReturnType<typeof readSelectedMa2Input>>,
+  ) {
+    if (result.kind !== 'value')
+      throw new BasicRuntimeError(
+        'UNSUPPORTED_MA2_INPUT',
+        `Selected MA2 input: ${result.reason}`,
+        statement.location.start,
+        statement.location.label,
+      );
+    if (typeof result.value === 'string') strings.commitInput(statement, result);
+    else {
+      const observed = observeMa2Value(result.value);
+      const input =
+        'value' in observed ? observed.value : fail(observed, statement.target.location);
+      const committed = state.injectNode(statement.target, input);
+      if (committed.kind !== 'value') fail(committed, statement.target.location);
+    }
+  }
+
   const driver = Object.freeze({
     prepared: candidate,
     flow,
@@ -428,6 +442,8 @@ function prepareSelectedMa2Program(
     },
     variables: () => state.snapshot(),
     arrays: () => state.snapshotArrays(),
+    readInput: readSelectedMa2Input,
+    commitInput,
   });
   return Object.freeze({
     advance: () => advance(),
@@ -438,12 +454,12 @@ function prepareSelectedMa2Program(
   });
 }
 
-/** Internal, source-bound no-INPUT execution policy for Basic's existing driver. */
+/** Internal source-bound selected execution policy for Basic's existing driver. */
 export function prepareSelectedMa2Driver(
   source: string,
   externalWrite: (text: string) => void,
   supplied?: readonly ParsedLine[],
 ) {
-  return prepareSelectedMa2Program(source, 10_000, true, false, supplied, true, externalWrite)
+  return prepareSelectedMa2Program(source, 10_000, true, false, supplied, false, externalWrite)
     .driver;
 }
