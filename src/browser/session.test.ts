@@ -58,6 +58,31 @@ describe('browser session', () => {
     expect(ui.output.join('')).toContain('12');
   });
 
+  test('steps selected source, stops pending input and reruns without a stale reply', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const dialect = 'basic-plus-v4a12-ma2' as const;
+    const pending = session.run('10 A=1\n20 INPUT "MOVE";F\n30 PRINT F\n40 END', {
+      dialect,
+      paused: true,
+    });
+    expect(session.state).toMatchObject({status: 'paused', nextLocation: {label: 10}});
+    session.step();
+    await until(
+      () => session.state.status === 'paused' && session.state.nextLocation?.label === 20,
+    );
+    expect(session.state.variables).toContainEqual({name: 'A', value: 1});
+    session.step();
+    await until(() => session.state.status === 'waiting');
+    const stale = ui.requests.at(-1)!.submit;
+    expect(session.stop().status).toBe('stopped');
+    expect((await pending).status).toBe('stopped');
+    expect(stale('9')).toBe(false);
+    expect((await session.run('10 PRINT "FRESH"\n20 END', {dialect})).status).toBe('finished');
+    expect(ui.output).toEqual(['FRESH\n']);
+    expect(session.state.variables).toEqual([]);
+  });
+
   test('steps exactly one statement through labels, branches, loops and END', async () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);

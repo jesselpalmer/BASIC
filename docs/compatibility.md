@@ -2,12 +2,13 @@
 
 BASIC is a small dialect with one shared parser/runtime. The [language reference](language-v1.md)
 defines accepted programs; the API guides define embedding and host behavior.
-The current snapshot does not implement historical compatibility.
+The current snapshot implements a bounded selected BASIC-PLUS V4A MA2 profile
+for reviewed 1CHECK source. It does not implement complete historical compatibility.
 **The final 1.0 contract is not frozen:** correct classic listings are now required
 by [#114](https://github.com/jesselpalmer/BASIC/issues/114), following the
 [compatibility roadmap](classic-games-roadmap.md). The rules below describe
-existing native behavior and the policy to preserve it; planned profiles are not
-yet accepted syntax. General QBasic/GW-BASIC compatibility is not claimed.
+existing native behavior and the policy to preserve it; other planned profiles
+are not accepted syntax. General QBasic/GW-BASIC compatibility is not claimed.
 
 ## Supported delivery targets
 
@@ -18,10 +19,10 @@ yet accepted syntax. General QBasic/GW-BASIC compatibility is not claimed.
 | Static distribution | HTML, JavaScript, source map and CSS served over HTTP by an ordinary static server. No application backend, account, npm installation or checkout is needed to run the extracted playground. Public hosting is optional. |
 
 The package entrypoint is `node-basic-lang`; its executable is `basic`.
-`package.json` exports only the package root. Browser adapters, parser internals,
-CLI adapters, and files reached by importing `src/...` are not supported package
-subpath APIs. Browser adapter guides describe checkout embedding and ownership;
-they do not create additional package exports.
+`package.json` exports the package root and the `/browser` adapter. Parser
+internals, CLI adapters, and files reached by importing `src/...` are not
+supported package subpath APIs. Browser adapter guides describe the supported
+embedding boundary and host ownership.
 
 ## Stable public surface
 

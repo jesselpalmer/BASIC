@@ -12,15 +12,15 @@ keyboard controls, with a complete Pong game written in BASIC.
 See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
 The next compatibility milestone is a [complete reviewed 1CHECK game session](docs/first-game-milestone.md)
-under the selected historical configuration. Native BASIC runs today; historical
-execution is not publicly available. The reviewed 1CHECK source completes a
-full game internally, and the browser includes a fixed-source experimental
-playtest of that path. The roadmap shows current capabilities and remaining
-public-profile blockers.
+under the selected historical configuration. Native BASIC and a bounded public
+`basic-plus-v4a12-ma2` profile run today. The reviewed 1CHECK text completes a
+public quit session through installed library and portable CLI consumers; the
+browser's normal editor can play and edit it. The longer public game/replay
+proof and independent review remain on the roadmap.
 The [language reference](docs/language-v1.md) describes current native behavior;
 explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
 and typed DATA/READ/RESTORE
-are supported; historical profiles remain pending. See the [array contract](docs/arrays.md)
+are supported; broader historical profiles remain pending. See the [array contract](docs/arrays.md)
 and [subroutine contract](docs/subroutines.md) for native limits and semantics.
 The [data contract](docs/data-statements.md) covers ordered pools, target lists,
 RESTORE and explicit exhaustion errors.
@@ -44,10 +44,11 @@ The TypeScript package and terminal require Bun >=1.4.4. Linux and macOS are
 validated in CI using Bun 1.4.4; Node.js alone is unsupported; Windows execution is not a validated 1.0 target. The desktop browser playground is tested with the pinned Playwright
 Chromium on Linux/macOS. Other browsers and mobile input are not validated targets.
 The static playground needs only an HTTP server; it has no application backend.
-The root `vercel.json` can deploy that same static artifact. The editor runs
-native BASIC. A separate fixed-source experimental 1CHECK panel runs the
-reviewed text under the proposed selected MA2 configuration; it is not a public
-historical dialect or original-interpreter certification.
+The root `vercel.json` deploys that same static artifact. The editor starts in
+native BASIC; choosing **1CHECK · BASIC-PLUS selected profile** switches the
+document to the bounded selected configuration. A separate fixed-source
+playtest remains available. Neither path certifies the game's original
+interpreter.
 See [support and compatibility](docs/compatibility.md) for the 1.0 contract.
 
 ## Quick start
@@ -83,8 +84,9 @@ records the review findings and their verification.
 ## Browser playground
 
 Try the [hosted BASIC playground](https://basic-playground-rho.vercel.app/).
-The editor runs native BASIC; the separate experimental 1CHECK panel runs only
-the fixed reviewed checker source under the proposed selected configuration.
+The editor starts in native BASIC. Choose **1CHECK · BASIC-PLUS selected profile**
+to load and edit the reviewed checker source with its explicit context. The
+separate fixed-source playtest remains available.
 
 From a checkout, build and serve the static playground:
 
