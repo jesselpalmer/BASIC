@@ -113,6 +113,22 @@ comparisons use `= > <>`; the four intrinsic calls are two INT and two ABS.
 This is an auditable inventory of the shared grammar, not historical parser or
 semantic certification. It does not enable a profile or supply missing rules.
 
+## Selected DIM order and declaration boundary
+
+The [October 1972 BASIC-PLUS Language Manual §3.6.2](https://www.bitsavers.org/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf)
+states that DIM may follow the first reference and may appear anywhere on a
+multiple-statement line. Section 7.1 describes explicit dimensions and the
+implicit upper bound 10. The selected state driver collects explicit numeric
+DIM declarations from the whole source before allocating run-owned arrays.
+`10 A(12)=5:DIM A(12)` therefore stores 5 in A(12), and a later DIM on a
+skipped line also supplies that bound. Both paths run again with fresh cells.
+
+Duplicate names currently fail during declaration preparation with
+`DUPLICATE_DIM`; the manual citation does not establish the historical error
+number or continuation for duplicate DIM. String arrays remain unsupported in
+the numeric selected session. These checks establish the source-order policy
+for that internal subset, without claiming general DIM event behavior.
+
 ## Closed support matrix before activation
 
 Every row below remains an **activation obligation**, including forms that look
