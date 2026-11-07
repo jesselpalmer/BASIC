@@ -4,7 +4,7 @@ import {
   type BasicPlusPrintResult,
 } from './basic_plus_print.ts';
 import {observeMa2Value, type Ma2Value} from './ma2_value.ts';
-import {formatPrintUsing} from './print_using.ts';
+import {formatSelectedMa2Using, selectedMa2ImageFieldCount} from './ma2_using_image.ts';
 import type {Expression, NodeOf} from './types.ts';
 
 type Printable = string | Ma2Value;
@@ -36,7 +36,7 @@ export class Ma2StatementOutput {
     const operations: BasicPlusPrintOperation[] = [];
     if (statement.type === 'PrintUsingStatement') {
       const image = resolve(statement.format);
-      if (typeof image !== 'string' || !/^##(?: +##)*$/.test(image))
+      if (typeof image !== 'string' || selectedMa2ImageFieldCount(image) !== statement.items.length)
         return Object.freeze({kind: 'unsupported', reason: 'image'});
       const values: number[] = [];
       for (const item of statement.items) {
@@ -48,10 +48,9 @@ export class Ma2StatementOutput {
           return Object.freeze({kind: 'unsupported', reason: 'numeric-observation'});
         values.push(observed.value);
       }
-      operations.push({
-        kind: 'text',
-        value: formatPrintUsing(image, values, statement.format.location),
-      });
+      const formatted = formatSelectedMa2Using(image, values);
+      if (formatted.kind !== 'value') return formatted;
+      operations.push({kind: 'text', value: formatted.text});
     } else {
       for (const [index, item] of statement.items.entries()) {
         if (item.type === 'CallExpression' && item.name === 'TAB') {

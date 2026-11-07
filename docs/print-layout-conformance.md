@@ -78,7 +78,8 @@ transition, cursor validation and atomic margin/resource failures. Assert native
 compact numeric output, existing names and native comma rejection remain intact.
 Run the full quality/package gate plus Linux/macOS browser/archive validation.
 
-Arbitrary terminal widths, floating output, terminal controls, profile
-activation, public parser/evaluator integration, broader PRINT USING and complete game outcomes
-remain separate work. This candidate slice closes no historical game or release
-gate; #109 remains NOT READY.
+The selected candidate also executes [bounded integer PRINT USING images](selected-ma2-print-using.md)
+through this layout. Arbitrary terminal widths, floating output, terminal
+controls, profile activation, public parser/evaluator integration, other
+historical PRINT USING forms and complete corpus outcomes remain separate work.
+This candidate slice closes no release gate; #109 remains NOT READY.
