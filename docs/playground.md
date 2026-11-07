@@ -23,7 +23,8 @@ then `bun run serve:playground` and open `http://127.0.0.1:3000`. The generated
 `dist/playground` contains only static files and can be served by another static
 server. No public hosting is configured by these commands.
 
-For a hosted test URL, import this repository as a Vercel project. The root
+The [hosted playground](https://basic-playground-rho.vercel.app/) runs the
+merged static build. The root
 `vercel.json` builds the same static `dist/playground` artifact without a runtime
 server. The editor executes the public **native** dialect. A separate
 **Experimental 1CHECK playtest** panel runs only the fixed reviewed March 1975

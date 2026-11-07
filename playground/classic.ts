@@ -13,6 +13,7 @@ export function attachClassicPlaytest(): void {
   const run = element<HTMLButtonElement>('classic-run');
   const stop = element<HTMLButtonElement>('classic-stop');
   const status = element('classic-status');
+  const scroll = element('classic-scroll');
   const output = element('classic-output');
   const truncated = element('classic-truncated');
   const diagnostic = element('classic-diagnostic');
@@ -26,9 +27,11 @@ export function attachClassicPlaytest(): void {
   const transcript = new Transcript();
 
   function appendOutput(text: string): void {
+    const followsOutput = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 40;
     transcript.append(text);
     output.textContent = transcript.text;
     truncated.hidden = !transcript.truncated;
+    if (followsOutput) scroll.scrollTop = scroll.scrollHeight;
   }
 
   function endPending(): void {
@@ -51,6 +54,7 @@ export function attachClassicPlaytest(): void {
     const current = ++generation;
     transcript.clear();
     output.textContent = '';
+    scroll.scrollTop = 0;
     truncated.hidden = true;
     diagnostic.textContent = '';
     diagnostic.hidden = true;
