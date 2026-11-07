@@ -12,9 +12,8 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `81f3ddad968ef924c80c308bcda2a25c32577221`, including
-merged [#216](https://github.com/jesselpalmer/BASIC/pull/216) and
-[#217](https://github.com/jesselpalmer/BASIC/pull/217).
+Reconciled against main `dfb455feaef47cc348f8b3c1170d1da1e349cda8`, including
+merged [#218](https://github.com/jesselpalmer/BASIC/pull/218)–[#220](https://github.com/jesselpalmer/BASIC/pull/220).
 
 | Capability                       | Current result                                                                                                                                                                                                                                                                                       |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,19 +45,25 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 | Workstream and issue owners                       | Already available                                                                                                                                                                       | What must be completed                                                                                                                                                                   |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the internal runner resumes across INPUT and follows the reviewed game's branches through END.                                                            | Validate the entire selected support matrix before effects, including dead and caller-supplied trees; integrate with the public Program/Basic lifecycle and explicit profile selection.  |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the selected source runner validates instructions after INPUT and in dead lines before effects, then executes through END.                                | Validate supplied Program trees and remaining support rows before effects; integrate with the public Program/Basic lifecycle and explicit profile selection.                             |
 | State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the opening, legal move and replay reset.                                                                                        | Settle broader defaults, index/loop/error policies and numeric events required for the accepted profile; the current small-integer loop policy is not general historical semantics.      |
 | Input, output and events — #119, #120, #121, #128 | F/T/A$ responses commit under execution ownership; selected output prints the move board and summary, while the host receives INPUT prompts. Cancellation prevents a late INPUT commit. | Verify exact output and historical input/error continuation independently across hosts and accepted forms; the limited reference installation is not a complete output oracle.           |
-| Complete-game proof — #115, #129                  | An internal exact-source trace covers illegal/legal move, quit, invalid replay answer, YES reset and NO exit. Partial native checks remain distinct.                                    | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
+| Complete-game proof — #115, #129                  | Internal exact-source traces cover illegal/legal moves, two consecutive legal jumps with 46 pieces, quit, replay and exit. Partial native checks remain distinct.                       | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
 and linked feature issues retain the technical contracts.
 
+**In review:** [#221](https://github.com/jesselpalmer/BASIC/pull/221) selects
+the six source-backed MA2 loop completion/reentry cases without changing native
+loops; dependent [#222](https://github.com/jesselpalmer/BASIC/pull/222) checks
+the reviewed `B$` image before selected execution. Neither activates a public
+profile or settles general loop, numeric event or host policies.
+
 ## How the next work is selected
 
-1. Close the selected profile's full-program preflight and remaining support
-   rows, then connect the proven internal run to explicit library selection.
+1. Close supplied-tree preparation and remaining support rows, then connect the
+   proven internal run to explicit library selection.
 2. Resolve independent subscript, loop, INPUT/output and event evidence while
    implementing the public execution path. Carry source context through CLI and
    browser after the supported profile is ready.

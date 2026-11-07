@@ -6,13 +6,16 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `81f3ddad968ef924c80c308bcda2a25c32577221`, an internal runner
+At main `dfb455feaef47cc348f8b3c1170d1da1e349cda8`, an internal runner
 executes the exact reviewed source through a supported play/quit/replay session.
 It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
 board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
 reprompts, YES rebuilds the board, and NO exits. [#216](https://github.com/jesselpalmer/BASIC/pull/216)
 and [#217](https://github.com/jesselpalmer/BASIC/pull/217) deliver this trace and
-cancellable INPUT continuation. It remains internal: public historical profile
+cancellable INPUT continuation. Merged [#219](https://github.com/jesselpalmer/BASIC/pull/219)
+adds an independently enumerated two-jump board and 46-piece summary;
+[#220](https://github.com/jesselpalmer/BASIC/pull/220) rejects unsupported later
+source before effects. It remains internal: public historical profile
 selection, cross-distribution acceptance and independent end-user play are open.
 
 ## Demonstration to deliver
@@ -44,10 +47,11 @@ remains blocked. See the roadmap and
       replay response, YES reset and NO exit. Fresh sessions, cancellation and
       instruction budgets have focused tests. This is not a public profile pass.
 - [ ] **Program/statement integration** (#116/#117/#118): the 85 candidate forms
-      parse and the selected session executes internally. Bind the supported
+      parse, and the selected source session checks later/dead instructions before
+      effects and executes internally. Bind the supported
       forms through public Program preparation and the shared lifecycle. Preserve
-      physical spans and immutable snapshots; reject unsupported whole-program
-      source and supplied/dead trees before effects or failed replacement.
+      physical spans and immutable snapshots; reject unsupported supplied trees
+      before effects or failed replacement.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and small-integer loops now
       work internally. Complete accepted defaults, DIM/index conversion, errors
@@ -90,9 +94,11 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next implementation work should validate the entire selected support matrix
-before effects and connect the internal complete-session runner to an explicit
-public profile. Resolve remaining index/loop and event evidence concurrently
+The next implementation work should close supplied-tree preparation and remaining
+selected support rows, then connect the internal complete-session runner to an
+explicit public profile. [#221](https://github.com/jesselpalmer/BASIC/pull/221)
+and dependent [#222](https://github.com/jesselpalmer/BASIC/pull/222) are in
+review for narrow loop and image-preflight behavior. Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
 
