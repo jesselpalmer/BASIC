@@ -21,6 +21,8 @@ const maxCallDepth = 1024;
 export interface LoopValues {
   evaluate(expression: Expression): number | string;
   assign(target: NodeOf<'Variable'>, value: number): void;
+  /** Optional selected-domain check before NEXT uses an increment for control flow. */
+  validateIncrement?(value: number, location: Location): void;
 }
 
 /** Selected MA2 loop observations retain the value present at terminating NEXT. */
@@ -193,6 +195,7 @@ export class ControlFlow {
         statement.location.label,
       );
     }
+    this.evaluator.validateIncrement?.(value, statement.variable.location);
     if (frame.step > 0 ? value <= frame.limit : value >= frame.limit) {
       this.evaluator.assign(statement.variable, value);
       this.#moveTo(frame.forIndex + 1, statement.location);
