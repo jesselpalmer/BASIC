@@ -1,0 +1,418 @@
+# Classic-game delivery history through PR #204
+
+Historical snapshot of the previous roadmap at main
+`870efd08ebe2fd98172929b2e33664131a5eb7fa`. Checkpoint language below records
+earlier states; it is not the current plan. #203 and #204 are both merged.
+Use the [active roadmap](classic-games-roadmap.md) for status, next outcome and
+remaining blockers. Source references and delivery evidence are preserved below.
+
+---
+
+# Classic-game compatibility roadmap
+
+**Decision:** BASIC 1.0 is **not ready**. Correct classic game listings are a
+release requirement under [release #109](https://github.com/jesselpalmer/BASIC/issues/109)
+and [epic #114](https://github.com/jesselpalmer/BASIC/issues/114). This scope was
+adopted October 24, 2026. A merged prerequisite does not by itself complete a
+compatibility issue or approve a release.
+
+## Current checkpoint
+
+Reconciled against main `6c881d71c50fd61661bd85584b70ff465c2019d2` after merged
+[#201](https://github.com/jesselpalmer/BASIC/pull/201) and
+[#202](https://github.com/jesselpalmer/BASIC/pull/202). Native remains the only
+executable profile. Merged prerequisites do not complete compatibility parent
+issues or certify historical games.
+
+The [structured ledger](classic-games-ledger.json) currently records:
+
+| Evidence dimension            | Recorded state                                  | Meaning                                                                                                      |
+| ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Inventory                     | 108 pinned files                                | Complete byte/hash inventory, not complete source certification.                                             |
+| Source review                 | 3 reviewed differences; 105 unresolved          | 1CHECK, 23MTCH and LIFE2 have specific scan-backed differences; this does not certify their entire listings. |
+| Dialect review                | 1 printed-system identification; 107 unverified | 23MTCH's printed system is identified; no complete executable dialect/version is certified.                  |
+| Behavior                      | 2 partial native paths; 106 not run             | 1CHECK's reviewed correction and 23MTCH's recorded path are distinct from full historical passes.            |
+| Full historical compatibility | 0 certified passes                              | All 108 dispositions and required behavior remain release obligations.                                       |
+
+Run `bun run check:corpus` when updating this checkpoint. Its fail-closed ledger
+validator prevents unsupported certification/pass claims; it does not run games
+or replace primary-source review. Counts above are separate evidence dimensions,
+not percentages of release completion. Missing-book BUNNY/SNOOPY entries remain
+separate from the 108-file denominator.
+
+The merged [math-package provenance investigation](numeric-representation.md#implementation-evidence-and-version-boundaries)
+identifies specific implementation leads and version pitfalls. It does not
+resolve package-specific rounding or activate numeric execution. The
+[1CHECK source review](classic-source-review.md#whole-listing-review-and-attribution-limits)
+now covers all85 numbered lines, confirms the March1975 printing/separators,
+and records the printed sample discontinuity. The [quoted-text follow-up](1check-reviewed-text.md)
+resolves the three spaces in a separate tested fixture; original-dialect and
+full historical certification remain open.
+
+The [reference-media verifier](rsts-reference-media.md) now pins tape one's
+30 linked payloads, including all eight math variants and IN/OV, with an exact
+input SHA and a read-only reproducible command. This is media identity, not a
+linked/booted installation or numeric rounding evidence by itself. The follow-up
+[selected MA2 build and probe](rsts-v4a-build.md) now records a linked/booted V4A-12
+monitor, selected object/map identities and 42 repeatable conversion-byte/event
+observations. Literal conversion and opposite-sign arithmetic differ from a
+single generic rounding rule. Manual clock/startup and filesystem limitations
+remain explicit. The [internal MA2 addition/subtraction component](basic-plus-ma2-addition.md)
+now follows the traced 25-bit guard/alignment behavior and matches496 original
+machine calls. The merged [range continuation follow-up](ma2-range-continuation.md)
+resolves the nonzero overflow seen in six additional BASIC probes: the original
+monitor skips an inline status mask and resumes with path-specific words.
+It independently executes598 completed calls, preserving all480 original normal
+results and retaining118 range/control vectors. Events carry separate frozen
+continuation words; BASIC diagnostics/handler state remain execution-owned.
+The merged [MA2 multiplication component](basic-plus-ma2-multiplication.md)
+preserves ordered partial-product behavior against1,341 original-machine calls,
+including254 real-monitor range continuations. Returned result pointers and
+masks remain research evidence, separate from BASIC expression/error policy.
+The merged [MA2 division component](basic-plus-ma2-division.md) adds1,325
+original-machine calls and266 completed exceptional paths, separating error61
+zero-divisor events from error 48 range events. Conversion/caller error policy,
+remaining required intrinsics and installation validation still precede
+public activation.
+
+The selected MA2 conversion-string codec and
+[terminal portable LOAD/SAVE](editor-portable-documents.md) are now merged. The latter keeps
+source/dialect/filename/baseline atomic and preserves verbatim portable source
+until an actual numbered edit. These are merged prerequisites, not additional
+historical profile or game acceptance.
+
+Native [CHANGE string/array conversion](change-statements.md), the internal
+integer binary-string codec, native [INPUT LINE](input-line.md), and
+[fixed-width PRINT USING string fields](print-using-strings.md) are now merged.
+Historical partial CHANGE failures, terminal terminators, numeric conversion,
+profile activation and full-game evidence remain separately required.
+
+[Asterisk-filled integer USING fields](print-using-asterisks.md) and the separate
+23 Matches fixture applying only the reviewed terminal semicolon at label 380
+are now merged. The raw fixture, quoted spacing and explicit native RND(0)
+blocker remain intact; this adds corrected native-path evidence without changing
+source/dialect certification or the historical-pass count.
+
+Native [trailing-minus integer fields](print-using-trailing-minus.md) and
+[single-quoted strings/`!` comments](historical-quotes-comments.md) in the internal
+historical scanner are now merged. The scanner preserves DATA's comment
+exception and does not enable public historical parsing or execution. These
+deliveries complete their bounded feature slices; #117/#120 remain open for
+their remaining historical integration and formatting criteria.
+
+The [concrete first-game matrix](first-game-runtime-evidence.md) inventories
+all85 candidate statements and records selected subscript/loop observations.
+It turns remaining integration obligations into explicit rows without activating
+a profile or treating the limited reference installation as an I/O oracle.
+
+The merged [bounded source converter](basic-plus-ma2-decimal.md) now matches
+396 original ATOF calls while leaving conversion statuses and intermediate
+events explicitly unsupported. The [conversion caller evidence](ma2-conversion-callers.md)
+adds 32 VAL strings,24 floating/24 integer READ fields and an isolated VAL
+error 48 transfer. Numeric READ failures retain the observed field cursor and
+initialized target; integer READ is not assignment truncation. These are
+bounded observations, not implemented historical callers or general I/O policy.
+
+The merged [canonical MA2 value operations](basic-plus-ma2-values.md) now supply
+INT, ABS, negation, ordering and exact observations against950 original results.
+The [shared value contract](ma2-shared-value-contract.md) specifies the next
+literal/supplied-tree and word-preserving evaluator/storage stages, including
+exact public observations and bounded host injection. It keeps the new context
+rejected until all first-game support rows are complete; native remains the
+only executable profile.
+
+The merged [bounded caller converters](ma2-caller-conversion.md) now cover the
+retained VAL/READ subset while keeping unverified event/byte paths explicit.
+The [raw numeric scanner stage](historical-raw-numbers.md) implements the next
+shared-value prerequisite: raw historical tokens no longer pass through host
+Number conversion. Historical parser integration and execution remain gated.
+
+The raw numeric scanner and public browser embedding entry are now merged; browser
+embedding issue #190 is closed. The [MA2 literal preparation seam](ma2-literal-preparation.md)
+adds distinct raw/word literals and explicit native rejection, including supplied
+dead/late trees and host-effect ordering. It does not activate historical parsing
+or execution; the shared value/runtime matrix remains outstanding.
+
+The literal-preparation and [exact host injection](ma2-exact-injection.md)
+prerequisites are now merged. The [internal MA2 numeric expression path](ma2-expression-parser.md)
+feeds raw source through the existing Parser and retains literal words across
+accepted numeric syntax. It returns an expression only, never a historical
+Program; complete statement/program preparation, shared word storage/evaluation,
+events, loops and I/O remain outstanding. Unsupported syntax and public
+historical context remain rejected. All corpus counts above are unchanged.
+
+The internal numeric-expression parser and immutable MA2 operation binding are
+now merged. The [constant expression slice](ma2-constant-evaluation.md) connects
+them through the existing iterative evaluator, retaining words through each
+operation and stopping numeric events with explicit source locations. It accepts
+no variable/array state and creates no historical Program. Shared storage,
+comparison/statement integration, full event policy, loops and I/O remain gated;
+this adds no historical-game certification.
+
+The exact signed-word facts and shared constant-evaluation slice are now merged.
+The [internal scalar storage stage](ma2-scalar-storage.md) retains descriptors
+across assignments and later expression reads, with exact host injection and
+number-valued detached observations. It does not choose historical defaults or
+execute LET/INPUT/IF/loop statements. Program preparation, arrays/loops, comparison
+binding, complete event policy and I/O remain activation obligations.
+
+Word-preserving scalar storage and exact numeric relation binding are now merged.
+The [numeric comparison source stage](ma2-source-comparisons.md) connects the
+shared Parser's native IF comparison grammar to scalar conformance evaluation
+and exact word predicates. It preflights both sides and preserves operand event
+locations without writing cells. It does not parse/execute historical IF
+statements or activate a Program; all remaining support rows remain required.
+
+Word-preserving array storage is also merged. The
+[array-expression stage](ma2-array-expressions.md) binds explicit integer-index
+conformance reads/writes and scalar/array comparisons through the existing
+iterative evaluator. Fractional indices reject explicitly; historical defaults,
+subscript conversion/errors, statements and the full activation matrix stay open.
+
+The next priorities are the unresolved source/dialect and numeric contracts in
+milestones 1 and 2 below, followed by one executable historical vertical slice.
+Additional native formatting or internal scanner helpers can proceed when they
+close a verified dependency, but do not replace those milestone outcomes.
+
+The linked [Google roadmap](https://docs.google.com/document/d/1onRiRqbrjoVH5w7ByZ_ylk_ZhixE3OqN-nPDYBHImdk)
+and [implementation backlog](https://docs.google.com/document/d/1V02IrDkBeG98QwgzW1Rx6VgZe4eVkTmSfTdNCD3tUIA)
+retain earlier planning checkpoints. This repository matrix and the owning
+issue criteria track subsequent deliveries; do not treat historical delivery
+comments as the current release decision.
+
+## Compatibility target
+
+The target is the complete pinned [101 BASIC Computer Games corpus](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/tree/45f75052be3f436f2e575f58d4aa611484268227):
+**108 `.bas` files** at commit `45f75052be3f436f2e575f58d4aa611484268227`.
+This is the earlier DEC anthology, not the later Microsoft-oriented _BASIC
+Computer Games_. The maintainer describes a 1975 third printing, several DEC
+and EduSystem dialects, Dartmouth and HP-like programs, and uncertain assignments.
+Its README's dialect labels are research leads, not certified facts.
+
+Every verified correct listing must run with its documented semantics through
+the Bun library, installed CLI and browser. Valid but unimplemented dialects,
+unknown syntax and unresolved external dependencies remain blockers. An explicit
+owner decision in #109 is required to narrow that scope; an implementation's
+limitations cannot be used as evidence that a program is invalid.
+
+The [initial inventory](classic-games-inventory.md) records every file's hash and
+first reported native-parser diagnostic. Against prior candidate
+`201b52422edc75c518703874a459b6a83eef5726`, none of the 108 raw files parses
+successfully. This is a baseline of missing compatibility, not a validity audit
+or a behavioral test. No listing has been certified as fully compatible.
+
+## What the original syntax means
+
+There is no single historical BASIC grammar. Use the manual for the verified
+profile/version, not whichever interpreter happens to accept an example.
+
+| Construct                             | Primary evidence                                                             | Consequence                                                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Omitted `LET`, such as `M=0`          | BASIC-PLUS October 1972, section 3.2; DECsystem-10 March 1974, section 1.4.1 | Valid syntax in those dialects; now accepted for native scalar and explicitly declared array assignments.           |
+| Adjacent PRINT text and numeric items | BASIC-PLUS section 3.3.2; DECsystem-10 section 6.1                           | The original summary need not be rewritten with semicolons; numeric padding is also part of output behavior.        |
+| `DIM A(64)` and `A(I)`                | BASIC-PLUS section 3.6.2; Dartmouth Fourth Edition sections 1.4/1.7.8        | Arrays are ordinary historical syntax; multidimensional examples also need support.                                 |
+| Compact spacing and `GO TO`           | Dartmouth Fourth Edition, printed page 5 and section 1.7.4                   | `10READA,B` and spaced keywords need profile-aware lexing, not fuzzy corrections.                                   |
+| Bare `RND` and `RND(X)`               | BASIC-PLUS section 3.7.1                                                     | The argument is ignored in that dialect; do not assume Microsoft seeding conventions.                               |
+| `RIGHT(A$,n)` versus `RIGHT$(A$,n)`   | BASIC-PLUS table 5-3; DECsystem-10 section 8.6                               | BASIC-PLUS's RIGHT starts at position n; DECsystem-10's RIGHT$ takes a count. They cannot be unconditional aliases. |
+| `PRINT USING`                         | BASIC-PLUS section 10.4.1; DECsystem-10 chapter 11                           | Formatting is supported historical syntax, with dialect-specific masks and delimiters.                              |
+
+These references establish constructs, not the complete dialect or correctness
+of any individual listing. Expression precedence, implicit initialization,
+integer widths/conversions, array namespaces/bounds, loop transfers, logical
+truth and output cursor rules must also be settled before implementation.
+
+### A verified 1CHECK transcription difference
+
+The linked [book scan](https://archive.org/details/101basiccomputer0000davi/page/n165/mode/1up),
+**printed page 164 / PDF page 166 / leaf n165**, visibly shows a comma after B$
+in line 74:
+
+```bas
+74 PRINT USING B$,J,J+1,J+2,J+3,J+4,J+5,J+6,J+7
+```
+
+The pinned repository and pasted program instead have a semicolon after B$.
+Both reviewed DEC manuals specify a comma between the template and item list.
+Keep the raw transcription, and record this one-character correction separately;
+do not invent an undocumented DEC syntax exception. A semicolon may be accepted
+in another profile only with that dialect's own evidence. The first scan is cataloged
+1974; the hash-pinned follow-up verifies the March1975 imprint and same comma.
+The separate quoted-text fixture resolves550/580/610 without altering the raw
+or minimal correction. Original interpreter/version still needs evidence in #115.
+
+The original listing also has optional LET, arrays and adjacent PRINT items.
+Those forms and native integer PRINT USING are now implemented. A separately
+reviewed line-74 correction executes the scripted native path described below;
+the raw listing still rejects its unsupported delimiter. This finding does not
+certify every other character, input path or historical output rule in 1CHECK.
+
+The delivered corrected native path prints 1..64 as eight aligned rows,
+initializes 48 pieces and 16 central empty squares, rejects jump 1 to 2 without
+changing state, accepts 1 to 19 while clearing square 10 and leaving 47 pieces,
+quits with 0 and accurate counts, retries invalid replay answers and resets to
+48 pieces on YES. Historical number spacing and dialect certification remain
+blockers. Compare the original program's own invalid-input defects
+with runtime bounds errors instead of silently changing game logic.
+
+## Source defects and unresolved dependencies
+
+Upstream NOTES explicitly warns about changed comparison operators, labels,
+spacing, separators and string contents from OCR. It also documents missing
+AWARI data, CANAM O$/Q$ uncertainty, and estimated BOAT/BULL content. BUNNY and
+SNOOPY have no code in the book/collection and are separate from the 108-file
+ledger. Some files are helpers or companion programs rather than standalone games.
+
+Each file needs raw bytes/hash, book page/edition, verified dialect/manual,
+feature dependencies, validity status and behavioral oracles. Classifications
+are: verified pass, valid but unimplemented, evidenced source defect, unresolved
+external dependency, or unresolved source/dialect. A verified correction carries
+a minimal before/after patch and scan/manual evidence, with its results separate
+from unchanged-source passes. A failing program is never a blanket test skip.
+
+ANIMAL persistence, DOGS record files, Monopoly's file-backed arrays, keyboard
+channels, and CHAIN companions/menu programs need explicit host/asset contracts.
+A missing DEMON menu is not invalid syntax and cannot silently become END. The
+browser must use bounded supplied capabilities; no automatic access to the host's
+filesystem or process. Provenance/redistribution evidence must be recorded before
+full third-party fixtures are bundled; upstream repository metadata has no license,
+while the linked book scan marks public-domain status. These are distinct sources.
+
+## Delivery status and remaining work
+
+All parent tickets below remain open. **Native** means executable through the
+current shared parser/runtime. **Internal** means a tested conformance helper or
+scanner seam with no public historical selection. Linked contracts define their
+limits; issue/PR evidence retains individual validation runs.
+
+| Area / parent tickets     | Delivered                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Required before completion                                                                                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source — #115             | All 108 hashes, ledger/validator; scan-backed 1CHECK/23MTCH/LIFE2 differences and separate [reviewed 1CHECK text](1check-reviewed-text.md).                                                                                                                                                                                                                                                                                                                    | Complete listing/dialect/edition review, assets, redistribution evidence and independent behavior oracles.                                                                                                                        |
+| Context — #116            | Native immutable API/AST context; [portable source envelopes](portable-documents.md) in browser drafts/import/export and CLI file execution; activation/name-resolution designs.                                                                                                                                                                                                                                                                               | Executable historical support matrix, numeric/host observation contracts and historical selection.                                                                                                                                |
+| Lexing — #117             | Native optional LET/GO TO; [internal compact scanner](scanner-conformance.md), integer spelling, DATA modes and [quoted strings/comments](historical-quotes-comments.md).                                                                                                                                                                                                                                                                                      | Shared historical parser/AST integration, remaining source-backed lexical forms/continuation and runtime activation.                                                                                                              |
+| Arrays — #58              | [Native explicit numeric/string arrays](arrays.md), bounded allocation and detached observations.                                                                                                                                                                                                                                                                                                                                                              | Profile defaults, subscript conversion, duplicate declarations and required ranks/forms.                                                                                                                                          |
+| Output — #119/#120        | Native adjacency/integer and fixed-width string USING, including asterisk fill and trailing-minus columns; [internal integer/ASCII zone layout](print-layout-conformance.md).                                                                                                                                                                                                                                                                                  | Historical float formatting, TAB/cursor/input interaction, margin rules and required USING masks/rounding.                                                                                                                        |
+| Branches/calls — #118/#57 | Native colon sequences, inline IF/ELSE, literal GOSUB/RETURN and ON GOTO/GOSUB.                                                                                                                                                                                                                                                                                                                                                                                | Verified historical separators/transfers and GOTO expression OF; complete game outcomes.                                                                                                                                          |
+| Input — #121              | [Native scalar/array target lists](input-targets.md), strict rows, retries, cancellation isolation and native INPUT LINE.                                                                                                                                                                                                                                                                                                                                      | Historical prompts/continuation/surplus/conversion, terminal terminators and file input.                                                                                                                                          |
+| Data — #122               | [Native typed pools/READ/RESTORE](data-statements.md); [internal historical text-field scanning](historical-data-scanner.md).                                                                                                                                                                                                                                                                                                                                  | Historical pool/AST integration and target-dependent READ conversion using the selected caller observations; remaining RESTORE forms. Missing AWARI data stays unresolved.                                                        |
+| Numeric — #123            | Native scientific literals/powers/signatures; internal historical signatures, [24/56-bit decoding](basic-plus-floating-words.md), [MA2 add/subtract](basic-plus-ma2-addition.md), [multiply](basic-plus-ma2-multiplication.md), [divide](basic-plus-ma2-division.md), [bounded source conversion](basic-plus-ma2-decimal.md), traced event words, [canonical value operations](basic-plus-ma2-values.md) and [caller observations](ma2-conversion-callers.md). | Historical parser/caller integration and shared word storage, unsupported conversion statuses/events, remaining required intrinsics, defaults/RNG and BASIC numeric diagnostics. Decoder results are not executable BASIC values. |
+| Integers/logical — #124   | [Internal signed-word operations](integer-semantics.md#internal-word-conformance-slice), raw integer spellings and bounded literal tokens.                                                                                                                                                                                                                                                                                                                     | Numeric-kind AST/evaluation, mixed-mode scope, conversion/error edges, legal logical positions and operand ordering.                                                                                                              |
+| Text — #59                | [Internal byte-string functions](string-conformance.md) and [padded string relations](string-relation-conformance.md); native CHANGE and internal conversion-string codecs.                                                                                                                                                                                                                                                                                    | Intrinsic/runtime integration, index/error edges, full character ordering, VAL/NUM$, historical CHANGE continuation and game outcomes.                                                                                            |
+| Functions — #125          | Name-resolution and numeric/result-kind designs.                                                                                                                                                                                                                                                                                                                                                                                                               | Expression/multiline DEF FN, parameters/scope, bounded frames, recursion policy and unwinding.                                                                                                                                    |
+| Loops — #126              | Native loop/call ownership retained; documented historical differences.                                                                                                                                                                                                                                                                                                                                                                                        | Historical completion/reentry/transfers, required NEXT forms and modifiers with verified evaluation order.                                                                                                                        |
+| MAT — #127                | Dependency observations in the corpus inventory.                                                                                                                                                                                                                                                                                                                                                                                                               | Verify and implement required forms, dimensions/aliasing and failure/input behavior.                                                                                                                                              |
+| Services — #128           | Dependency observations and continued-error design requirements.                                                                                                                                                                                                                                                                                                                                                                                               | Bounded file/CHAIN/terminal/time capabilities, required assets and execution-owned trap/RESUME state.                                                                                                                             |
+| Acceptance — #129/#109    | Native installed/types/CLI/browser/archive checks; public browser embedding entry; supplied MA2 native rejection; fail-closed release completion/certificates.                                                                                                                                                                                                                                                                                                 | Full historical gameplay/state/output/lifecycle acceptance, all corpus dispositions and a fresh approved exact candidate.                                                                                                         |
+
+The [dialect design](dialect-design.md), [activation contract](profile-activation.md)
+and [intrinsic-resolution contract](intrinsic-resolution.md) govern shared
+parser/runtime integration. Keep native names, values, source positions and
+ownership intact. Do not add a second evaluator, source-to-JavaScript eval,
+filename heuristics, permissive merged grammar or automatic source corrections.
+Freeze public closed AST/reserved-word/host contracts only after the required
+profile decisions are settled.
+
+## Next milestones
+
+1. **Resolve the first game's remaining source/dialect gaps (#115).** Keep
+   corrected 1CHECK as the first-game candidate. Its 85-label review and verified
+   seven-move opening oracle are already recorded. The hash-pinned March1975 scan
+   now confirms the printing and semicolons at110/360/562. The separate reviewed-text
+   fixture resolves the quoted spaces at550/580/610 across native hosts. Establish
+   its intended dialect/version,
+   and settle exact historical output and subscript rules. The printed sample's
+   discontinuity must not be filled with invented moves. Source review can proceed
+   independently of numeric implementation; compatible syntax alone does not prove
+   that the game was written for BASIC-PLUS.
+2. **Complete the selected numeric reference contract (#116/#123, with #128).**
+   The V4A-12 MA2 configuration is already pinned, linked and booted; addition,
+   subtraction, multiplication, division and their path-specific continuations have
+   captured machine evidence. Build on those records rather than repeating initial media identity
+   work. The bounded source converter and selected VAL/READ observations are now
+   retained; bind source literals and caller policy without sharing a permissive
+   parser. Canonical INT/ABS/order/observation primitives are also merged. Follow
+   the shared value contract to bind raw literals and words in the existing
+   parser/evaluator before activating any context. Resolve remaining conversion/event paths and arithmetic/intrinsics
+   required by the selected slice, remaining exceptional patterns, and BASIC
+   diagnostic/handler behavior. Retain the startup/filesystem limitations when
+   choosing reference observations. Settle the public numeric value/observation
+   boundary and required defaults/RNG before activation; the first supported
+   configuration need not implement both floating formats. These observations
+   still do not assign this implementation to a corpus game.
+3. **Integrate one useful historical vertical slice (#116/#117 and required
+   feature owners).** Use the [concrete first-game matrix](first-game-runtime-evidence.md),
+   shared parser/runtime and an explicit support row
+   for every accepted expression, statement and value kind. Resolve that slice's
+   defaults, arrays, output and loop policies; reject unsupported forms before
+   effects, including unreachable clauses and supplied trees. Internal helpers
+   are prerequisites, not a reason to expose an incomplete profile.
+4. **Deliver the first historical game across hosts (#129).** Verify direct and
+   installed library, CLI/editor and browser import/run/input/export/reload,
+   reruns/Stop/Step and exact extracted artifacts. Preserve native regressions
+   and distinguish corrected-source results from raw-source results.
+5. **Expand from verified corpus requirements, then review 1.0 (#114/#109).**
+   Add remaining functions, modifiers, MAT and host dependencies from certified
+   requirements; reconcile every file disposition. Only a fresh integrated
+   candidate with the full acceptance evidence can change readiness.
+
+Work on independently settled requirements may continue in focused PRs while
+an unrelated evidence gap remains open. Prefer work that closes a milestone's
+missing acceptance condition over accumulating disconnected helper modules.
+Merge dependencies first, review the integrated tree and require green checks.
+No issue-count or test-count target substitutes for these outcomes.
+
+## Acceptance and roadmap upkeep
+
+The corpus gate must verify behavior through direct library use, installed
+ESM/CommonJS and public types, file/terminal CLI round trips, and actual browser
+import/run/input/export/reload. Run the browser against the exact extracted
+static distribution. Use deterministic input/random/clock, instruction/output/
+allocation limits, real expected state/output and independent review. Include
+complete game result/retry/replay paths and cross-feature/error/cancellation
+coverage; parsing or reaching the first input is insufficient.
+
+For each merged delivery, update its row above and the owning issue's remaining
+criteria. Update ledger/source review records only when new source or behavior
+evidence warrants it. Move a parent to complete only when all its acceptance
+criteria are met; preserve corrected/raw and native/historical distinctions.
+Recompute checkpoint counts from the ledger when those records change. Link the
+current roadmap from #114 and #109 instead of treating old delivery comments as
+a current plan.
+
+All 108 dispositions must reconcile. No unresolved valid implementation, dialect
+or external-dependency blocker may be hidden behind an issue closure or
+percentage. Reviewed source-defect dispositions explain exceptions; corrected
+passes stay separate. A valid-game exclusion requires explicit owner approval.
+
+Prior native candidate `201b52422edc75c518703874a459b6a83eef5726` and its archives
+are historical evidence only. After compatibility work, validate a new exact
+SHA/tree and actual package/static bytes with fresh Linux/macOS checks, retaining
+names/sizes/hashes/logs and review outcomes under #109. Only then may its actual
+Release decision become READY. Publication remains separate.
+
+Existing graphics, WAIT, keyboard, Pong and work-preservation checks remain
+regressions. Immediate terminal convenience (#60), play-only export (#108),
+sound, sprites, levels and networking remain optional unless source
+certification shows a required dependency. There is no calendar commitment.
+
+## Primary references and provenance
+
+- [Pinned corpus README](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/README.md)
+  and [NOTES](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/NOTES.md).
+- Digital Equipment Corporation, [BASIC-PLUS Language Manual, October 1972](https://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf).
+  A [second archival copy](https://archive.org/details/bitsavers_decpdp11rsDBASICPLUSLangManOct72_10455777)
+  supplied OCR and the scanned PDF for this review; PDF SHA-256
+  `684b54d7218a2fb581bf324b175c1e37dc609e718218a81a51b22c31a1e936bd`.
+- Digital Equipment Corporation, [BASIC Conversational Language Manual, March 1974](https://bitsavers.org/pdf/dec/pdp10/TOPS10_softwareNotebooks/vol06/DEC-10-LBLMA-A-D_BASIC_Conversational_Language_Manual_Mar74.pdf).
+  Reviewed the [archived manual's OCR](https://archive.org/details/bitsavers_decpdp10TOksvol06DEC10LBLMAADBASICConversationalLa_5536882),
+  including the versioned section dates retained in that manual.
+- Kemeny and Kurtz, [Dartmouth BASIC Fourth Edition, January 1968](https://retrofun.pl/wp-content/uploads/sites/2/2023/11/BASIC_4th_Edition_Jan68_text.pdf),
+  plus [archival text](https://archive.org/details/bitsavers_dartmouthdition_3679804).
+  This edition establishes the cited constructs; later Dartmouth features still
+  require the correct later manual, not an assumption based on 1968.
+- David Ahl, [101 BASIC Computer Games scan](https://archive.org/details/101basiccomputer0000davi),
+  cataloged 1974, printed page 164 for 1CHECK. Downloaded PDF SHA-256
+  `c8a7549a649e9b6a99d80cab9ec8e3d78f6a872f127daee617fe692c40b92867`.
+- [HP 2000E BASIC Reference Manual, August 1972](https://www.mrynet.com/FTP/os/HP2000/pdf/2000E_UsersMan.pdf)
+  is a retrieved scan for follow-up HP verification, not certification that BATTLE
+  or BUG belongs to that exact version. EduSystem, later Dartmouth and other
+  uncertain mappings remain work for #115.

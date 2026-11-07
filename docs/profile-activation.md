@@ -1,10 +1,13 @@
 # Historical profile activation and compact lexing
 
-**Status:** design for #116/#117; the first internal scanner-conformance stage is
-implemented in [scanner conformance](scanner-conformance.md). `Dialect` still
-accepts only `native`. The portable document/CLI persistence mechanism preserves
-that context without enabling a historical runtime profile or `--dialect`
-option. #115/#129 remain open and #109 is NOT READY.
+**Status:** activation contract for #116/#117. Internal scanner, numeric expression,
+scalar/array storage and relation components are implemented; the internal
+selected runner reaches the reviewed 1CHECK opening and first INPUT, but whole
+historical Program execution remains incomplete. `Dialect` still accepts only `native`.
+The portable document/CLI persistence mechanism preserves that context without
+enabling a historical runtime profile or `--dialect` option. Track the next
+runnable outcome and its blockers in the [first-game milestone](first-game-milestone.md).
+#115/#129 remain open and #109 is NOT READY.
 
 ## Decision
 
@@ -14,10 +17,15 @@ form. Unsupported features must fail before program effects, including in dead
 branches and caller-supplied trees. An unknown profile remains an option error;
 an unsupported feature in a supported profile is a source-located diagnostic.
 
-Use the candidate identity `basic-plus-1972-10` for this design only. Keep native
-as the default, preserve legacy missing metadata as native, and never infer a
-profile from a filename, an abbreviation, a parse failure or a corpus README.
-The proposed identity names a manual revision, not full RSTS or PDP-11 emulation.
+Use the proposed candidate identity `basic-plus-v4a12-ma2` for the selected
+V4A-12 software MA2 configuration, as specified in the
+[shared value contract](ma2-shared-value-contract.md). The earlier design name
+`basic-plus-1972-10` names a manual revision; it was never an accepted option and
+must not become an alias for a selected math package. Keep native as the default,
+preserve legacy missing metadata as native, and never infer a profile from a
+filename, an abbreviation, a parse failure or a corpus README. This selected
+configuration does not establish 1CHECK's original interpreter/version or promise
+full RSTS/PDP-11 emulation.
 
 ## Evidence and its limits
 
@@ -65,8 +73,10 @@ space stripping, keyword replacement, line joining or synthesized labels.
 The native policy in `parser/tokenizer.ts` consumes a whole nonwhitespace label
 and a whole alphanumeric name/number. The internal historical policy now has
 separate label/name/number, string/comment and DATA paths as documented in
-[scanner conformance](scanner-conformance.md). Public historical parser/AST
-integration is still pending. Native paths must retain their
+[scanner conformance](scanner-conformance.md). Internal numeric expressions and
+comparisons and all 85 reviewed candidate statements use the shared Parser.
+The selected internal opening executes through line 100; complete statement
+semantics and public context integration are still pending. Native paths retain their
 current spelling and errors: FORWARD, INTEGER, SCORE, ELSE, DATA and SQR remain
 valid native names wherever they are valid today.
 
@@ -138,14 +148,16 @@ instructions, with generation/cancellation checks at the existing await sites.
 
 ## Activation sequence and verification
 
-1. Extract internal lexical/validation policy seams while keeping public
-   `Dialect = 'native'`. Prove existing native ASTs, names, diagnostics and all
-   examples unchanged. Exercise verified historical token cases in internal
-   conformance tests without accepting a historical Program in the public API.
-2. Settle the support matrix and implement a useful complete vertical slice,
-   including accepted forms' value/output/loop behavior. The corrected 1CHECK
-   oracle is a candidate; it still requires exact historical output/subscripts
-   and source certification. Do not call it an unchanged-source pass.
+1. Reuse the implemented internal lexical, numeric-expression and storage seams
+   while keeping public `Dialect = 'native'` until the full accepted slice is
+   ready. Preserve native ASTs, names, diagnostics and examples as whole historical
+   Program preparation and statement execution are integrated.
+2. Complete the [first-game milestone](first-game-milestone.md) using the closed
+   support matrix, including accepted forms' value/output/loop behavior. The
+   reviewed 1CHECK fixture requires exact selected-configuration output/subscript
+   evidence and complete game acceptance. Original-interpreter attribution stays
+   a separate open question; corrected-source compatibility does not establish an
+   unchanged-source or original-dialect certification.
 3. Expose the named profile only after that slice passes parser, constructed-tree,
    evaluator and runtime tests. Verify known unsupported syntax and shared-looking
    unsupported semantics fail before a host write, input request, draw or random
