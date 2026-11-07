@@ -1,7 +1,6 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
-import {dispatchTarget} from './dispatch.ts';
 import {Evaluator} from './evaluator.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
@@ -9,9 +8,12 @@ import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {readInput, inputTargets, isInputStatement} from './input.ts';
 import type {InputStatement} from './input.ts';
-import {formatPrintUsing} from './print_using.ts';
 import {waitFor} from './wait.ts';
 import {prepareProgram} from './prepared_program.ts';
+import {
+  createNativeStatementPolicy,
+  type StatementExecutionPolicy,
+} from './native_statement_policy.ts';
 import {programInstructions} from './instructions.ts';
 import type {Instruction} from './instructions.ts';
 import type {PreparedProgram} from './prepared_program.ts';
@@ -39,6 +41,7 @@ export default class Basic {
   readonly #host: Host;
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
+  readonly #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram;
   #controlFlow: ControlFlow;
   #data: DataReader;
@@ -62,6 +65,11 @@ export default class Basic {
     this.#evaluator = new Evaluator(this.#host, {dialect: this.#dialect});
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     this.#data = new DataReader(this.#prepared.dataItems);
+    this.#statementPolicy = createNativeStatementPolicy({
+      evaluator: this.#evaluator,
+      data: () => this.#data,
+      graphics: this.#graphics,
+    });
   }
 
   get host(): Readonly<Host> {
@@ -524,98 +532,12 @@ export default class Basic {
           line.label,
         );
       }
-      switch (statement.type) {
-        case 'ChangeStatement':
-          this.#evaluator.change(statement);
-          break;
-        case 'ReadStatement':
-          this.#data.read(statement, this.#evaluator);
-          break;
-        case 'RestoreStatement':
-          this.#data.restore();
-          break;
-        case 'ForStatement':
-          this.#controlFlow.beginLoop(statement);
-          break;
-        case 'NextStatement':
-          this.#controlFlow.nextLoop(statement);
-          break;
-        case 'GotoStatement':
-          this.#controlFlow.jump(statement.target.value, statement.target.location);
-          break;
-        case 'GosubStatement':
-          this.#controlFlow.call(statement.target, statement.location);
-          break;
-        case 'OnStatement': {
-          const target = dispatchTarget(statement, this.#evaluator.evaluate(statement.selector));
-          if (statement.transfer === 'goto') this.#controlFlow.jump(target.value, target.location);
-          else this.#controlFlow.call(target, statement.location);
-          break;
-        }
-        case 'ReturnStatement':
-          this.#controlFlow.returnFromCall(statement.location);
-          break;
-        case 'IfStatement':
-          if (this.#evaluator.compare(statement.condition))
-            this.#controlFlow.jump(statement.target.value, statement.target.location);
-          else this.#controlFlow.skipLine(statement.location);
-          break;
-        case 'InlineIfStatement':
-          this.#controlFlow.chooseBranch(
-            this.#evaluator.compare(statement.condition),
-            statement.location,
-          );
-          break;
-        case 'WaitStatement':
-          throw new BasicRuntimeError(
-            'ASYNC_WAIT_REQUIRED',
-            'Use runAsync, stepAsync, or readLineAsync for WAIT',
-            statement.location.start,
-            line.label,
-          );
-        case 'InputStatement':
-        case 'InputTargetsStatement':
-        case 'InputLineStatement':
-          throw new BasicRuntimeError(
-            'ASYNC_INPUT_REQUIRED',
-            'Use runAsync, stepAsync, or readLineAsync for INPUT',
-            statement.location.start,
-            line.label,
-          );
-        case 'LetStatement':
-          this.#evaluator.assign(statement.target, this.#evaluator.evaluate(statement.expression));
-          break;
-        case 'PrintUsingStatement': {
-          const format = this.#evaluator.evaluate(statement.format);
-          const values = statement.items.map((item) => this.#evaluator.evaluate(item));
-          const text = formatPrintUsing(format, values, statement.format.location);
-          this.#callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
-          break;
-        }
-        case 'PrintStatement': {
-          const text = statement.items
-            .map((item) => String(this.#evaluator.evaluate(item)))
-            .join('');
-          this.#callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
-          break;
-        }
-        case 'ColorStatement':
-        case 'PsetStatement':
-        case 'LineStatement':
-        case 'CircleStatement':
-          this.#graphics.execute(statement, this.#evaluator, this.#host);
-          break;
-        case 'ClsStatement':
-          this.#callHost('clear', line);
-          break;
-        case 'RemStatement':
-        case 'DimStatement':
-        case 'DataStatement':
-          break;
-        case 'EndStatement':
-          this.#halt();
-          break;
-      }
+      this.#statementPolicy.execute(line, {
+        controlFlow: this.#controlFlow,
+        host: this.#host,
+        callHost: (callback, instruction, text) => this.#callHost(callback, instruction, text),
+        halt: () => this.#halt(),
+      });
       if (!this.#immediate && statement.type !== 'EndStatement')
         this.#controlFlow.finishInstruction();
     } catch (error) {
