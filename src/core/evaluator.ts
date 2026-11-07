@@ -205,7 +205,9 @@ interface Ma2Context {
   readonly kind: 'ma2-conformance';
   readonly scalars: ReadonlyMap<string, Ma2Value> | null;
   readonly arrays: ArrayStore | null;
+  readonly defaultNumericScalars?: boolean;
 }
+const ma2Zero: Ma2Value = Object.freeze({kind: 'ma2', words: Object.freeze([0, 0] as const)});
 type Ma2Failure = Exclude<Ma2BinaryResult | ReturnType<typeof ma2Unary>, {kind: 'value'}>;
 export type Ma2ConstantResult =
   Readonly<{kind: 'value'; value: Ma2Value}> | (Ma2Failure & Readonly<{location: Location}>);
@@ -315,21 +317,37 @@ export function createBasicPlusMa2ScalarSession() {
 }
 
 /** Internal explicit array/scalar conformance; no historical index policy. */
-export function createBasicPlusMa2ArraySession(declarations: readonly ArrayDeclaration[] = []) {
+export function createBasicPlusMa2ArraySession(
+  declarations: readonly ArrayDeclaration[] = [],
+  options: Readonly<{defaultNumericScalars?: boolean}> = {},
+) {
   if (!Array.isArray(declarations)) throw new TypeError('Expected explicit array declarations');
-  return new Ma2ScalarSession(declarations);
+  if (
+    typeof options.defaultNumericScalars !== 'undefined' &&
+    typeof options.defaultNumericScalars !== 'boolean'
+  )
+    throw new TypeError('Expected a numeric scalar default policy');
+  return new Ma2ScalarSession(declarations, options.defaultNumericScalars === true);
 }
 
 class Ma2ScalarSession {
   readonly #scalars = new Map<string, Ma2Value>();
   #arrays: ArrayStore | null;
 
-  constructor(declarations: readonly ArrayDeclaration[] | null = null) {
+  constructor(
+    declarations: readonly ArrayDeclaration[] | null = null,
+    private readonly defaultNumericScalars = false,
+  ) {
     this.#arrays = declarations === null ? null : createBasicPlusMa2ArrayStore(declarations);
   }
 
   private context(): Ma2Context {
-    return {kind: 'ma2-conformance', scalars: this.#scalars, arrays: this.#arrays};
+    return {
+      kind: 'ma2-conformance',
+      scalars: this.#scalars,
+      arrays: this.#arrays,
+      defaultNumericScalars: this.defaultNumericScalars,
+    };
   }
 
   /** Consume the shared parser's immutable expression tree without reparsing source. */
@@ -583,6 +601,14 @@ function evaluateTree(
         const value =
           context.kind === 'native' ? context.variables.get(name) : context.scalars?.get(name);
         if (value === undefined) {
+          if (
+            context.kind === 'ma2-conformance' &&
+            context.scalars &&
+            context.defaultNumericScalars
+          ) {
+            values.push(ma2Zero);
+            break;
+          }
           fail(
             context.kind === 'native' ? 'UNDEFINED_VARIABLE' : 'UNBOUND_MA2_SCALAR',
             context.kind === 'native'
