@@ -44,10 +44,10 @@ test('selected Program replacement is atomic, rejects altered trees and stays se
   expect(basic.run().status).toBe('halted');
   expect(writes).toEqual(['OLD\n']);
 
-  const badSource = '10 PRINT "BAD"\n20 INPUT Z\n30 END';
+  const badSource = '10 PRINT "BAD"\n20 INPUT Q%\n30 END';
   const bad = prepareInternalSelectedProgram(badSource, parseBasicPlusMa2Candidate(badSource));
   expect(() => basic.resetInternalSelectedProgram(bad)).toThrow(
-    'Selected MA2 input requires F, T or A$',
+    'Selected MA2 input requires a short numeric or string scalar',
   );
   expect(basic.status).toBe('error');
   expect(writes).toEqual(['OLD\n']);

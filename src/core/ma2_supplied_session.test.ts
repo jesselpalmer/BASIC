@@ -43,8 +43,8 @@ test('selected execution rejects altered source, dead words, spans and foreign m
   (exact[3] as {dialect?: string}).dialect = originalDialect;
   Object.setPrototypeOf(exact[3], null);
   expect(() => createSelectedMa2Session(source, 100, exact)).toThrow('disagrees with its source');
-  const unsupported = '10 PRINT "READY"\n20 INPUT F\n30 END\n40 INPUT X';
+  const unsupported = '10 PRINT "READY"\n20 INPUT F\n30 END\n40 INPUT Q%';
   expect(() =>
     createSelectedMa2Session(unsupported, 100, parseBasicPlusMa2Candidate(unsupported)),
-  ).toThrow('requires F, T or A$');
+  ).toThrow('requires a short numeric or string scalar');
 });

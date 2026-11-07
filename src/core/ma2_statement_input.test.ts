@@ -26,14 +26,18 @@ async function failure(promise: Promise<unknown>): Promise<unknown> {
   }
 }
 
-describe('selected 1CHECK input response boundary', () => {
-  test('reads source prompts and exactly representable game numbers without committing state', async () => {
+describe('selected bounded scalar input response boundary', () => {
+  test('reads source prompts and converted MA2 numbers without committing state', async () => {
     const received: string[] = [];
     for (const [label, response, expected] of [
       [100, '0', 0],
       [100, '1', 1],
       [110, '19', 19],
       [110, '64', 64],
+      [110, '65', 65],
+      [110, '-1.5', -1.5],
+      [110, '+1E2', 100],
+      [110, '01', 1],
     ] as const) {
       const result = await read(
         {readLine: (prompt) => (received.push(prompt ?? ''), Promise.resolve(response))},
@@ -45,7 +49,7 @@ describe('selected 1CHECK input response boundary', () => {
       expect(observeMa2Value(result.value)).toEqual({kind: 'value', value: expected});
       expect(Object.isFrozen(result)).toBe(true);
     }
-    expect(received).toEqual(['JUMP FROM', 'JUMP FROM', 'TO', 'TO']);
+    expect(received).toEqual(['JUMP FROM', 'JUMP FROM', 'TO', 'TO', 'TO', 'TO', 'TO', 'TO']);
     expect('readSelectedMa2Input' in publicAPI).toBe(false);
   });
 
@@ -70,8 +74,8 @@ describe('selected 1CHECK input response boundary', () => {
     ).toEqual({kind: 'unsupported', reason: 'string-response'});
   });
 
-  test('leaves unsettled historical numeric syntax and targets explicit', async () => {
-    for (const response of [' 1', '+1', '-1', '1.5', '65', '01', '', '1,2'])
+  test('leaves unsettled scanner rows, conversion statuses and targets explicit', async () => {
+    for (const response of [' 1', '1 ', '1e2', '1.2.3', '', '1E39', '0E32768', 'x'.repeat(256)])
       expect(
         await read(
           {readLine: () => Promise.resolve(response)},
@@ -79,7 +83,22 @@ describe('selected 1CHECK input response boundary', () => {
           new AbortController().signal,
         ),
       ).toEqual({kind: 'unsupported', reason: 'numeric-response'});
-    const other = publicAPI.parseProgram('10 INPUT "X";Z').lines[0].statement;
+    for (const response of ['1,2', '"1"'])
+      expect(
+        await read(
+          {readLine: () => Promise.resolve(response)},
+          input(100),
+          new AbortController().signal,
+        ),
+      ).toEqual({kind: 'unsupported', reason: 'row'});
+    expect(
+      await read(
+        {readLine: () => Promise.resolve('9'.repeat(40))},
+        input(100),
+        new AbortController().signal,
+      ),
+    ).toEqual({kind: 'unsupported', reason: 'numeric-event'});
+    const other = publicAPI.parseProgram('10 INPUT "X";LONG').lines[0].statement;
     if (other.type !== 'InputStatement') throw Error('Expected INPUT');
     let called = false;
     expect(
@@ -90,6 +109,18 @@ describe('selected 1CHECK input response boundary', () => {
       ),
     ).toEqual({kind: 'unsupported', reason: 'target'});
     expect(called).toBe(false);
+    const selected = publicAPI.parseProgram('10 INPUT "NAME";Q$').lines[0].statement;
+    if (selected.type !== 'InputStatement') throw Error('Expected INPUT');
+    expect(
+      await read({readLine: () => Promise.resolve('ADA')}, selected, new AbortController().signal),
+    ).toEqual({kind: 'value', target: 'Q$', value: 'ADA'});
+    expect(
+      await read(
+        {readLine: () => Promise.resolve('ADA,LOVELACE')},
+        selected,
+        new AbortController().signal,
+      ),
+    ).toEqual({kind: 'unsupported', reason: 'row'});
   });
 
   test('locates EOF, host failures, invalid results and aborts without late values', async () => {
