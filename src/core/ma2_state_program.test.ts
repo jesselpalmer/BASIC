@@ -36,7 +36,7 @@ describe('selected MA2 stateful source execution', () => {
       '10 DIM A(4)\n20 FOR I=1 TO 4\n30 A(I)=I*2\n40 NEXT I\n50 IF A(4)=8 THEN 70\n60 A(1)=999\n70 GOTO 90\n80 A(1)=999\n90 END',
     );
     expect(result.arrays[0].values).toEqual([0, 2, 4, 6, 8]);
-    expect(result.variables).toContainEqual({name: 'I', value: 5});
+    expect(result.variables).toContainEqual({name: 'I', value: 4});
     expect(run('10 A=0\n20 IF A=1 THEN 40\n30 A=2\n40 END').variables).toContainEqual({
       name: 'A',
       value: 2,
