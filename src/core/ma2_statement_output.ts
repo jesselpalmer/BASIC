@@ -64,6 +64,8 @@ export class Ma2StatementOutput {
         }
         const separator = statement.candidateSeparators?.[index];
         if (separator) operations.push({kind: separator});
+        for (let skip = 0; skip < (statement.candidateCommaSkips?.[index] ?? 0); skip++)
+          operations.push({kind: 'comma'});
       }
     }
     if (

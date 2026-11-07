@@ -657,6 +657,7 @@ class Parser {
     const items: Expression[] = [];
     const separators: Location[] = [];
     const candidateSeparators: ('comma' | 'semicolon' | null)[] = [];
+    const candidateCommaSkips: number[] = [];
     let trailingSemicolon = false;
     let last: Token | Expression = command;
     if (!this.atStatementEnd()) {
@@ -672,7 +673,10 @@ class Parser {
           this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(first.raw)}`, first);
         }
         items.push(last);
-        if (this.candidate) candidateSeparators.push(null);
+        if (this.candidate) {
+          candidateSeparators.push(null);
+          candidateCommaSkips.push(0);
+        }
         if (this.branchDepth > 0 && this.atElse()) break;
         if (!this.at('PUNCTUATION', ';') && !(this.candidate && this.at('PUNCTUATION', ','))) {
           const next = this.peek();
@@ -697,6 +701,18 @@ class Parser {
         if (this.candidate)
           candidateSeparators[candidateSeparators.length - 1] =
             separator.value === ',' ? 'comma' : 'semicolon';
+        if (this.candidate && separator.value === ',') {
+          while (this.at('PUNCTUATION', ',')) {
+            const extra = this.take();
+            separators.push(this.location(extra));
+            candidateCommaSkips[candidateCommaSkips.length - 1]++;
+            last = extra;
+          }
+          // The manual's skipped-zone example has an item after the run;
+          // a final run of multiple commas has no settled source contract.
+          if (candidateCommaSkips[candidateCommaSkips.length - 1] > 0 && this.atStatementEnd())
+            this.fail('UNEXPECTED_TOKEN', 'Expected a PRINT item after consecutive commas');
+        }
         if (this.atStatementEnd()) {
           trailingSemicolon = separator.value === ';';
           break;
@@ -708,6 +724,7 @@ class Parser {
       separators,
       trailingSemicolon,
       ...(this.candidate ? {candidateSeparators} : {}),
+      ...(candidateCommaSkips.some((count) => count > 0) ? {candidateCommaSkips} : {}),
     });
   }
 

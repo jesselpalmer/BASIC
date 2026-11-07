@@ -37,8 +37,11 @@ zero has no negative-zero encoding. Numeric output therefore needs no unresolved
 floating representation or decimal precision rule.
 
 The operation list permits consecutive separators so the manual's skipped-zone
-behavior can be checked. It does not authorize arbitrary separator grammar in a
-public program. A text/integer operation must fit entirely within the remaining
+behavior can be checked. The selected source candidate accepts consecutive commas
+between ordinary PRINT items, preserving each physical location and passing the
+extra commas to this layout. Leading separators and a final run of multiple commas
+remain unsupported. This does not authorize the grammar in a public program. A
+text/integer operation must fit entirely within the remaining
 72-character line. Automatic text/number wrapping and splitting at the margin
 remain unsupported until their exact terminal rules are settled. Comma-induced
 line changes are supported. A final ordinary item or an empty list emits one
@@ -64,6 +67,6 @@ compact numeric output, existing names and native comma rejection remain intact.
 Run the full quality/package gate plus Linux/macOS browser/archive validation.
 
 TAB, arbitrary terminal widths, floating output, terminal controls, profile
-activation, parser/evaluator integration, PRINT USING and complete game outcomes
+activation, public parser/evaluator integration, PRINT USING and complete game outcomes
 remain separate work. Passing this helper closes no historical game or release
 gate; #109 remains NOT READY.
