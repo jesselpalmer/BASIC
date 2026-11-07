@@ -332,6 +332,59 @@ class Ma2ScalarSession {
     return {kind: 'ma2-conformance', scalars: this.#scalars, arrays: this.#arrays};
   }
 
+  /** Consume the shared parser's immutable expression tree without reparsing source. */
+  evaluateNode(expression: Expression): Ma2ConstantResult {
+    requireMa2NumericSyntax(expression, true, this.#arrays);
+    return evaluateTree(expression, this.context());
+  }
+
+  validateNode(expression: Expression): void {
+    requireMa2NumericSyntax(expression, true, this.#arrays);
+  }
+
+  validateComparison(condition: Comparison): void {
+    this.validateNode(condition.left);
+    this.validateNode(condition.right);
+  }
+
+  compareNode(condition: Comparison): Ma2ComparisonResult {
+    requireMa2NumericSyntax(condition.left, true, this.#arrays);
+    requireMa2NumericSyntax(condition.right, true, this.#arrays);
+    const left = evaluateTree(condition.left, this.context());
+    if (left.kind !== 'value') return left;
+    const right = evaluateTree(condition.right, this.context());
+    if (right.kind !== 'value') return right;
+    return Object.freeze({
+      ...compareMa2Relation(left.value, condition.operator, right.value),
+      location: condition.operatorLocation,
+    });
+  }
+
+  assignNode(target: AssignmentTarget, expression: Expression): Ma2ConstantResult {
+    if (target.name.endsWith('$') || target.name.endsWith('%'))
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_ASSIGNMENT_TARGET',
+        'Selected MA2 numeric state requires a numeric target',
+        target.location.start,
+        target.location.label,
+      );
+    // Validate both sides before evaluating either; array indices run after RHS.
+    if (target.type === 'ArrayReference') requireMa2NumericSyntax(target, true, this.#arrays);
+    const result = this.evaluateNode(expression);
+    if (result.kind !== 'value') return result;
+    if (target.type === 'Variable') {
+      this.#scalars.set(target.name, result.value);
+      return result;
+    }
+    return this.writeElement(target, result);
+  }
+
+  injectNode(target: NodeOf<'Variable'>, input: number): Ma2ScalarInjectionResult {
+    const result = injectMa2Value(input);
+    if (result.kind === 'value') this.#scalars.set(target.name, result.value);
+    return result.kind === 'value' ? result : Object.freeze({...result, location: target.location});
+  }
+
   evaluate(
     source: string,
     options: Pick<SourceOptions, 'line' | 'offset'> = {},
