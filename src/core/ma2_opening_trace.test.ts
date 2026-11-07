@@ -42,6 +42,7 @@ describe('reviewed 1CHECK opening execution', () => {
 
   test('bounds work and rejects unsupported pre-input source before output', () => {
     expect(() => run(source, 370)).toThrow('Instruction limit of 370');
+    expect(() => run('10 INPUT F', 0)).toThrow('Instruction limit of 0');
     expect(() => run('10 PRINT "A"\n20 A$=B$\n30 INPUT F')).toThrow('requires numeric targets');
     expect(() => run('10 B$="Ω"\n20 INPUT F')).toThrow('character-domain');
     expect(() => run('10 PRINT B$\n20 INPUT F')).toThrow('String B$ is unbound');

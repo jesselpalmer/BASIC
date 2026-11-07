@@ -178,6 +178,13 @@ function runSelectedMa2Program(source: string, instructionLimit: number, opening
   let halted = false;
   while (flow.nextInstruction && !halted) {
     const next = flow.nextInstruction;
+    if (executed === instructionLimit)
+      throw new BasicRuntimeError(
+        'INSTRUCTION_LIMIT',
+        `Instruction limit of ${instructionLimit} reached`,
+        next.statement.location.start,
+        next.label,
+      );
     if (opening && next.statement.type === 'InputStatement')
       return Object.freeze({
         status: 'waiting' as const,
@@ -187,13 +194,6 @@ function runSelectedMa2Program(source: string, instructionLimit: number, opening
         variables: state.snapshot(),
         arrays: state.snapshotArrays(),
       });
-    if (executed === instructionLimit)
-      throw new BasicRuntimeError(
-        'INSTRUCTION_LIMIT',
-        `Instruction limit of ${instructionLimit} reached`,
-        next.statement.location.start,
-        next.label,
-      );
     const instruction = flow.takeInstruction()!;
     const statement = instruction.statement;
     executed++;
