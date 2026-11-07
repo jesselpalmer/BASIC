@@ -12,16 +12,16 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `9fc47a2bbdfafe4895c504a4134c1d405a982cfa`, including
-merged [#214](https://github.com/jesselpalmer/BASIC/pull/214) and
-[#215](https://github.com/jesselpalmer/BASIC/pull/215).
+Reconciled against main `81f3ddad968ef924c80c308bcda2a25c32577221`, including
+merged [#216](https://github.com/jesselpalmer/BASIC/pull/216) and
+[#217](https://github.com/jesselpalmer/BASIC/pull/217).
 
-| Capability                       | Current result                                                                                                                                                                                                                                     |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                  |
-| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                         |
-| Selected MA2 implementation      | The exact reviewed 1CHECK source now executes 371 statements through the numbered and 48-piece opening boards, stopping at its first INPUT. Internal F/T/A$ reads are available but not committed to a resumable run. This is not a complete game. |
-| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                        |
+| Capability                       | Current result                                                                                                                                                                                                                                                                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                    |
+| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                           |
+| Selected MA2 implementation      | The exact reviewed 1CHECK source has an **internal complete-session trace**: illegal 1→2 leaves 48 pieces, legal 1→19 leaves 47, quit prints the summary, invalid replay text retries, YES rebuilds the board and NO exits. The run retains state across cancellable INPUT; it is not a public game. |
+| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                          |
 
 The [corpus ledger](classic-games-ledger.json) records **3 reviewed source
 differences / 105 unresolved**, **1 printed-system identification / 107
@@ -44,12 +44,12 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 ## Remaining blockers for that outcome
 
-| Workstream and issue owners                       | Already available                                                                                                                                              | What must be completed                                                                                                                                                                                                |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse and pass structural preflight; the internal runner reaches line 100 from exact source.                                            | Resume the shared run after INPUT and bind the remaining accepted statement semantics. Validate unsupported requirements before effects, including supplied/dead trees.                                               |
-| State and control — #58, #59, #123, #126          | Word-preserving scalars/arrays, selected fractional subscript conversion, exact comparisons and small-integer loop control produce the opening 48-piece board. | Bind replay string state/conditions and remaining defaults, index/loop/error policies needed for a full run. Do not extend the narrow integer loop policy by native arithmetic.                                       |
-| Input, output and events — #119, #120, #121, #128 | Parsed PRINT/USING renders the opening; a cancellable selected F/T/A$ input boundary returns values without committing them.                                   | Commit responses under execution ownership, implement retry/continuation and required numeric events, and verify full move/summary/replay output. The limited reference installation is not a complete output oracle. |
-| Complete-game proof — #115, #129                  | Exact reviewed opening output and state reach the first prompt; partial native checks remain distinct.                                                         | Full supported play/result/quit/replay traces, source-bug distinctions, lifecycle and cross-distribution checks. Keep original attribution and broader corpus certification explicit.                                 |
+| Workstream and issue owners                       | Already available                                                                                                                                                                       | What must be completed                                                                                                                                                                   |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the internal runner resumes across INPUT and follows the reviewed game's branches through END.                                                            | Validate the entire selected support matrix before effects, including dead and caller-supplied trees; integrate with the public Program/Basic lifecycle and explicit profile selection.  |
+| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the opening, legal move and replay reset.                                                                                        | Settle broader defaults, index/loop/error policies and numeric events required for the accepted profile; the current small-integer loop policy is not general historical semantics.      |
+| Input, output and events — #119, #120, #121, #128 | F/T/A$ responses commit under execution ownership; selected output prints the move board and summary, while the host receives INPUT prompts. Cancellation prevents a late INPUT commit. | Verify exact output and historical input/error continuation independently across hosts and accepted forms; the limited reference installation is not a complete output oracle.           |
+| Complete-game proof — #115, #129                  | An internal exact-source trace covers illegal/legal move, quit, invalid replay answer, YES reset and NO exit. Partial native checks remain distinct.                                    | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
@@ -57,17 +57,17 @@ and linked feature issues retain the technical contracts.
 
 ## How the next work is selected
 
-1. Connect the merged input boundary to a resumable shared runner, then prove
-   the reviewed game's move, quit and replay behavior. Build on the existing
-   opening trace and numeric implementation.
-2. Resolve missing subscript, loop, INPUT/output and event evidence alongside
-   implementation where files and dependencies permit independent work.
+1. Close the selected profile's full-program preflight and remaining support
+   rows, then connect the proven internal run to explicit library selection.
+2. Resolve independent subscript, loop, INPUT/output and event evidence while
+   implementing the public execution path. Carry source context through CLI and
+   browser after the supported profile is ready.
 3. Require each implementation batch to identify the milestone behavior it
    advances and the remaining blocker. Standalone helper work needs a named
    dependency on that behavior. Use the existing shared parser/runtime.
-4. Keep public historical selection gated until every accepted support row has
-   its required semantics. Demonstrate complete behavior before claiming the
-   first-game milestone, then expand across the pinned corpus.
+4. Verify direct and installed consumers, terminal and extracted browser with
+   Step/Stop, source transport and fresh runs before claiming the first-game
+   milestone. Then expand across the pinned corpus.
 
 Report progress as **new runnable behavior, closed blockers, remaining blockers**.
 PR counts, test counts and coverage are supporting quality evidence. Update the

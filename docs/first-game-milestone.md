@@ -6,12 +6,14 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `9fc47a2bbdfafe4895c504a4134c1d405a982cfa`, an internal runner
-executes the exact reviewed source through 371 statements: it prints the
-numbered board, initializes 48 pieces with 16 empty center squares, and stops
-at the first `INPUT` on line 100. The selected F/T/A$ read boundary is merged
-but not connected to a resumable run. This is a concrete opening trace, not a
-completed game or a public historical profile.
+At main `81f3ddad968ef924c80c308bcda2a25c32577221`, an internal runner
+executes the exact reviewed source through a supported play/quit/replay session.
+It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
+board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
+reprompts, YES rebuilds the board, and NO exits. [#216](https://github.com/jesselpalmer/BASIC/pull/216)
+and [#217](https://github.com/jesselpalmer/BASIC/pull/217) deliver this trace and
+cancellable INPUT continuation. It remains internal: public historical profile
+selection, cross-distribution acceptance and independent end-user play are open.
 
 ## Demonstration to deliver
 
@@ -33,28 +35,33 @@ printed sample's discontinuity with invented moves or repair game logic.
 
 ## Remaining delivery checklist
 
-The syntax and opening slices are delivered, but every complete-game checklist
-item below remains open. See the roadmap and
+The internal complete-session trace is delivered; the public game milestone
+remains blocked. See the roadmap and
 [support matrix](first-game-runtime-evidence.md) for component status.
 
+- [x] **Internal source trace** (#118/#121): selected MA2 state and output
+      persist across F/T/A$ INPUT, legal and illegal moves, summary, invalid
+      replay response, YES reset and NO exit. Fresh sessions, cancellation and
+      instruction budgets have focused tests. This is not a public profile pass.
 - [ ] **Program/statement integration** (#116/#117/#118): the 85 candidate forms
-      parse and the opening executes internally; make execution resumable at
-      INPUT and bind all accepted forms through the shared runtime. Preserve
-      physical spans, immutable snapshots and failed-replacement atomicity.
-      Reject unsupported source and supplied/dead trees before effects.
+      parse and the selected session executes internally. Bind the supported
+      forms through public Program preparation and the shared lifecycle. Preserve
+      physical spans and immutable snapshots; reject unsupported whole-program
+      source and supplied/dead trees before effects or failed replacement.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
-      scalars/arrays/loops; bind string/default rules, supported DIM/index conversion
-      and errors 51/55, IF/GOTO and FOR/NEXT completion/reentry. Verify nested,
-      repeated-entry, range/error and cleanup paths needed by the accepted subset.
+      scalars/arrays/loops; selected string replay and small-integer loops now
+      work internally. Complete accepted defaults, DIM/index conversion, errors
+      51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
+      range/error and cleanup paths needed by the selected profile.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
-      selected uncommitted F/T/A$ reads exist; integrate owned input commit,
-      retry/continuation, byte/padded comparisons and source-located numeric
-      diagnostics. Verify move/summary/replay output independently; the limited
-      reference installation's normalized transport is not an output oracle.
+      selected committed F/T/A$ reads cover the internal session. Complete
+      accepted input/output forms, source-located numeric event policy and
+      independently checked move/summary/replay output. The limited reference
+      installation's normalized transport is not an output oracle.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
-      moves, state/count/result, quit and replay with independent expected state and
-      output. Distinguish source defects from runtime diagnostics and preserve all
-      three fixture identities.
+      moves, state/count/result, quit and replay through public selected execution
+      with independent expected state and output. Distinguish source defects from
+      runtime diagnostics and preserve all three fixture identities.
 - [ ] **Public selection and distributions** (#116/#129): after the accepted
       support matrix is complete, exercise explicit selection and source/context
       preservation through direct and installed ESM/CommonJS, types, CLI/editor and
@@ -83,13 +90,11 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next implementation work should connect the selected input boundary to
-the shared runner, retaining state across suspension and enforcing cancellation,
-budgets and clean reruns. Prove legal/illegal moves, quit and replay in the exact
-source. Resolve remaining string/index/loop and event evidence concurrently
-where dependencies permit. Public
-activation still requires the entire accepted support matrix; an internal
-integration demonstration must be reported with its limits.
+The next implementation work should validate the entire selected support matrix
+before effects and connect the internal complete-session runner to an explicit
+public profile. Resolve remaining index/loop and event evidence concurrently
+where dependencies permit. Carry selected source/context through library,
+CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
 
 For each batch, record here or in #129: the named behavior advanced, evidence at
 an exact revision, which checklist item changed, and the next blocker. Split PRs
