@@ -1,15 +1,14 @@
 # First complete game: reviewed 1CHECK
 
-**Status: public selected profile runs the game; milestone review remains open.**
-Merged [#260–#263](https://github.com/jesselpalmer/BASIC/pull/263) expose the
-bounded `basic-plus-v4a12-ma2` profile. Exact reviewed source completes a
-public direct and installed ESM/CommonJS session and a portable CLI session;
-real Chromium CI plays and edits it in the normal editor on Linux/macOS. The
-long seven-jump, 41-piece, invalid printed continuation, replay and second-game
-trace is still an internal expectation. Public cross-host long-game/lifecycle
-proof, independent review and a user playthrough remain before #129 can mark
-this first-game milestone delivered. The game's original interpreter/version
-is unknown and [BASIC 1.0](https://github.com/jesselpalmer/BASIC/issues/109)
+**Status: public selected game proof is delivered; milestone review remains open.**
+Merged [#263](https://github.com/jesselpalmer/BASIC/pull/263) exposes the
+bounded `basic-plus-v4a12-ma2` profile; [#265](https://github.com/jesselpalmer/BASIC/pull/265)
+traces seven legal jumps, 41 pieces, the printed illegal continuation, invalid
+replay, YES reset, a second game and NO exit through public Basic, installed
+ESM/CommonJS, portable CLI and real Chromium on Linux/macOS. Independent
+implementation and expected-board/transcript review plus a user playthrough
+remain before #129 can mark this first-game milestone delivered. The game's
+original interpreter/version is unknown and [BASIC 1.0](https://github.com/jesselpalmer/BASIC/issues/109)
 is NOT READY across the 108-file corpus.
 
 ## Demonstration to deliver
@@ -32,8 +31,8 @@ printed sample's discontinuity with invented moves or repair game logic.
 
 ## Remaining delivery checklist
 
-The public profile and distribution path are delivered; complete milestone
-proof remains open. See the [roadmap](classic-games-roadmap.md) and
+The public profile, distribution and long game trace are delivered; independent
+milestone review remains open. See the [roadmap](classic-games-roadmap.md) and
 [support matrix](first-game-runtime-evidence.md) for boundaries.
 
 The [hosted playground](https://basic-playground-rho.vercel.app/) offers
@@ -68,35 +67,34 @@ explicit profile context; bare `.bas` files default to native.
       accepted input/output forms, source-located numeric event policy and
       independently checked move/summary/replay output. A selected-session
       transcript now checks the seven-move board, invalid move, retry, replay
-      and second-game result exactly in merged #228; public host output is still
-      open. The limited reference installation's normalized transport is not an
-      output oracle. Merged #230 checks cancellation at the second input after the first has committed,
+      and second-game result exactly in merged #228; #265 repeats the long
+      trace through public hosts. The limited reference installation's
+      normalized transport is not an output oracle. Merged #230 checks
+      cancellation at the second input after the first has committed,
       source-located EOF/host errors and a fresh opening. Merged #243 adds
       source-bound 14-column ordinary PRINT comma zones in selected execution.
       Merged #245 retains consecutive commas as skipped zones in that selected
       source, with leading empty fields still unsupported. Merged #248 adds a
       pure bounded TAB layout operation; merged #252 binds candidate-only
       source `PRINT TAB(X)` while preserving native TAB names and arrays.
-- [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
-      moves, state/count/result, quit and replay through public selected execution
-      with independent expected state and output. Distinguish source defects from
-      runtime diagnostics and preserve all three fixture identities. Merged #251
-      proves the exact reviewed seven-jump/replay/second-result path through
-      Basic's internal async driver; public host acceptance remains open.
+- [x] **Public game behavior** (#115/#129): #265 proves seven legal jumps,
+      41 pieces, rejected printed continuation, invalid replay, YES reset,
+      second-game result and NO exit through public Basic, installed
+      ESM/CommonJS, portable CLI and real Chromium. Independent expected-state
+      and transcript review remains in the milestone review below. Preserve
+      all three fixture identities; original-interpreter attribution stays #115.
 - [x] **Public selection and distributions** (#116/#129): merged #263
       exercises explicit source/context through direct and installed ESM/CommonJS,
       types, portable CLI/editor and real Chromium on Linux/macOS. The exact
-      browser editor source is editable under the selected profile. A complete
-      public quit session is covered; longer game/replay evidence remains above.
-- [ ] **Lifecycle and review** (#129): prove Step/Stop, cancellation, invalid
-      input, failed replacement, fresh reruns and source preservation; complete
-      independent implementation/evidence review and a user playthrough. Link the
-      exact integrated commit, artifacts and reproducible evidence before marking
-      the milestone delivered. Merged #234 steps one internal selected
-      instruction with its real next source location. Merged #237 adds
-      internal Stop ownership, including pending input; #254 proves internal
-      prepared Program replacement and fresh reruns. Public host lifecycle
-      remains open.
+      browser editor source is editable under the selected profile. The long
+      game/replay trace is covered by #265.
+- [ ] **Lifecycle and review** (#129): #263/#264 bind and test public
+      replacement, Step/Stop, stale-input isolation and fresh reruns through
+      BrowserSession; #266 checks selected browser Step/Stop and exact-source
+      portable import/export/reload on Linux/macOS Chromium. Complete
+      independent implementation/expected-output review and a user playthrough.
+      Link the exact integrated commit, artifacts and reproducible evidence
+      before marking the milestone delivered.
 
 ## Required behavior evidence
 
@@ -116,16 +114,11 @@ results do not satisfy this checklist by themselves.
 
 ## Next batch and progress reporting
 
-The next integrated batch should settle remaining first-game support and event
-rows, expose the prepared selected source/context through explicit public
-Program/profile selection, and then prove direct/installed library, CLI/editor
-and browser play with Step/Stop, replacement and fresh runs.
-The internal full-game driver proof, source-bound Program transport and selected
-DIM ordering regression are merged. Earlier selected output, INPUT, state,
-control and lifecycle work remains available for the public path. Resolve
-remaining index/loop and event evidence concurrently
-where dependencies permit. Carry selected source/context through library,
-CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
+Independently review the implementation and the expected board/count/transcript
+at the integrated revision. Record a user playthrough and any mismatch in
+#129 before declaring this first-game milestone delivered. Wider state,
+I/O and event forms remain open for the 108-file corpus under their owning
+issues; they do not invalidate this bounded selected 1CHECK proof.
 
 For each batch, record here or in #129: the named behavior advanced, evidence at
 an exact revision, which checklist item changed, and the next blocker. Split PRs
