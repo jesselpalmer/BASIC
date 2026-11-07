@@ -137,6 +137,56 @@ describe('selected MA2 statement output', () => {
     ).toEqual({kind: 'value', text: ' 1', column: 2});
   });
 
+  test('executes a source program with general selected integer images and cursor carry', () => {
+    const source =
+      '10 B$="ROW: ### | ##"\n20 A=17\n30 PRINT USING B$,A,-4;\n40 PRINT "!"\n50 B$="##"\n60 END';
+    // A second image write is rejected for the whole program before effects.
+    expect(() => createSelectedMa2Session(source)).toThrow();
+    const admissible = source.replace('50 B$="##"\n', '');
+    const writes: string[] = [];
+    const basic = createInternalSelectedBasic(admissible, {write: (text) => writes.push(text)});
+    basic.run();
+    expect(writes.join('')).toBe('ROW:  17 | -4!\n');
+    expect(createSelectedMa2Session(admissible).advance()).toMatchObject({
+      status: 'halted',
+      output: 'ROW:  17 | -4!\n',
+    });
+
+    const overflow = '10 B$="#"\n20 PRINT USING B$,12;\n30 PRINT "X"\n40 END';
+    expect(createSelectedMa2Session(overflow).advance().output).toBe('% 12X\n');
+    expect(() => new Basic().run(overflow)).toThrow();
+  });
+
+  test('rejects unsupported source images before writes and dynamic fractional values atomically', () => {
+    const writes: string[] = [];
+    expect(() =>
+      createInternalSelectedBasic('10 PRINT "EARLY"\n20 B$="##.##"\n30 PRINT USING B$,1', {
+        write: (text) => writes.push(text),
+      }),
+    ).toThrow('Unsupported selected MA2 image field');
+    expect(writes).toEqual([]);
+
+    const source = '10 B$="VALUE: ##"\n20 PRINT "READY";\n30 A=.5\n40 PRINT USING B$,A\n50 END';
+    const basic = createInternalSelectedBasic(source, {write: (text) => writes.push(text)});
+    expect(() => basic.run()).toThrow('integer-domain');
+    expect(writes.join('')).toBe('READY');
+    const parsed = parseBasicPlusMa2Candidate('10 PRINT USING B$,A')[0].statement;
+    if (parsed.type !== 'PrintUsingStatement') throw Error('Expected PRINT USING');
+    const output = new Ma2StatementOutput((text) => writes.push(text));
+    expect(
+      output.execute(parsed, (node) =>
+        node.type === 'Variable' && node.name === 'B$' ? '##' : number(1),
+      ),
+    ).toEqual({kind: 'value', text: ' 1\n', column: 0});
+    expect(
+      output.execute(parsed, (node) =>
+        node.type === 'Variable' && node.name === 'B$' ? '##' : number(0.5),
+      ),
+    ).toEqual({kind: 'unsupported', reason: 'integer-domain'});
+    expect(output.column).toBe(0);
+    expect(writes).toEqual(['READY', ' 1\n']);
+  });
+
   test('renders the reviewed numbered board and initial 48-piece position through parsed statements', () => {
     const writes: string[] = [];
     const output = new Ma2StatementOutput((text) => writes.push(text));
