@@ -46,9 +46,15 @@ export function validateBasicPlusMa2Candidate(source: string, supplied?: readonl
         );
     }
   }
-  pairLoops(instructions);
+  const loopPairs = pairLoops(instructions);
   validateArrays(lines);
-  return freezeTree({kind: 'ma2-candidate-syntax' as const, source, lines, instructions});
+  return freezeTree({
+    kind: 'ma2-candidate-syntax' as const,
+    source,
+    lines,
+    instructions,
+    loopPairs,
+  });
 }
 
 // Compare a supplied tree to the parser's complete canonical result without

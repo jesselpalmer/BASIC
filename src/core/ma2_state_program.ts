@@ -2,7 +2,7 @@ import {arrayDeclarations} from './array_declarations.ts';
 import {ControlFlow, type LoopValues} from './control_flow.ts';
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {createBasicPlusMa2ArraySession} from './evaluator.ts';
-import {pairLoops} from './loops.ts';
+import {prepareSelectedMa2Candidate} from './prepared_program.ts';
 import {observeMa2Value} from './ma2_value.ts';
 import {basicPlusStringLength} from './basic_plus_strings.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
@@ -10,7 +10,6 @@ import {readSelectedMa2Input} from './ma2_statement_input.ts';
 import {SelectedMa2StringState} from './ma2_replay_strings.ts';
 import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
-import {preflightBasicPlusMa2Candidate} from '../parser/ma2_candidate_support.ts';
 import type {Expression, Host, Location, NodeOf, ParsedLine} from './types.ts';
 
 /** Internal state/control execution slice. It has no host effects or public profile. */
@@ -41,7 +40,7 @@ function prepareSelectedMa2Program(
 ) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
-  const candidate = preflightBasicPlusMa2Candidate(source, supplied);
+  const candidate = prepareSelectedMa2Candidate(source, supplied);
   const state = createBasicPlusMa2ArraySession(arrayDeclarations(candidate.lines));
   const strings = new SelectedMa2StringState();
   const chunks: string[] = [];
@@ -180,16 +179,7 @@ function prepareSelectedMa2Program(
       }
     }
   }
-  if (opening && !firstInputOnly) selectedMa2CandidateImages(source);
-  const instructions = candidate.instructions;
-  const loopPairs = pairLoops(instructions);
-  const prepared = {
-    instructions,
-    labelIndices: new Map(instructions.map((instruction, index) => [instruction.label, index])),
-    loopPairs,
-    pairsByFor: new Map(loopPairs.map((pair) => [pair.forIndex, pair])),
-    pairsByNext: new Map(loopPairs.map((pair) => [pair.nextIndex, pair])),
-  };
+  if (opening && !firstInputOnly) selectedMa2CandidateImages(candidate.source);
 
   const fail = (
     result: {kind: string; location?: Location; reason?: string; code?: number},
@@ -239,7 +229,7 @@ function prepareSelectedMa2Program(
       if (result.kind !== 'value') fail(result, target.location);
     },
   };
-  const flow = new ControlFlow(prepared, loopValues, 'selected-ma2');
+  const flow = new ControlFlow(candidate, loopValues, 'selected-ma2');
   let executed = 0;
   let halted = false;
   let reading = false;
