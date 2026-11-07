@@ -25,13 +25,13 @@ test('internal source-bound MA2 runs under Basic step and fresh-run ownership', 
 test('internal Basic rejects unsupported/dead source before effects and preserves prior snapshot', () => {
   const writes: string[] = [];
   const basic = createInternalSelectedBasic(source, {write: (text) => writes.push(text)});
-  expect(() => basic.reset('10 PRINT "EARLY"\n20 INPUT F\n30 END')).toThrow(
-    'Selected MA2 state execution does not support InputStatement',
+  expect(() => basic.reset('10 PRINT "EARLY"\n20 INPUT Z\n30 END')).toThrow(
+    'Selected MA2 input requires F, T or A$',
   );
   expect(writes).toEqual([]);
   expect(basic.run().status).toBe('halted');
   expect(writes).toEqual([' 1 ', ' 2 ']);
-  expect(() => basic.reset('10 END\n20 PRINT "LATE"\n30 INPUT F')).toThrow();
+  expect(() => basic.reset('10 END\n20 PRINT "LATE"\n30 INPUT Z')).toThrow();
   expect(() => basic.reset(parseProgram('10 END'))).toThrow('requires exact source');
   expect(() => basic.readLine('PRINT 1')).toThrow('requires a complete source program');
   expect(() => new Basic({}, {dialect: 'basic-plus-v4a12-ma2' as 'native'})).toThrow();
