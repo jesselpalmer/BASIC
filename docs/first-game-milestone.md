@@ -6,23 +6,16 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `dd1519bf933e3211bb319dca5af3cabfcda3caa9`, an internal runner
-executes the exact reviewed source through a supported play/quit/replay session.
-It prints the numbered and 48-piece opening boards; illegal 1→2 preserves the
-board, legal 1→19 leaves 47 pieces, quit reports one jump, invalid replay text
-reprompts, YES rebuilds the board, and NO exits. [#216](https://github.com/jesselpalmer/BASIC/pull/216)
-and [#217](https://github.com/jesselpalmer/BASIC/pull/217) deliver this trace and
-cancellable INPUT continuation. Merged [#219](https://github.com/jesselpalmer/BASIC/pull/219)
-adds an independently enumerated two-jump board and 46-piece summary;
-[#220](https://github.com/jesselpalmer/BASIC/pull/220) rejects unsupported later
-source before effects. [#221](https://github.com/jesselpalmer/BASIC/pull/221)
-binds the captured loop completion/reentry cases and
-[#222](https://github.com/jesselpalmer/BASIC/pull/222) rejects bad B$ images
-before output. [#224](https://github.com/jesselpalmer/BASIC/pull/224)
-adds the seven-jump, 41-piece source-backed board and printed-sample gap;
-[#225](https://github.com/jesselpalmer/BASIC/pull/225) checks supplied candidate
-trees against exact source before internal execution. It remains internal: public historical profile
-selection, cross-distribution acceptance and independent end-user play are open.
+At main `559e533ecb098a443f84dc6b03adc8352da4344a`, the exact reviewed
+source runs internally through play, quit, invalid replay response, reset and
+exit. Independent expectations cover a seven-jump, 41-piece board and exact
+output through a second game. Supplied trees, later instructions and bad B$
+images are checked before effects; selected INPUT cancellation preserves a
+fresh game. The candidate now carries exact source and detached lines through
+shared prepared indexes. This remains an internal session: public profile
+selection, cross-distribution acceptance and end-user play are open. Detailed
+delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
+and linked issues.
 
 ## Demonstration to deliver
 
@@ -58,7 +51,7 @@ remains blocked. See the roadmap and
       forms through public Program preparation and the shared lifecycle. Preserve
       physical spans and immutable snapshots; the internal selected session now
       rejects unsupported supplied trees before effects, while public failed
-      replacement remains to be proved. In review #231 carries exact source,
+      replacement remains to be proved. Merged #231 carries exact source,
       detached lines and shared prepared indexes into selected execution.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and six captured loop cases
@@ -66,7 +59,9 @@ remains blocked. See the roadmap and
       51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
       range/error and cleanup paths needed by the selected profile. Merged
       #227 rejects unsupported NEXT increments before termination decisions and
-      checks nested unfinished-loop reentry without changing native.
+      checks nested unfinished-loop reentry without changing native. In review
+      #233 gives selected numeric scalars the documented zero default; implicit
+      arrays and other state policies remain open.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
       selected committed F/T/A$ reads cover the internal session. Complete
       accepted input/output forms, source-located numeric event policy and
@@ -74,8 +69,7 @@ remains blocked. See the roadmap and
       transcript now checks the seven-move board, invalid move, retry, replay
       and second-game result exactly in merged #228; public host output is still
       open. The limited reference installation's normalized transport is not an
-      output oracle. In review
-      #230 checks cancellation at the second input after the first has committed,
+      output oracle. Merged #230 checks cancellation at the second input after the first has committed,
       source-located EOF/host errors and a fresh opening.
 - [ ] **Complete game behavior** (#115/#129): verify the board, legal/illegal
       moves, state/count/result, quit and replay through public selected execution
@@ -89,7 +83,9 @@ remains blocked. See the roadmap and
       input, failed replacement, fresh reruns and source preservation; complete
       independent implementation/evidence review and a user playthrough. Link the
       exact integrated commit, artifacts and reproducible evidence before marking
-      the milestone delivered.
+      the milestone delivered. In review #234 steps one internal selected
+      instruction with its real next source location; Stop and public host
+      lifecycle remain open.
 
 ## Required behavior evidence
 
@@ -111,9 +107,9 @@ results do not satisfy this checklist by themselves.
 
 The next implementation work should close remaining selected support rows, then
 connect the internal complete-session runner to an explicit public profile.
-The seven-move source gap and supplied-tree admission are merged in #224/#225;
-#227/#228 deliver independent loop-domain and exact-output slices.
-#230/#231 review independent input-lifecycle and source-bound preparation seams.
+The seven-move output, bounded loop, input lifecycle and source-bound candidate
+preparation are merged. #233/#234 review independent numeric-default and
+instruction-step behavior.
 Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.

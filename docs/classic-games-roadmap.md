@@ -12,8 +12,9 @@ one completed game is an intermediate milestone. Release requirements remain in
 
 ## What runs now
 
-Reconciled against main `dd1519bf933e3211bb319dca5af3cabfcda3caa9`, including
-merged [#221](https://github.com/jesselpalmer/BASIC/pull/221)–[#228](https://github.com/jesselpalmer/BASIC/pull/228).
+Reconciled against main `559e533ecb098a443f84dc6b03adc8352da4344a`, including
+merged [#230](https://github.com/jesselpalmer/BASIC/pull/230) and
+[#231](https://github.com/jesselpalmer/BASIC/pull/231).
 
 | Capability                       | Current result                                                                                                                                                                                                                                                                                                                               |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,38 +44,22 @@ minimal correction and reviewed-text fixture as distinct evidence.
 
 ## Remaining blockers for that outcome
 
-| Workstream and issue owners                       | Already available                                                                                                                                                                                                                                                                 | What must be completed                                                                                                                                                                   |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse; the selected runner validates later/dead instructions and exact source-matched supplied candidate trees before effects, then executes through END. In review #231 carries exact source and detached lines with shared prepared instruction indexes. | Complete remaining support rows and bind the prepared candidate to the public Program/Basic lifecycle with explicit profile selection.                                                   |
-| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the game; #227 checks nested unfinished reentry and bounds NEXT candidate increments without changing native.                                                                                                              | Settle broader defaults, index/loop/error policies and numeric events required for the accepted profile; conservative overflow rejection is not historical overflow semantics.           |
-| Input, output and events — #119, #120, #121, #128 | F/T/A$ responses commit under execution ownership; selected output prints boards and summary; #228 checks an exact seven-move transcript through replay and a second result. In review #230 checks cancellation after F commits and source-located TO failures.                   | Verify historical input/error continuation and output across public hosts and accepted forms; the limited reference installation is not a complete output oracle.                        |
-| Complete-game proof — #115, #129                  | Internal exact-source traces cover a seven-jump, 41-piece board and the printed sample discontinuity, plus quit/replay/exit. Partial native checks remain distinct.                                                                                                               | Public direct/installed library, CLI/editor and extracted-browser playthrough; Step/Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
+| Workstream and issue owners                       | Already available                                                                                                                                                                                     | What must be completed                                                                                                                                                              |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Program and statements — #116, #117, #118         | All 85 candidate forms parse. The selected source-bound candidate carries detached lines and shared prepared indexes; later/dead instructions reject before effects and the internal run reaches END. | Complete remaining support rows and bind this candidate to public Program/Basic lifecycle with explicit profile selection.                                                          |
+| State and control — #58, #59, #123, #126          | Word-preserving state and bounded selected loops drive the game. In review #233 gives numeric scalars the documented zero default only in selected execution.                                         | Settle implicit arrays, remaining index/loop/error and numeric event policies for the accepted profile; conservative bounds are not historical overflow semantics.                  |
+| Input, output and events — #119, #120, #121, #128 | Internal F/T/A$ responses, seven-move output, cancellation after F and source-located TO failures have focused evidence.                                                                              | Verify historical input/error continuation and exact output across public hosts; the limited reference installation is not a complete output oracle.                                |
+| Complete-game proof — #115, #129                  | Internal exact-source traces cover seven jumps, 41 pieces, the printed sample discontinuity, quit/replay/exit and a second result. In review #234 adds instruction-level selected Step.               | Public direct/installed library, CLI/editor and extracted-browser playthrough; Stop, replacement, source transport and fresh-run acceptance; original attribution remains separate. |
 
 The [milestone checklist](first-game-milestone.md) is the progress view. The
 [detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
 and linked feature issues retain the technical contracts.
 
-Merged [#224](https://github.com/jesselpalmer/BASIC/pull/224) checks the
-source-reviewed seven-move board and printed sample discontinuity;
-[#225](https://github.com/jesselpalmer/BASIC/pull/225) admits exact source-matched
-supplied trees to the internal selected runner. Neither activates a public
-profile or settles general loop, numeric event or host policies.
-
-Merged [#227](https://github.com/jesselpalmer/BASIC/pull/227)
-rejects out-of-domain selected NEXT candidates before a termination decision and
-checks nested unfinished-loop reentry. Merged
-[#228](https://github.com/jesselpalmer/BASIC/pull/228) independently asserts exact numbered,
-opening, seven-move, summary, retry, replay, second-game and exit output. The
-combined tree passed the full local gate. These remain internal selected-session
-work; neither is public host acceptance or a general historical loop policy.
-
-**In review:** [#230](https://github.com/jesselpalmer/BASIC/pull/230)
-checks that a cancelled second move input cannot revive an old game and that a
-fresh selected session has its original board; EOF and host failure retain the
-TO source line. Independent [#231](https://github.com/jesselpalmer/BASIC/pull/231)
-keeps validated exact source and detached candidate lines with shared prepared
-instruction indexes. Their combined tree passes the full local gate. Public
-`Dialect` remains native while lifecycle, event and host obligations are open.
+**In review:** [#233](https://github.com/jesselpalmer/BASIC/pull/233) adds
+selected numeric scalar zero defaults, and independent
+[#234](https://github.com/jesselpalmer/BASIC/pull/234) steps one real selected
+instruction at a time. Their combined tree passes the full local gate. Public
+`Dialect` remains native until the support and host obligations close.
 
 ## How the next work is selected
 
