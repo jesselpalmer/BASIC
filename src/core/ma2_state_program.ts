@@ -233,6 +233,7 @@ function prepareSelectedMa2Program(
   };
   const loopValues: LoopValues = {
     evaluate: (expression) => loopInteger(value(expression), expression.location),
+    validateIncrement: loopInteger,
     assign: (target: NodeOf<'Variable'>, number: number) => {
       const result = state.injectNode(target, loopInteger(number, target.location));
       if (result.kind !== 'value') fail(result, target.location);
