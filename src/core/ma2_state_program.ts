@@ -112,10 +112,10 @@ function prepareSelectedMa2Program(
         strings.validateReplay(statement.condition);
       else state.validateComparison(statement.condition);
     } else if (statement.type === 'InputStatement') {
-      if (!['F', 'T', 'A$'].includes(statement.target.name))
+      if (!/^[A-Z][0-9]?\$?$/.test(statement.target.name))
         throw new BasicSyntaxError(
           'UNSUPPORTED_MA2_INPUT',
-          'Selected MA2 input requires F, T or A$',
+          'Selected MA2 input requires a short numeric or string scalar',
           statement.target.location.start,
           statement.location.label,
         );

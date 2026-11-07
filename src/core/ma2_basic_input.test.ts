@@ -42,6 +42,34 @@ test('selected first-game INPUT runs through Basic stepAsync and preserves commi
   expect(writes.join('')).toContain('1');
 });
 
+test('selected short numeric scalar INPUT runs source with signed decimal conversion', async () => {
+  const prompts: string[] = [];
+  const writes: string[] = [];
+  const basic = createInternalSelectedBasic(
+    '10 INPUT "VALUE";Z\n20 LET X1=Z+3.5\n30 PRINT X1\n40 END',
+    {
+      readLine: (prompt) => (prompts.push(prompt ?? ''), Promise.resolve('-1.5')),
+      write: (text) => writes.push(text),
+    },
+  );
+  expect((await basic.runAsync()).status).toBe('halted');
+  expect(prompts).toEqual(['VALUE']);
+  expect(basic.variables).toContainEqual({name: 'Z', value: -1.5});
+  expect(basic.variables).toContainEqual({name: 'X1', value: 2});
+  expect(writes.join('')).toContain('2');
+});
+
+test('unsupported selected scalar row does not commit an earlier value to its target', async () => {
+  const basic = createInternalSelectedBasic('10 LET Z=7\n20 INPUT "VALUE";Z\n30 END', {
+    readLine: () => Promise.resolve('1,2'),
+  });
+  basic.step();
+  expect(await rejected(basic.stepAsync())).toMatchObject({
+    diagnostic: {code: 'UNSUPPORTED_MA2_INPUT', label: 20},
+  });
+  expect(basic.variables).toContainEqual({name: 'Z', value: 7});
+});
+
 test('selected input cancellation cannot commit a late response and fresh run starts clean', async () => {
   let release!: (text: string) => void;
   const late = new Promise<string>((resolve) => (release = resolve));
