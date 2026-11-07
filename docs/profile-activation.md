@@ -2,8 +2,9 @@
 
 **Status:** activation contract for #116/#117. Internal scanner, numeric expression,
 scalar/array storage and relation components are implemented; the internal
-selected runner reaches the reviewed 1CHECK opening and first INPUT, but whole
-historical Program execution remains incomplete. `Dialect` still accepts only `native`.
+selected runner completes a reviewed 1CHECK play/quit/replay trace and preflights
+the complete selected source, but public historical Program execution remains
+incomplete. `Dialect` still accepts only `native`.
 The portable document/CLI persistence mechanism preserves that context without
 enabling a historical runtime profile or `--dialect` option. Track the next
 runnable outcome and its blockers in the [first-game milestone](first-game-milestone.md).
@@ -75,8 +76,8 @@ and a whole alphanumeric name/number. The internal historical policy now has
 separate label/name/number, string/comment and DATA paths as documented in
 [scanner conformance](scanner-conformance.md). Internal numeric expressions and
 comparisons and all 85 reviewed candidate statements use the shared Parser.
-The selected internal opening executes through line 100; complete statement
-semantics and public context integration are still pending. Native paths retain their
+The selected internal source run reaches END; broader statement semantics and
+public context integration are still pending. Native paths retain their
 current spelling and errors: FORWARD, INTEGER, SCORE, ELSE, DATA and SQR remain
 valid native names wherever they are valid today.
 
