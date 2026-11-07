@@ -65,7 +65,31 @@ describe('portable CLI files', () => {
     );
     const file = join(directory, '1check.basic.json');
     writeFileSync(file, encodeSourceDocument(source, {dialect: 'basic-plus-v4a12-ma2'}));
-    const answers = ['0', 'NO'];
+    const answers = [
+      '1',
+      '19',
+      '2',
+      '20',
+      '3',
+      '21',
+      '8',
+      '22',
+      '16',
+      '30',
+      '24',
+      '38',
+      '64',
+      '46',
+      '12',
+      '26',
+      '0',
+      'MAYBE',
+      'YES',
+      '1',
+      '19',
+      '0',
+      'NO',
+    ];
     const output: string[] = [];
     expect(
       (
@@ -75,7 +99,11 @@ describe('portable CLI files', () => {
         })
       ).status,
     ).toBe('halted');
-    expect(output.join('')).toContain('YOU MADE 0 JUMPS AND HAD 48 PIECES');
+    expect(output.join('')).toContain('ILLEGAL MOVE.  TRY AGAIN...');
+    expect(output.join('')).toContain("PLEASE ANSWER 'YES' OR 'NO'.");
+    expect(output.join('')).toContain('YOU MADE 7 JUMPS AND HAD 41 PIECES');
+    expect(output.join('')).toContain('YOU MADE 1 JUMPS AND HAD 47 PIECES');
+    expect(output.join('').endsWith('\nO. K.  HOPE YOU HAD FUN!\n')).toBe(true);
     expect(answers).toEqual([]);
   });
 
