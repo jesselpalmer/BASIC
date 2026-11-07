@@ -1,33 +1,16 @@
 # First complete game: reviewed 1CHECK
 
-**Status: public integration under review; no certified historical game pass yet.** This is the next
-outcome in the [roadmap](classic-games-roadmap.md), tracked by
-[acceptance #129](https://github.com/jesselpalmer/BASIC/issues/129). It is an
-intermediate delivery milestone; all 108 corpus files remain the eventual
-[1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
-
-Through merged #257 and #258, the exact reviewed
-source runs internally through play, quit, invalid replay response, reset and
-exit. Independent expectations cover a seven-jump, 41-piece board and exact
-output through a second game. Supplied trees, later instructions and bad B$
-images are checked before effects; selected INPUT cancellation preserves a
-fresh game. The candidate now carries exact source and detached lines through
-shared prepared indexes. Selected numeric scalars read as zero and A$/B$ as
-empty before assignment; implicit numeric arrays default to bound 10 in one or
-two dimensions. The internal session steps by instruction and owns cancellation.
-A source-bound selected full-game path runs through Basic's async driver:
-seven legal jumps, rejected printed continuation, 41-piece result, invalid
-replay retry, fresh board, second 47-piece result and exit. Selected F/T/A$
-INPUT, snapshots, cancellation and fresh resets have focused tests. A detached,
-source-bound internal selected Program now carries the reviewed source through
-Basic's replacement and rerun lifecycle, while a manual-backed regression
-confirms late DIM governs earlier array access. The fixed-source experimental
-browser panel allows user play now. A pending public branch runs the complete
-source through a selected library Program and offers the same reviewed text in
-the editable browser panel; cross-distribution acceptance and milestone review
-remain open. Detailed
-delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
-and linked issues.
+**Status: public selected profile runs the game; milestone review remains open.**
+Merged [#260–#263](https://github.com/jesselpalmer/BASIC/pull/263) expose the
+bounded `basic-plus-v4a12-ma2` profile. Exact reviewed source completes a
+public direct and installed ESM/CommonJS session and a portable CLI session;
+real Chromium CI plays and edits it in the normal editor on Linux/macOS. The
+long seven-jump, 41-piece, invalid printed continuation, replay and second-game
+trace is still an internal expectation. Public cross-host long-game/lifecycle
+proof, independent review and a user playthrough remain before #129 can mark
+this first-game milestone delivered. The game's original interpreter/version
+is unknown and [BASIC 1.0](https://github.com/jesselpalmer/BASIC/issues/109)
+is NOT READY across the 108-file corpus.
 
 ## Demonstration to deliver
 
@@ -49,38 +32,24 @@ printed sample's discontinuity with invented moves or repair game logic.
 
 ## Remaining delivery checklist
 
-The internal complete-session trace is delivered; the public game milestone
-remains blocked. See the roadmap and
-[support matrix](first-game-runtime-evidence.md) for component status.
+The public profile and distribution path are delivered; complete milestone
+proof remains open. See the [roadmap](classic-games-roadmap.md) and
+[support matrix](first-game-runtime-evidence.md) for boundaries.
 
-The [hosted experimental 1CHECK playtest](https://basic-playground-rho.vercel.app/)
-lets a user try the fixed reviewed source, including moves, quit, replay and
-fresh runs. The pending editor integration will let users select and edit the
-reviewed source under the bounded profile when merged and deployed. The hosted
-version is not yet that public path or the cross-distribution acceptance below.
+The [hosted playground](https://basic-playground-rho.vercel.app/) offers
+**1CHECK · BASIC-PLUS selected profile** in the normal editor, alongside the
+earlier fixed-source playtest. Source edits and portable document imports keep
+explicit profile context; bare `.bas` files default to native.
 
 - [x] **Internal source trace** (#118/#121): selected MA2 state and output
       persist across F/T/A$ INPUT, legal and illegal moves, summary, invalid
       replay response, YES reset and NO exit. Fresh sessions, cancellation and
       instruction budgets have focused tests. This is not a public profile pass.
-- [ ] **Program/statement integration** (#116/#117/#118): the 85 candidate forms
-      parse, and the selected source session checks later/dead instructions before
-      effects and executes internally. Bind the supported
-      forms through public Program preparation and the shared lifecycle. Preserve
-      physical spans and immutable snapshots; the internal selected session now
-      rejects unsupported supplied trees before effects, while public failed
-      replacement remains to be proved. Merged #231 carries exact source,
-      detached lines and shared prepared indexes into selected execution. Merged
-      #242 extracts native statement dispatch behind an internal policy under
-      Basic's existing driver. Merged #246 shares the selected statement
-      operation between the internal session and a source-bound no-INPUT Basic
-      path, including selected state snapshots, fresh reset and step/run. Merged
-      #249 routes selected F/T/A$ INPUT through Basic's async owner, with
-      committed prior responses and owned cancellation. The full game under
-      Basic is now covered by merged #251's exact reviewed full-game path. The
-      #254 carries a detached internal selected Program into Basic and proves
-      full reviewed source reruns and failed replacement. The supported public
-      Program/profile path remains open.
+- [x] **Program/statement integration** (#116/#117/#118): merged #263
+      exposes a source-bound selected Program, canonical supplied-tree checks,
+      whole-source semantic admission and Basic's shared Run/Step/Stop driver.
+      Failed replacement leaves the prior source available for a fresh run;
+      native remains the default and unsupported source has no host effects.
 - [ ] **State/control semantics** (#58/#59/#123/#126): retain words across runtime
       scalars/arrays/loops; selected string replay and six captured loop cases
       work internally. Complete accepted defaults, DIM/index conversion, errors
@@ -114,10 +83,11 @@ version is not yet that public path or the cross-distribution acceptance below.
       runtime diagnostics and preserve all three fixture identities. Merged #251
       proves the exact reviewed seven-jump/replay/second-result path through
       Basic's internal async driver; public host acceptance remains open.
-- [ ] **Public selection and distributions** (#116/#129): after the accepted
-      support matrix is complete, exercise explicit selection and source/context
-      preservation through direct and installed ESM/CommonJS, types, CLI/editor and
-      real Chromium against exact extracted artifacts on Linux/macOS.
+- [x] **Public selection and distributions** (#116/#129): merged #263
+      exercises explicit source/context through direct and installed ESM/CommonJS,
+      types, portable CLI/editor and real Chromium on Linux/macOS. The exact
+      browser editor source is editable under the selected profile. A complete
+      public quit session is covered; longer game/replay evidence remains above.
 - [ ] **Lifecycle and review** (#129): prove Step/Stop, cancellation, invalid
       input, failed replacement, fresh reruns and source preservation; complete
       independent implementation/evidence review and a user playthrough. Link the

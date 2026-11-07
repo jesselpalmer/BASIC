@@ -1,11 +1,12 @@
 # Dialect and source-context design
 
 **Status:** shared design decisions and the first verified grammar slice, for
-#116. Implementation is incremental; no historical profile is enabled today.
+#116. Implementation is incremental; the bounded selected MA2 profile is public.
 The optional-LET/contextual-GO-TO native slice and native API context below are
 implemented. Native portable documents are implemented for browser drafts and
-import/export plus CLI file execution. Historical policies/selection and terminal
-editor source/context persistence remain pending.
+import/export plus CLI file execution. Exact selected source/context now travels
+through the public Program and portable CLI/editor/browser path; broader
+historical policies remain pending.
 Unresolved dialect rules remain feature/release blockers, not native fallbacks.
 The [activation contract](profile-activation.md) records the closed support and
 lexical conformance gates before exposing a historical selection. The
@@ -78,40 +79,40 @@ Neither this table nor a guessed README dialect settles those details.
 
 ## Carry one immutable language context
 
-The core now carries a validated, immutable native context at these boundaries.
-`Dialect` currently accepts only `'native'`; this deliberately exposes no partial
-historical profile. `LanguageOptions` supplies an optional dialect, and
+The core carries a validated, immutable context at these boundaries.
+`Dialect` accepts `'native'` and the bounded `'basic-plus-v4a12-ma2'` profile.
+`LanguageOptions` supplies an optional dialect, and
 `SourceOptions` also retains fragment coordinates. Unknown or conflicting context
 throws `TypeError`, rather than a source diagnostic, before program effects.
 
-- `parseLine(source, options?)`, `parseProgram(source, options?)` and
-  `validateProgram(lines, options?)` return frozen snapshots explicitly tagged
-  `dialect: 'native'` on Programs and Lines, including empty Programs.
-- `new Basic(host?, options?)` and `new Evaluator(host?, options?)` copy the
-  selection into private instance state exposed through a read-only `dialect`
-  getter. Mutating the options object cannot alter their selection.
+- `parseLine(source, options?)` and `parseProgram(source, options?)` return
+  frozen, dialect-tagged snapshots; selected Programs also retain exact source.
+  `validateProgram(lines, options?)` remains the native tree validator.
+- `new Basic(host?, options?)` copies native or bounded selected context into
+  private state exposed through a read-only `dialect` getter. `Evaluator` remains
+  native-only. Mutating options cannot alter instance selection.
 - Preparing a supplied Program validates both its root and every Line's metadata,
   including unreachable lines. Legacy missing metadata means native. A rejected
   replacement preserves the previous prepared snapshot for an explicit rerun.
-- Immediate source-coordinate options may repeat the instance's dialect but
-  cannot change it. Program preparation and immediate execution use that same
-  context; there is no mutable global selection.
+- Native immediate source-coordinate options may repeat the instance's dialect
+  but cannot change it. Selected execution requires a complete source program;
+  there is no mutable global selection.
 
-When historical profiles are activated, preserve these contracts:
+For future profile expansion, preserve these contracts:
 
-- `parseLine`/`parseProgram`/`validateProgram`: explicit options, default native.
+- `parseLine`/`parseProgram`: explicit options, default native.
   Parsed snapshots carry profile identity. Validate caller-supplied trees against
   their declared profile; reject mixed or conflicting contexts instead of
   reinterpreting a tree under the runtime's default.
-- `Basic`/`Evaluator`: immutable instance configuration, default native; preserve
+- `Basic`: immutable instance configuration, default native; preserve
   the existing host-first call shape. An explicitly configured instance rejects
   a conflicting Program before effects. Reruns retain the loaded context and
   clear all mutable variables, arrays, frames and profile-owned random state.
 - Prepared indexes: profile, program snapshot, dimensions, labels, instructions
   and loop/call tables travel together. No mutable global current dialect or
   external WeakMap needed to recover a Program's meaning.
-- Immediate library entry: uses its instance's context. Source-coordinate options
-  cannot override the profile midway through a run.
+- Immediate library entry: only supported for native fragments; source-coordinate
+  options cannot override a profile midway through a run.
 
 A legacy public Program without profile metadata means native. Adding metadata
 must not break existing native Program construction. New AST kinds are explicit

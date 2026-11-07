@@ -1,13 +1,14 @@
 # Historical profile activation and compact lexing
 
-**Status:** the pending public integration branch exposes the bounded
+**Status:** merged #263 exposes the bounded
 `basic-plus-v4a12-ma2` selected profile with exact-source Programs and a
 whole-source execution gate. The reviewed 1CHECK text completes a direct-library
-session; a portable `.basic.json` selects the profile for CLI/editor and browser
-import, and the normal browser editor offers the reviewed source. It remains a
-selected execution slice rather than a complete historical dialect or original
-interpreter attribution. Installed-consumer and extracted-browser acceptance are
-still required for the [first-game milestone](first-game-milestone.md).
+session through direct and installed consumers; a portable `.basic.json` selects
+the profile for CLI/editor and browser import, and the normal browser editor
+offers the reviewed source. The Linux/macOS extracted-browser tests pass. It
+remains a selected execution slice rather than a complete historical dialect or
+original interpreter attribution. Longer public game/replay and lifecycle proof
+remain in the [first-game milestone](first-game-milestone.md).
 #115/#129 remain open and #109 is NOT READY.
 
 ## Decision
@@ -76,8 +77,8 @@ and a whole alphanumeric name/number. The internal historical policy now has
 separate label/name/number, string/comment and DATA paths as documented in
 [scanner conformance](scanner-conformance.md). Internal numeric expressions and
 comparisons and all 85 reviewed candidate statements use the shared Parser.
-The selected internal source run reaches END; broader statement semantics and
-public context integration are still pending. Native paths retain their
+The selected public source run reaches END for the accepted 1CHECK slice;
+broader statement semantics remain pending. Native paths retain their
 current spelling and errors: FORWARD, INTEGER, SCORE, ELSE, DATA and SQR remain
 valid native names wherever they are valid today.
 
@@ -126,7 +127,7 @@ byte domain before committing. PRINT USING accepts statically proven integer
 images within the [bounded image contract](selected-ma2-print-using.md). String
 arrays, concatenation, ordering and other string expressions remain outside
 this execution slice and reject during whole-source preflight, including after
-END. The pending public profile selects precisely this bounded contract.
+END. The public profile selects precisely this bounded contract.
 
 Create a closed support matrix owned by the selected profile. Each row identifies
 an AST form, its expression/value kinds, preparation checks, execution policy,
@@ -202,7 +203,7 @@ now enumerates the reviewed candidate's85 common-grammar statements and records
 separately booted MA2 reference. The body-modified loop retained4 after a1..3
 loop, so “last in-range value” is not a complete rule for body mutations. The
 matrix preserves this distinction and the reference installation limitations;
-no historical option or native semantic change is enabled.
+the selected option does not change native semantics.
 
 ## Selected-MA2 representation and preparation decision
 
@@ -212,12 +213,13 @@ raw-to-word validation and word-preserving storage in the existing evaluator.
 Canonical MA2 observations remain exact `number | string` values at the public
 boundary; arbitrary binary64 injection must not silently choose a decimal
 conversion. The earlier manual-only design name was never an accepted option.
-This is a staged implementation contract, not activation: all first-game support
-rows, event/handler observations and cross-host acceptance remain required.
+This contract now supports the bounded selected activation; unresolved event and
+handler observations still gate forms outside its accepted slice.
 
 The [MA2 literal preparation seam](ma2-literal-preparation.md) is implemented as
 an internal raw-token binder and supplied-literal validator. The public Expression
 union distinguishes its raw/word node; native Program preparation and direct
 Evaluator boundaries reject it before effects, including dead/late trees. The
-public parser still emits native literals only. This does not activate the
-historical parser or finish the shared runtime support matrix.
+public parser emits selected MA2 literals under explicit profile selection;
+native parsing and direct Evaluator use still reject them. This does not finish
+the wider historical runtime support matrix.

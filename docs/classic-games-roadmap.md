@@ -1,87 +1,52 @@
 # Classic-game compatibility roadmap
 
-**Next outcome: certify a complete reviewed 1CHECK game under the explicit
-selected V4A-12 MA2 configuration across installed library, CLI/editor and
-browser artifacts.** The
-[first-game milestone](first-game-milestone.md) defines its remaining work and
-acceptance. This is the active delivery priority.
+**Runs now:** native BASIC and a bounded public `basic-plus-v4a12-ma2` profile.
+The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
+under explicit selection through the library, portable CLI/editor and
+[browser playground](https://basic-playground-rho.vercel.app/). Choose
+**1CHECK · BASIC-PLUS selected profile** in the normal editor to edit and play it.
+This establishes selected-configuration behavior; the original interpreter
+and version remain unknown.
 
-**BASIC 1.0 remains NOT READY.** The full pinned corpus contains **108 files**;
-one completed game is an intermediate milestone. Release requirements remain in
-[#109](https://github.com/jesselpalmer/BASIC/issues/109) and
+**Next outcome:** finish the [first-game milestone](first-game-milestone.md)
+with a public seven-jump/replay/fresh-game trace across hosts, Step/Stop and
+replacement evidence, independent review and a user playthrough. The
+complete reviewed source already has a seven-jump internal trace; installed
+ESM/CommonJS and portable CLI complete a public quit session; the extracted
+browser artifact plays and edits a one-jump quit session on Linux/macOS.
+
+**BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
+of the **108 pinned files** still requires disposition and behavioral evidence
+under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 [compatibility epic #114](https://github.com/jesselpalmer/BASIC/issues/114).
 
 ## What runs now
 
-The main branch has an internal full-game trace and fixed-source browser
-playtest. A public selected-profile branch is under review; its capabilities
-below become current only when merged and its browser gate passes.
+| Path                     | Verified result                                                                                                                                                                                                                                                                                                                                              | Boundary                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC      | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
+| Public selected MA2      | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
+| Historical certification | **1 executable public selected profile; 0 certified original-dialect whole-game passes.**                                                                                                                                                                                                                                                                    | The game's original interpreter/version and the other corpus files remain unresolved.                                                       |
 
-| Capability                       | Current result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Public native BASIC              | Runs through the Bun library, installed CLI/editor and browser. Includes graphics, keyboard input, Pong, arrays, branches/calls, DATA/READ, CHANGE and supported PRINT USING forms. See the [language reference](language-v1.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Classic game examples            | Reviewed 1CHECK and 23MTCH fixtures have scripted **partial native** behavior tests. These are useful regression evidence, not completed historical games.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Selected MA2 implementation      | The exact reviewed 1CHECK source completes an **internal full-game trace through Basic's async driver**: seven legal jumps, rejected printed discontinuity, 41-piece result, invalid replay retry, fresh board, second 47-piece result and exit. A [fixed-source experimental browser playtest](https://basic-playground-rho.vercel.app/) accepts moves, quit, replay and fresh runs. The pending public profile branch adds exact-source `Program` transport, whole-source admission and selected browser/editor and portable CLI paths, plus bounded short scalar INPUT, strings and integer output images. These are selected-profile behaviors, not a claim about the game's original interpreter. |
-| Historical compatibility outcome | **0 executable public historical profiles; 0 certified whole-game passes.**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+The [corpus ledger](classic-games-ledger.json) still records **3 reviewed
+source differences / 105 unresolved**, **1 printed-system identification / 107
+unverified**, and **2 partial native paths / 106 not run**. These are distinct
+evidence categories, not a release-completion percentage. The selected
+reviewed-text run does not alter the raw corpus ledger.
 
-The [corpus ledger](classic-games-ledger.json) records **3 reviewed source
-differences / 105 unresolved**, **1 printed-system identification / 107
-unverified**, and **2 partial native paths / 106 not run**. These measure different
-evidence categories; they are not a release-completion percentage.
+## Remaining blockers for the first game
 
-## Next demonstrable outcome
+| Outcome and owning issues                                                 | Evidence delivered                                                                                                                                                                                                                                         | Next proof                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Complete behavior — #115, #129                                            | The exact reviewed source has an internal seven-jump, 41-piece, invalid-continuation, replay and second-result trace. Public direct/installed library and CLI complete a quit session; real browser CI plays a legal jump, quits, then runs edited source. | Repeat the long game/replay expectation through the **public** distributed paths and record independent expected board, count and transcript evidence. Keep raw, correction and reviewed text distinct.                                        |
+| Lifecycle — #116, #117, #118, #129                                        | Public source-bound Program rejects altered trees and unsupported dead code before effects; failed replacement retains the prior source. Selected INPUT cancellation and fresh runs have core tests.                                                       | Verify public browser Step/Stop, stale-input isolation, import/export/reload and fresh replay against the exact deployed artifact; independent review and user playthrough.                                                                    |
+| Accepted profile semantics — #58, #59, #119, #120, #121, #123, #126, #128 | Accepted 1CHECK forms run under explicit MA2 selection; bounded short scalar INPUT, strings and integer images also run in separate complete programs.                                                                                                     | Resolve any observed mismatch in the first-game public traces before declaring the milestone. Keep unsupported row/retry, event continuation, broader image and array forms gated; pursue them under their owning issues for the wider corpus. |
 
-Run the separate [reviewed March 1975 1CHECK fixture](1check-reviewed-text.md)
-through a complete supported game session: initialize the board, accept and
-reject moves correctly, report piece counts/results, quit, retry invalid replay
-answers and start a fresh game. Prove the expected state/output through direct
-and installed library consumers, CLI/editor and the browser's extracted archive.
-
-The target is compatibility with the explicit proposed `basic-plus-v4a12-ma2`
-configuration. The game's original interpreter/version remains unknown; a
-successful selected-configuration run must not be described as original-dialect
-certification or an unchanged raw-corpus pass. Preserve the raw transcription,
-minimal correction and reviewed-text fixture as distinct evidence.
-
-## Remaining blockers for that outcome
-
-| Workstream and issue owners                       | Already available                                                                                                                                                                                                                                                                                                                                       | What must be completed                                                                                                                                                                              |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Program and statements — #116, #117, #118         | All 85 candidate forms parse. Source-bound candidates check later/dead instructions before effects. Basic's async driver runs the full reviewed game path with selected state and INPUT. A pending public branch stamps selected Program lines, retains exact source and rejects altered caller trees and dead unsupported instructions before effects. | Merge and verify the public profile in distributed consumers; extend only forms with evidence and whole-source gates.                                                                               |
-| State and control — #58, #59, #123, #126          | Word-preserving state, selected numeric zero and string empty defaults, one/two-dimensional numeric implicit arrays, and bounded loops drive the internal game. Manual-backed tests confirm later DIM ordering; selected Basic distinguishes signed-word index conversion and bounds diagnostics and reruns fresh after failure.                        | Settle string arrays, duplicate DIM diagnostics, historical error 51/55 handler/continuation, remaining loop and numeric event policies; conservative bounds are not historical overflow semantics. |
-| Input, output and events — #119, #120, #121, #128 | Basic owns selected F/T/A$ reads, including cancellation at TO after F commits and source-located EOF. The seven-move board, result and replay output have an internal trace. The pending branch accepts bounded short scalar INPUT, string assignment/comparison/PRINT and integer USING images in additional complete source programs.                | Settle remaining input row/retry and conversion events, fractional/string image and terminal-width policies; verify exact output across public hosts.                                               |
-| Complete-game proof — #115, #129                  | The exact reviewed source has an internal full-game path through Basic's async driver, including seven jumps, 41 pieces, invalid printed continuation, replay and second result. The pending public branch runs a complete direct-library game session, adds the normal editable browser 1CHECK example and portable selected documents.                | Merge the branch after CI, prove the full session across installed ESM/CommonJS, CLI/editor and extracted browser, and record the exact milestone evidence. Original attribution remains separate.  |
-
-The [milestone checklist](first-game-milestone.md) is the progress view. The
-[detailed support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
-and linked feature issues retain the technical contracts.
-
-**Current review batch:** bounded scalar INPUT, short string values and integer
-USING images are independent source behaviors. The integration branch binds
-them to a selected public Program, CLI document, browser session and editable
-1CHECK example. Its full local check passes; real-browser CI and distributed
-acceptance are still required before the public milestone is claimed.
-
-## How the next work is selected
-
-1. Close the remaining first-game support and event policies, then expose the
-   prepared selected source/context through explicit public Program/profile
-   selection without native fallback. Verify direct/installed library,
-   CLI/editor and browser play with Step/Stop, replacement and fresh runs.
-2. Resolve independent subscript, loop, INPUT/output and event evidence while
-   implementing the public execution path. Carry source context through CLI and
-   browser after the supported profile is ready.
-3. Require each implementation batch to identify the milestone behavior it
-   advances and the remaining blocker. Standalone helper work needs a named
-   dependency on that behavior. Use the existing shared parser/runtime.
-4. Verify direct and installed consumers, terminal and extracted browser with
-   Step/Stop, source transport and fresh runs before claiming the first-game
-   milestone. Then expand across the pinned corpus.
-
-Report progress as **new runnable behavior, closed blockers, remaining blockers**.
-PR counts, test counts and coverage are supporting quality evidence. Update the
-current status in place; link detailed CI/artifact records from PRs instead of
-appending them to the front page.
+The [milestone checklist](first-game-milestone.md) tracks first-game proof;
+[technical support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
+and linked issues retain source contracts. Report progress as new runnable
+behavior, closed blockers and remaining blockers. Preserve source bytes and
+physical locations, native semantics, atomic replacement and fresh runs.
 
 ## Eventual 1.0 gate
 
