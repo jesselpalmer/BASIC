@@ -1,5 +1,4 @@
 import {BasicRuntimeError} from './diagnostic.ts';
-import type {Evaluator} from './evaluator.ts';
 import {containsLoopBody} from './loops.ts';
 import type {LoopPair} from './loops.ts';
 import type {PreparedProgram} from './prepared_program.ts';
@@ -18,6 +17,17 @@ interface CallFrame {
 
 const maxCallDepth = 1024;
 
+/** Numeric loop operations belong to the selected value policy. */
+export interface LoopValues {
+  evaluate(expression: Expression): number | string;
+  assign(target: NodeOf<'Variable'>, value: number): void;
+}
+
+type FlowProgram = Pick<
+  PreparedProgram,
+  'instructions' | 'labelIndices' | 'loopPairs' | 'pairsByFor' | 'pairsByNext'
+>;
+
 /** The cursor and active loops belong to one execution of a prepared snapshot. */
 export class ControlFlow {
   #index = 0;
@@ -29,8 +39,8 @@ export class ControlFlow {
   #activeLoopVariables = new Set<string>();
 
   constructor(
-    private readonly prepared: PreparedProgram,
-    private readonly evaluator: Evaluator,
+    private readonly prepared: FlowProgram,
+    private readonly evaluator: LoopValues,
   ) {}
 
   get nextInstruction(): Instruction | undefined {
