@@ -129,7 +129,7 @@ semantics together; a statement-name allowlist is insufficient.
 | DIM A(64), A(...); declarations/arrays                        | Shared [MA2 array expressions](ma2-array-expressions.md), selected subscript conversion and exact 48-piece opening state. Merged #236/#239 supply one- and two-dimensional implicit numeric arrays to bound 10 per dimension.                                                       | Complete historical error51/55, DIM ordering, string arrays and repeated-run policies; do not infer an untrapped replacement from RESUME observations.                                                                          |
 | FOR/NEXT; control flow                                        | Manual §3.6.1 and six selected observations; merged #221 applies captured completion/reentry behavior. Merged #227 checks nested unfinished reentry and rejects out-of-domain NEXT candidate increments before termination.                                                         | Settle general nested/call, historical overflow, error/reset/cancellation ownership and source budgets before public activation.                                                                                                |
 | IF/GOTO; parser/dispatch/control flow                         | Twelve comparisons/five jumps; internal [numeric comparison source](ma2-source-comparisons.md) and shared padded-string predicate binding.                                                                                                                                          | Bind exact numeric/string relations, real destinations and historical transfer policy. Preserve raw game behavior for invalid user moves; do not repair missing source guards.                                                  |
-| PRINT adjacency/semicolon/blank line; output/runtime          | Parsed selected PRINT renders opening, move boards and summary; the seven-jump board has an independent expectation. Merged #228 checks the exact transcript through quit, replay and a second result.                                                                              | Verify terminal width, cursor and diagnostic interactions across public hosts with adequate independent evidence.                                                                                                               |
+| PRINT adjacency/semicolon/comma/blank line; output/runtime    | Parsed selected PRINT renders opening, move boards and summary; the seven-jump board has an independent expectation. Merged #228 checks the exact transcript through quit, replay and a second result. Merged #243 renders source-bound ordinary comma zones at 14-column stops.    | Verify terminal width, cursor and diagnostic interactions across public hosts with adequate independent evidence.                                                                                                               |
 | PRINT USING B$; parser/formatter/preparation                  | The reviewed comma correction, source-bound B$ image and eight aligned numbered rows run internally; merged #222 checks bad images before effects.                                                                                                                                  | Complete error/order policy for every accepted path and reject unsupported dynamic historical formats before public activation.                                                                                                 |
 | INPUT F/T/A$; input/evaluator/host boundary                   | Bounded, cancellable selected reads commit exact 0..64 MA2 values or printable replay text under the internal run; the game reaches END. Merged #230 checks cancellation after F, late TO responses and source-located EOF/host failure.                                            | Settle broader row parsing, continuation/surplus/retry, byte encoding and event state for public host execution.                                                                                                                |
 | YES/NO string relations                                       | Internal [padded string predicates](basic-plus-string-values.md) now use the shared comparison owner; native exact equality stays separate.                                                                                                                                         | Integrate byte/trailing-blank semantics and input conversion together; preserve exact raw and corrected source distinctions.                                                                                                    |
@@ -158,13 +158,16 @@ unsupported programs remain corpus blockers, not exclusions from the release.
 ## Delivery order and acceptance
 
 1. Reuse the implemented raw-literal, word arithmetic, INT/ABS, numeric relations,
-   scalar/array expressions and string-value components. Close the remaining
-   event/observation and accepted-language contracts identified by the
-   [first-game milestone](first-game-milestone.md).
-2. Connect selected INPUT to a resumable shared runner and complete the
-   remaining defaults, string, loop, output and event policies above. Keep the public historical option rejected
-   until every accepted row is complete; reject supplied unsupported trees and
-   unreachable clauses before host effects.
+   scalar/array expressions and string-value components. Merged #242 puts native
+   statement dispatch behind a policy under Basic's driver. Extract selected
+   preflight and dispatch from the internal session, give Basic a selected
+   prepared/value lifetime, and prove a no-INPUT selected source through its
+   reset/step/run lifecycle. Close remaining event/observation and accepted
+   language contracts identified by the [first-game milestone](first-game-milestone.md).
+2. Connect selected INPUT to Basic's existing async owner and complete the
+   remaining string, loop, output and event policies above. Keep the public
+   historical option rejected until every accepted row is complete; reject
+   supplied unsupported trees and unreachable clauses before host effects.
 3. Run the selected candidate through direct/installed ESM/CommonJS, CLI/editor
    and actual browser import/run/input/export/reload, fresh runs, Step/Stop and
    exact archive checks. Include illegal/fractional/out-of-range input, retry,
