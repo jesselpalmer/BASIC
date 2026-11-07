@@ -6,13 +6,15 @@ outcome in the [roadmap](classic-games-roadmap.md), tracked by
 intermediate delivery milestone; all 108 corpus files remain the eventual
 [1.0 release requirement](https://github.com/jesselpalmer/BASIC/issues/109).
 
-At main `559e533ecb098a443f84dc6b03adc8352da4344a`, the exact reviewed
+At main `9453ba88d2c3b0abcee8e256af89837aefdadfea`, the exact reviewed
 source runs internally through play, quit, invalid replay response, reset and
 exit. Independent expectations cover a seven-jump, 41-piece board and exact
 output through a second game. Supplied trees, later instructions and bad B$
 images are checked before effects; selected INPUT cancellation preserves a
 fresh game. The candidate now carries exact source and detached lines through
-shared prepared indexes. This remains an internal session: public profile
+shared prepared indexes. Selected numeric scalars now read as zero before
+assignment, and the internal session can step by instruction. This remains an
+internal session: public profile
 selection, cross-distribution acceptance and end-user play are open. Detailed
 delivery evidence is in the [runtime matrix](first-game-runtime-evidence.md)
 and linked issues.
@@ -59,9 +61,10 @@ remains blocked. See the roadmap and
       51/55 and general FOR/NEXT completion/reentry. Verify nested, repeated-entry,
       range/error and cleanup paths needed by the selected profile. Merged
       #227 rejects unsupported NEXT increments before termination decisions and
-      checks nested unfinished-loop reentry without changing native. In review
-      #233 gives selected numeric scalars the documented zero default; implicit
-      arrays and other state policies remain open.
+      checks nested unfinished-loop reentry without changing native. Merged
+      #233 gives selected numeric scalars the documented zero default. Merged
+      #236 adds one-dimensional implicit numeric array bound 10 and zero cells;
+      rank, DIM ordering and other state policies remain open.
 - [ ] **I/O/event semantics** (#119/#120/#121/#128): the opening PRINT/USING and
       selected committed F/T/A$ reads cover the internal session. Complete
       accepted input/output forms, source-located numeric event policy and
@@ -83,9 +86,10 @@ remains blocked. See the roadmap and
       input, failed replacement, fresh reruns and source preservation; complete
       independent implementation/evidence review and a user playthrough. Link the
       exact integrated commit, artifacts and reproducible evidence before marking
-      the milestone delivered. In review #234 steps one internal selected
-      instruction with its real next source location; Stop and public host
-      lifecycle remain open.
+      the milestone delivered. Merged #234 steps one internal selected
+      instruction with its real next source location. Merged #237 adds
+      internal Stop ownership, including pending input; public host lifecycle
+      remains open.
 
 ## Required behavior evidence
 
@@ -108,8 +112,8 @@ results do not satisfy this checklist by themselves.
 The next implementation work should close remaining selected support rows, then
 connect the internal complete-session runner to an explicit public profile.
 The seven-move output, bounded loop, input lifecycle and source-bound candidate
-preparation are merged. #233/#234 review independent numeric-default and
-instruction-step behavior.
+preparation, numeric scalar defaults and instruction stepping are merged.
+Independent #236/#237 now deliver implicit-array and internal Stop behavior.
 Resolve remaining index/loop and event evidence concurrently
 where dependencies permit. Carry selected source/context through library,
 CLI/editor and browser, then prove lifecycle and exact-artifact acceptance.
