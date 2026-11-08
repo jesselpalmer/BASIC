@@ -387,9 +387,9 @@ diff -u \
 ```
 
 The [recovered RNG transition](edusystem30-rng.md) uses exact words from the
-same archived build. The reviewed fixture and internal stream supply the next
-selected execution path with independent source and state oracles. The project's
-library, CLI and browser still have the partial native path described above.
+same archived build. The [bounded EDUSYSTEM-30 profile](edusystem30-profile.md)
+matches the archived game transcript through library, CLI and browser. The
+partial native path remains available for the raw and one-byte-corrected sources.
 
 ## LIFE2
 

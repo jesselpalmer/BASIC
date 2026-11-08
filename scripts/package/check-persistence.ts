@@ -3,7 +3,7 @@ import {mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'nod
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
-import {checkMatchesCli} from './check-matches.ts';
+import {checkEduSystem30Cli, checkMatchesCli} from './check-matches.ts';
 
 const quote = (path: string): string => `"${path.replaceAll('"', '""')}"`;
 
@@ -29,6 +29,7 @@ export async function checkPersistenceSessions(executable: string): Promise<void
     );
   try {
     checkMatchesCli(executable, directory);
+    await checkEduSystem30Cli(executable, directory);
     const lineSource = '10 INPUT LINE S$:PRINT "[";S$;"]":END';
     const linePath = join(directory, 'line-input.basic.json');
     const raw = '  a,b,"quoted"  ';

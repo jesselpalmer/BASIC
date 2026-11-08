@@ -16,6 +16,7 @@ import picture from '../examples/picture.bas' with {type: 'text'};
 import bounce from '../examples/bounce.bas' with {type: 'text'};
 import move from '../examples/move.bas' with {type: 'text'};
 import pong from '../examples/pong.bas' with {type: 'text'};
+import matches from '../scripts/package/fixtures/classic/23mtch-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -65,6 +66,7 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   move: {source: move, dialect: 'native'},
   pong: {source: pong, dialect: 'native'},
   checker: {source: checker, dialect: 'basic-plus-v4a12-ma2'},
+  matches: {source: matches, dialect: 'edusystem-30'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
@@ -277,7 +279,10 @@ const session = new BrowserSession({
   stateChanged,
   requestInput(prompt, submit) {
     submitInput = submit;
-    inputPrompt.textContent = prompt || 'Program input';
+    if (session.state.dialect === 'edusystem-30') {
+      write(prompt);
+      inputPrompt.textContent = 'Enter a number';
+    } else inputPrompt.textContent = prompt || 'Program input';
     inputValue.value = '';
     inputForm.hidden = false;
     inputValue.focus();

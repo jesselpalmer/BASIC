@@ -23,7 +23,15 @@ export function validateProgram(
   lines: readonly ParsedLine[],
   options: LanguageOptions = {},
 ): Program {
-  const dialect = validateDialect(options.dialect, 'native');
+  validateDialect(options.dialect, 'native');
+  return validateSourceLines(lines, 'native');
+}
+
+/** Internal checks shared by the native and EDUSYSTEM-30 source paths. */
+export function validateSourceLines(
+  lines: readonly ParsedLine[],
+  dialect: 'native' | 'edusystem-30',
+): Program {
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
   }

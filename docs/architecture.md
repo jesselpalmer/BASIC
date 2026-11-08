@@ -52,7 +52,7 @@ are implementation modules, not additional public package entrypoints. See the
 | `core/change.ts`                      | CHANGE statement shape/limits; atomic byte conversion stays with execution-owned array storage.                          |
 | `core/data.ts`                        | Bounded literal-pool validation/collection and fresh execution-owned sequential READ cursor.                             |
 | `core/runtime.ts`                     | Public lifecycle, one step/async driver, cancellation, guarded host effects, and source-located failures.                |
-| `core/native_statement_policy.ts`     | Native dispatch under Basic's driver; selected MA2 uses that driver with separate state.                                 |
+| `core/native_statement_policy.ts`     | Shared native and EDUSYSTEM-30 dispatch under Basic's driver. Selected MA2 uses separate state.                          |
 | `core/cancellation.ts`                | Abort races, listener removal, and consumption of late promise failures.                                                 |
 | `core/input.ts`, `core/scheduling.ts` | INPUT retry/value rules, cancellable WAIT timing, and batch scheduling, with operation-specific error normalization.     |
 
@@ -98,9 +98,11 @@ target; RESTORE rewinds only the cursor. See [data](data-statements.md).
 
 The Program, its Lines, prepared indexes and runtime share an explicit immutable
 dialect. Public host-first constructors accept language options as a separate
-second argument and default to native. `Basic` also accepts the bounded
-`basic-plus-v4a12-ma2` profile for complete source. The standalone `Evaluator`
-uses native semantics. Legacy trees without metadata remain native, and
+second argument and default to native. `Basic` accepts the bounded
+`basic-plus-v4a12-ma2` and `edusystem-30` profiles for complete source.
+EDUSYSTEM-30 admission checks a closed set of forms before the shared
+statement driver runs them with its own RNG and terminal presentation.
+The standalone `Evaluator` uses native semantics. Legacy trees without metadata remain native, and
 unsupported declarations fail before effects. See [dialect context](dialect-design.md).
 
 ## Async execution ownership

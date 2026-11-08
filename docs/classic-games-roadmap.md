@@ -1,6 +1,6 @@
 # Classic-game compatibility roadmap
 
-**Runs now:** native BASIC and a bounded public `basic-plus-v4a12-ma2` profile.
+Native BASIC and two bounded public profiles run today.
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
 [browser playground](https://basic-playground-rho.vercel.app/). Choose
@@ -8,12 +8,16 @@ under explicit selection through the library, portable CLI/editor and
 This establishes selected-configuration behavior; the original interpreter
 and version remain unknown.
 
-**Next outcome:** build a bounded EDUSYSTEM-30 execution path for
-[23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run).
-The archived interpreter now reproduces the printed loss, retry, replay and win.
-For [1CHECK](first-game-milestone.md), the delegated Chrome playthrough passed
-and is recorded in #129. Jesse's personal acceptance and the game's original
-interpreter attribution remain separate checkpoints.
+The [reviewed March 1975 23MTCH text](edusystem30-profile.md) matches the
+archived EDUSYSTEM-30 transcript through the library, portable CLI/editor and
+browser. Choose **23MTCH · EDUSYSTEM-30 selected profile** in the normal editor.
+
+Record independent and user acceptance of 23MTCH under #129.
+In parallel, continue source and dialect review for LIFE2 under #115 so its
+loop and board behavior can be verified before expanding a profile. The
+[1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
+#129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
+remain separate checkpoints.
 
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
@@ -22,11 +26,12 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 
 ## What runs now
 
-| Path                     | Verified result                                                                                                                                                                                                                                                                                                                                              | Boundary                                                                                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC      | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
-| Public selected MA2      | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
-| Historical certification | **1 executable public selected profile; 0 certified original-dialect whole-game passes.**                                                                                                                                                                                                                                                                    | The game's original interpreter/version and the other corpus files remain unresolved.                                                       |
+| Path                         | Verified result                                                                                                                                                                                                                                                                                                                                              | Boundary                                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
+| Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
+| Public selected EDUSYSTEM-30 | The reviewed 23MTCH reproduces the archived loss, rejected move, replay, win and third-round RNG probe in direct and installed library, CLI/editor and browser runs. Fresh RUN restores the seed.                                                                                                                                                            | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
+| Historical certification     | **2 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
 The [corpus ledger](classic-games-ledger.json) still records **3 reviewed
 source differences / 105 unresolved**, **1 printed-system identification / 107
@@ -64,12 +69,10 @@ Preserve native behavior, source bytes/locations, bounded execution, Step/Stop,
 atomic replacement and fresh runs across all supported distributions.
 
 The [reviewed 23MTCH fixture](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
-reproduces the printed game through archived `EDU30.SV`. The
-[internal default RNG stream](edusystem30-rng.md) matches the archived state
-transition and reset seed. Next, #116 can bind the reviewed source and stream to
-the bounded PRINT, INPUT and control-flow rules. Use #129 to verify a complete
-loss/replay/win and fresh `RUN` through library, CLI and browser, including RNG
-continuity across replay. Keep raw, one-byte-corrected and reviewed text separate.
+reproduces the printed game through archived `EDU30.SV` and the public selected
+profile. Acceptance checks cover the complete loss/replay/win and fresh RUN.
+Keep raw, one-byte-corrected and reviewed text separate. General EDUSYSTEM-30
+arithmetic, RNG arguments and further statements remain under #116 and #123.
 
 A fresh integrated release candidate must pass Linux/macOS checks, installed
 ESM/CommonJS/types/CLI and actual browser tests against the exact package/static

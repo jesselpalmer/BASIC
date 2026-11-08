@@ -4,6 +4,7 @@ import {validateDialect} from './dialect.ts';
 import {arrayDeclarations} from './array_declarations.ts';
 import {programInstructions} from './instructions.ts';
 import {dataItems} from './data.ts';
+import {sameTree} from '../parser/canonical_tree.ts';
 import {preflightBasicPlusMa2Candidate} from '../parser/ma2_candidate_support.ts';
 import type {Instruction} from './instructions.ts';
 import type {LoopPair} from './loops.ts';
@@ -93,12 +94,19 @@ export function prepareSelectedMa2Candidate(
 }
 
 export function prepareProgram(source: string | Program, dialect: Dialect): PreparedProgram {
-  validateDialect(dialect, 'native');
-  if (typeof source !== 'string') validateDialect(source.dialect, dialect);
-  const program =
-    typeof source === 'string'
-      ? parseProgram(source, {dialect})
-      : validateProgram(source.lines, {dialect});
+  if (dialect === 'basic-plus-v4a12-ma2') throw new TypeError('Expected native or EDUSYSTEM-30');
+  let program: Program;
+  if (typeof source === 'string') program = parseProgram(source, {dialect});
+  else {
+    validateDialect(source.dialect, dialect);
+    if (dialect === 'edusystem-30') {
+      if (source.type !== 'Program' || typeof source.source !== 'string')
+        throw new TypeError('EDUSYSTEM-30 Program requires exact source');
+      program = parseProgram(source.source, {dialect});
+      if (!sameTree(program.lines, source.lines))
+        throw new TypeError('Supplied EDUSYSTEM-30 Program disagrees with its source');
+    } else program = validateProgram(source.lines, {dialect});
+  }
   const instructions = programInstructions(program.lines);
   return {
     program,

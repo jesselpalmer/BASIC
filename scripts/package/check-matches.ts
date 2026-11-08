@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {matchesCorrected, matchesRaw, expectedMatchesOutput} from '../matches-acceptance.ts';
-import {runProcess} from '../subprocess.ts';
+import {
+  assertReviewedTranscript,
+  eduSystem30Dialect,
+  matchesCorrected,
+  matchesRaw,
+  matchesReviewed,
+  expectedMatchesOutput,
+  reviewedAnswers,
+} from '../matches-acceptance.ts';
+import {runProcess, runWithOpenInput} from '../subprocess.ts';
 
 /** Run both byte-pinned sources through the real executable, outside the checkout. */
 export function checkMatchesCli(executable: string, directory: string): void {
@@ -60,4 +68,65 @@ export function checkMatchesCli(executable: string, directory: string): void {
     expectedMatchesOutput(true).replaceAll('HOW MANY DO YOU TAKE\n', 'HOW MANY DO YOU TAKE\n? '),
   );
   assert.equal(portable.stderr, 'Line 230, column 5: Input ended before a value was received\n');
+}
+
+export async function checkEduSystem30Cli(executable: string, directory: string): Promise<void> {
+  const file = join(directory, '23mtch-edusystem30.basic.json');
+  const saved = join(directory, '23mtch-edusystem30-copy.basic.json');
+  const document = {
+    format: 'basic-program',
+    version: 1,
+    dialect: eduSystem30Dialect,
+    source: matchesReviewed,
+  };
+  writeFileSync(file, JSON.stringify(document));
+  const input = reviewedAnswers.join('\n') + '\n';
+  const direct = runProcess({cwd: directory, args: [executable, file], input, expectedStatus: 1});
+  assert.equal(direct.stderr, 'Line 230, column 5: Input ended before a value was received\n');
+  // Pipe input is not echoed by readline. Restore only the recorded user keystrokes.
+  let answer = 0;
+  assertReviewedTranscript(
+    direct.stdout.replaceAll('?', () => {
+      const echo = reviewedAnswers[answer++];
+      return echo === undefined ? '?' : `?${echo}\n`;
+    }),
+  );
+  assert.equal(answer, reviewedAnswers.length + 1);
+
+  if (process.platform === 'win32') return;
+  let phase: 'start' | 'play' | 'stopped' | 'rerun' | 'stopped-again' | 'exit' = 'start';
+  const editor = await runWithOpenInput({
+    cwd: directory,
+    args: [executable],
+    onOutput(stdout, child) {
+      if (phase === 'start' && stdout.endsWith('>>> ')) {
+        phase = 'play';
+        child.stdin.write(`LOAD "${file}"\nSAVE "${saved}"\nRUN\n${input}`);
+      } else if (
+        phase === 'play' &&
+        stdout.endsWith('THERE ARE NOW 19 MATCHES.\n\nHOW MANY DO YOU TAKE?')
+      ) {
+        phase = 'stopped';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped' && stdout.endsWith('\n>>> ')) {
+        phase = 'rerun';
+        child.stdin.write(`LOAD "${saved}"\nRUN\n2\n`);
+      } else if (
+        phase === 'rerun' &&
+        stdout.endsWith('THERE ARE NOW 20 MATCHES.\n\nHOW MANY DO YOU TAKE?')
+      ) {
+        phase = 'stopped-again';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped-again' && stdout.endsWith('\n>>> ')) {
+        phase = 'exit';
+        child.stdin.write('EXIT\n');
+      }
+    },
+  });
+  assert.equal(phase, 'exit', editor.stdout);
+  assert.equal(editor.status, 0);
+  assert.equal(editor.stderr, '');
+  assert.ok(editor.stdout.includes(direct.stdout));
+  assert.ok(editor.stdout.includes('I TOOK 1 ...THERE ARE NOW 20 MATCHES.'));
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
 }

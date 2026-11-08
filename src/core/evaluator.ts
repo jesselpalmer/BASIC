@@ -7,6 +7,7 @@ import {compareValues, compareMa2Relation, type Ma2RelationResult} from './compa
 import {firstMa2Literal} from './foreign_literal.ts';
 import {truncateMa2ToWord} from './ma2_word_conversion.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
+import {EduSystem30Random} from './edusystem30_rng.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import {
   parseBasicPlusMa2NumericExpression,
@@ -87,17 +88,27 @@ function binary(node: NodeOf<'BinaryExpression'>, left: BasicValue, right: Basic
 
 type Frame = {node: Expression; ready: boolean};
 
+const eduSystem30Token = Symbol('edusystem-30-evaluator');
+
+/** Used only after Basic has admitted the bounded EDUSYSTEM-30 source. */
+export function createEduSystem30Evaluator(host: Partial<Host>): Evaluator {
+  return new Evaluator(host, {}, eduSystem30Token);
+}
+
 /** Evaluates parser-produced expressions; each instance owns its variables. */
 export class Evaluator {
   readonly #dialect: Dialect;
   private readonly variables = new Map<string, BasicValue>();
   private arrays = new ArrayStore();
+  #eduSystem30Random: EduSystem30Random | null;
   private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
   constructor(
     host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
     options: LanguageOptions = {},
+    internal?: typeof eduSystem30Token,
   ) {
+    this.#eduSystem30Random = internal === eduSystem30Token ? new EduSystem30Random() : null;
     this.#dialect = validateDialect(options.dialect, 'native');
     this.host = createHost(host);
   }
@@ -110,6 +121,7 @@ export class Evaluator {
     const arrays = new ArrayStore(declarations);
     this.variables.clear();
     this.arrays = arrays;
+    if (this.#eduSystem30Random) this.#eduSystem30Random = new EduSystem30Random();
   }
 
   snapshotArrays(): readonly ArraySnapshot[] {
@@ -170,7 +182,8 @@ export class Evaluator {
       variables: this.variables,
       arrays: () => this.arrays,
       host: this.host,
-      random: (location) => this.nextRandom(location),
+      randomArgumentCount: this.#eduSystem30Random ? 1 : 0,
+      random: (location) => this.#eduSystem30Random?.next() ?? this.nextRandom(location),
     });
   }
 
@@ -199,6 +212,7 @@ interface NativeContext {
   readonly variables: ReadonlyMap<string, BasicValue>;
   readonly arrays: () => ArrayStore;
   readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
+  readonly randomArgumentCount: 0 | 1;
   readonly random: (location: Location) => number;
 }
 interface Ma2Context {
@@ -693,10 +707,11 @@ function evaluateTree(
             const signature = nativeIntrinsic(node.name);
             if (signature === null)
               fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
-            if (node.arguments.length !== signature.arity) {
+            const arity = signature.name === 'RND' ? context.randomArgumentCount : signature.arity;
+            if (node.arguments.length !== arity) {
               fail(
                 'INVALID_ARGUMENT_COUNT',
-                `${signature.name} expects ${signature.arity} argument(s)`,
+                `${signature.name} expects ${arity} argument(s)`,
                 node.nameLocation,
               );
             }
@@ -718,6 +733,7 @@ function evaluateTree(
         } else if (node.name === 'KEYDOWN') {
           values.push(keyDown(context.host, values.pop()! as BasicValue, node.nameLocation));
         } else if (node.name === 'RND') {
+          if (context.randomArgumentCount) values.pop();
           values.push(context.random(node.nameLocation));
         } else {
           const value = number(values.pop()!, node.nameLocation);

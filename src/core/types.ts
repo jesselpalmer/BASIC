@@ -69,8 +69,8 @@ export interface Location {
   readonly start: Position;
   readonly end: Position;
 }
-/** A bounded, source-checked BASIC-PLUS V4A MA2 execution profile. */
-export type Dialect = 'native' | 'basic-plus-v4a12-ma2';
+/** Explicit language context for source, Programs and runs. */
+export type Dialect = 'native' | 'basic-plus-v4a12-ma2' | 'edusystem-30';
 export interface LanguageOptions {
   dialect?: Dialect;
 }

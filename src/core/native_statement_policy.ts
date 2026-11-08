@@ -6,7 +6,7 @@ import type {DataReader} from './data.ts';
 import type {Evaluator} from './evaluator.ts';
 import type {GraphicsState} from './graphics.ts';
 import type {Instruction} from './instructions.ts';
-import type {Host} from './types.ts';
+import type {BasicValue, Host} from './types.ts';
 
 export interface StatementExecutionContext {
   readonly controlFlow: ControlFlow;
@@ -24,7 +24,9 @@ export function createNativeStatementPolicy(services: {
   readonly evaluator: Evaluator;
   readonly data: () => DataReader;
   readonly graphics: GraphicsState;
+  readonly formatPrintValue?: (value: BasicValue) => string;
 }): StatementExecutionPolicy {
+  const formatPrintValue = services.formatPrintValue ?? String;
   return Object.freeze({
     execute(line: Instruction, context: StatementExecutionContext) {
       const statement = line.statement;
@@ -102,7 +104,7 @@ export function createNativeStatementPolicy(services: {
         }
         case 'PrintStatement': {
           const text = statement.items
-            .map((item) => String(services.evaluator.evaluate(item)))
+            .map((item) => formatPrintValue(services.evaluator.evaluate(item)))
             .join('');
           context.callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
           break;
