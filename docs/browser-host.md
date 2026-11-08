@@ -42,12 +42,17 @@ The sample identifiers refer to elements and an error reporter supplied by the
 embedding application. Render output, prompts, and diagnostics as text rather
 than HTML. The host does not evaluate JavaScript or interpret output markup.
 
-`run(source)` snapshots its string argument, stops the previous execution, clears
-the transcript through the view, and creates a fresh interpreter with fresh
-variables and loop state. Editing a source field does not alter the active run.
-Every run resolves to an immutable `BrowserState` with status, source, diagnostic,
-statement locations, and copied variables. Status is `idle`, `running`, `waiting`,
-`paused`, `stopped`, `finished`, or `error`; language failures resolve with the shared
+`run(source)` snapshots its string argument and creates a fresh interpreter with
+fresh variables and loop state. Starting execution stops the previous run and
+clears the transcript through the view. Editing a source field does not alter the
+active run. Selected source is checked before replacement. An admission failure
+rejects with a source-located error while a run is active, leaving that run and
+its input request intact. With no active run, the failure resolves to an `error`
+state and preserves the existing transcript.
+
+`BrowserState` is immutable and includes status, source, diagnostic, statement
+locations, and copied variables. Status is `idle`, `running`, `waiting`, `paused`,
+`stopped`, `finished`, or `error`. Execution failures resolve with the shared
 source-located diagnostic. See the [debugger guide](browser-debugger.md) for
 `run(source, {paused: true})`, `pause`, `step`, `resume`, and snapshot semantics.
 `state` exposes the latest snapshot, and `stateChanged` observes transitions.

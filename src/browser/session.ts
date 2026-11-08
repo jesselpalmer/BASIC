@@ -72,6 +72,10 @@ interface PendingInput {
   submit: (text: string) => boolean;
 }
 
+function isActive(status: BrowserStatus): boolean {
+  return status === 'running' || status === 'waiting' || status === 'paused';
+}
+
 /** A portable host for the shared interpreter; it owns runs and outstanding input. */
 export class BrowserSession {
   readonly #view: BrowserView;
@@ -114,9 +118,6 @@ export class BrowserSession {
         this.#state = Object.freeze({...this.#state, status: 'error', source, dialect});
       throw optionError;
     }
-    // Selected programs are admitted as a whole before an active run or view is replaced.
-    if (dialect !== 'native') new Basic({}, {dialect}).reset(source);
-    this.stop();
     const draw = this.#view.draw?.bind(this.#view);
     const readKey = this.#view.readKey?.bind(this.#view);
     const keyDown = this.#view.keyDown?.bind(this.#view);
@@ -154,11 +155,24 @@ export class BrowserSession {
       stepActive: false,
       release: null,
     };
+    // Admit selected source before replacing the active run or clearing output.
+    if (dialect !== 'native') {
+      try {
+        execution.basic.reset(source);
+      } catch (error) {
+        const diagnostic = execution.basic.state.diagnostic;
+        if (!diagnostic || isActive(this.#state.status)) throw error;
+        this.#execution = execution;
+        this.#publish(execution, 'error', diagnostic);
+        return execution.state;
+      }
+    }
+    this.stop();
     this.#execution = execution;
     try {
       this.#publish(execution, 'running');
       this.#callView(execution, () => this.#view.clear());
-      await execution.basic.runAsync(source, {
+      await execution.basic.runAsync(dialect === 'native' ? source : undefined, {
         scheduler: (signal) => {
           this.#publish(execution, execution.paused ? 'paused' : 'running');
           return scheduler(signal);
@@ -190,12 +204,7 @@ export class BrowserSession {
   stop(): BrowserState {
     this.#assertOutsideCallback();
     const execution = this.#execution;
-    if (
-      execution &&
-      (this.#state.status === 'running' ||
-        this.#state.status === 'waiting' ||
-        this.#state.status === 'paused')
-    ) {
+    if (execution && isActive(this.#state.status)) {
       execution.basic.cancel();
       this.#publish(execution, 'stopped');
     }
