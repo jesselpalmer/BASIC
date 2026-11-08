@@ -58,6 +58,25 @@ describe('browser session', () => {
     expect(ui.output.join('')).toContain('12');
   });
 
+  test('publishes a located selected admission failure without clearing the view', async () => {
+    const ui = view();
+    const session = new BrowserSession(ui.callbacks);
+    const dialect = 'basic-plus-v4a12-ma2' as const;
+    const source = '10 PRINT "NEVER"\n20 END\n30 PRINT RND()';
+    const result = await session.run(source, {dialect});
+    expect(result).toMatchObject({
+      status: 'error',
+      source,
+      dialect,
+      diagnostic: {code: 'UNSUPPORTED_FUNCTION', line: 3, label: 30},
+    });
+    expect(ui.states).toEqual([result]);
+    expect(ui.clears()).toBe(0);
+    expect(ui.output).toEqual([]);
+    expect((await session.run('10 PRINT "FRESH"\n20 END', {dialect})).status).toBe('finished');
+    expect(ui.output).toEqual(['FRESH\n']);
+  });
+
   test('steps selected source, stops pending input and reruns without a stale reply', async () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);

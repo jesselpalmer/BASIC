@@ -1,4 +1,5 @@
 import {BrowserSession, type BrowserState} from '../src/browser/session.ts';
+import {BasicRuntimeError, BasicSyntaxError} from '../src/core/diagnostic.ts';
 import {Transcript} from '../src/browser/transcript.ts';
 import {GameKeyboard} from '../src/browser/game_keyboard.ts';
 import {attachClassicPlaytest} from './classic.ts';
@@ -16,7 +17,7 @@ import bounce from '../examples/bounce.bas' with {type: 'text'};
 import move from '../examples/move.bas' with {type: 'text'};
 import pong from '../examples/pong.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
-import type {Dialect} from '../src/core/types.ts';
+import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -251,9 +252,7 @@ function stateChanged(state: BrowserState): void {
   }
   const detail = state.diagnostic;
   diagnostic.hidden = detail === null;
-  diagnostic.textContent = detail
-    ? `Source line ${detail.line}, column ${detail.column}${detail.label === null ? '' : ` (BASIC line ${detail.label})`}: ${detail.message}`
-    : '';
+  diagnostic.textContent = detail ? formatDiagnostic(detail) : '';
   if (state.status !== 'running' && pendingFrame !== null) {
     cancelAnimationFrame(pendingFrame);
     renderTranscript();
@@ -285,13 +284,22 @@ const session = new BrowserSession({
   },
 });
 
+function formatDiagnostic(detail: Readonly<Diagnostic>): string {
+  const label = detail.label === null ? '' : ` (BASIC line ${detail.label})`;
+  return `Source line ${detail.line}, column ${detail.column}${label}: ${detail.message}`;
+}
+
 function runProgram(paused = false): void {
   const request = ++runRequest;
   const context = documentModel.context;
   void session.run(context.source, {paused, dialect: context.dialect}).catch((error: unknown) => {
     if (request !== runRequest) return;
-    keyboard.dispose();
-    diagnostic.textContent = `Playground error: ${error instanceof Error ? error.message : String(error)}`;
+    if (error instanceof BasicSyntaxError || error instanceof BasicRuntimeError) {
+      diagnostic.textContent = formatDiagnostic(error.diagnostic);
+    } else {
+      keyboard.dispose();
+      diagnostic.textContent = `Playground error: ${error instanceof Error ? error.message : String(error)}`;
+    }
     diagnostic.hidden = false;
   });
 }
