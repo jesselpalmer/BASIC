@@ -21,8 +21,14 @@ SIMULATOR = '698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6'
 TAPE_SHA256 = '281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a'
 FIXTURE = 'scripts/package/fixtures/classic/23mtch-corrected.bas'
 FIXTURE_SHA256 = '6e20090bfdebc2f4760baa7568d53d6a64e18310f2f9daf6e95a883666956364'
+REVIEWED_FIXTURE = 'scripts/package/fixtures/classic/23mtch-mar75-text.bas'
+REVIEWED_SHA256 = '6b4ce01cdd00a638a415801bd912f9cbfe8ae02d1e42c6b41e759246f1f94ecc'
 ANSWERS = [3, 1, 2, 1, 1, 0, 1, 2, 3, 3, 2, 1, 1]
 REPLAY_PROBE_ANSWER = 2
+STATE_SAMPLES = 512
+RNG_ENTRY_PC = '03532'
+RNG_PRODUCT_PC = '03541'
+RNG_COMMIT_PC = '03554'
 
 
 def digest(data):
@@ -91,7 +97,63 @@ def capture_random(console):
     }
 
 
-def capture_game(console, source, joined_prompt):
+def capture_random_state(console):
+    for line in [f'10 FOR I=1 TO {STATE_SAMPLES}', '20 LET X=RND(0)', '30 NEXT I', '40 END']:
+        send_line(console, line)
+
+    def command(line):
+        console.sendline(line)
+        console.expect_exact('sim> ')
+        return normalize(console.before)
+
+    def breakpoint(address):
+        console.expect_exact(f'Breakpoint, PC: {address}')
+        console.expect_exact('sim> ')
+
+    def word(address):
+        output = command(f'examine {address}')
+        match = re.search(rf'^{address}:\s+([0-7]{{4}})$', output, re.M)
+        assert match, output
+        return match[1]
+
+    console.sendcontrol('e')
+    console.expect_exact('sim> ')
+    command(f'break {RNG_ENTRY_PC}')
+    console.sendline('continue')
+    send_line(console, 'RUN')
+    breakpoint(RNG_ENTRY_PC)
+    console.delaybeforesend = None
+    seed = word('150') + word('151')
+    multiplier = word('3563') + word('3564')
+    command(f'nobreak {RNG_ENTRY_PC}')
+    command(f'break {RNG_PRODUCT_PC},{RNG_COMMIT_PC}')
+
+    products, states = [], []
+    for index in range(STATE_SAMPLES):
+        console.sendline('continue')
+        if index < 12:
+            breakpoint(RNG_PRODUCT_PC)
+            products.append(word('27') + word('43'))
+            if index == 11:
+                command(f'nobreak {RNG_PRODUCT_PC}')
+            console.sendline('continue')
+        breakpoint(RNG_COMMIT_PC)
+        states.append(word('150') + word('151'))
+
+    console.sendline('continue')
+    console.expect_exact('READY')
+    return {
+        'entryPcOctal': RNG_ENTRY_PC,
+        'productPcOctal': RNG_PRODUCT_PC,
+        'commitPcOctal': RNG_COMMIT_PC,
+        'initialStateOctal': seed,
+        'multiplierOctal': multiplier,
+        'middleProductWordsOctal': products,
+        'committedStatesOctal': states,
+    }
+
+
+def capture_game(console, source, joined_prompt, loss_message='I WON!! BETTER'):
     for line in source.splitlines():
         send_line(console, line)
     send_line(console, 'RUN')
@@ -111,7 +173,7 @@ def capture_game(console, source, joined_prompt):
     counts = [int(value) for value in re.findall(r'THERE ARE NOW (\d+) MATCHES', transcript)]
     moves = [int(value) for value in re.findall(r'I TOOK (\d+)', transcript)]
     retry = transcript.index('YOU CHEATED!')
-    loss = transcript.index('I WON!!')
+    loss = transcript.index(loss_message)
     win = transcript.index('SO YOU WON.')
     assert retry < loss < win and transcript.count('YOU CHEATED!') == 1
     assert counts == [23, 17, 13, 9, 5, 1, 23, 20, 16, 11, 6, 2, 23, 19]
@@ -134,8 +196,11 @@ def main():
     args = parser.parse_args()
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert digest(tape.read_bytes()) == TAPE_SHA256
-    fixture = (Path(__file__).resolve().parents[2] / FIXTURE).read_bytes()
+    root = Path(__file__).resolve().parents[2]
+    fixture = (root / FIXTURE).read_bytes()
     assert digest(fixture) == FIXTURE_SHA256
+    reviewed = (root / REVIEWED_FIXTURE).read_bytes()
+    assert digest(reviewed) == REVIEWED_SHA256
     source = fixture.decode('ascii')
     joined = source.replace(
         '220 PRINT "HOW MANY DO YOU TAKE"\n', '220 PRINT "HOW MANY DO YOU TAKE";\n'
@@ -145,12 +210,19 @@ def main():
     with edu30(simulator, tape) as console:
         rng = capture_random(console)
     with edu30(simulator, tape) as console:
+        rng_state = capture_random_state(console)
+    with edu30(simulator, tape) as console:
         game = capture_game(console, source, joined_prompt=False)
     with edu30(simulator, tape) as console:
         joined_game = capture_game(console, joined, joined_prompt=True)
+    with edu30(simulator, tape) as console:
+        reviewed_game = capture_game(
+            console, reviewed.decode('ascii'), joined_prompt=True, loss_message='I WON!!! BETTER'
+        )
     choices = [int(3 * Decimal(value)) + 1 for value in rng['printedRnd0'][:6]]
     assert choices == game['computerMoves'][5:]
     assert joined_game['transcriptSha256'] != game['transcriptSha256']
+    assert reviewed_game['transcriptSha256'] != joined_game['transcriptSha256']
 
     evidence = {
         'schemaVersion': 1,
@@ -158,12 +230,16 @@ def main():
         'tapeSha256': TAPE_SHA256,
         'fixture': FIXTURE,
         'fixtureSha256': FIXTURE_SHA256,
+        'reviewedFixture': REVIEWED_FIXTURE,
+        'reviewedFixtureSha256': REVIEWED_SHA256,
         'rng': rng,
+        'rngState': rng_state,
         'game': {
             'answers': ANSWERS,
             'thirdRoundProbeAnswer': REPLAY_PROBE_ANSWER,
             **game,
             'line220SemicolonTranscriptSha256': joined_game['transcriptSha256'],
+            'reviewedTranscriptSha256': reviewed_game['transcriptSha256'],
         },
     }
     args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
