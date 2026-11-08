@@ -1,13 +1,13 @@
 # First complete game: reviewed 1CHECK
 
-**Status: public selected game proof is delivered; milestone review remains open.**
+**Status: independent review complete. User playthrough pending.**
 Merged [#263](https://github.com/jesselpalmer/BASIC/pull/263) exposes the
 bounded `basic-plus-v4a12-ma2` profile; [#265](https://github.com/jesselpalmer/BASIC/pull/265)
 traces seven legal jumps, 41 pieces, the printed illegal continuation, invalid
 replay, YES reset, a second game and NO exit through public Basic, installed
-ESM/CommonJS, portable CLI and real Chromium on Linux/macOS. Independent
-implementation and expected-board/transcript review plus a user playthrough
-remain before #129 can mark this first-game milestone delivered. The game's
+ESM/CommonJS, the portable file runner and real Chromium on Linux/macOS.
+The independent reviews verified the evidence and found implementation gaps
+addressed in the review batch below. #129 still needs a user playthrough. The game's
 original interpreter/version is unknown and [BASIC 1.0](https://github.com/jesselpalmer/BASIC/issues/109)
 is NOT READY across the 108-file corpus.
 
@@ -31,8 +31,8 @@ printed sample's discontinuity with invented moves or repair game logic.
 
 ## Remaining delivery checklist
 
-The public profile, distribution and long game trace are delivered; independent
-milestone review remains open. See the [roadmap](classic-games-roadmap.md) and
+The public profile, distribution and long game trace are delivered. See the
+[roadmap](classic-games-roadmap.md) and
 [support matrix](first-game-runtime-evidence.md) for boundaries.
 
 The [hosted playground](https://basic-playground-rho.vercel.app/) offers
@@ -80,21 +80,22 @@ explicit profile context; bare `.bas` files default to native.
 - [x] **Public game behavior** (#115/#129): #265 proves seven legal jumps,
       41 pieces, rejected printed continuation, invalid replay, YES reset,
       second-game result and NO exit through public Basic, installed
-      ESM/CommonJS, portable CLI and real Chromium. Independent expected-state
-      and transcript review remains in the milestone review below. Preserve
+      ESM/CommonJS, the portable file runner and real Chromium. Independent
+      expected-state and transcript review is recorded below. Preserve
       all three fixture identities; original-interpreter attribution stays #115.
 - [x] **Public selection and distributions** (#116/#129): merged #263
       exercises explicit source/context through direct and installed ESM/CommonJS,
       types, portable CLI/editor and real Chromium on Linux/macOS. The exact
       browser editor source is editable under the selected profile. The long
       game/replay trace is covered by #265.
-- [ ] **Lifecycle and review** (#129): #263/#264 bind and test public
+- [x] **Lifecycle and independent review** (#129): #263/#264 bind and test public
       replacement, Step/Stop, stale-input isolation and fresh reruns through
       BrowserSession; #266 checks selected browser Step/Stop and exact-source
-      portable import/export/reload on Linux/macOS Chromium. Complete
-      independent implementation/expected-output review and a user playthrough.
-      Link the exact integrated commit, artifacts and reproducible evidence
-      before marking the milestone delivered.
+      portable import/export/reload on Linux/macOS Chromium. Independent
+      implementation and output reviews are recorded below.
+- [ ] **User playthrough** (#129): Play the hosted selected-profile example,
+      including a move, quit, replay and a fresh run. Record the deployed revision
+      and any mismatch before marking the milestone delivered.
 
 ## Required behavior evidence
 
@@ -112,13 +113,54 @@ results do not satisfy this checklist by themselves.
 | Invalid/fractional/out-of-range input | Follow the settled profile/input/index rules and document source bugs separately. No silent repairs, guessed error replacement or native-policy fallback.                                                                      |
 | Lifecycle and transport               | Stop/retry/rerun/replacement preserve source and isolate executions; selected context and exact source survive documented import/export/load/save routes.                                                                      |
 
+## Independent review
+
+At `3956402922ec13d8e0d5f0698f795e4b5c6b11f9`, the independent evidence review
+checked the [pinned March 1975 scan](1check-reviewed-text.md) on page 164 and
+computed each board from row/column coordinates. The seven jumped squares are
+10, 11, 12, 15, 23, 31 and 55. The model agrees with all printed opening boards
+and with 48→41 pieces in the public run. Square 12 is empty when the printed
+sample next attempts 12→26. The public run rejects that move, preserves 41
+pieces, reprompts after `MAYBE`, resets to 48 on `YES`, and reaches END on `NO`.
+The review compared all 64 cells in the rendered boards and the exact library
+output bytes, including the reviewed trailing spaces. The printed sample's
+later 35-jump result has no continuous move history on the page.
+
+The independent implementation review found a mutable supplied-source admission
+gap, a private step cap affecting public replays, missing located browser
+diagnostics, and terminal prompts that ran together.
+
+- [#268](https://github.com/jesselpalmer/BASIC/pull/268) binds validation and
+  execution to one source snapshot and completes two 28-jump games in one
+  public run.
+- [#269](https://github.com/jesselpalmer/BASIC/pull/269) reports located browser
+  errors and preserves the current INPUT on rejected replacement.
+- [#270](https://github.com/jesselpalmer/BASIC/pull/270) verifies the packed
+  terminal executable's file and editor paths, including exact source and
+  profile round trips. The terminal adds prompt punctuation at presentation;
+  library prompt values remain the source literals.
+
+Reproduce with `bun test src/core/ma2_public_profile.test.ts`,
+`bun run test:package` and
+`bun run test:browser selected-editor.e2e.ts documents.e2e.ts`. The release
+check also installs the exact package archive and serves the extracted static
+archive through a generic HTTP server.
+
+The [integrated revision](https://github.com/jesselpalmer/BASIC/commit/2b1b97164baac7534734b16c6442fa464d06ccaa)
+matches the locally validated code tree `b4823cdea495fd7e6ab7abe947e7052d05564f26`.
+It passed 15,892 tests, installed-package checks and 105 Chromium cases each
+against the checkout and extracted static archive. Linux/macOS release checks
+also passed on [#268](https://github.com/jesselpalmer/BASIC/actions/runs/42457290535),
+[#269](https://github.com/jesselpalmer/BASIC/actions/runs/42457291500) and
+[#270](https://github.com/jesselpalmer/BASIC/actions/runs/42457322106).
+The same revision passed the hosted seven-jump, replay and selected admission
+recovery checks.
+
 ## Next batch and progress reporting
 
-Independently review the implementation and the expected board/count/transcript
-at the integrated revision. Record a user playthrough and any mismatch in
-#129 before declaring this first-game milestone delivered. Wider state,
-I/O and event forms remain open for the 108-file corpus under their owning
-issues; they do not invalidate this bounded selected 1CHECK proof.
+Record a user playthrough and any mismatch in #129 before declaring this
+first-game milestone delivered. Wider state, I/O and event forms remain open
+for the 108-file corpus under their owning issues.
 
 For each batch, record here or in #129: the named behavior advanced, evidence at
 an exact revision, which checklist item changed, and the next blocker. Split PRs

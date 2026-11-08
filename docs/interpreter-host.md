@@ -30,10 +30,11 @@ The package exports the parser, evaluator, errors, and public types separately.
 
 - `new Basic(host = {}, {dialect = 'native'} = {})` creates an empty runtime in
   `ready` state. Its read-only `dialect` selection is copied at construction.
-  Only native is currently supported. Program and Line metadata must agree with
-  the instance; legacy missing metadata means native. Unsupported metadata/options
-  throw `TypeError` before BASIC effects; a rejected replacement keeps the previous
-  loaded snapshot available for rerun. This is not a historical compatibility mode.
+  `basic-plus-v4a12-ma2` selects the [bounded MA2 profile](profile-activation.md)
+  for a complete source string or a Program carrying its exact source. Program
+  and Line metadata must agree with the instance; legacy missing metadata means
+  native. Unsupported metadata/options throw `TypeError` before BASIC effects;
+  a rejected replacement keeps the previous loaded snapshot available for rerun.
 - `reset(sourceOrProgram?)` clears variables, current location, diagnostics, and
   control-flow state, then prepares a program without executing it. Source is
   parsed and fully validated; a `Program` candidate is copied, validated, sorted,

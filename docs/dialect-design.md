@@ -121,30 +121,29 @@ not promising that adding a closed-union case after release is a minor change.
 
 ## Files, terminal and browser
 
-Plain `.bas` remains exact source. It cannot carry a dialect without changing
-its bytes. File execution therefore requires an explicit host selection for a
-historical profile, with a planned `--dialect` option; never guess from the name.
-The terminal owns a visible document profile as well as source/baseline/filename.
+Plain `.bas` carries source and loads as native in the current hosts. A
+historical run takes explicit context from a portable document or a supported
+host selection, such as the reviewed 1CHECK example in the browser. The
+terminal stores document profile alongside source, baseline and filename.
 
 A portable document format now carries schema version, profile and exact source
 string in one `.basic.json` envelope. It is a single atomically saved
-artifact; avoid a source/sidecar pair whose writes can disagree. A plain source
-export remains available and clearly states that the receiver must select its
-profile. Unknown envelope versions/profiles fail without replacing work. Version
-one is implemented for native browser drafts/import/export and direct CLI file
-execution; the terminal editor remains source-only.
+artifact. A plain source export remains available. Unknown envelope versions
+or profiles fail without replacing work. Version one supports native and the
+bounded MA2 profile across browser drafts, import/export, direct CLI execution
+and terminal editor LOAD/SAVE.
 
 The browser context belongs to editable document state. Draft recovery retains
 source and profile together, migrating old source-only drafts as native. Example
-metadata states its profile. Importing a plain .bas uses an explicit visible
-selection; importing the portable envelope supplies the stored selection. A
+metadata states its profile. Importing a plain `.bas` selects native;
+importing the portable envelope supplies the stored selection. A
 profile change validates the complete candidate, cancels/invalidates old work as
 needed and applies atomically; failure keeps the current source/profile/baseline.
 Changing a view control cannot reinterpret an in-flight immutable run.
 
-Export/import/reload acceptance proves exact text and native context. Activating
-a historical selection remains gated on its complete executable contract;
-adding an envelope identity alone does not complete #116 or #129.
+Export/import/reload acceptance proves exact text and context for both public
+profiles. Each wider historical selection requires its own executable contract
+under #116 and behavioral proof under #129.
 
 ## Shared parser, execution and observations
 

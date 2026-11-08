@@ -26,11 +26,10 @@ declare the embedded program valid. A host that will execute or replace work
 also validates the complete BASIC candidate under the embedded dialect before
 effects.
 
-Version one accepts only `native` because that is the only executable dialect.
-The format is ready to preserve future profile identity without making an
-unimplemented profile selectable. Adding a dialect to the type, parser and
-runtime is a separate compatibility decision; an older build must reject that
-new document rather than silently running native semantics.
+Version one accepts `native` and the bounded `basic-plus-v4a12-ma2` profile.
+Select the reviewed 1CHECK example in the browser and export a portable document
+to carry its exact source and profile into the terminal editor or library host.
+Older builds that lack the selected profile reject the document.
 
 ## Browser ownership
 
