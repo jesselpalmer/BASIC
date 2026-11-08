@@ -84,3 +84,10 @@ invalid-move/retry, loss/replay and explicit blocked-RNG assertions across direc
 and installed library, CLI and browser/extracted-static hosts. The correction
 suppresses six newlines; game state and all other source bytes stay identical.
 Both fixtures remain excluded from npm production archives.
+
+`23mtch-mar75-text.bas` adds the reviewed line 220 prompt delimiter and the
+printed text adjustments at 110, 115, 120 and 420. It retains 44 physical lines
+and every game branch. Its SHA-256 is
+`6b4ce01cdd00a638a415801bd912f9cbfe8ae02d1e42c6b41e759246f1f94ecc`.
+The [March 1975 source review](../../../../docs/classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
+records the scan provenance and the archived EDU30.SV run of these exact bytes.

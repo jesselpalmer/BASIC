@@ -322,12 +322,25 @@ for fractional input and line 320 uses `<>`; scan OCR misreads both.
 
 The scan shows terminal semicolons at both 220 and 380. The pinned transcription
 omits both; the existing one-byte correction covers 380. At 220 the semicolon
-keeps the question on the same line as the `INPUT` question mark. The scan also
-differs in quoted spacing and punctuation, including the choice list at 115
-and 120, ellipsis at 380, and result messages at 420 and 450. Keep these
-edition differences separate from the preserved fixture bytes and the existing
-one-byte correction. The printed sample demonstrates formatting and game
-outcomes; it does not supply invisible terminal bytes or an interpreter build ID.
+keeps the question on the same line as the `INPUT` question mark. A character-cell
+review of all 14 quoted literals resolves the printed-text differences.
+
+| Label | Difference from the 380-only correction                           |
+| ----- | ----------------------------------------------------------------- |
+| 110   | One space between the two sentences                               |
+| 115   | No space after the comma in the choice list                       |
+| 120   | No space after the ellipsis or after the comma in the choice list |
+| 220   | Terminal semicolon before the `INPUT` at 230                      |
+| 420   | Three exclamation marks after the result word                     |
+
+The listing's three consecutive periods at 380 and punctuation at 450 agree
+with the pinned text. The sample and OCR can visually suggest extra spaces there.
+The separate `23mtch-mar75-text.bas` fixture applies only the table's changes to
+the 380-only correction. It has 1,210 bytes, 44 physical lines and SHA-256
+`6b4ce01cdd00a638a415801bd912f9cbfe8ae02d1e42c6b41e759246f1f94ecc`.
+The preserved raw and 380-only fixture bytes remain intact. The sample supplies
+game and layout evidence. The capture records terminal bytes for the archived
+build.
 
 The [January 1973 DEC handbook, §7-5](https://deramp.com/downloads/mfe_archive/011-Digital%20Equipment%20Corporation/00%20Digital%20Handbooks/08%20PDP-8%20Family/Edusystem%20Handbook/EduSystemHandbookJan73.pdf#page=293)
 specifies a fresh random value on each `RND(X)` call, with a required dummy
@@ -356,11 +369,11 @@ produced a computer move of `1`. The capture stops at the next question because
 the original source automatically starts another round after each result.
 
 The [offline capture](edusystem30-reference.json) records the values, moves and
-transcript hashes. It runs the preserved 380-only fixture and repeats it with
-just the additional line 220 semicolon applied in memory. That test confirms
-the prompt layout difference and the same game outcomes. To reproduce, install
+transcript hashes for the preserved 380-only fixture, its line-220-semicolon
+probe and the reviewed March 1975 fixture. The three runs agree on game outcomes.
+The line-220 probe isolates the joined prompt. To reproduce, install
 `pexpect`, build the PDP-8 simulator from the capture's pinned SIMH commit, and
-download the tape separately. The script verifies both input hashes and boots
+download the tape separately. The script verifies the tape and fixture hashes and boots
 disposable writable tape copies because the interpreter needs scratch blocks.
 
 ```sh
@@ -373,11 +386,10 @@ diff -u \
   <(python3 -m json.tool /tmp/edusystem30-reference.json)
 ```
 
-The capture supplies a behavioral reference for the archived build. Its printed
-draws are decimal renderings; recovering the generator's state transition and
-validating a bounded selected execution path remain #123 and #116 work. The
-project's library, CLI and browser still have the partial native path described
-above.
+The [recovered RNG transition](edusystem30-rng.md) uses exact words from the
+same archived build. The reviewed fixture and internal stream supply the next
+selected execution path with independent source and state oracles. The project's
+library, CLI and browser still have the partial native path described above.
 
 ## LIFE2
 

@@ -63,14 +63,13 @@ required by the listings. They remain required even when unnecessary to 1CHECK.
 Preserve native behavior, source bytes/locations, bounded execution, Step/Stop,
 atomic replacement and fresh runs across all supported distributions.
 
-The [23MTCH reference evidence](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
-identifies the two printed prompt/output delimiters and reproduces the printed
-game through the archived `EDU30.SV`. Next, recover the generator transition
-and initial state under #123. In parallel, #115 and #116 can define the reviewed
-source and the bounded PRINT, INPUT and control-flow rules. Use #129 to verify
-one complete loss/replay/win and fresh `RUN` through library, CLI and browser,
-including RNG continuity across replay. Keep raw, one-byte-corrected and
-reviewed text separate.
+The [reviewed 23MTCH fixture](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
+reproduces the printed game through archived `EDU30.SV`. The
+[internal default RNG stream](edusystem30-rng.md) matches the archived state
+transition and reset seed. Next, #116 can bind the reviewed source and stream to
+the bounded PRINT, INPUT and control-flow rules. Use #129 to verify a complete
+loss/replay/win and fresh `RUN` through library, CLI and browser, including RNG
+continuity across replay. Keep raw, one-byte-corrected and reviewed text separate.
 
 A fresh integrated release candidate must pass Linux/macOS checks, installed
 ESM/CommonJS/types/CLI and actual browser tests against the exact package/static
