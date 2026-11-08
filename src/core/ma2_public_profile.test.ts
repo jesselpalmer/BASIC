@@ -78,6 +78,30 @@ test('public selected Basic retains exact board state across seven jumps, retry 
   expect(answers).toEqual([]);
 });
 
+test('public selected Basic can replay a long 1CHECK game through END', async () => {
+  // A legal 28-jump path from the 48-piece opening, expressed as from-to pairs.
+  const moves = [
+    '1-19 2-20 3-21 4-22 9-27 14-28 15-29',
+    '16-30 17-35 19-37 20-38 25-43 30-44 31-45',
+    '32-46 42-28 50-36 36-18 51-37 37-19 52-38',
+    '47-29 53-39 48-30 61-47 40-54 62-48 63-45',
+  ].flatMap((row) => row.split(' ').flatMap((move) => move.split('-')));
+  const answers = [...moves, '0', 'YES', ...moves, '0', 'NO'];
+  const writes: string[] = [];
+  const basic = new Basic(
+    {
+      write: (text) => writes.push(text),
+      readLine: () => Promise.resolve(answers.shift() ?? null),
+    },
+    {dialect},
+  );
+
+  expect((await basic.runAsync(game, {scheduler: () => Promise.resolve()})).status).toBe('halted');
+  expect(writes.filter((text) => text === 'YOU MADE 28 JUMPS AND HAD 20 PIECES\n')).toHaveLength(2);
+  expect(writes.at(-1)).toBe('O. K.  HOPE YOU HAD FUN!\n');
+  expect(answers).toEqual([]);
+});
+
 test('public selected Program retains exact source and runs a complete 1CHECK session', async () => {
   const parsed = parseProgram(game, {dialect});
   expect(parsed.source).toBe(game);
@@ -131,6 +155,12 @@ test('selected source and supplied trees are checked before effects, including d
   expect(() => basic.reset({type: 'Program', dialect, lines: parsed.lines})).toThrow(
     'requires exact source',
   );
+  expect(() => basic.reset({...parsed, lines: undefined} as never)).toThrow(
+    'Expected an array of parsed lines',
+  );
+  expect(() => basic.reset({...parsed, type: 'Line'} as never)).toThrow(
+    'Expected a selected Program',
+  );
   expect(() => new Basic().run(parsed)).toThrow(TypeError);
   expect(() => basic.reset(prepareInternalSelectedProgram(prior) as never)).toThrow(
     'cannot be installed publicly',
@@ -139,4 +169,23 @@ test('selected source and supplied trees are checked before effects, including d
   expect(writes).toEqual(['PRIOR\n']);
   expect(basic.run().status).toBe('halted');
   expect(writes).toEqual(['PRIOR\n', 'PRIOR\n']);
+});
+
+test('selected execution uses the same supplied source snapshot it validates', () => {
+  const source = '10 PRINT "VALIDATED"';
+  const parsed = parseProgram(source, {dialect});
+  let sourceReads = 0;
+  const supplied = {
+    ...parsed,
+    get source() {
+      sourceReads++;
+      return sourceReads <= 2 ? source : '10 PRINT "UNCHECKED"';
+    },
+  };
+  const writes: string[] = [];
+  const basic = new Basic({write: (text) => writes.push(text)}, {dialect});
+
+  expect(basic.run(supplied).status).toBe('halted');
+  expect(writes).toEqual(['VALIDATED\n']);
+  expect(sourceReads).toBe(1);
 });

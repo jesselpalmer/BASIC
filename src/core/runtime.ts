@@ -47,7 +47,7 @@ import type {
 
 const internalSelectedToken = Symbol('internal-selected-ma2');
 
-/** Internal selected experiment; the public Basic constructor remains native-only. */
+/** Internal selected experiment with private Program transport. */
 export function createInternalSelectedBasic(
   program: string | InternalSelectedProgram,
   host: Partial<Host> = {},
@@ -67,7 +67,7 @@ export default class Basic {
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
   #selectedProgram: InternalSelectedProgram | null = null;
-  #selectedSteps = 0;
+  #privateSelectedSteps = 0;
   #controlFlow: ControlFlow;
   #data: DataReader;
   #status: RunStatus = 'ready';
@@ -187,32 +187,30 @@ export default class Basic {
   #resetSelected(program?: string | Program | InternalSelectedProgram): RunResult {
     this.#assertIdle();
     this.#invalidateExecution();
-    this.#selectedSteps = 0;
+    this.#privateSelectedSteps = 0;
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
     try {
-      if (program !== undefined && typeof program !== 'string') {
-        if (this.#privateSelected) {
-          if (!isInternalSelectedProgram(program))
-            throw new TypeError('Internal selected execution requires exact source');
-        } else {
-          if (isInternalSelectedProgram(program))
-            throw new TypeError('Internal selected Program cannot be installed publicly');
-          validateDialect(program.dialect, this.#dialect);
-          if (typeof program.source !== 'string')
-            throw new TypeError('Historical Program requires exact source');
-          validateBasicPlusMa2Candidate(program.source, program.lines, this.#dialect);
-        }
+      let selected = this.#selectedProgram;
+      if (typeof program === 'string') {
+        selected = prepareInternalSelectedProgram(program);
+      } else if (isInternalSelectedProgram(program)) {
+        if (!this.#privateSelected)
+          throw new TypeError('Internal selected Program cannot be installed publicly');
+        selected = program;
+      } else if (program !== undefined) {
+        if (this.#privateSelected)
+          throw new TypeError('Internal selected execution requires exact source');
+        if (program?.type !== 'Program') throw new TypeError('Expected a selected Program');
+        validateDialect(program.dialect, this.#dialect);
+        const {source, lines} = program;
+        if (typeof source !== 'string')
+          throw new TypeError('Historical Program requires exact source');
+        if (!Array.isArray(lines)) throw new TypeError('Expected an array of parsed lines');
+        validateBasicPlusMa2Candidate(source, lines, this.#dialect);
+        selected = prepareInternalSelectedProgram(source);
       }
-      const selected =
-        program === undefined
-          ? this.#selectedProgram
-          : typeof program === 'string'
-            ? prepareInternalSelectedProgram(program)
-            : isInternalSelectedProgram(program)
-              ? program
-              : prepareInternalSelectedProgram(program.source!);
       if (selected === null) throw new TypeError('Missing selected source');
       const driver = prepareSelectedMa2Driver(
         selected.source,
@@ -366,8 +364,8 @@ export default class Basic {
     if (this.#status === 'halted' || this.#status === 'error') return this.state;
     if (this.#immediate)
       throw new Error('Call reset before stepping a program after immediate input');
-    if (this.#internalSelected && this.#controlFlow.nextInstruction)
-      this.#consumeSelectedStep(this.#controlFlow.nextInstruction);
+    if (this.#privateSelected && this.#controlFlow.nextInstruction)
+      this.#consumePrivateSelectedStep(this.#controlFlow.nextInstruction);
     const line = this.#controlFlow.takeInstruction();
     if (!line) {
       this.#halt();
@@ -396,7 +394,7 @@ export default class Basic {
     )
       return this.#step();
     const generation = this.#generation;
-    if (this.#internalSelected) this.#consumeSelectedStep(line);
+    if (this.#privateSelected) this.#consumePrivateSelectedStep(line);
     this.#controlFlow.takeInstruction();
     await this.#executeSuspension(line, line.statement, signal);
     if (generation !== this.#generation) throw abortError();
@@ -521,8 +519,8 @@ export default class Basic {
     }
   }
 
-  #consumeSelectedStep(line: Instruction): void {
-    if (this.#selectedSteps === 10_000) {
+  #consumePrivateSelectedStep(line: Instruction): void {
+    if (this.#privateSelectedSteps === 10_000) {
       const error = new BasicRuntimeError(
         'INSTRUCTION_LIMIT',
         'Internal selected MA2 instruction limit of 10000 reached',
@@ -532,7 +530,7 @@ export default class Basic {
       this.#recordFailure(error);
       throw error;
     }
-    this.#selectedSteps++;
+    this.#privateSelectedSteps++;
   }
 
   async #executeSuspension(
