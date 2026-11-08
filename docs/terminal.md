@@ -52,7 +52,9 @@ functions, and diagnostic rules. This is a limited dialect; standalone `ABS` or
 
 While a running program asks for `INPUT`, typed lines belong to that program.
 An answer such as `RUN` or `EXIT` is ordinary string input, not a session command.
-Numeric INPUT retains its retry and finite-decimal validation rules.
+Native numeric INPUT requires finite decimal values and retries invalid responses. For selected
+BASIC-PLUS INPUT, the terminal adds `? ` to the prompt text, so 1CHECK shows
+`JUMP FROM? `, `TO? ` and `TRY AGAIN? ` during file execution and editor `RUN`.
 
 Ctrl+C at an idle prompt discards the current entry and shows a new prompt.
 Ctrl+C during a confirmation cancels that operation and preserves the program.
@@ -113,8 +115,10 @@ newline. A numbered edit that changes a line returns to the editor's normal
 numeric-label/LF representation; a no-op edit preserves the original text.
 Plain LOAD continues to sort lines. SAVE AS can copy either representation to
 plain source or a portable document, with the remembered path selecting the
-format for subsequent bare SAVE. Unsupported metadata fails before confirmation
-and never falls back to plain BASIC. NEW resets to an empty native document.
+format for subsequent bare SAVE. Keep the `.basic.json` suffix when saving a
+selected program to preserve its dialect for the next LOAD. A plain source file
+loads as native. Unsupported metadata fails before confirmation and never falls
+back to plain BASIC. NEW resets to an empty native document.
 
 `LOAD` checks the entire file before asking to discard edits: syntax, duplicate
 labels, jump targets, and loop pairing, including unreachable source. No

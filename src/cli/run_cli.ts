@@ -2,7 +2,7 @@ import type {Host, InputOptions, RunResult} from '../core/types.ts';
 import {promises as fs} from 'node:fs';
 import Basic from '../basic.ts';
 import {isAbortError} from '../core/cancellation.ts';
-import Repl from '../repl/repl.ts';
+import Repl, {createTerminalProgram} from '../repl/repl.ts';
 import type {ReplHost} from '../repl/repl.ts';
 import constants from '../shared/constants.ts';
 import TerminalHost from './terminal_host.ts';
@@ -31,7 +31,7 @@ export async function runFile(
   if (!filePath.toLowerCase().endsWith('.basic.json'))
     return new Basic(host).runAsync(source, {signal});
   const document = decodeSourceDocument(source);
-  return new Basic(host, {dialect: document.dialect}).runAsync(document.source, {signal});
+  return createTerminalProgram(host, document.dialect).runAsync(document.source, {signal});
 }
 
 export async function runCli(
