@@ -28,7 +28,8 @@ import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core
 import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets, validateInputLineTarget} from '../core/input.ts';
 import {maxDispatchTargets} from '../core/dispatch.ts';
-import {freezeTree, validateProgram} from './program_validation.ts';
+import {freezeTree, validateSourceLines} from './program_validation.ts';
+import {validateEduSystem30Line} from './edusystem30_support.ts';
 import {preflightBasicPlusMa2Candidate} from './ma2_candidate_support.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -39,12 +40,8 @@ const comparisonOperators = new Set(['=', '<>', '<', '<=', '>', '>=']);
 
 export function parseLine(source: string, options: SourceOptions = {}): ParsedLine | null {
   const dialect = validateDialect(options.dialect);
-  const lines = new Parser(
-    source,
-    {...options, dialect},
-    dialect !== 'native',
-    dialect !== 'native',
-  ).parse();
+  const selectedMa2 = dialect === 'basic-plus-v4a12-ma2';
+  const lines = new Parser(source, {...options, dialect}, selectedMa2, selectedMa2).parse();
   if (lines.length > 1) {
     const extra = lines[1];
     throw new BasicSyntaxError(
@@ -54,16 +51,30 @@ export function parseLine(source: string, options: SourceOptions = {}): ParsedLi
       extra.label,
     );
   }
-  return lines.length === 0 ? null : freezeTree(lines[0]);
+  if (lines.length === 0) return null;
+  if (dialect === 'edusystem-30') validateEduSystem30Line(lines[0]);
+  return freezeTree(lines[0]);
 }
 
 export function parseProgram(source: string, options: LanguageOptions = {}): Program {
   const dialect = validateDialect(options.dialect);
-  if (dialect !== 'native') {
+  if (dialect === 'basic-plus-v4a12-ma2') {
     const candidate = preflightBasicPlusMa2Candidate(source, undefined, dialect);
     return freezeTree({type: 'Program' as const, dialect, source, lines: candidate.lines});
   }
-  return validateProgram(new Parser(source, {dialect}).parse(), {dialect});
+  const lines = new Parser(source, {dialect}).parse();
+  if (dialect === 'edusystem-30') lines.forEach(validateEduSystem30Line);
+  const program = validateSourceLines(lines, dialect);
+  if (dialect !== 'edusystem-30') return program;
+  const last = program.lines.at(-1);
+  if (last && last.statement.type !== 'EndStatement')
+    throw new BasicSyntaxError(
+      'MISSING_END',
+      'EDUSYSTEM-30 requires END on the highest numbered line',
+      last.statement.location.start,
+      last.label,
+    );
+  return freezeTree({...program, source});
 }
 
 /** Internal numeric grammar conformance only: no Program or execution context. */

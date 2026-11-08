@@ -30,8 +30,9 @@ The package exports the parser, evaluator, errors, and public types separately.
 
 - `new Basic(host = {}, {dialect = 'native'} = {})` creates an empty runtime in
   `ready` state. Its read-only `dialect` selection is copied at construction.
-  `basic-plus-v4a12-ma2` selects the [bounded MA2 profile](profile-activation.md)
-  for a complete source string or a Program carrying its exact source. Program
+  `basic-plus-v4a12-ma2` selects the [bounded MA2 profile](profile-activation.md).
+  `edusystem-30` selects the [bounded 23MTCH profile](edusystem30-profile.md).
+  Both accept a complete source string or a Program carrying its exact source. Program
   and Line metadata must agree with the instance; legacy missing metadata means
   native. Unsupported metadata/options throw `TypeError` before BASIC effects;
   a rejected replacement keeps the previous loaded snapshot available for rerun.

@@ -1,7 +1,8 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
-import {Evaluator} from './evaluator.ts';
+import {createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
+import {eduSystem30InputPresentation, formatEduSystem30PrintValue} from './edusystem30_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
@@ -91,17 +92,21 @@ export default class Basic {
       throw new TypeError('Unsupported internal execution context');
     this.#privateSelected = internal !== undefined;
     this.#dialect = validateDialect(options.dialect);
-    this.#internalSelected = internal !== undefined || this.#dialect !== 'native';
-    this.#emptyProgram = prepareProgram('', 'native');
+    this.#internalSelected = internal !== undefined || this.#dialect === 'basic-plus-v4a12-ma2';
+    const eduSystem30 = this.#dialect === 'edusystem-30';
+    this.#emptyProgram = prepareProgram('', eduSystem30 ? this.#dialect : 'native');
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    this.#evaluator = new Evaluator(this.#host);
+    this.#evaluator = eduSystem30
+      ? createEduSystem30Evaluator(this.#host)
+      : new Evaluator(this.#host);
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     this.#data = new DataReader(this.#prepared.dataItems);
     this.#statementPolicy = createNativeStatementPolicy({
       evaluator: this.#evaluator,
       data: () => this.#data,
       graphics: this.#graphics,
+      formatPrintValue: eduSystem30 ? formatEduSystem30PrintValue : undefined,
     });
     if (internal) {
       if (typeof internal.program === 'string') this.reset(internal.program);
@@ -434,8 +439,8 @@ export default class Basic {
 
   #prepareImmediate(source: string, options: SourceOptions): Instruction | null {
     this.#assertAvailable();
-    if (this.#internalSelected)
-      throw new TypeError('Internal selected execution requires a complete source program');
+    if (this.#internalSelected || this.#dialect === 'edusystem-30')
+      throw new TypeError('Selected execution requires a complete source program');
     if (this.#status === 'halted' || this.#status === 'error') return null;
     if (!this.#immediate && this.#status === 'running') {
       throw new Error('Call reset before mixing program steps and immediate input');
@@ -605,6 +610,7 @@ export default class Basic {
           },
           statement,
           controller.signal,
+          this.#dialect === 'edusystem-30' ? eduSystem30InputPresentation : undefined,
         );
         if (generation !== this.#generation || controller.signal.aborted) throw abortError();
         // Indices may invoke host functions. Keep the same mutation guard as

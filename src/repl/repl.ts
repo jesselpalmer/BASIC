@@ -10,7 +10,7 @@ import type {ProgramFiles} from './program_files.ts';
 
 /** Present selected INPUT prompt text in the terminal without changing library callbacks. */
 export function createTerminalProgram(host: Partial<Host>, dialect: Dialect): Basic {
-  if (dialect === 'native') return new Basic(host);
+  if (dialect !== 'basic-plus-v4a12-ma2') return new Basic(host, {dialect});
   const programHost = createHost(host);
   return new Basic(
     {

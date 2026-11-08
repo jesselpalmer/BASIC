@@ -11,12 +11,11 @@ keyboard controls, with a complete Pong game written in BASIC.
 **1.0 is not ready:** verified classic-game compatibility is now required.
 See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
-The next compatibility milestone is a [complete reviewed 1CHECK game session](docs/first-game-milestone.md)
-under the selected historical configuration. Native BASIC and a bounded public
-`basic-plus-v4a12-ma2` profile run today. The reviewed 1CHECK text completes a
-public quit session through installed library and portable CLI consumers; the
-browser's normal editor can play and edit it. The longer public game/replay
-proof and independent review remain on the roadmap.
+Native BASIC and two bounded historical profiles run today. The reviewed
+[1CHECK](docs/first-game-milestone.md) completes under `basic-plus-v4a12-ma2`.
+The reviewed [23MTCH](docs/edusystem30-profile.md) matches the archived loss,
+replay and win under `edusystem-30`. Both are available in the library,
+portable CLI/editor and browser playground.
 The [language reference](docs/language-v1.md) describes current native behavior;
 explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
 and typed DATA/READ/RESTORE
@@ -45,10 +44,8 @@ validated in CI using Bun 1.4.4; Node.js alone is unsupported; Windows execution
 Chromium on Linux/macOS. Other browsers and mobile input are not validated targets.
 The static playground needs only an HTTP server; it has no application backend.
 The root `vercel.json` deploys that same static artifact. The editor starts in
-native BASIC; choosing **1CHECK · BASIC-PLUS selected profile** switches the
-document to the bounded selected configuration. A separate fixed-source
-playtest remains available. Neither path certifies the game's original
-interpreter.
+native BASIC. The 1CHECK and 23MTCH examples select their respective profiles.
+A separate fixed-source 1CHECK playtest remains available.
 See [support and compatibility](docs/compatibility.md) for the 1.0 contract.
 
 ## Quick start
@@ -85,8 +82,9 @@ records the review findings and their verification.
 
 Try the [hosted BASIC playground](https://basic-playground-rho.vercel.app/).
 The editor starts in native BASIC. Choose **1CHECK · BASIC-PLUS selected profile**
-to load and edit the reviewed checker source with its explicit context. The
-separate fixed-source playtest remains available.
+to load the reviewed checker source or **23MTCH · EDUSYSTEM-30 selected profile**
+to load the reviewed match game. Both retain their profile when you edit or
+export the source. The separate fixed-source 1CHECK playtest remains available.
 
 From a checkout, build and serve the static playground:
 

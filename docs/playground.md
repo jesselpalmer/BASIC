@@ -29,8 +29,10 @@ merged static build. The root
 server. The editor starts in **native**. Choose **1CHECK · BASIC-PLUS selected
 profile** to load the reviewed March 1975 text under the bounded public
 `basic-plus-v4a12-ma2` context; edits retain that context for Run, Step and
-portable `.basic.json` export. Import a selected portable document to use your
-own source. Bare `.bas` imports default to native. The separate fixed-source
+portable `.basic.json` export. Choose **23MTCH · EDUSYSTEM-30 selected profile**
+for the [reviewed match game](edusystem30-profile.md). It starts a new round
+after either result. Use Stop to end the session. Import a selected portable
+document to use your own source. Bare `.bas` imports default to native. The separate fixed-source
 playtest remains as a comparison; it does not accept editor changes. Neither
 path identifies the game's original interpreter. See the
 [first-game checklist](first-game-milestone.md) for remaining proof.

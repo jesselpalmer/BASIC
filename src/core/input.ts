@@ -133,9 +133,11 @@ export async function readInput(
   host: Pick<Host, 'readLine' | 'write'>,
   statement: InputStatement,
   signal: AbortSignal,
+  presentation?: {readonly prompt: string; readonly invalidNumber: string},
 ): Promise<readonly BasicValue[]> {
   const prompt =
-    statement.type === 'InputLineStatement' ? '' : `${statement.prompt?.value ?? ''}? `;
+    presentation?.prompt ??
+    (statement.type === 'InputLineStatement' ? '' : `${statement.prompt?.value ?? ''}? `);
   const targets = inputTargets(statement);
   for (;;) {
     let text: string | null;
@@ -184,7 +186,7 @@ export async function readInput(
     if (values) return values;
     host.write(
       targets.length === 1
-        ? 'Invalid number; please enter a finite decimal.\n'
+        ? (presentation?.invalidNumber ?? 'Invalid number; please enter a finite decimal.\n')
         : `Invalid input; enter ${targets.length} comma-separated values.\n`,
     );
   }

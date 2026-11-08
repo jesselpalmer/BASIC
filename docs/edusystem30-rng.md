@@ -37,6 +37,6 @@ from the default seed, and replay within one run keeps consuming that stream.
 In the reviewed 23MTCH trace, the sixth draw after replay yields a computer
 move of two, while a fresh stream's first draw yields one.
 
-The implementation covers the internal default stream. Program activation,
-argument evaluation and continuation diagnostics, `RANDOMIZE` and host wiring
-remain separate compatibility work.
+The [selected 23MTCH profile](edusystem30-profile.md) uses this stream for
+`RND(0)`. General argument evaluation and continuation diagnostics,
+`RANDOMIZE` and wider numeric behavior remain separate compatibility work.

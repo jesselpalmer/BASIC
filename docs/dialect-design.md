@@ -1,7 +1,8 @@
 # Dialect and source-context design
 
 **Status:** shared design decisions and the first verified grammar slice, for
-#116. Implementation is incremental; the bounded selected MA2 profile is public.
+#116. The bounded selected MA2 and [EDUSYSTEM-30](edusystem30-profile.md)
+profiles are public.
 The optional-LET/contextual-GO-TO native slice and native API context below are
 implemented. Native portable documents are implemented for browser drafts and
 import/export plus CLI file execution. Exact selected source/context now travels
@@ -42,8 +43,8 @@ their own verified profile grammar. They are not enabled by the common slice.
 
 Use named, versioned profiles tied to primary manuals. Candidate identities are
 native, BASIC-PLUS October 1972, DECsystem-10 March 1974, and separately verified
-Dartmouth/EduSystem/HP versions. These are design identities, not accepted API
-strings today. Do not expose a historical choice until its implemented forms
+Dartmouth/EduSystem/HP versions. The public API accepts the explicit profile
+strings listed below. Do not expose a historical choice until its implemented forms
 have correct behavior; reject unimplemented forms explicitly rather than execute
 native semantics under a historical label.
 
@@ -74,13 +75,13 @@ saying that IEEE doubles are newer. Every unsupported case stays visible.
 
 Open evidence blocks the corresponding implementation, including historical
 fractional-subscript conversion, duplicate DIM handling, exact string edge cases,
-all EduSystem/HP mappings, later Dartmouth functions and game-dependent timing.
+broader EduSystem/HP mappings, later Dartmouth functions and game-dependent timing.
 Neither this table nor a guessed README dialect settles those details.
 
 ## Carry one immutable language context
 
 The core carries a validated, immutable context at these boundaries.
-`Dialect` accepts `'native'` and the bounded `'basic-plus-v4a12-ma2'` profile.
+`Dialect` accepts `'native'`, `'basic-plus-v4a12-ma2'` and `'edusystem-30'`.
 `LanguageOptions` supplies an optional dialect, and
 `SourceOptions` also retains fragment coordinates. Unknown or conflicting context
 throws `TypeError`, rather than a source diagnostic, before program effects.
