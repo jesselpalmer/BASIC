@@ -1,11 +1,25 @@
-import type {Host, InputOptions} from '../core/types.ts';
+import type {Dialect, Host, InputOptions} from '../core/types.ts';
 import Basic from '../basic.ts';
+import {createHost} from '../core/host.ts';
 import constants from '../shared/constants.ts';
 import {abortError, isAbortError} from '../core/cancellation.ts';
 import StoredProgram from './program.ts';
 import {parseFileCommand} from './file_command.ts';
 import ProgramPersistence from './persistence.ts';
 import type {ProgramFiles} from './program_files.ts';
+
+/** Present selected INPUT prompt text in the terminal without changing library callbacks. */
+export function createTerminalProgram(host: Partial<Host>, dialect: Dialect): Basic {
+  if (dialect === 'native') return new Basic(host);
+  const programHost = createHost(host);
+  return new Basic(
+    {
+      ...programHost,
+      readLine: (prompt = '', options) => programHost.readLine(`${prompt}? `, options),
+    },
+    {dialect},
+  );
+}
 
 export interface ReplHost extends Host {
   writeError(text: string): void;
@@ -96,7 +110,7 @@ export default class Repl {
             if (warning) this.host.writeError(`${warning}\n`);
           } else if (command === 'RUN') {
             const snapshot = this.#source.document;
-            const program = new Basic(this.host, {dialect: snapshot.dialect});
+            const program = createTerminalProgram(this.host, snapshot.dialect);
             await this.#withSignal((signal) => program.runAsync(snapshot.source, {signal}));
           } else if (command === 'LIST') {
             const source = this.#source.source;

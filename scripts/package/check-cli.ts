@@ -456,6 +456,89 @@ function checkFileExecution({consumer, installed, executable, file}: CliContext)
   }
 }
 
+function checkSelectedChecker({consumer, executable}: CliContext): void {
+  const source = readFileSync(
+    join(consumer, 'scripts/package/fixtures/classic/1check-mar75-text.bas'),
+    'utf8',
+  );
+  const document = {format: 'basic-program', version: 1, dialect: 'basic-plus-v4a12-ma2', source};
+  const file = join(consumer, '1check.basic.json');
+  const saved = join(consumer, '1check-saved.basic.json');
+  const contents = JSON.stringify(document);
+  writeFileSync(file, contents);
+  const answers =
+    '1\n19\n2\n20\n3\n21\n8\n22\n16\n30\n24\n38\n64\n46\n12\n26\n0\nMAYBE\nYES\n1\n19\n0\nNO\n';
+  const played = runProcess({cwd: consumer, args: [executable, file], input: answers});
+  assert.equal(played.stderr, '');
+  assert.equal(readFileSync(file, 'utf8'), contents);
+  const rows = played.stdout
+    .split('\n')
+    .filter((line) => /^( [01] ){8}$/.test(line))
+    .map((line) => line.replaceAll(' ', ''));
+  assert.equal(rows.length, 80);
+  assert.deepEqual(
+    Array.from(
+      {length: 10},
+      (_, index) =>
+        rows
+          .slice(index * 8, index * 8 + 8)
+          .join('')
+          .split('1').length - 1,
+    ),
+    [48, 47, 46, 45, 44, 43, 42, 41, 48, 47],
+  );
+  assert.deepEqual(rows.slice(56, 64), [
+    '00011110',
+    '10001100',
+    '11111100',
+    '11000101',
+    '11000111',
+    '11000111',
+    '11111101',
+    '11111110',
+  ]);
+  assert.deepEqual(rows.slice(64, 80), rows.slice(0, 16));
+  assert.deepEqual(played.stdout.match(/JUMP FROM\? |TO\? |TRY AGAIN\? /g), [
+    ...Array.from({length: 8}, () => ['JUMP FROM? ', 'TO? ']).flat(),
+    'JUMP FROM? ',
+    'TRY AGAIN? ',
+    'TRY AGAIN? ',
+    'JUMP FROM? ',
+    'TO? ',
+    'JUMP FROM? ',
+    'TRY AGAIN? ',
+  ]);
+  assert.ok(
+    played.stdout.includes(
+      'JUMP FROM? TO? \nILLEGAL MOVE.  TRY AGAIN...\nJUMP FROM? \n' +
+        'YOU MADE 7 JUMPS AND HAD 41 PIECES\nREMAINING ON THE BOARD. \n\n' +
+        "TRY AGAIN? PLEASE ANSWER 'YES' OR 'NO'. \nTRY AGAIN? ",
+    ),
+  );
+  assert.ok(
+    played.stdout.endsWith(
+      'JUMP FROM? \nYOU MADE 1 JUMPS AND HAD 47 PIECES\nREMAINING ON THE BOARD. \n\n' +
+        'TRY AGAIN? \nO. K.  HOPE YOU HAD FUN!\n',
+    ),
+  );
+  const editor = runProcess({
+    cwd: consumer,
+    args: [executable],
+    input: `LOAD "1check.basic.json"\nRUN\n${answers}SAVE "1check-saved.basic.json"\nNEW\nLOAD "1check-saved.basic.json"\nRUN\n0\nNO\nEXIT\n`,
+  });
+  assert.equal(editor.stderr, '');
+  assert.ok(editor.stdout.includes(played.stdout));
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
+  const opening = played.stdout.slice(0, played.stdout.indexOf('JUMP FROM? '));
+  assert.ok(
+    editor.stdout.includes(
+      opening +
+        'JUMP FROM? \nYOU MADE 0 JUMPS AND HAD 48 PIECES\nREMAINING ON THE BOARD. \n\n' +
+        'TRY AGAIN? \nO. K.  HOPE YOU HAD FUN!\n',
+    ),
+  );
+}
+
 async function checkOpenInputAndInterrupts({
   consumer,
   executable,
@@ -687,6 +770,7 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   const executable = process.platform === 'win32' ? join(installed, 'bin/basic') : shim;
   const context = {consumer, installed, executable, file: join(consumer, 'sample.bas')};
   checkFileExecution(context);
+  checkSelectedChecker(context);
   checkFileFailures(context);
   await checkOpenInputAndInterrupts(context);
   checkEditorSession(context);
