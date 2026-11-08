@@ -1,13 +1,13 @@
 # First complete game: reviewed 1CHECK
 
-**Status: independent review complete. User playthrough pending.**
+**Status: independent review and delegated Chrome playthrough complete.**
 Merged [#263](https://github.com/jesselpalmer/BASIC/pull/263) exposes the
 bounded `basic-plus-v4a12-ma2` profile; [#265](https://github.com/jesselpalmer/BASIC/pull/265)
 traces seven legal jumps, 41 pieces, the printed illegal continuation, invalid
 replay, YES reset, a second game and NO exit through public Basic, installed
 ESM/CommonJS, the portable file runner and real Chromium on Linux/macOS.
 The independent reviews verified the evidence and found implementation gaps
-addressed in the review batch below. #129 still needs a user playthrough. The game's
+addressed in the review batch below. #129 records Jesse's acceptance separately. The game's
 original interpreter/version is unknown and [BASIC 1.0](https://github.com/jesselpalmer/BASIC/issues/109)
 is NOT READY across the 108-file corpus.
 
@@ -155,6 +155,12 @@ also passed on [#268](https://github.com/jesselpalmer/BASIC/actions/runs/4245729
 [#270](https://github.com/jesselpalmer/BASIC/actions/runs/42457322106).
 The same revision passed the hosted seven-jump, replay and selected admission
 recovery checks.
+
+At Jesse's request, Codex opened the selected-profile example in a fresh Chrome
+tab on deployed revision `60e66b2`. Inputs `1, 19, 0, YES, 0, NO` produced one
+jump with 47 pieces, replay at 48 pieces with zero jumps, and normal completion.
+The result was left open and recorded in [#129](https://github.com/jesselpalmer/BASIC/issues/129)
+as delegated verification.
 
 ## Next batch and progress reporting
 

@@ -311,6 +311,74 @@ numeric spacing also remains absent. Test/record the blocked branch as well as
 the successful partial path; do not hide it by rewriting RND or removing code.
 A certified EduSystem profile and complete game/formatting checks remain required.
 
+### March 1975 listing and EDUSYSTEM-30 reference run
+
+The [March 1975 third printing](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=227)
+has the listing and sample together on printed and PDF page 227. The scan's
+SHA-256 is `311c1be8d3c9361ee9badb59b5a43c43a5b0bf4803298943be1cb617b8f33ad7`.
+Visual comparison accounts for all 44 statement labels and confirms the same
+numeric expressions, input checks and branches. In particular, line 250 checks
+for fractional input and line 320 uses `<>`; scan OCR misreads both.
+
+The scan shows terminal semicolons at both 220 and 380. The pinned transcription
+omits both; the existing one-byte correction covers 380. At 220 the semicolon
+keeps the question on the same line as the `INPUT` question mark. The scan also
+differs in quoted spacing and punctuation, including the choice list at 115
+and 120, ellipsis at 380, and result messages at 420 and 450. Keep these
+edition differences separate from the preserved fixture bytes and the existing
+one-byte correction. The printed sample demonstrates formatting and game
+outcomes; it does not supply invisible terminal bytes or an interpreter build ID.
+
+The [January 1973 DEC handbook, §7-5](https://deramp.com/downloads/mfe_archive/011-Digital%20Equipment%20Corporation/00%20Digital%20Handbooks/08%20PDP-8%20Family/Edusystem%20Handbook/EduSystemHandbookJan73.pdf#page=293)
+specifies a fresh random value on each `RND(X)` call, with a required dummy
+argument whose value does not select the result. A new `RUN` starts the same
+sequence unless the program uses `RANDOMIZE`. Line 330 multiplies the draw by
+three, truncates it with `INT`, and adds one. The listing has no `RANDOMIZE`.
+
+The [archived OS/8 DECtape](https://www.pdp8online.com/ftp/images/os8/edu30.tu56)
+contains `EDU30.SV`. Booting it under SIMH PDP-8 produced an `EDUSYSTEM-30`
+banner and confirmed that two `RUN`s produce the same first 12 draws. Varying
+the argument from −2 to 9 produced the same sequence. A division-by-zero
+argument reported `D0` before each draw and execution continued in this build.
+That diagnostic is evidence for argument evaluation, separate from the literal
+zero needed by 23MTCH.
+
+| Printed round | Human inputs          | Computer moves  | Counts after computer moves | Result                                                               |
+| ------------- | --------------------- | --------------- | --------------------------- | -------------------------------------------------------------------- |
+| First         | `3, 1, 2, 1, 1, 0, 1` | `3, 3, 2, 3, 3` | `17, 13, 9, 5, 1`           | `0` retries at one match; the player takes the last match and loses. |
+| Replay        | `2, 3, 3, 2, 1, 1`    | `1, 1, 2, 3, 3` | `20, 16, 11, 6, 2`          | The player leaves one match and wins; the next round resets to 23.   |
+
+The first round makes zero RNG calls. The replay's five computer moves match
+the first five draws in the reference run. A third-round probe, beyond the
+printed sample, enters `2` and observes a computer move of `2`, leaving 19.
+This uses the sixth draw in the same `RUN`; a seed reset at replay would have
+produced a computer move of `1`. The capture stops at the next question because
+the original source automatically starts another round after each result.
+
+The [offline capture](edusystem30-reference.json) records the values, moves and
+transcript hashes. It runs the preserved 380-only fixture and repeats it with
+just the additional line 220 semicolon applied in memory. That test confirms
+the prompt layout difference and the same game outcomes. To reproduce, install
+`pexpect`, build the PDP-8 simulator from the capture's pinned SIMH commit, and
+download the tape separately. The script verifies both input hashes and boots
+disposable writable tape copies because the interpreter needs scratch blocks.
+
+```sh
+python3 scripts/research/capture-edusystem30.py \
+  --simulator /path/to/simh/BIN/pdp8 \
+  --tape /path/to/edu30.tu56 \
+  --output /tmp/edusystem30-reference.json
+diff -u \
+  <(python3 -m json.tool docs/edusystem30-reference.json) \
+  <(python3 -m json.tool /tmp/edusystem30-reference.json)
+```
+
+The capture supplies a behavioral reference for the archived build. Its printed
+draws are decimal renderings; recovering the generator's state transition and
+validating a bounded selected execution path remain #123 and #116 work. The
+project's library, CLI and browser still have the partial native path described
+above.
+
 ## LIFE2
 
 ### Reviewed loop-delimiter differences
