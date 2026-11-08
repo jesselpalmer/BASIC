@@ -9,11 +9,11 @@ This establishes selected-configuration behavior; the original interpreter
 and version remain unknown.
 
 **Next outcome:** finish the [first-game milestone](first-game-milestone.md)
-with independent implementation and evidence review, then a user playthrough.
-The public seven-jump, printed illegal-continuation, replay and fresh-game
-trace now passes through Basic, installed ESM/CommonJS, portable CLI and real
-Chromium on Linux/macOS. The first-game acceptance issue #129 remains open
-until those reviews are recorded; original-interpreter attribution is separate.
+with a user playthrough of the deployed selected-profile editor. Independent
+implementation and board/transcript review verified the seven-jump trace and
+identified fixes for longer replay, Program admission, browser diagnostics and
+terminal prompts. Record the user playthrough in #129. Original-interpreter
+attribution remains a separate #115 obligation.
 
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
@@ -36,11 +36,11 @@ reviewed-text run does not alter the raw corpus ledger.
 
 ## Remaining blockers for the first game
 
-| Outcome and owning issues                                                 | Evidence delivered                                                                                                                                                                                                                                                                    | Next proof                                                                                                                                                                                                |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Complete behavior — #115, #129                                            | Merged #265 traces seven jumps, 41 pieces, the printed illegal continuation, invalid replay, YES reset, a second game and NO exit through public Basic, installed ESM/CommonJS, portable CLI and real Chromium on Linux/macOS.                                                        | Independently review expected board, count and transcript evidence; keep raw, correction and reviewed text distinct. Original-interpreter attribution remains #115.                                       |
-| Lifecycle — #116, #117, #118, #129                                        | Public source-bound Program rejects altered trees and unsupported dead code before effects; failed replacement retains the prior source. Selected Step/Stop, stale INPUT and fresh runs have core tests. #266 tests browser Step/Stop and exact-source portable import/export/reload. | Independently review the implementation and complete a user playthrough against the deployed revision.                                                                                                    |
-| Accepted profile semantics — #58, #59, #119, #120, #121, #123, #126, #128 | Accepted 1CHECK forms run under explicit MA2 selection; bounded short scalar INPUT, strings and integer images also run in separate complete programs.                                                                                                                                | Resolve any mismatch discovered by independent review or playthrough. Keep unsupported row/retry, event continuation, broader image and array forms gated under their owning issues for the wider corpus. |
+| Outcome and owning issues                                                 | Evidence delivered                                                                                                                                                                                                                                                | Next proof                                                                                                                                              |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Complete behavior — #115, #129                                            | Independent review checked every printed opening board, 48→41 pieces, the rejected printed continuation, invalid replay, YES reset, second game and NO exit. Installed CLI coverage exercises the selected file and LOAD/RUN/SAVE/reload.                         | Record the user's selected-profile playthrough. Keep raw, minimal correction and reviewed text distinct. Original-interpreter attribution remains #115. |
+| Lifecycle — #116, #117, #118, #129                                        | Selected Program admission binds validation and execution to the same source. Selected Step/Stop and exact portable round trips pass. Failed browser admission reports a located error and retains the waiting run. Two 28-jump games complete in one public run. | Check the deployed selected-profile editor and resolve any mismatch found in the user playthrough.                                                      |
+| Accepted profile semantics — #58, #59, #119, #120, #121, #123, #126, #128 | Accepted 1CHECK forms run under explicit MA2 selection; bounded short scalar INPUT, strings and integer images also run in separate complete programs.                                                                                                            | Keep unsupported row/retry, event continuation, broader image and array forms gated under their owning issues for the wider corpus.                     |
 
 The [milestone checklist](first-game-milestone.md) tracks first-game proof;
 [technical support matrix](first-game-runtime-evidence.md#closed-support-matrix-before-activation)
@@ -62,6 +62,14 @@ subroutines/dispatch, DEF FN, modifiers, MAT and file/CHAIN/terminal services as
 required by the listings. They remain required even when unnecessary to 1CHECK.
 Preserve native behavior, source bytes/locations, bounded execution, Step/Stop,
 atomic replacement and fresh runs across all supported distributions.
+
+The next source-backed candidate is [23MTCH](classic-source-review.md#23mtch).
+Its printed sample identifies EDUSYSTEM 30. While the 1CHECK playthrough is
+pending, #115 can finish the listing and transcript comparison independently
+of #123's investigation of the `RND(0)` rule at line 330. Use the resulting
+evidence to define the next runnable slice under #116 and #129 before changing
+the runtime. Keep the raw listing, its one-byte correction and the partial
+native run separate.
 
 A fresh integrated release candidate must pass Linux/macOS checks, installed
 ESM/CommonJS/types/CLI and actual browser tests against the exact package/static
