@@ -18,10 +18,12 @@ Altair 8K BASIC win, draw, restarts and coordinate retries through the library,
 portable CLI/editor and browser. Choose **LIFE2 · Altair 8K BASIC selected profile**
 in the normal editor. The [DECUS edition](classic-source-review.md#decus-basic-plus-edition)
 has a verified RSTS BASIC-PLUS replay. Attribution for Wyvill's submission and
-the book listing remains under #115. Independent and user acceptance remain
-under #129. The [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
-#129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
-remain separate checkpoints.
+the book listing remains under #115. The [annotated second sample](classic-source-review.md#annotated-page-149-replay)
+adds the Rubout echo and Player 2 win as checks for other candidate systems.
+Independent and user acceptance remain under #129.
+The [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded
+in #129. Jesse's personal acceptance and 1CHECK's original interpreter
+attribution remain separate checkpoints.
 
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence

@@ -13,7 +13,7 @@ import tempfile
 
 import pexpect
 
-from life2_reference import DRAW_ANSWERS, boards
+from life2_reference import DRAW_ANSWERS, annotated_sample, boards, verify_annotated_sample
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'package/fixtures/classic'
 SIMH_COMMIT = '698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6'
@@ -75,10 +75,16 @@ def boot(console):
     console.expect_exact('Ready')
 
 
-def enter_program(console, name, source):
+def enter_program(console, name, source, *, expected_errors=()):
     enter(console, f'NEW {name}')
     console.expect_exact('Ready')
-    entry_output = ''.join(enter(console, line) for line in source)
+    entry_output = ''
+    for line in source:
+        entry_output += enter(console, line)
+        if int(line.split()[0]) in expected_errors:
+            # Let RSTS finish printing the entry diagnostic before typing again.
+            console.expect_exact('Ready')
+            entry_output += console.before
     entry_output += enter(console, 'LIST')
     console.expect_exact('Ready')
     listed = re.findall(r'^([?]?\d+ .*)\r$', console.before, re.M)
@@ -89,15 +95,20 @@ def enter_program(console, name, source):
     return flagged
 
 
-def play(console, answers, mask=MASK):
+def play(console, answers, mask=MASK, *, rubout=None):
     enter(console, 'RUN')
     chunks = []
-    for answer in answers:
+    for index, answer in enumerate(answers):
         event = console.expect_exact(['? ', 'Ready'])
         assert event == 0, console.before
         chunks.append(console.before + console.after)
-        enter(console, answer)
-        chunks.append(answer + '\r\n')
+        if rubout and index == rubout['answerIndex']:
+            console.send(rubout['keystrokes'] + '\r')
+            console.expect_exact(rubout['echo'] + '\r\n')
+            chunks.append(console.after)
+        else:
+            enter(console, answer)
+            chunks.append(answer + '\r\n')
     console.expect_exact('Ready')
     chunks.append(console.before)
     text = ''.join(chunks).replace('\r\n', '\n')
@@ -116,7 +127,7 @@ def observation(transcript, ending):
 
 
 def capture(console, source, sample):
-    errors = enter_program(console, 'LIFE2', source)
+    errors = enter_program(console, 'LIFE2', source, expected_errors=(574, 575))
     assert errors == [574, 575], errors
     answers = [answer for pair in sample['opening'] + sample['turns'] for answer in pair]
     exact_win = play(console, answers)
@@ -204,14 +215,33 @@ def capture_decus(console, source, sample):
     }
 
 
+def capture_annotated(console, source, sample):
+    errors = enter_program(console, 'LIFE2', source, expected_errors=(574, 575))
+    assert errors == [574, 575], errors
+    transcript = play(console, sample['answers'], rubout=sample['rubout'])
+    verify_annotated_sample(transcript, sample)
+    assert f"PLAYER {sample['winner']} IS THE WINNER" not in transcript
+    return {
+        'printedPage': sample['printedPage'],
+        'ruboutEcho': sample['rubout']['echo'],
+        'coordinateRetries': sample['coordinateRetries'],
+        'sameCoordinateMoves': sample['sameCoordinateMoves'],
+        **observation(transcript, 'ILLEGAL STATEMENT at line 575'),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', required=True, type=Path)
     parser.add_argument('--disk', required=True, type=Path)
-    parser.add_argument('--decus-source', type=Path, help='Archived DECUS RSTS-11-14 LIFE2.BAS')
+    edition = parser.add_mutually_exclusive_group()
+    edition.add_argument('--decus-source', type=Path, help='Archived DECUS RSTS-11-14 LIFE2.BAS')
+    edition.add_argument('--annotated', action='store_true', help='Replay the page 149 sample')
     parser.add_argument('--output', required=True, type=Path)
     args = parser.parse_args()
-    sample = json.loads((FIXTURES / 'life2-sample.json').read_text())
+    sample = annotated_sample() if args.annotated else json.loads(
+        (FIXTURES / 'life2-sample.json').read_text()
+    )
     if args.decus_source:
         data = args.decus_source.read_bytes()
         assert digest(data) == DECUS_SOURCE_SHA256, 'Unexpected DECUS source bytes'
@@ -219,7 +249,7 @@ def main():
     else:
         data = (FIXTURES / 'life2-mar75-reviewed.bas').read_bytes()
         assert digest(data) == sample['sourceSha256']
-        capture_source = capture
+        capture_source = capture_annotated if args.annotated else capture
     assert args.disk.stat().st_size == 2494464, 'Expected a raw RK05 disk before REFRESH'
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)

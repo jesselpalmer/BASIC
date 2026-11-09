@@ -15,7 +15,7 @@ import tempfile
 import pexpect
 
 from life2_altair_rules import capture_coordinate_retries, capture_dialogue, capture_rules
-from life2_reference import DRAW_ANSWERS, boards
+from life2_reference import DRAW_ANSWERS, annotated_sample, boards, verify_annotated_sample
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'package/fixtures/classic'
 SIMH_COMMIT = '698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6'
@@ -151,14 +151,42 @@ def play(console, sample):
     }
 
 
+def capture_annotated(console, sample):
+    answers = sample['answers'].copy()
+    edit_index = sample['rubout']['answerIndex']
+    edit = sample['rubout']['keystrokes'].replace('\x7f', '_')
+    answers[edit_index] = edit
+    event, chunks = capture_dialogue(console, enter, answers)
+    assert event == 1 and all(chunk.endswith(MASK) for chunk in chunks), chunks
+    transcript = ''.join(chunks)
+    verify_annotated_sample(transcript, sample)
+    winner = f"PLAYER {sample['winner']} IS THE WINNER"
+    assert chunks[-1].endswith(winner + '\n' + TITLE + 'PLAYER 1 3 LIVE PIECES\nX,Y\n' + MASK)
+    console.sendcontrol('c')
+    console.expect_exact('BREAK IN 700')
+    console.expect_exact('OK')
+    return {
+        'printedPage': sample['printedPage'],
+        'editEcho': edit,
+        'boards': len(sample['boards']),
+        'coordinateRetries': sample['coordinateRetries'],
+        'sameCoordinateMoves': sample['sameCoordinateMoves'],
+        'winner': winner,
+        'outputAndPromptsSha256': digest(transcript.encode('ascii')),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
     parser.add_argument('--image', type=Path, required=True)
+    parser.add_argument('--annotated', action='store_true', help='Replay the page 149 sample')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     source = (FIXTURES / 'life2-mar75-reviewed.bas').read_bytes()
-    sample = json.loads((FIXTURES / 'life2-sample.json').read_text(encoding='ascii'))
+    sample = annotated_sample() if args.annotated else json.loads(
+        (FIXTURES / 'life2-sample.json').read_text(encoding='ascii')
+    )
     assert digest(source) == sample['sourceSha256']
     assert digest(args.image.read_bytes()) == IMAGE_HASH
     with tempfile.TemporaryDirectory() as directory:
@@ -174,9 +202,15 @@ def main():
             console.delaybeforesend = 0.08
             boot(console)
             offset = load_reviewed(console, root, source.decode('ascii').splitlines())
-            replay = play(console, sample)
-            coordinate_retries = capture_coordinate_retries(console, enter, MASK)
-            rules = capture_rules(console, enter)
+            if args.annotated:
+                replay = capture_annotated(console, sample)
+            else:
+                replay = {
+                    'drawAnswers': DRAW_ANSWERS,
+                    **play(console, sample),
+                    'coordinateRetries': capture_coordinate_retries(console, enter, MASK),
+                    'rules': capture_rules(console, enter),
+                }
     result = {
         'schemaVersion': 2,
         'simulatorCommit': SIMH_COMMIT,
@@ -185,13 +219,10 @@ def main():
         'sourceSha256': digest(source),
         'editorError': '?SN ERROR',
         'maskAddressHex': f'{offset:04x}',
-        'drawAnswers': DRAW_ANSWERS,
         **replay,
-        'coordinateRetries': coordinate_retries,
-        'rules': rules,
     }
     args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
-    print('Captured LIFE2 win, draw and both restarts on Altair 8K BASIC')
+    print(f'Captured LIFE2 observations in {args.output}')
 
 
 if __name__ == '__main__':
