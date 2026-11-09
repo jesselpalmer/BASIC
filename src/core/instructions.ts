@@ -41,6 +41,7 @@ const simpleKinds: Record<SimpleStatement['type'], true> = {
   CircleStatement: true,
   ClsStatement: true,
   EndStatement: true,
+  RunStatement: true,
 };
 
 export interface Instruction {

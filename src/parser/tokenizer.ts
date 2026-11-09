@@ -9,7 +9,7 @@ import type {
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {reservedWords} from '../dictionaries/reserved_words.ts';
 import {numericLiteral} from '../core/numeric_literal.ts';
-import {historicalWord, scannerPolicy, type LexicalPolicy} from './lexical_policy.ts';
+import {scannerPolicy, type LexicalPolicy} from './lexical_policy.ts';
 import {historicalNumericSpelling} from './historical_numeric.ts';
 
 const digit = (character: string | undefined) => /[0-9]/.test(character ?? '');
@@ -121,9 +121,9 @@ class Scanner {
           continue;
         }
       }
-      if (character === '"' || (this.policy.compact && character === "'")) {
+      if (character === '"' || (this.policy.ma2 && character === "'")) {
         this.readString();
-      } else if (this.policy.compact && character === '!') {
+      } else if (this.policy.ma2 && character === '!') {
         this.readComment(true);
       } else if (digit(character) || character === '.') {
         this.readNumber();
@@ -163,7 +163,7 @@ class Scanner {
   }
 
   historicalWordAllowed(word: string): boolean {
-    const entry = historicalWord(word, 0)!;
+    const entry = this.policy.word(word, 0)!;
     if (word === 'USING' && this.statementWord === 'PRINT') return true;
     if (entry.role === 'unsupported') return false;
     if (word === 'ELSE') return this.openConditionals > 0;
@@ -329,7 +329,7 @@ class Scanner {
         else break;
       }
     const raw = this.source.slice(beginning, this.index);
-    if (this.policy.compact) {
+    if (this.policy.ma2) {
       try {
         historicalNumericSpelling(raw);
       } catch (error) {
@@ -341,12 +341,15 @@ class Scanner {
           );
         this.fail('INVALID_NUMBER', `Invalid decimal literal ${JSON.stringify(raw)}`, start);
       }
-
-      const word = historicalWord(this.source, this.index);
+    }
+    if (this.policy.compact) {
+      const word = this.policy.word(this.source, this.index);
       if (word && !this.historicalWordAllowed(word.word))
         this.fail('UNSUPPORTED_LEXICAL_FORM', 'Unsupported or misplaced historical word');
-      this.emit('RAW_NUMBER', start, null);
       this.statementStart = false;
+    }
+    if (this.policy.ma2) {
+      this.emit('RAW_NUMBER', start, null);
       return;
     }
     const value = Number(raw);
@@ -364,7 +367,7 @@ class Scanner {
     if (this.source[this.index] === 'e')
       this.fail('UNSUPPORTED_LEXICAL_FORM', 'Lowercase historical spelling is not implemented');
     // ELSE/END start new words; an E exponent remains part of its number.
-    if (this.source[this.index] === 'E' && !historicalWord(this.source, this.index)) {
+    if (this.source[this.index] === 'E' && !this.policy.word(this.source, this.index)) {
       this.index++;
       if (this.source[this.index] === '+' || this.source[this.index] === '-') this.index++;
       while (digit(this.source[this.index])) this.index++;
@@ -381,7 +384,7 @@ class Scanner {
     if (
       following === '.' ||
       following === '$' ||
-      (letter(following) && !historicalWord(this.source, this.index))
+      (letter(following) && !this.policy.word(this.source, this.index))
     )
       while (this.index < this.source.length && /[A-Za-z0-9.$]/.test(this.source[this.index]))
         this.index++;
@@ -398,7 +401,7 @@ class Scanner {
           'Lowercase historical spelling is not implemented',
           start,
         );
-      const word = historicalWord(this.source, this.index);
+      const word = this.policy.word(this.source, this.index);
       if (word) {
         this.acceptHistoricalWord(word.word);
         this.index += word.word.length;
@@ -409,7 +412,7 @@ class Scanner {
         if (this.source[this.index] === '$' || this.source[this.index] === '%') this.index++;
         if (this.source[this.index] === '$' || this.source[this.index] === '%')
           this.fail('UNSUPPORTED_LEXICAL_FORM', 'Expected one historical name suffix', start);
-        const nextWord = historicalWord(this.source, this.index);
+        const nextWord = this.policy.word(this.source, this.index);
         if (
           digit(this.source[this.index]) ||
           (letter(this.source[this.index]) &&
@@ -439,13 +442,20 @@ class Scanner {
       if (this.source[this.index] === '$') this.index++;
     }
     const value = this.source.slice(beginning, this.index).toUpperCase();
+    // Altair uses the shared contextual grammar for these compact tokens.
+    const altairContextual =
+      this.policy.compact &&
+      !this.policy.ma2 &&
+      ['DATA', 'READ', 'GOSUB', 'RETURN'].includes(value);
     const type = (
-      this.policy.compact ? historicalKeyword && value !== 'USING' : reservedWords.has(value)
+      this.policy.compact
+        ? historicalKeyword && value !== 'USING' && !altairContextual
+        : reservedWords.has(value)
     )
       ? 'KEYWORD'
       : 'IDENTIFIER';
     this.emit(type, start, value);
-    if (this.policy.compact && value === 'DATA') this.readHistoricalData();
+    if (this.policy.ma2 && value === 'DATA') this.readHistoricalData();
     if (value === 'REM') {
       this.readComment();
     }

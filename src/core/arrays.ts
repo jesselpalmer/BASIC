@@ -29,20 +29,20 @@ export function createBasicPlusMa2ArrayStore(declarations: readonly ArrayDeclara
 /** Mutable cells belong to one execution; declarations and observations never do. */
 export class ArrayStore {
   readonly #arrays: ReadonlyMap<string, ArrayStorage>;
-  readonly #mode: 'native' | 'ma2-conformance';
+  readonly #mode: 'native' | 'ma2-conformance' | 'altair';
 
   constructor(
     declarations: readonly ArrayDeclaration[] = [],
-    mode: 'native' | 'ma2-conformance' = 'native',
+    mode: 'native' | 'ma2-conformance' | 'altair' = 'native',
   ) {
-    if (mode !== 'native' && mode !== 'ma2-conformance')
+    if (mode !== 'native' && mode !== 'ma2-conformance' && mode !== 'altair')
       throw new TypeError('Unsupported array storage context');
     this.#mode = mode;
     const shapes = arrayShapes(declarations);
     if (mode === 'ma2-conformance' && shapes.some((shape) => !/^[A-Z][0-9]?$/.test(shape.name)))
       throw new TypeError('MA2 array conformance requires short numeric names');
     const zero =
-      mode === 'native'
+      mode !== 'ma2-conformance'
         ? 0
         : Object.freeze({kind: 'ma2' as const, words: Object.freeze([0, 0] as const)});
     this.#arrays = new Map(
@@ -93,7 +93,7 @@ export class ArrayStore {
   }
 
   private requireNative(): void {
-    if (this.#mode !== 'native')
+    if (this.#mode === 'ma2-conformance')
       throw new TypeError('Native access is unavailable in MA2 array conformance');
   }
 
@@ -223,10 +223,15 @@ export class ArrayStore {
   ): number {
     let offset = 0;
     for (let i = 0; i < array.bounds.length; i++) {
-      const index = indices[i];
+      let index = indices[i];
       const location = reference.indices[i].location;
       if (typeof index !== 'number')
         fail('TYPE_MISMATCH', 'Array indices must be numeric', location);
+      if (this.#mode === 'altair') {
+        if (index < 0) fail('ALTAIR_FC', 'Negative array subscript', location);
+        index = Math.trunc(index);
+        if (index > array.bounds[i]) fail('ALTAIR_BS', 'Array subscript out of bounds', location);
+      }
       if (!Number.isSafeInteger(index) || index < 0 || index > array.bounds[i]) {
         fail(
           this.#mode === 'ma2-conformance' ? 'MA2_SUBSCRIPT_BOUNDS' : 'ARRAY_BOUNDS',
@@ -245,7 +250,7 @@ export class ArrayStore {
       Array.from(this.#arrays.values(), (array) => {
         const prefix = array.values.slice(0, Math.min(64, remaining));
         const values = Object.freeze(
-          this.#mode === 'native'
+          this.#mode !== 'ma2-conformance'
             ? (prefix as BasicValue[])
             : prefix.map((value) => {
                 // This context can store only factory-validated canonical descriptors.

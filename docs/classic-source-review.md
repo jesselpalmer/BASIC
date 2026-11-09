@@ -528,9 +528,9 @@ accepts `1,1` once and rejects the duplicate at the next prompt.
 | In-program RUN  | Bare RUN re-enters the first line, clears scalar and array values, rewinds DATA, drops active call and loop frames, and skips the rest of the RUN line. A partial output line retains its column.                                                                                                                                                                                                                                                                                | Restart the loaded Program in the active driver with fresh execution state. Preserve the host, output, cancellation and debugger ownership. Admit bare RUN for the game.                           |
 
 The capture records each isolated probe with its numbered source, replies and
-output between prompts. The profile still needs source-bound admission and
-acceptance through the direct and installed library, CLI/editor and extracted
-browser. The original March 1975 interpreter attribution remains open.
+output between prompts. The [selected Altair profile](altair-life2-profile.md)
+uses the same archive reference for the library, CLI/editor and browser. The
+original March 1975 interpreter attribution remains open.
 
 ### Other archive boundaries
 
@@ -545,6 +545,31 @@ and the [RT-11 V5.3 SIMH disk set](https://archive.decromancer.ca/bitsavers.org/
 The BASIC-80 build is included in [Schorn's CP/M 2 simulator disk](https://schorn.ch/altair.html).
 The Altair replay establishes a later working historical configuration. The
 book's original LIFE2 interpreter attribution remains open.
+
+### Original interpreter investigation
+
+The March 1975 author page credits Brian Wyvill of Bradford University.
+The listing and its sample run carry no machine or interpreter identifier.
+Wyvill recalls being a graduate student in Bradford in early 1972.
+[Printed author credit](https://www.cs.brandeis.edu/~storer/LunarLander/zzzOtherStuff/101BasicComputerGames_1975-OnLineText.pdf#page=147) · [Wyvill's account](https://www.brianwyvill.com/blog/climbing-gf3t4)
+
+A 1967 UK parliamentary inventory lists a Zebra and an ICT 1909 at Bradford.
+A departmental report dated December 1967 records computation on Bradford's 1909. This establishes local hardware and leaves the game's connection to it
+open. ICL's contemporary GEORGE 3 Mark 7 operator manual excludes the
+unsuffixed 1909. GEORGE 3 BASIC remains a separate comparison environment.
+[Parliamentary inventory](https://hansard.parliament.uk/Commons/1967-03-06/debates/aa082011-c2a9-4d23-8aa2-fd0389869448/Computers) · [Bradford departmental report](https://ismar.org/wp-content/uploads/TAMU/1968/TAMU-NMR-Newsletter-112-January-1968.pdf) · [ICL operator manual, preface](https://www.icl1900.co.uk/techpub/tp4310.pdf) · [1973 ICL BASIC description](https://bitsavers.trailing-edge.com/pdf/datapro/datapro_reports_70s-90s/ICL/70C-533-01_7302_ICL_1900.pdf)
+
+A 1975 Purdue report lists MAXIMOP on an ICL 1909. The preservation
+catalogue identifies a separate MAXIMOP BASIC binary, and the Computer
+Conservation Society records recovery of the MAXIMOP issue tape. The
+documented 1909 compatibility makes that BASIC a candidate for a feature
+probe. Bradford's use of MAXIMOP and the game's interpreter remain open.
+[Purdue report, table I](https://docs.lib.purdue.edu/cstech/117/) · [ICL preservation catalogue](https://icl1900.co.uk/icl1900/proglang.html) · [Resurrection 84, page 9](https://computerconservationsociety.org/resurrection/pdfs/res84.pdf)
+
+The PiDP-8/I archive identifies its LIFE2 as an OS/8 copy in a collection
+of ports and re-ports. Keep that adaptation separate from the reviewed
+listing and the original interpreter attribution.
+[PiDP-8/I source archive](https://tangentsoft.com/pidp8i/dir?ci=release&name=src/basic-games)
 
 ## Attribution and fixture policy
 

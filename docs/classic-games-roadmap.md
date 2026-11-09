@@ -1,6 +1,6 @@
 # Classic-game compatibility roadmap
 
-Native BASIC and two bounded public profiles run today.
+Native BASIC and three bounded public profiles run today.
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
 [browser playground](https://basic-playground-rho.vercel.app/). Choose
@@ -13,13 +13,11 @@ archived EDUSYSTEM-30 transcript through the library, portable CLI/editor and
 browser. Choose **23MTCH · EDUSYSTEM-30 selected profile** in the normal editor.
 
 Record independent and user acceptance of 23MTCH under #129.
-The [LIFE2 source and archive review](classic-source-review.md#life2) reproduces
-the printed boards, win, draw and both restarts on 1976 Altair 8K BASIC. Its
-editor needs a four-byte mask-literal load workaround. Isolated probes now pin
-the [game-facing Altair rules](classic-source-review.md#altair-rules-for-a-selected-life2-profile)
-and the exact listing's coordinate retries. The original dialect remains open
-under #115. Selected profile implementation and acceptance are tracked under
-#116 and #129. The
+The [reviewed LIFE2 listing](altair-life2-profile.md) matches the archived
+Altair 8K BASIC win, draw, restarts and coordinate retries through the library,
+portable CLI/editor and browser. Choose **LIFE2 · Altair 8K BASIC selected profile**
+in the normal editor. The original interpreter attribution remains under #115
+and independent and user acceptance remain under #129. The
 [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
 #129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
 remain separate checkpoints.
@@ -36,7 +34,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
 | Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
 | Public selected EDUSYSTEM-30 | The reviewed 23MTCH reproduces the archived loss, rejected move, replay, win and third-round RNG probe in direct and installed library, CLI/editor and browser runs. Fresh RUN restores the seed.                                                                                                                                                            | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
-| Historical certification     | **2 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
+| Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                         |
+| Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
 The [corpus ledger](classic-games-ledger.json) still records **3 reviewed
 source differences / 105 unresolved**, **1 printed-system identification / 107
@@ -79,13 +78,10 @@ profile. Acceptance checks cover the complete loss/replay/win and fresh RUN.
 Keep raw, one-byte-corrected and reviewed text separate. General EDUSYSTEM-30
 arithmetic, RNG arguments and further statements remain under #116 and #123.
 
-The next LIFE2 implementation can split compact source admission from the
-execution work. Bind the Program to the original source. Add the archived
-indexed INPUT, array subscript conversion, print column and numbered RUN
-behavior inside the existing run driver. Then verify the reviewed source's
-win, draw, coordinate retries, both restarts, Stop and fresh runs through all
-supported entrypoints. The [Altair capture](life2-altair-reference.json)
-supplies the same output-and-prompts digest for each entrypoint.
+The [Altair profile](altair-life2-profile.md) runs the reviewed LIFE2
+source with compact admission, indexed INPUT, terminal controls and numbered
+RUN in the shared driver. Track broader Altair semantics separately from the
+LIFE2 acceptance and original-interpreter evidence.
 
 A fresh integrated release candidate must pass Linux/macOS checks, installed
 ESM/CommonJS/types/CLI and actual browser tests against the exact package/static

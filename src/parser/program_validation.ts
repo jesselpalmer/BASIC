@@ -30,7 +30,7 @@ export function validateProgram(
 /** Internal checks shared by the native and EDUSYSTEM-30 source paths. */
 export function validateSourceLines(
   lines: readonly ParsedLine[],
-  dialect: 'native' | 'edusystem-30',
+  dialect: Exclude<NonNullable<LanguageOptions['dialect']>, 'basic-plus-v4a12-ma2'>,
 ): Program {
   if (!isArray(lines) || lines.some((line) => line?.type !== 'Line')) {
     throw new TypeError('Expected an array of parsed lines');
@@ -59,6 +59,13 @@ export function validateSourceLines(
   dataItems(lines);
   validateInputTargets(lines);
   for (const {statement} of programInstructions(lines)) {
+    if (statement.type === 'RunStatement' && dialect !== 'altair-8k-4.0')
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'Numbered RUN requires the Altair profile',
+        statement.location.start,
+        statement.location.label,
+      );
     if (statement.type === 'ChangeStatement') changeOperands(statement);
     if (statement.type === 'OnStatement') validateDispatch(statement);
     validateKeyboardArguments(statement);

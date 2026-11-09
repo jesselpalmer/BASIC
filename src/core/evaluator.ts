@@ -89,15 +89,21 @@ function binary(node: NodeOf<'BinaryExpression'>, left: BasicValue, right: Basic
 type Frame = {node: Expression; ready: boolean};
 
 const eduSystem30Token = Symbol('edusystem-30-evaluator');
+const altairToken = Symbol('altair-evaluator');
 
 /** Used only after Basic has admitted the bounded EDUSYSTEM-30 source. */
 export function createEduSystem30Evaluator(host: Partial<Host>): Evaluator {
   return new Evaluator(host, {}, eduSystem30Token);
 }
 
+export function createAltairEvaluator(host: Partial<Host>): Evaluator {
+  return new Evaluator(host, {}, altairToken);
+}
+
 /** Evaluates parser-produced expressions; each instance owns its variables. */
 export class Evaluator {
   readonly #dialect: Dialect;
+  readonly #altair: boolean;
   private readonly variables = new Map<string, BasicValue>();
   private arrays = new ArrayStore();
   #eduSystem30Random: EduSystem30Random | null;
@@ -106,8 +112,9 @@ export class Evaluator {
   constructor(
     host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
     options: LanguageOptions = {},
-    internal?: typeof eduSystem30Token,
+    internal?: typeof eduSystem30Token | typeof altairToken,
   ) {
+    this.#altair = internal === altairToken;
     this.#eduSystem30Random = internal === eduSystem30Token ? new EduSystem30Random() : null;
     this.#dialect = validateDialect(options.dialect, 'native');
     this.host = createHost(host);
@@ -118,7 +125,7 @@ export class Evaluator {
   }
 
   reset(declarations: readonly ArrayDeclaration[] = []): void {
-    const arrays = new ArrayStore(declarations);
+    const arrays = new ArrayStore(declarations, this.#altair ? 'altair' : 'native');
     this.variables.clear();
     this.arrays = arrays;
     if (this.#eduSystem30Random) this.#eduSystem30Random = new EduSystem30Random();
@@ -180,6 +187,7 @@ export class Evaluator {
     return evaluateTree(expression, {
       kind: 'native',
       variables: this.variables,
+      defaultNumericScalars: this.#altair,
       arrays: () => this.arrays,
       host: this.host,
       randomArgumentCount: this.#eduSystem30Random ? 1 : 0,
@@ -210,6 +218,7 @@ export class Evaluator {
 interface NativeContext {
   readonly kind: 'native';
   readonly variables: ReadonlyMap<string, BasicValue>;
+  readonly defaultNumericScalars: boolean;
   readonly arrays: () => ArrayStore;
   readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
   readonly randomArgumentCount: 0 | 1;
@@ -615,6 +624,10 @@ function evaluateTree(
         const value =
           context.kind === 'native' ? context.variables.get(name) : context.scalars?.get(name);
         if (value === undefined) {
+          if (context.kind === 'native' && context.defaultNumericScalars) {
+            values.push(0);
+            break;
+          }
           if (
             context.kind === 'ma2-conformance' &&
             context.scalars &&

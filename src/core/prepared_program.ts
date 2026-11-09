@@ -94,17 +94,22 @@ export function prepareSelectedMa2Candidate(
 }
 
 export function prepareProgram(source: string | Program, dialect: Dialect): PreparedProgram {
-  if (dialect === 'basic-plus-v4a12-ma2') throw new TypeError('Expected native or EDUSYSTEM-30');
+  if (dialect === 'basic-plus-v4a12-ma2')
+    throw new TypeError('Expected a shared-driver BASIC dialect');
   let program: Program;
   if (typeof source === 'string') program = parseProgram(source, {dialect});
   else {
     validateDialect(source.dialect, dialect);
-    if (dialect === 'edusystem-30') {
+    if (dialect !== 'native') {
       if (source.type !== 'Program' || typeof source.source !== 'string')
-        throw new TypeError('EDUSYSTEM-30 Program requires exact source');
+        throw new TypeError(
+          `${dialect === 'edusystem-30' ? 'EDUSYSTEM-30' : 'Altair'} Program requires exact source`,
+        );
       program = parseProgram(source.source, {dialect});
       if (!sameTree(program.lines, source.lines))
-        throw new TypeError('Supplied EDUSYSTEM-30 Program disagrees with its source');
+        throw new TypeError(
+          `Supplied ${dialect === 'edusystem-30' ? 'EDUSYSTEM-30' : 'Altair'} Program disagrees with its source`,
+        );
     } else program = validateProgram(source.lines, {dialect});
   }
   const instructions = programInstructions(program.lines);

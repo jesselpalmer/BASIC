@@ -29,6 +29,7 @@ import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets, validateInputLineTarget} from '../core/input.ts';
 import {maxDispatchTargets} from '../core/dispatch.ts';
 import {freezeTree, validateSourceLines} from './program_validation.ts';
+import {validateAltairLine, validateAltairDimensions} from './altair_support.ts';
 import {validateEduSystem30Line} from './edusystem30_support.ts';
 import {preflightBasicPlusMa2Candidate} from './ma2_candidate_support.ts';
 
@@ -53,6 +54,7 @@ export function parseLine(source: string, options: SourceOptions = {}): ParsedLi
   }
   if (lines.length === 0) return null;
   if (dialect === 'edusystem-30') validateEduSystem30Line(lines[0]);
+  if (dialect === 'altair-8k-4.0') validateAltairLine(lines[0]);
   return freezeTree(lines[0]);
 }
 
@@ -64,7 +66,12 @@ export function parseProgram(source: string, options: LanguageOptions = {}): Pro
   }
   const lines = new Parser(source, {dialect}).parse();
   if (dialect === 'edusystem-30') lines.forEach(validateEduSystem30Line);
+  if (dialect === 'altair-8k-4.0') lines.forEach(validateAltairLine);
   const program = validateSourceLines(lines, dialect);
+  if (dialect === 'altair-8k-4.0') {
+    validateAltairDimensions(program.lines);
+    return freezeTree({...program, source});
+  }
   if (dialect !== 'edusystem-30') return program;
   const last = program.lines.at(-1);
   if (last && last.statement.type !== 'EndStatement')
@@ -151,11 +158,19 @@ class Parser {
           expression: !candidate,
           lexicalPolicy: 'basic-plus-1972-10',
         })
-      : tokenize(source, {line, offset});
+      : tokenize(source, {
+          line,
+          offset,
+          lexicalPolicy: this.altair ? 'altair-8k-4.0' : 'native',
+        });
     this.index = 0;
     this.lineStart = 0;
     this.label = null;
     this.depth = 0;
+  }
+
+  get altair(): boolean {
+    return this.dialect === 'altair-8k-4.0';
   }
 
   peek() {
@@ -492,11 +507,15 @@ class Parser {
       }
       case 'CLS':
         return this.node('ClsStatement', command, command, {});
+      case 'RUN':
+        if (!this.altair) break;
+        return this.node('RunStatement', command, command, {});
       case 'END':
         return this.node('EndStatement', command, command, {});
       default:
-        this.fail('UNSUPPORTED_STATEMENT', `Unsupported statement ${command.raw}`, command);
+        break;
     }
+    this.fail('UNSUPPORTED_STATEMENT', `Unsupported statement ${command.raw}`, command);
   }
 
   comma(): void {
@@ -709,7 +728,7 @@ class Parser {
       for (;;) {
         const first = this.peek();
         last =
-          this.candidate &&
+          (this.candidate || this.altair) &&
           this.at('KEYWORD', 'TAB') &&
           this.tokens[this.index + 1]?.type === 'PUNCTUATION' &&
           this.tokens[this.index + 1]?.value === '('
@@ -986,7 +1005,10 @@ class Parser {
         );
       return this.call();
     }
-    if (token.type === 'KEYWORD' && nativeIntrinsic(token.value) !== null) {
+    if (
+      token.type === 'KEYWORD' &&
+      (nativeIntrinsic(token.value) !== null || (this.altair && token.value === 'CHR$'))
+    ) {
       return this.call();
     }
     if (this.at('PUNCTUATION', '(')) {

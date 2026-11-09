@@ -94,9 +94,15 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'array-acceptance.ts',
       'output-acceptance.ts',
       'matches-acceptance.ts',
+      'life2-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
+    mkdirSync(join(consumer, 'docs'));
+    copyFileSync(
+      join(installed, 'docs/life2-altair-reference.json'),
+      join(consumer, 'docs/life2-altair-reference.json'),
+    );
     await checkLibraryConsumers(consumer, installed);
     checkConsumerTypes(root, consumer);
     await checkBrowserConsumer(root, consumer);
