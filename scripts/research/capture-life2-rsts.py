@@ -13,12 +13,12 @@ import tempfile
 
 import pexpect
 
+from life2_reference import DRAW_ANSWERS, boards
+
 FIXTURES = Path(__file__).resolve().parents[1] / 'package/fixtures/classic'
 SIMH_COMMIT = '698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6'
 BUILD = 'RSTS V4A-12 V4A12MA2'
-BORDER = ' 0  1  2  3  4  5  0 '
 MASK = 'XXXX\r@@@@\r\n? '
-DRAW_ANSWERS = ['1,1', '3,1', '5,1', '1,5', '3,5', '5,5']
 
 
 def digest(data):
@@ -83,21 +83,6 @@ def enter_program(console, name, source):
     errors = [int(label) for label in re.findall(r'ILLEGAL VERB at line (\d+)', entry_output)]
     assert flagged == errors, (flagged, errors)
     return flagged
-
-
-def boards(transcript):
-    lines = transcript.split('\n')
-    result = []
-    for index in range(len(lines) - 6):
-        if lines[index] != BORDER or not lines[index + 1].startswith(' 1 '):
-            continue
-        rows = lines[index + 1:index + 6]
-        for row_number, row in enumerate(rows, 1):
-            margin = f' {row_number} '
-            assert len(row) == 21 and row.startswith(margin) and row.endswith(margin), row
-        assert lines[index + 6].startswith(BORDER)
-        result.append([''.join(row[4:18:3]).replace(' ', '.') for row in rows])
-    return result
 
 
 def play(console, answers):
