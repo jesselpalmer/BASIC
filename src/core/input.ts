@@ -15,7 +15,7 @@ import type {
 export type InputStatement =
   NodeOf<'InputStatement'> | NodeOf<'InputTargetsStatement'> | NodeOf<'InputLineStatement'>;
 export const maxInputTargets = 4096;
-const maxResponseLength = 65_536;
+export const maxInputResponseLength = 65_536;
 
 export function isInputStatement(statement?: Statement): statement is InputStatement {
   return (
@@ -140,45 +140,16 @@ export async function readInput(
     (statement.type === 'InputLineStatement' ? '' : `${statement.prompt?.value ?? ''}? `);
   const targets = inputTargets(statement);
   for (;;) {
-    let text: string | null;
-    try {
-      text = await abortable(() => host.readLine(prompt, {signal}), signal, 'Input source failed');
-    } catch (cause) {
-      if (signal.aborted || isAbortError(cause)) throw abortError();
-      throw new BasicRuntimeError(
-        'INPUT_FAILED',
-        'Host input failed',
-        statement.location.start,
-        statement.location.label,
-        {cause},
-      );
-    }
-    if (signal.aborted) throw abortError();
-    if (text === null) {
-      throw new BasicRuntimeError(
-        'INPUT_ENDED',
-        'Input ended before a value was received',
-        statement.location.start,
-        statement.location.label,
-      );
-    }
-    if (typeof text !== 'string') {
-      throw new BasicRuntimeError(
-        'INPUT_FAILED',
-        'Host input must return a string or null',
-        statement.location.start,
-        statement.location.label,
-      );
-    }
+    const text = await readInputResponse(host, prompt, statement.location, signal);
     if (
       (targets.length > 1 || statement.type === 'InputLineStatement') &&
-      text.length > maxResponseLength
+      text.length > maxInputResponseLength
     )
       throw new BasicRuntimeError(
         'INPUT_LIMIT',
         statement.type === 'InputLineStatement'
-          ? `INPUT LINE permits at most ${maxResponseLength} response characters`
-          : `INPUT lists permit at most ${maxResponseLength} response characters`,
+          ? `INPUT LINE permits at most ${maxInputResponseLength} response characters`
+          : `INPUT lists permit at most ${maxInputResponseLength} response characters`,
         statement.location.start,
         statement.location.label,
       );
@@ -190,4 +161,44 @@ export async function readInput(
         : `Invalid input; enter ${targets.length} comma-separated values.\n`,
     );
   }
+}
+
+/** One owned terminal read with shared cancellation and host failure handling. */
+export async function readInputResponse(
+  host: Pick<Host, 'readLine'>,
+  prompt: string,
+  location: Location,
+  signal: AbortSignal,
+): Promise<string> {
+  let text: string | null;
+  try {
+    text = await abortable(() => host.readLine(prompt, {signal}), signal, 'Input source failed');
+  } catch (cause) {
+    if (signal.aborted || isAbortError(cause)) throw abortError();
+    throw new BasicRuntimeError(
+      'INPUT_FAILED',
+      'Host input failed',
+      location.start,
+      location.label,
+      {cause},
+    );
+  }
+  if (signal.aborted) throw abortError();
+  if (text === null) {
+    throw new BasicRuntimeError(
+      'INPUT_ENDED',
+      'Input ended before a value was received',
+      location.start,
+      location.label,
+    );
+  }
+  if (typeof text !== 'string') {
+    throw new BasicRuntimeError(
+      'INPUT_FAILED',
+      'Host input must return a string or null',
+      location.start,
+      location.label,
+    );
+  }
+  return text;
 }

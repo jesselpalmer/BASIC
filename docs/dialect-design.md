@@ -81,7 +81,8 @@ Neither this table nor a guessed README dialect settles those details.
 ## Carry one immutable language context
 
 The core carries a validated, immutable context at these boundaries.
-`Dialect` accepts `'native'`, `'basic-plus-v4a12-ma2'` and `'edusystem-30'`.
+`Dialect` accepts `'native'`, `'basic-plus-v4a12-ma2'`, `'edusystem-30'` and
+`'altair-8k-4.0'`.
 `LanguageOptions` supplies an optional dialect, and
 `SourceOptions` also retains fragment coordinates. Unknown or conflicting context
 throws `TypeError`, rather than a source diagnostic, before program effects.

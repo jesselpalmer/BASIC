@@ -13,6 +13,7 @@ export interface StatementExecutionContext {
   readonly host: Host;
   callHost(callback: 'write' | 'clear', line: Instruction, text?: string): void;
   halt(): void;
+  restart(): void;
 }
 
 /** The Basic driver retains status, host callback guards and failure ownership. */
@@ -121,6 +122,9 @@ export function createNativeStatementPolicy(services: {
         case 'RemStatement':
         case 'DimStatement':
         case 'DataStatement':
+          break;
+        case 'RunStatement':
+          context.restart();
           break;
         case 'EndStatement':
           context.halt();

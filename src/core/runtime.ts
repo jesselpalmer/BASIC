@@ -1,8 +1,9 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
-import {createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
+import {createAltairEvaluator, createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
 import {eduSystem30InputPresentation, formatEduSystem30PrintValue} from './edusystem30_terminal.ts';
+import {AltairTerminal} from './altair_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
@@ -64,6 +65,7 @@ export default class Basic {
   readonly #host: Host;
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
+  readonly #altair: AltairTerminal | null;
   #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
@@ -94,12 +96,15 @@ export default class Basic {
     this.#dialect = validateDialect(options.dialect);
     this.#internalSelected = internal !== undefined || this.#dialect === 'basic-plus-v4a12-ma2';
     const eduSystem30 = this.#dialect === 'edusystem-30';
-    this.#emptyProgram = prepareProgram('', eduSystem30 ? this.#dialect : 'native');
+    this.#altair = this.#dialect === 'altair-8k-4.0' ? new AltairTerminal() : null;
+    this.#emptyProgram = prepareProgram('', this.#internalSelected ? 'native' : this.#dialect);
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
     this.#evaluator = eduSystem30
       ? createEduSystem30Evaluator(this.#host)
-      : new Evaluator(this.#host);
+      : this.#altair
+        ? createAltairEvaluator(this.#host)
+        : new Evaluator(this.#host);
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     this.#data = new DataReader(this.#prepared.dataItems);
     this.#statementPolicy = createNativeStatementPolicy({
@@ -160,6 +165,7 @@ export default class Basic {
     this.#invalidateExecution();
     this.#evaluator.reset();
     this.#graphics.reset();
+    this.#altair?.reset();
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
@@ -171,15 +177,19 @@ export default class Basic {
         program === undefined
           ? (this.#prepared as PreparedProgram)
           : prepareProgram(program, this.#dialect);
-      this.#evaluator.reset(candidate.arrayDeclarations);
-      this.#prepared = candidate;
-      this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
-      this.#data = new DataReader(this.#prepared.dataItems);
+      this.#startSharedRun(candidate);
     } catch (error) {
       this.#recordFailure(error);
       throw error;
     }
     return this.state;
+  }
+
+  #startSharedRun(candidate: PreparedProgram): void {
+    this.#evaluator.reset(candidate.arrayDeclarations);
+    this.#prepared = candidate;
+    this.#controlFlow = new ControlFlow(candidate, this.#evaluator);
+    this.#data = new DataReader(candidate.dataItems);
   }
 
   /** Internal source-bound Program replacement through the same Basic driver. */
@@ -439,7 +449,7 @@ export default class Basic {
 
   #prepareImmediate(source: string, options: SourceOptions): Instruction | null {
     this.#assertAvailable();
-    if (this.#internalSelected || this.#dialect === 'edusystem-30')
+    if (this.#dialect !== 'native' || this.#internalSelected)
       throw new TypeError('Selected execution requires a complete source program');
     if (this.#status === 'halted' || this.#status === 'error') return null;
     if (!this.#immediate && this.#status === 'running') {
@@ -589,39 +599,50 @@ export default class Basic {
           this.#executing = false;
         }
       } else {
-        const values = await readInput(
-          {
-            readLine: (prompt, options) => {
-              this.#executing = true;
-              try {
-                return this.#host.readLine(prompt, options);
-              } finally {
-                this.#executing = false;
-              }
-            },
-            write: (text) => {
-              this.#executing = true;
-              try {
-                this.#callHost('write', line, text);
-              } finally {
-                this.#executing = false;
-              }
-            },
+        const host: Pick<Host, 'readLine' | 'write'> = {
+          readLine: (prompt, options) => {
+            this.#executing = true;
+            try {
+              return this.#host.readLine(prompt, options);
+            } finally {
+              this.#executing = false;
+            }
           },
-          statement,
-          controller.signal,
-          this.#dialect === 'edusystem-30' ? eduSystem30InputPresentation : undefined,
-        );
-        if (generation !== this.#generation || controller.signal.aborted) throw abortError();
-        // Indices may invoke host functions. Keep the same mutation guard as
-        // synchronous assignment while committing the validated response.
-        this.#executing = true;
-        try {
-          inputTargets(statement).forEach((target, index) =>
-            this.#evaluator.assign(target, values[index]),
+          write: (text) => {
+            this.#executing = true;
+            try {
+              this.#callHost('write', line, text);
+            } finally {
+              this.#executing = false;
+            }
+          },
+        };
+        const commit = (assign: () => void) => {
+          if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+          // Indices may invoke host functions. Retain the synchronous guard.
+          this.#executing = true;
+          try {
+            assign();
+          } finally {
+            this.#executing = false;
+          }
+        };
+        if (this.#altair) {
+          await this.#altair.input(host, statement, controller.signal, (target, value) =>
+            commit(() => this.#evaluator.assign(target, value)),
           );
-        } finally {
-          this.#executing = false;
+        } else {
+          const values = await readInput(
+            host,
+            statement,
+            controller.signal,
+            this.#dialect === 'edusystem-30' ? eduSystem30InputPresentation : undefined,
+          );
+          commit(() =>
+            inputTargets(statement).forEach((target, index) =>
+              this.#evaluator.assign(target, values[index]),
+            ),
+          );
         }
       }
       if (generation !== this.#generation || controller.signal.aborted) throw abortError();
@@ -682,13 +703,26 @@ export default class Basic {
           line.label,
         );
       }
-      this.#statementPolicy.execute(line, {
-        controlFlow: this.#controlFlow,
-        host: this.#host,
-        callHost: (callback, instruction, text) => this.#callHost(callback, instruction, text),
-        halt: () => this.#halt(),
-      });
-      if (!this.#immediate && statement.type !== 'EndStatement')
+      if (this.#altair && statement.type === 'PrintStatement') {
+        this.#altair.print(statement, this.#evaluator, (text) =>
+          this.#callHost('write', line, text),
+        );
+      } else {
+        this.#statementPolicy.execute(line, {
+          controlFlow: this.#controlFlow,
+          host: this.#host,
+          callHost: (callback, instruction, text) => this.#callHost(callback, instruction, text),
+          halt: () => this.#halt(),
+          // Restart inside the current driver, retaining its cancellation,
+          // debugger gate, instruction budget and terminal column.
+          restart: () => this.#startSharedRun(this.#prepared as PreparedProgram),
+        });
+      }
+      if (
+        !this.#immediate &&
+        statement.type !== 'EndStatement' &&
+        statement.type !== 'RunStatement'
+      )
         this.#controlFlow.finishInstruction();
     } catch (error) {
       this.#recordFailure(error);

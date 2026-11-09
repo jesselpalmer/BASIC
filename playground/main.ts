@@ -16,6 +16,7 @@ import picture from '../examples/picture.bas' with {type: 'text'};
 import bounce from '../examples/bounce.bas' with {type: 'text'};
 import move from '../examples/move.bas' with {type: 'text'};
 import pong from '../examples/pong.bas' with {type: 'text'};
+import life2 from '../scripts/package/fixtures/classic/life2-mar75-reviewed.bas' with {type: 'text'};
 import matches from '../scripts/package/fixtures/classic/23mtch-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
@@ -67,6 +68,7 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   pong: {source: pong, dialect: 'native'},
   checker: {source: checker, dialect: 'basic-plus-v4a12-ma2'},
   matches: {source: matches, dialect: 'edusystem-30'},
+  life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
 canvas.width = GRAPHICS_WIDTH;
@@ -282,6 +284,10 @@ const session = new BrowserSession({
     if (session.state.dialect === 'edusystem-30') {
       write(prompt);
       inputPrompt.textContent = 'Enter a number';
+    } else if (session.state.dialect === 'altair-8k-4.0') {
+      write(prompt);
+      inputPrompt.textContent =
+        prompt === '?? ' ? 'Enter the remaining coordinates' : 'Program input';
     } else inputPrompt.textContent = prompt || 'Program input';
     inputValue.value = '';
     inputForm.hidden = false;

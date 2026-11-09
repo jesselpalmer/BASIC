@@ -11,11 +11,13 @@ keyboard controls, with a complete Pong game written in BASIC.
 **1.0 is not ready:** verified classic-game compatibility is now required.
 See the [compatibility roadmap](docs/classic-games-roadmap.md) and
 [release decision #109](https://github.com/jesselpalmer/BASIC/issues/109).
-Native BASIC and two bounded historical profiles run today. The reviewed
+Native BASIC and three bounded historical profiles run today. The reviewed
 [1CHECK](docs/first-game-milestone.md) completes under `basic-plus-v4a12-ma2`.
 The reviewed [23MTCH](docs/edusystem30-profile.md) matches the archived loss,
-replay and win under `edusystem-30`. Both are available in the library,
-portable CLI/editor and browser playground.
+replay and win under `edusystem-30`. The reviewed
+[LIFE2](docs/altair-life2-profile.md) matches the Altair win, draw and restarts
+under `altair-8k-4.0`. All three are available in the library, portable
+CLI/editor and browser playground.
 The [language reference](docs/language-v1.md) describes current native behavior;
 explicit native numeric/string arrays, colon sequences, literal GOSUB/RETURN,
 and typed DATA/READ/RESTORE
