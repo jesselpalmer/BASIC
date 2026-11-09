@@ -1,13 +1,15 @@
 # EDUSYSTEM-30 selected profile
 
-The bounded `edusystem-30` profile runs the
-[reviewed March 1975 23MTCH source](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run).
-The published game and archived `EDU30.SV` run supply the reference. The game
-automatically starts another round after either result.
+The bounded `edusystem-30` profile runs the reviewed March 1975
+[23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
+and [LETTER](classic-source-review.md#letter) listings. Both automatically
+start another round. The book and archived `EDU30.SV` runs supply the references.
 
 - In the [playground](https://basic-playground-rho.vercel.app/), choose
   **23MTCH · EDUSYSTEM-30 selected profile** and select **Run program**.
   Enter 1, 2 or 3 on each turn. Select **Stop program** to end the session.
+  For **LETTER · EDUSYSTEM-30 selected profile**, submit one uppercase letter
+  at a time. Its higher and lower clues narrow the guess.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -15,26 +17,27 @@ automatically starts another round after either result.
 - For the library, call `parseProgram(source, {dialect: 'edusystem-30'})`
   and pass that Program to `new Basic(host, {dialect: 'edusystem-30'})`.
   Use `runAsync` for INPUT and cancel when done. The `readLine` callback receives
-  `?` and returns the user's response, while `write` receives program output.
+  `?` for numeric input and an empty prompt for character input. The
+  `write` callback receives program output.
   Host input echo and the OS/8 banner are outside the library transcript.
   EOF while waiting for a move reports `INPUT_ENDED`.
 
 ## Admitted forms
 
-| Area                   | Supported slice                                                                                                                                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Statements             | One statement per numbered line. REM, scalar LET, numeric IF with a literal line target, GO TO, scalar INPUT, PRINT and END. Complete nonempty source ends in END at the highest label.                |
-| Values and expressions | Single-letter numeric scalars, small unsigned integer source literals, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator for the game. |
-| INPUT                  | One numeric scalar and a bare `?`. An invalid numeric entry prints `BAD DATA-RETYPE FROM ERROR.` and retries. The game's own checks reject numeric moves outside its rules.                            |
-| PRINT                  | Literal text and numeric scalar items separated by semicolons. A terminal semicolon continues the line. Numeric output uses a space for a nonnegative sign and one trailing space.                     |
-| RNG                    | The [archived default stream](edusystem30-rng.md) starts fresh on each RUN. A replay inside a RUN retains its state.                                                                                   |
+| Area                   | Supported slice                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, scalar INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE and END. Complete nonempty source ends in END at the highest label.                                 |
+| Values and expressions | Single-letter numeric scalars, small unsigned integer source literals, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator for the game.                                                             |
+| INPUT                  | Numeric input prompts with a bare `?` and retries invalid numbers. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty response to Return (13) and retries longer or non-ASCII responses. |
+| PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                             |
+| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                  |
 
 All lines are checked before execution, including unreachable lines. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
 dialect through import, save and reload. Immediate library statements are
-native-only. The verified behavior is the 23MTCH slice, with historical numeric
-precision, diagnostics, general `RND(X)`, `RANDOMIZE`, and additional language
-forms left for separate evidence and implementation.
+native-only. Historical numeric precision, diagnostic continuation, general
+`RND(X)`, and additional language forms require separate evidence.
+A false line-target IF continues with the next backslash statement.
 
 ## Verification
 

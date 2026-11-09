@@ -161,7 +161,11 @@ class Parser {
       : tokenize(source, {
           line,
           offset,
-          lexicalPolicy: this.altair ? 'altair-8k-4.0' : 'native',
+          lexicalPolicy: this.altair
+            ? 'altair-8k-4.0'
+            : this.eduSystem30
+              ? 'edusystem-30'
+              : 'native',
         });
     this.index = 0;
     this.lineStart = 0;
@@ -171,6 +175,10 @@ class Parser {
 
   get altair(): boolean {
     return this.dialect === 'altair-8k-4.0';
+  }
+
+  get eduSystem30(): boolean {
+    return this.dialect === 'edusystem-30';
   }
 
   peek() {
@@ -190,7 +198,11 @@ class Parser {
   }
 
   atStatementEnd() {
-    return this.atEnd() || this.at('PUNCTUATION', ':') || (this.branchDepth > 0 && this.atElse());
+    return this.atEnd() || this.atSeparator() || (this.branchDepth > 0 && this.atElse());
+  }
+
+  atSeparator() {
+    return this.at('PUNCTUATION', ':') || (this.eduSystem30 && this.at('PUNCTUATION', '\\'));
   }
 
   atElse() {
@@ -277,15 +289,17 @@ class Parser {
   sequence(): Statement {
     const statements: SimpleStatement[] = [this.statement()];
     const separators: Location[] = [];
-    while (this.at('PUNCTUATION', ':')) {
-      const colon = this.take();
+    while (this.atSeparator()) {
+      const separator = this.take();
+      if (this.eduSystem30 && separator.value !== '\\')
+        this.fail('UNEXPECTED_TOKEN', 'EDUSYSTEM-30 requires \\ between statements', separator);
       if (statements.length === maxLineStatements)
         this.fail(
           'STATEMENT_LIMIT',
           `A line permits at most ${maxLineStatements} statements`,
-          colon,
+          separator,
         );
-      separators.push(this.location(colon));
+      separators.push(this.location(separator));
       statements.push(this.statement());
     }
     return statements.length === 1
@@ -434,6 +448,16 @@ class Parser {
         }
       }
       case 'INPUT': {
+        if (this.eduSystem30 && this.at('PUNCTUATION', '$')) {
+          this.take();
+          const name = this.expect('IDENTIFIER', undefined, 'Expected a variable after INPUT $');
+          const target = this.node('Variable', name, name, {name: name.value});
+          return this.node('InputStatement', command, target, {
+            prompt: null,
+            target,
+            character: true,
+          });
+        }
         if (this.at('KEYWORD', 'LINE')) {
           this.take();
           const name = this.expect(
@@ -510,6 +534,9 @@ class Parser {
       case 'RUN':
         if (!this.altair) break;
         return this.node('RunStatement', command, command, {});
+      case 'RANDOMIZE':
+        if (!this.eduSystem30) break;
+        return this.node('RandomizeStatement', command, command, {});
       case 'END':
         return this.node('EndStatement', command, command, {});
       default:
@@ -1007,7 +1034,8 @@ class Parser {
     }
     if (
       token.type === 'KEYWORD' &&
-      (nativeIntrinsic(token.value) !== null || (this.altair && token.value === 'CHR$'))
+      (nativeIntrinsic(token.value) !== null ||
+        ((this.altair || this.eduSystem30) && token.value === 'CHR$'))
     ) {
       return this.call();
     }

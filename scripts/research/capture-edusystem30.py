@@ -29,6 +29,10 @@ STATE_SAMPLES = 512
 RNG_ENTRY_PC = '03532'
 RNG_PRODUCT_PC = '03541'
 RNG_COMMIT_PC = '03554'
+LETTER_FIXTURE = 'scripts/package/fixtures/classic/letter-mar75-text.bas'
+LETTER_FIXTURE_SHA256 = 'c454938f15d835185d5512fbbc7dae548010da77f4ab6394ecec26672524dcb0'
+LETTER_CLOCK_WORD = 0o2304
+LETTER_ANSWERS = list('AZDAAAAAW')
 
 
 def digest(data):
@@ -40,13 +44,14 @@ def normalize(text):
 
 
 @contextmanager
-def edu30(simulator, tape):
+def edu30(simulator, tape, *, space_parity=False):
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory)
         # The OS/8 port writes scratch blocks while compiling a RUN.
         shutil.copyfile(tape, path / 'working.tu56')
         (path / 'boot.ini').write_text(
             'set cpu 32k\nset tti 7b\nset tto 7b\n'
+            + ('set tti space\n' if space_parity else '') +
             'attach dt0 working.tu56\nboot dt0\n',
             encoding='ascii',
         )
@@ -188,15 +193,95 @@ def capture_game(console, source, joined_prompt, loss_message='I WON!! BETTER'):
     }
 
 
+def capture_letter(console, source):
+    for line in source.splitlines():
+        send_line(console, line)
+
+    def command(text):
+        console.sendline(text)
+        console.expect_exact('sim> ')
+        return normalize(console.before)
+
+    console.sendcontrol('e')
+    console.expect_exact('sim> ')
+    command('break 02755,02757')
+    console.sendline('continue')
+    send_line(console, 'RUN')
+    console.expect_exact('Breakpoint, PC: 02755')
+    console.expect_exact('sim> ')
+    seed = command('examine 150-151')
+    assert re.search(r'150:\s+1461\n151:\s+3007', seed), seed
+    command(f'deposit 7471 {LETTER_CLOCK_WORD:o}')
+    console.sendline('continue')
+    console.expect_exact('Breakpoint, PC: 02757')
+    console.expect_exact('sim> ')
+    added = command('examine ac')
+    assert re.search(r'AC:\s+3765', added), added
+    console.sendline('continue')
+    console.expect_exact('\r\n')  # Simulator command echo.
+
+    prompt = 'WHAT IS YOUR GUESS?'
+    chunks = []
+    for answer in LETTER_ANSWERS:
+        console.expect_exact(prompt)
+        chunks.append(console.before + prompt)
+        console.send(answer)
+        console.expect_exact(answer)
+        assert console.before == '', console.before
+    console.expect_exact(prompt)
+    chunks.append(console.before + prompt)
+    transcript = normalize(''.join(chunks))
+    assert transcript.startswith('LETTER GUESSING GAME\n'), repr(transcript[:90])
+    assert re.findall(r'YOU GOT IT IN (\d+) GUESSES!!', transcript) == ['3', '6']
+    assert transcript.count('LET\'S PLAY AGAIN.....') == 2
+    assert '\x07' * 15 in transcript and transcript.count('\x07') == 15
+    return {
+        'simulatorCommit': SIMULATOR,
+        'tapeSha256': TAPE_SHA256,
+        'fixtureSha256': digest(source.encode('ascii')),
+        'clockWord': LETTER_CLOCK_WORD,
+        'answers': LETTER_ANSWERS,
+        'outputSha256': digest(transcript.encode('ascii')),
+    }
+
+
+def capture_letter_sequences(console):
+    for line in [
+        '10 FOR I=3 TO 1\\PRINT "IN";I\\NEXT I',
+        '20 PRINT "AFTER REVERSE LOOP"',
+        '30 IF 1=2 THEN 70\\PRINT "AFTER FALSE IF"',
+        '40 PRINT "NEXT LINE"',
+        '50 FOR I=0 TO 0\\PRINT "ZERO";I\\NEXT I',
+        '70 END',
+    ]:
+        send_line(console, line)
+    send_line(console, 'RUN')
+    console.expect_exact('READY')
+    lines = normalize(console.before).splitlines()
+    result = lines[lines.index('AFTER REVERSE LOOP'):-1]
+    assert result == ['AFTER REVERSE LOOP', 'AFTER FALSE IF', 'NEXT LINE', 'ZERO 0 ']
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
     parser.add_argument('--tape', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--letter', action='store_true', help='Capture the LETTER replay')
     args = parser.parse_args()
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert digest(tape.read_bytes()) == TAPE_SHA256
     root = Path(__file__).resolve().parents[2]
+    if args.letter:
+        letter = (root / LETTER_FIXTURE).read_bytes()
+        assert digest(letter) == LETTER_FIXTURE_SHA256
+        with edu30(simulator, tape, space_parity=True) as console:
+            evidence = capture_letter(console, letter.decode('ascii'))
+        with edu30(simulator, tape, space_parity=True) as console:
+            evidence['sequenceProbeOutput'] = capture_letter_sequences(console)
+        args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
+        return
     fixture = (root / FIXTURE).read_bytes()
     assert digest(fixture) == FIXTURE_SHA256
     reviewed = (root / REVIEWED_FIXTURE).read_bytes()

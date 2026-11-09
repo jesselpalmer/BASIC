@@ -95,14 +95,13 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'output-acceptance.ts',
       'matches-acceptance.ts',
       'life2-acceptance.ts',
+      'letter-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
     mkdirSync(join(consumer, 'docs'));
-    copyFileSync(
-      join(installed, 'docs/life2-altair-reference.json'),
-      join(consumer, 'docs/life2-altair-reference.json'),
-    );
+    for (const reference of ['life2-altair-reference.json', 'letter-edusystem30-reference.json'])
+      copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);
     checkConsumerTypes(root, consumer);
     await checkBrowserConsumer(root, consumer);

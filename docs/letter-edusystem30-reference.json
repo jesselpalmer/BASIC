@@ -1,0 +1,9 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "c454938f15d835185d5512fbbc7dae548010da77f4ab6394ecec26672524dcb0",
+  "clockWord": 1220,
+  "answers": ["A", "Z", "D", "A", "A", "A", "A", "A", "W"],
+  "outputSha256": "d7f803ff018a1e526b332e6d0e60e9dd0f6e49a2150bc094f8493fe28ca84a4a",
+  "sequenceProbeOutput": ["AFTER REVERSE LOOP", "AFTER FALSE IF", "NEXT LINE", "ZERO 0 "]
+}

@@ -66,6 +66,17 @@ export function validateSourceLines(
         statement.location.start,
         statement.location.label,
       );
+    if (
+      dialect !== 'edusystem-30' &&
+      (statement.type === 'RandomizeStatement' ||
+        (statement.type === 'InputStatement' && statement.character !== undefined))
+    )
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'RANDOMIZE and character INPUT require the EDUSYSTEM-30 profile',
+        statement.location.start,
+        statement.location.label,
+      );
     if (statement.type === 'ChangeStatement') changeOperands(statement);
     if (statement.type === 'OnStatement') validateDispatch(statement);
     validateKeyboardArguments(statement);

@@ -6,7 +6,7 @@ import type {DataReader} from './data.ts';
 import type {Evaluator} from './evaluator.ts';
 import type {GraphicsState} from './graphics.ts';
 import type {Instruction} from './instructions.ts';
-import type {BasicValue, Host} from './types.ts';
+import type {Expression, Host, Location} from './types.ts';
 
 export interface StatementExecutionContext {
   readonly controlFlow: ControlFlow;
@@ -25,9 +25,12 @@ export function createNativeStatementPolicy(services: {
   readonly evaluator: Evaluator;
   readonly data: () => DataReader;
   readonly graphics: GraphicsState;
-  readonly formatPrintValue?: (value: BasicValue) => string;
+  readonly formatPrintItem?: (item: Expression) => string;
+  readonly randomize?: (location: Location) => void;
+  readonly fallThroughIfFalse?: boolean;
 }): StatementExecutionPolicy {
-  const formatPrintValue = services.formatPrintValue ?? String;
+  const formatPrintItem =
+    services.formatPrintItem ?? ((item) => String(services.evaluator.evaluate(item)));
   return Object.freeze({
     execute(line: Instruction, context: StatementExecutionContext) {
       const statement = line.statement;
@@ -66,7 +69,7 @@ export function createNativeStatementPolicy(services: {
         case 'IfStatement':
           if (services.evaluator.compare(statement.condition))
             context.controlFlow.jump(statement.target.value, statement.target.location);
-          else context.controlFlow.skipLine(statement.location);
+          else if (!services.fallThroughIfFalse) context.controlFlow.skipLine(statement.location);
           break;
         case 'InlineIfStatement':
           context.controlFlow.chooseBranch(
@@ -104,9 +107,7 @@ export function createNativeStatementPolicy(services: {
           break;
         }
         case 'PrintStatement': {
-          const text = statement.items
-            .map((item) => formatPrintValue(services.evaluator.evaluate(item)))
-            .join('');
+          const text = statement.items.map(formatPrintItem).join('');
           context.callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
           break;
         }
@@ -125,6 +126,10 @@ export function createNativeStatementPolicy(services: {
           break;
         case 'RunStatement':
           context.restart();
+          break;
+        case 'RandomizeStatement':
+          // Whole-program admission binds this statement to the EDUSYSTEM-30 policy.
+          services.randomize!(statement.location);
           break;
         case 'EndStatement':
           context.halt();

@@ -1,5 +1,6 @@
 import {BasicSyntaxError} from '../core/diagnostic.ts';
-import type {Expression, NodeOf, ParsedLine} from '../core/types.ts';
+import {lineStatements} from '../core/instructions.ts';
+import type {Expression, NodeOf, ParsedLine, SimpleStatement} from '../core/types.ts';
 
 function unsupported(node: {location: ParsedLine['location']}, detail: string): never {
   throw new BasicSyntaxError(
@@ -48,28 +49,37 @@ function validateNumber(expression: Expression): void {
         }
         break;
       default:
-        unsupported(node, 'the numeric expressions used by 23MTCH');
+        unsupported(node, 'bounded numeric expressions');
     }
   }
 }
 
 function validatePrint(statement: NodeOf<'PrintStatement'>): void {
-  const {items, separators, trailingSemicolon} = statement;
-  if (items.length && separators.length !== items.length - (trailingSemicolon ? 0 : 1))
-    unsupported(statement, 'semicolon-separated PRINT items');
-  for (const item of items) {
+  for (const item of statement.items) {
+    if (
+      item.type === 'CallExpression' &&
+      item.name === 'CHR$' &&
+      item.arguments.length === 1 &&
+      item.arguments[0].type === 'NumberLiteral' &&
+      item.arguments[0].raw === '7'
+    )
+      continue;
     if (item.type !== 'StringLiteral') validateScalar(item);
   }
 }
 
-/** The reviewed game uses one statement per line and only this closed subset. */
-export function validateEduSystem30Line({statement}: ParsedLine): void {
+export function validateEduSystem30Line(line: ParsedLine): void {
+  for (const statement of lineStatements(line)) validateStatement(statement);
+}
+
+function validateStatement(statement: SimpleStatement): void {
   // Every statement outside the allowlist is unsupported.
   // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
   switch (statement.type) {
     case 'RemStatement':
     case 'EndStatement':
     case 'GotoStatement':
+    case 'RandomizeStatement':
       return;
     case 'LetStatement':
       validateScalar(statement.target);
@@ -80,13 +90,25 @@ export function validateEduSystem30Line({statement}: ParsedLine): void {
       validateNumber(statement.condition.right);
       return;
     case 'InputStatement':
-      if (statement.prompt) unsupported(statement.prompt, 'unprompted numeric scalar INPUT');
+      if (statement.prompt) unsupported(statement.prompt, 'unprompted scalar INPUT');
       validateScalar(statement.target);
+      return;
+    case 'ForStatement':
+      validateScalar(statement.variable);
+      validateNumber(statement.start);
+      validateNumber(statement.end);
+      if (statement.step) unsupported(statement.step, 'FOR with an implicit step of one');
+      return;
+    case 'NextStatement':
+      validateScalar(statement.variable);
       return;
     case 'PrintStatement':
       validatePrint(statement);
       return;
     default:
-      unsupported(statement, 'REM, LET, IF with a line target, GO TO, INPUT, PRINT and END');
+      unsupported(
+        statement,
+        'REM, LET, IF with a line target, GO TO, INPUT, FOR/NEXT, PRINT, RANDOMIZE and END',
+      );
   }
 }
