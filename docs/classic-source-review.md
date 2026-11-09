@@ -544,7 +544,7 @@ The DEC builds were booted from the [CAPS-11 tape archive](https://archive.decro
 and the [RT-11 V5.3 SIMH disk set](https://archive.decromancer.ca/bitsavers.org/bits/DEC/pdp11/simh_images/).
 The BASIC-80 build is included in [Schorn's CP/M 2 simulator disk](https://schorn.ch/altair.html).
 The Altair replay establishes a later working historical configuration. The
-book's original LIFE2 interpreter attribution remains open.
+separate DECUS edition below has a verified BASIC-PLUS replay.
 
 ### Original interpreter investigation
 
@@ -552,6 +552,48 @@ The March 1975 author page credits Brian Wyvill of Bradford University.
 The listing and its sample run carry no machine or interpreter identifier.
 Wyvill recalls being a graduate student in Bradford in early 1972.
 [Printed author credit](https://www.cs.brandeis.edu/~storer/LunarLander/zzzOtherStuff/101BasicComputerGames_1975-OnLineText.pdf#page=147) · [Wyvill's account](https://www.brianwyvill.com/blog/climbing-gf3t4)
+
+#### DECUS BASIC-PLUS edition
+
+DECUS RSTS-11-14, _Games, Puzzles and Recreation—2_, is catalogued as a
+September 1973 release for RSTS V4A-12 or RSTS/E V05-21. The companion PDP-11
+catalogue entry 110024 identifies BASIC-PLUS as the source language. The
+surviving `LIFE2.BAS` credits Wyvill at Bradford and directs players to
+Ahl's write-up.
+[RSTS package catalogue](https://pdp-11.trailing-edge.com/rsts11/rsts-11-014/index.html) · [PDP-11 catalogue entry](https://www.ibiblio.org/pub/academic/computer-science/history/pdp-11/decus/110024.html) · [Archived LIFE2 source](https://pdp-11.trailing-edge.com/rsts11/rsts-11-014/LIFE2.BAS)
+
+The DECUS edition includes an introduction and author credit, uses five characters
+in each coordinate mask and branches to line 1 with `GOTO 1` after a win or
+draw. The reviewed book listing uses four characters in each mask and ends
+those branches with bare `RUN`. On RSTS V4A-12 MA2, the archived DECUS source
+listed back with both continuation lines intact and reproduced all seven
+printed win boards. After the win, `GOTO 1` printed the introduction again,
+then line 10 hit `OUT OF DATA`. A fresh terminal `RUN` rewound DATA and
+reached the two-board draw, followed by the same restart error. The
+[capture record](life2-decus-rsts-reference.json) pins the source and
+transcript hashes.
+
+This establishes BASIC-PLUS for the DEC-distributed edition. The catalogue
+dates the package, while the surviving extraction and the replay establish
+the listing and its behavior. The book's July 1973 first printing predates the
+DECUS package date. The Smithsonian holds an April 1974 second printing for a
+future listing comparison. Wyvill's submission and the source system for the
+exact March 1975 listing and sample output remain unverified.
+[Book printing history](https://www.bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=2) · [Smithsonian second printing](https://www.si.edu/object/book-101-basic-computer-games%3Anmah_1465425)
+
+Download the linked `LIFE2.BAS` without converting its line endings. With
+the [same RSTS setup](#rsts-v4a-12-ma2-reference-run), run:
+
+```sh
+python3 scripts/research/capture-life2-rsts.py \
+  --simulator /path/to/pdp11 --disk /path/to/uninitialized-rk05.dsk \
+  --decus-source /path/to/LIFE2.BAS --output /tmp/life2-decus-rsts-reference.json
+diff -u \
+  <(python3 -m json.tool docs/life2-decus-rsts-reference.json) \
+  <(python3 -m json.tool /tmp/life2-decus-rsts-reference.json)
+```
+
+#### Bradford computing records
 
 A 1967 UK parliamentary inventory lists a Zebra and an ICT 1909 at Bradford.
 A departmental report dated December 1967 records computation on Bradford's 1909. This establishes local hardware and leaves the game's connection to it

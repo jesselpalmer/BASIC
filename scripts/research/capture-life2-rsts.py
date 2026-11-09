@@ -19,6 +19,10 @@ FIXTURES = Path(__file__).resolve().parents[1] / 'package/fixtures/classic'
 SIMH_COMMIT = '698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6'
 BUILD = 'RSTS V4A-12 V4A12MA2'
 MASK = 'XXXX\r@@@@\r\n? '
+DECUS_SOURCE_URL = 'https://pdp-11.trailing-edge.com/rsts11/rsts-11-014/LIFE2.BAS'
+DECUS_SOURCE_SHA256 = '93513ed242e08f9d9e77a3e4f599157c2f7cc55e0fe014d2998fed9b560c2941'
+DECUS_MASK = 'XXXXX\r@@@@@\r? '
+DRAW_BOARDS = [['*.*.*', '.....', '.....', '.....', '#.#.#'], ['.....'] * 5]
 
 
 def digest(data):
@@ -85,7 +89,7 @@ def enter_program(console, name, source):
     return flagged
 
 
-def play(console, answers):
+def play(console, answers, mask=MASK):
     enter(console, 'RUN')
     chunks = []
     for answer in answers:
@@ -98,7 +102,7 @@ def play(console, answers):
     chunks.append(console.before)
     text = ''.join(chunks).replace('\r\n', '\n')
     text = re.sub(r'^LIFE2 +[^\n]*\n', '', text, count=1)
-    assert text.count(MASK) == len(answers), repr(text)
+    assert text.count(mask) == len(answers), repr(text)
     return text
 
 
@@ -119,7 +123,7 @@ def capture(console, source, sample):
     exact_draw = play(console, DRAW_ANSWERS)
     assert boards(exact_win) == sample['boards']
     assert 'SAME COORD. SET TO 0' in exact_win
-    assert boards(exact_draw) == [['*.*.*', '.....', '.....', '.....', '#.#.#'], ['.....'] * 5]
+    assert boards(exact_draw) == DRAW_BOARDS
 
     end_probe = [
         line.removesuffix(':RUN') + ':END' if line.startswith(('574 ', '575 ')) else line
@@ -160,15 +164,62 @@ def capture(console, source, sample):
     }
 
 
+def capture_decus(console, source, sample):
+    enter(console, 'NEW LIFE2')
+    console.expect_exact('Ready')
+    entry_output = []
+    for index, line in enumerate(source):
+        # RSTS uses LF for a continuation and CR to end a numbered line.
+        continued = index + 1 < len(source) and source[index + 1].startswith('\t')
+        console.send(line + ('\n' if continued else '\r'))
+        console.expect_exact(line.expandtabs(8))
+        entry_output.append(console.before)
+        console.expect_exact('\n' if continued else '\r\n')
+    entry_output.append(enter(console, 'LIST'))
+    console.expect_exact('Ready')
+    listed = console.before.replace('\n\r', '\n').rstrip('\r\n').splitlines()[1:]
+    assert listed == [line.expandtabs(8) for line in source], listed
+    assert 'ILLEGAL VERB' not in ''.join(entry_output), entry_output
+
+    answers = [answer for pair in sample['opening'] + sample['turns'] for answer in pair]
+    win = play(console, answers, DECUS_MASK)
+    # A new terminal RUN after the win must rewind DATA for the draw.
+    draw = play(console, DRAW_ANSWERS, DECUS_MASK)
+    assert boards(win) == sample['boards']
+    assert 'SAME COORD. SET TO 0' in win
+    assert boards(draw) == DRAW_BOARDS
+
+    restart = '\nGAME OF COMPETITIVE LIFE'
+    ending = 'OUT OF DATA at line 10'
+    assert 'PLAYER 1 IS THE WINNER' + restart in win
+    assert 'A DRAW GAME' + restart in draw
+    return {
+        'sourceUrl': DECUS_SOURCE_URL,
+        'physicalLines': len(source),
+        'numberedLines': sum(line[0].isdigit() for line in source),
+        'coordinatePrompt': DECUS_MASK,
+        'drawAnswers': DRAW_ANSWERS,
+        'win': observation(win, ending),
+        'drawAfterFreshRun': observation(draw, ending),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', required=True, type=Path)
     parser.add_argument('--disk', required=True, type=Path)
+    parser.add_argument('--decus-source', type=Path, help='Archived DECUS RSTS-11-14 LIFE2.BAS')
     parser.add_argument('--output', required=True, type=Path)
     args = parser.parse_args()
-    data = (FIXTURES / 'life2-mar75-reviewed.bas').read_bytes()
     sample = json.loads((FIXTURES / 'life2-sample.json').read_text())
-    assert digest(data) == sample['sourceSha256']
+    if args.decus_source:
+        data = args.decus_source.read_bytes()
+        assert digest(data) == DECUS_SOURCE_SHA256, 'Unexpected DECUS source bytes'
+        capture_source = capture_decus
+    else:
+        data = (FIXTURES / 'life2-mar75-reviewed.bas').read_bytes()
+        assert digest(data) == sample['sourceSha256']
+        capture_source = capture
     assert args.disk.stat().st_size == 2494464, 'Expected a raw RK05 disk before REFRESH'
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -182,7 +233,7 @@ def main():
             str(args.simulator.resolve()), ['boot.ini'], cwd=directory, encoding='ascii', timeout=20,
         ) as console:
             boot(console)
-            reference = capture(console, data.decode('ascii').splitlines(), sample)
+            reference = capture_source(console, data.decode('ascii').splitlines(), sample)
     result = {
         'schemaVersion': 1,
         'simulatorCommit': SIMH_COMMIT,
@@ -191,7 +242,7 @@ def main():
         **reference,
     }
     args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
-    print('Captured archived LIFE2 win, draw and occupied-offset observations')
+    print(f'Captured LIFE2 observations in {args.output}')
 
 
 if __name__ == '__main__':

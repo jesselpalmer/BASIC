@@ -16,9 +16,10 @@ Record independent and user acceptance of 23MTCH under #129.
 The [reviewed LIFE2 listing](altair-life2-profile.md) matches the archived
 Altair 8K BASIC win, draw, restarts and coordinate retries through the library,
 portable CLI/editor and browser. Choose **LIFE2 · Altair 8K BASIC selected profile**
-in the normal editor. The original interpreter attribution remains under #115
-and independent and user acceptance remain under #129. The
-[1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
+in the normal editor. The [DECUS edition](classic-source-review.md#decus-basic-plus-edition)
+has a verified RSTS BASIC-PLUS replay. Attribution for Wyvill's submission and
+the book listing remains under #115. Independent and user acceptance remain
+under #129. The [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
 #129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
 remain separate checkpoints.
 
