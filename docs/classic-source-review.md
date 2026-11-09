@@ -494,8 +494,11 @@ listing, including both original numbered RUN statements.
 [MITS 1975 BASIC reference, keyboard input and commands](https://www.bitsavers.org/pdf/mits/MITS_AltairBASIC_1975.pdf)
 
 The [capture record](life2-altair-reference.json) pins the archived image and
-the transcript. It normalizes CRLF to LF and retains the mask's standalone
-carriage returns, printed spacing and input echo.
+the replay. It normalizes CRLF to LF and retains standalone carriage returns
+and printed spacing. The replay includes separate digests for the terminal
+transcript and for program output plus prompts, with typed responses omitted
+from the latter. The output-and-prompts digest is the reference for hosts
+where program output and input echo travel through separate callbacks.
 Use `pexpect` and build `altairz80` from the SIMH revision pinned for the
 RSTS capture.
 
@@ -507,6 +510,27 @@ diff -u \
   <(python3 -m json.tool docs/life2-altair-reference.json) \
   <(python3 -m json.tool /tmp/life2-altair-reference.json)
 ```
+
+#### Altair rules for a selected LIFE2 profile
+
+The same capture replays the exact listing with a partial coordinate row,
+an out-of-range row and a repeated occupied coordinate. A single column
+value yields `?? `. Completing that row with 6 prints the game's
+`ILLEGAL COORDS. RETYPE` and emits the coordinate mask again. The game
+accepts `1,1` once and rejects the duplicate at the next prompt.
+
+| Area            | Observed on Altair 8K BASIC 4.0                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Scope for LIFE2                                                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compact source  | `DIMN1`, `FORM=1TO2`, `READK1(M)`, `NEXTM` and nested `THENIF` run directly. A false IF skips the rest of its physical line. Scalar `K1` and array `K1()` hold separate values.                                                                                                                                                                                                                                                                                                  | Preserve the reviewed source and physical locations through parsing. Cover the one-letter names with optional digit and the compact forms in the listing.                                          |
+| Arrays          | Explicit DIM includes subscripts zero through the declared maximum. Positive fractional subscripts truncate. A negative fraction reports `?FC ERROR`. An index past the maximum reports `?BS ERROR`. Access before DIM creates a default array and a later DIM reports `?DD ERROR`.                                                                                                                                                                                              | LIFE2 declares all arrays before use. Reuse storage for its explicit shapes while applying the Altair subscript conversion and diagnostics. Dynamic DIM and implicit arrays need separate support. |
+| Indexed INPUT   | The initial prompt is `? `. A partial row commits its fields and prompts `?? `. An empty reply leaves the remaining values intact. An empty comma-delimited field is zero. Extra fields are ignored after the requested values and print `?EXTRA IGNORED`. A malformed field writes its parsed numeric prefix, or zero if it has none, then prints `?REDO FROM START` and returns to the initial prompt. Earlier writes stay visible. Indices are evaluated in assignment order. | Process numeric targets left to right, including changes to index variables within the same INPUT. Keep continuation prompts and writes within one cancellable instruction.                        |
+| Terminal output | Numeric fields include one leading space for a nonnegative sign and one trailing space. Fractions smaller than one omit the leading zero. TAB moves forward to a zero-based column and emits nothing if already at or beyond it. CHR$(13) emits a carriage return and resets the column. A semicolon continues the line. Without it, PRINT adds CRLF even after a literal carriage return. Submitting an INPUT response resets the print column.                                 | Track the print column across statements and keep standalone carriage returns in host output. Match the game transcript with input echo excluded and preserve the mask in terminal presentation.   |
+| In-program RUN  | Bare RUN re-enters the first line, clears scalar and array values, rewinds DATA, drops active call and loop frames, and skips the rest of the RUN line. A partial output line retains its column.                                                                                                                                                                                                                                                                                | Restart the loaded Program in the active driver with fresh execution state. Preserve the host, output, cancellation and debugger ownership. Admit bare RUN for the game.                           |
+
+The capture records each isolated probe with its numbered source, replies and
+output between prompts. The profile still needs source-bound admission and
+acceptance through the direct and installed library, CLI/editor and extracted
+browser. The original March 1975 interpreter attribution remains open.
 
 ### Other archive boundaries
 

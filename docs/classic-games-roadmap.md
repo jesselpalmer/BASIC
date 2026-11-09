@@ -15,8 +15,11 @@ browser. Choose **23MTCH · EDUSYSTEM-30 selected profile** in the normal editor
 Record independent and user acceptance of 23MTCH under #129.
 The [LIFE2 source and archive review](classic-source-review.md#life2) reproduces
 the printed boards, win, draw and both restarts on 1976 Altair 8K BASIC. Its
-editor needs a four-byte mask-literal load workaround. The original dialect
-and the scope of a product profile remain open under #115 and #116. The
+editor needs a four-byte mask-literal load workaround. Isolated probes now pin
+the [game-facing Altair rules](classic-source-review.md#altair-rules-for-a-selected-life2-profile)
+and the exact listing's coordinate retries. The original dialect remains open
+under #115. Selected profile implementation and acceptance are tracked under
+#116 and #129. The
 [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
 #129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
 remain separate checkpoints.
@@ -75,6 +78,14 @@ reproduces the printed game through archived `EDU30.SV` and the public selected
 profile. Acceptance checks cover the complete loss/replay/win and fresh RUN.
 Keep raw, one-byte-corrected and reviewed text separate. General EDUSYSTEM-30
 arithmetic, RNG arguments and further statements remain under #116 and #123.
+
+The next LIFE2 implementation can split compact source admission from the
+execution work. Bind the Program to the original source. Add the archived
+indexed INPUT, array subscript conversion, print column and numbered RUN
+behavior inside the existing run driver. Then verify the reviewed source's
+win, draw, coordinate retries, both restarts, Stop and fresh runs through all
+supported entrypoints. The [Altair capture](life2-altair-reference.json)
+supplies the same output-and-prompts digest for each entrypoint.
 
 A fresh integrated release candidate must pass Linux/macOS checks, installed
 ESM/CommonJS/types/CLI and actual browser tests against the exact package/static
