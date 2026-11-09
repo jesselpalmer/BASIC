@@ -1,0 +1,27 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "c814cd6a28870e3459a28b1a1e3e3b48722565adbf2afe5d86c26cfd34d092ba",
+  "answers": [
+    "1",
+    "23",
+    "BAD",
+    "20",
+    "30,40",
+    "0,20",
+    "23,23",
+    "0,0",
+    "0,0",
+    "0,0",
+    "0,0",
+    "0,0",
+    "0,0",
+    "37,37"
+  ],
+  "outputSha256": "edeb8e529829e13fd253aa65f51c660c5e93f21461a23886189d4f8a1cb99347",
+  "inputProbe": {
+    "source": "10 INPUT A\n20 INPUT B,C\n30 PRINT \"A\";A;\"B\";B;\"C\";C\n40 GOTO 10\n50 END",
+    "answers": ["1,2,BAD", "3,4,5,6", "7,,8", "9", "", "1 . 5, - 2, + 3"],
+    "output": "?BAD DATA-RETYPE FROM ERROR.\n?A 1 B 2 C 3 \nA 4 B 5 C 6 \n??A 7 B 8 C 9 \n??A 1.5 B-2 C 3 \n?"
+  }
+}

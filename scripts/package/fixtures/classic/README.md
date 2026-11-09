@@ -110,3 +110,10 @@ are test fixtures excluded from npm. The original dialect remains unverified.
 `letter-mar75-text.bas` is the separate [reviewed March 1975 text](../../../../docs/classic-source-review.md#letter).
 The printed description credits Bob Albrecht's original and names EDUSYSTEM
 15/30/35 for this adaptation.
+
+## TRAP
+
+`trap.bas` retains the [pinned upstream bytes](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/trap.bas).
+`trap-mar75-text.bas` preserves the same game with a corrected remark date,
+two commas and seven restored spaces. The [March 1975 review](../../../../docs/classic-source-review.md#trap)
+records the file identities, printed EDUSYSTEM 30 heading and archived play.

@@ -2,7 +2,7 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {createAltairEvaluator, createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
-import {eduSystem30InputPresentation, formatEduSystem30PrintItem} from './edusystem30_terminal.ts';
+import {EduSystem30Input, formatEduSystem30PrintItem} from './edusystem30_terminal.ts';
 import {AltairTerminal} from './altair_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
@@ -66,6 +66,7 @@ export default class Basic {
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
   readonly #altair: AltairTerminal | null;
+  readonly #eduSystem30Input: EduSystem30Input | null;
   #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
@@ -101,6 +102,7 @@ export default class Basic {
     this.#host = Object.freeze(createHost(host));
     const eduSystem30 =
       this.#dialect === 'edusystem-30' ? createEduSystem30Evaluator(this.#host) : null;
+    this.#eduSystem30Input = eduSystem30 ? new EduSystem30Input() : null;
     this.#evaluator =
       eduSystem30?.evaluator ??
       (this.#altair ? createAltairEvaluator(this.#host) : new Evaluator(this.#host));
@@ -169,6 +171,7 @@ export default class Basic {
     this.#evaluator.reset();
     this.#graphics.reset();
     this.#altair?.reset();
+    this.#eduSystem30Input?.reset();
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
@@ -635,12 +638,9 @@ export default class Basic {
             commit(() => this.#evaluator.assign(target, value)),
           );
         } else {
-          const values = await readInput(
-            host,
-            statement,
-            controller.signal,
-            this.#dialect === 'edusystem-30' ? eduSystem30InputPresentation : undefined,
-          );
+          const values = this.#eduSystem30Input
+            ? await this.#eduSystem30Input.read(host, statement, controller.signal)
+            : await readInput(host, statement, controller.signal);
           commit(() =>
             inputTargets(statement).forEach((target, index) =>
               this.#evaluator.assign(target, values[index]),

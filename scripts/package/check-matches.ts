@@ -3,6 +3,13 @@ import {readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {letterOptions, letterPrompt, letterSource} from '../letter-acceptance.ts';
 import {
+  assertTrapOutput,
+  trapAnswers,
+  trapNextRound,
+  trapOptions,
+  trapSource,
+} from '../trap-acceptance.ts';
+import {
   assertReviewedTranscript,
   eduSystem30Dialect,
   matchesCorrected,
@@ -28,6 +35,47 @@ export function checkLetterCli(executable: string, directory: string): void {
   assert.match(result.stdout, /Enter one ASCII character\./);
   assert.ok((result.stdout.match(/YOU GOT IT IN \d+ GUESSES!!/g)?.length ?? 0) >= 2);
   assert.ok(result.stdout.endsWith(letterPrompt));
+}
+
+export async function checkTrapCli(executable: string, directory: string): Promise<void> {
+  const file = join(directory, 'trap-edusystem30.basic.json');
+  const saved = join(directory, 'trap-edusystem30-copy.basic.json');
+  const document = {format: 'basic-program', version: 1, ...trapOptions, source: trapSource};
+  writeFileSync(file, JSON.stringify(document));
+  const input = trapAnswers.join('\n') + '\n';
+  const direct = runProcess({cwd: directory, args: [executable, file], input, expectedStatus: 1});
+  assert.match(direct.stderr, /^Line 220, column \d+: Input ended before a value was received\n$/);
+  assertTrapOutput(direct.stdout);
+
+  if (process.platform === 'win32') return;
+  let phase: 'start' | 'play' | 'stopped' | 'fresh' | 'stopped-again' | 'exit' = 'start';
+  const editor = await runWithOpenInput({
+    cwd: directory,
+    args: [executable],
+    onOutput(stdout, child) {
+      if (phase === 'start' && stdout.endsWith('>>> ')) {
+        phase = 'play';
+        child.stdin.write(`LOAD "${file}"\nSAVE "${saved}"\nRUN\n${input}23\n`);
+      } else if (phase === 'play' && stdout.endsWith(trapNextRound + '?')) {
+        phase = 'stopped';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped' && stdout.endsWith('\n>>> ')) {
+        phase = 'fresh';
+        child.stdin.write(`LOAD "${saved}"\nRUN\n0\n23,23\n`);
+      } else if (phase === 'fresh' && stdout.endsWith(`YOU GOT IT!!!\n\n${trapNextRound}`)) {
+        phase = 'stopped-again';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped-again' && stdout.endsWith('\n>>> ')) {
+        phase = 'exit';
+        child.stdin.write('EXIT\n');
+      }
+    },
+  });
+  assert.equal(phase, 'exit', editor.stdout);
+  assert.equal(editor.status, 0);
+  assert.equal(editor.stderr, '');
+  assert.ok(editor.stdout.includes(direct.stdout));
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
 }
 
 /** Run both byte-pinned sources through the real executable, outside the checkout. */

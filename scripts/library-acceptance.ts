@@ -1,5 +1,6 @@
 import {runAltairLife2Acceptance} from './life2-acceptance.ts';
 import {runLetterAcceptance} from './letter-acceptance.ts';
+import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -34,6 +35,7 @@ export const libraryAcceptanceCases = [
   'reviewed 23 Matches correction retains exact native retry/replay output',
   'reviewed 23MTCH matches the EDUSYSTEM-30 transcript and fresh RUN',
   'reviewed LETTER matches the EDUSYSTEM-30 guesses, bell and replay',
+  'reviewed TRAP matches the EDUSYSTEM-30 win, loss, replay and numeric INPUT',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -290,6 +292,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed LETTER matches the EDUSYSTEM-30 guesses, bell and replay', () =>
     runLetterAcceptance(api),
+  );
+  await check('reviewed TRAP matches the EDUSYSTEM-30 win, loss, replay and numeric INPUT', () =>
+    runTrapAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),
