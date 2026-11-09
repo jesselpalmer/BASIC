@@ -14,6 +14,7 @@ import tempfile
 
 import pexpect
 
+from life2_altair_rules import capture_coordinate_retries, capture_dialogue, capture_rules
 from life2_reference import DRAW_ANSWERS, boards
 
 FIXTURES = Path(__file__).resolve().parents[1] / 'package/fixtures/classic'
@@ -123,18 +124,9 @@ def load_reviewed(console, root, source):
 def play(console, sample):
     win_answers = [answer for pair in sample['opening'] + sample['turns'] for answer in pair]
     answers = win_answers + DRAW_ANSWERS
-    enter(console, 'RUN')
-    chunks = []
-    for answer in answers:
-        event = console.expect_exact(['? ', 'OK'])
-        assert event == 0, console.before
-        chunks.append(console.before + console.after)
-        enter(console, answer)
-        chunks.append(answer + '\r\n')
-    event = console.expect_exact(['? ', 'OK'])
-    assert event == 0, console.before
-    chunks.append(console.before + console.after)
-    transcript = ''.join(chunks).replace('\r\n', '\n')
+    event, chunks = capture_dialogue(console, enter, answers)
+    assert event == 1 and all(chunk.endswith(MASK) for chunk in chunks), chunks
+    transcript = ''.join(chunk + answer + '\n' for chunk, answer in zip(chunks, answers)) + chunks[-1]
     assert transcript.count(MASK) == len(answers) + 1
     prefix, win, draw, opening = transcript.split(TITLE)
     assert not prefix.strip()
@@ -155,6 +147,7 @@ def play(console, sample):
         'coordinateMask': MASK,
         'interrupt': 'BREAK IN 700',
         'transcriptSha256': digest(transcript.encode('ascii')),
+        'outputAndPromptsSha256': digest(''.join(chunks).encode('ascii')),
     }
 
 
@@ -182,8 +175,10 @@ def main():
             boot(console)
             offset = load_reviewed(console, root, source.decode('ascii').splitlines())
             replay = play(console, sample)
+            coordinate_retries = capture_coordinate_retries(console, enter, MASK)
+            rules = capture_rules(console, enter)
     result = {
-        'schemaVersion': 1,
+        'schemaVersion': 2,
         'simulatorCommit': SIMH_COMMIT,
         'build': 'Altair BASIC 4.0 [Eight-K Version], 1976',
         'imageSha256': IMAGE_HASH,
@@ -192,6 +187,8 @@ def main():
         'maskAddressHex': f'{offset:04x}',
         'drawAnswers': DRAW_ANSWERS,
         **replay,
+        'coordinateRetries': coordinate_retries,
+        'rules': rules,
     }
     args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
     print('Captured LIFE2 win, draw and both restarts on Altair 8K BASIC')
