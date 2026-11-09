@@ -1,0 +1,78 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawSha256": "658c2681bf1ca9afa4d57a263e6758165ba390d561f76ee6a92fd53e915e1b13",
+  "fixtureSha256": "94983e92c1363ef39d6e23a10cc287ed316f5fbd6a28a643ecb880798cc46a95",
+  "game": {
+    "sales": [
+      ["4.59", "10"],
+      ["0.17", "5.00"],
+      ["18.88", "20"],
+      ["1.23", "1.23"],
+      ["3.42", "2"],
+      ["0", "16.91"],
+      ["0.20", "1.20"],
+      ["0.10", "1.10"],
+      ["0.01", "0.51"],
+      ["0.51", "1.01"]
+    ],
+    "output": "I, YOUR FRIENDLY EDUSYSTEM COMPUTER, WILL DETERMINE\nTHE CORRECT CHANGE FOR ITEMS COSTING UP TO $100.\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 5.41 \n 1 FIVE DOLLAR BILL(S)\n 1 QUARTER(S)\n 1 DIME(S)\n 1 NICKEL(S)\n 1 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 4.83 \n 4 ONE DOLLAR BILL(S)\n 1 ONE-HALF DOLLAR(S)\n 1 QUARTER(S)\n 1 NICKEL(S)\n 3 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 1.12 \n 1 ONE DOLLAR BILL(S)\n 1 DIME(S)\n 2 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?CORRECT AMOUNT,THANK YOU\nCOST OF ITEM?AMOUNT OF PAYMENT?SORRY,YOU HAVE SHORT CHANGED ME $ 1.42 \nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 16.91 \n 1 TEN DOLLAR BILL(S)\n 1 FIVE DOLLAR BILL(S)\n 1 ONE DOLLAR BILL(S)\n 1 ONE-HALF DOLLAR(S)\n 1 QUARTER(S)\n 1 DIME(S)\n 1 NICKEL(S)\n 1 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 1 \n 1 ONE-HALF DOLLAR(S)\n 1 QUARTER(S)\n 2 DIME(S)\n 5 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ 1 \n 2 ONE-HALF DOLLAR(S)\n-1 QUARTER(S)\n 2 DIME(S)\n 5 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ .5 \n 1 ONE-HALF DOLLAR(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?AMOUNT OF PAYMENT?YOUR CHANGE,$ .5 \n 1 QUARTER(S)\n 2 DIME(S)\n 5 PENNY(S)\nTHANK YOU,COME AGAIN\n\n\nCOST OF ITEM?"
+  },
+  "numericProbe": {
+    "source": "10 INPUT A\n20 INPUT P\n30 C=P-A\n40 F=INT(C)\n50 N=C*100\n60 G=N/50\n70 INPUT W\n75 GO TO 10\n80 END",
+    "scalarAddressesOctal": {
+      "A": "17575",
+      "P": "17572",
+      "C": "17567",
+      "F": "17564",
+      "N": "17561",
+      "G": "17556"
+    },
+    "observations": [
+      {
+        "sale": ["0.20", "1.20"],
+        "scalarWordsOctal": {
+          "A": ["7776", "3146", "3146"],
+          "P": ["0001", "2314", "6314"],
+          "C": ["0000", "3777", "7776"],
+          "F": ["0000", "0000", "0000"],
+          "N": ["0007", "3077", "7776"],
+          "G": ["0001", "3777", "7776"]
+        }
+      },
+      {
+        "sale": ["0.10", "1.10"],
+        "scalarWordsOctal": {
+          "A": ["7775", "3146", "3146"],
+          "P": ["0001", "2146", "3146"],
+          "C": ["0000", "3777", "7777"],
+          "F": ["0000", "0000", "0000"],
+          "N": ["0007", "3077", "7777"],
+          "G": ["0002", "2000", "0000"]
+        }
+      },
+      {
+        "sale": ["0.01", "0.51"],
+        "scalarWordsOctal": {
+          "A": ["7772", "2436", "5605"],
+          "P": ["0000", "2024", "3657"],
+          "C": ["0000", "2000", "0000"],
+          "F": ["0000", "0000", "0000"],
+          "N": ["0006", "3100", "0000"],
+          "G": ["0001", "2000", "0000"]
+        }
+      },
+      {
+        "sale": ["0.51", "1.01"],
+        "scalarWordsOctal": {
+          "A": ["0000", "2024", "3657"],
+          "P": ["0001", "2012", "1727"],
+          "C": ["7777", "3777", "7776"],
+          "F": ["0000", "0000", "0000"],
+          "N": ["0006", "3077", "7776"],
+          "G": ["0000", "3777", "7776"]
+        }
+      }
+    ]
+  }
+}
