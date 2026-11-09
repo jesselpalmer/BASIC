@@ -468,6 +468,34 @@ python3 scripts/research/capture-edusystem30.py --trap \
 diff -u docs/trap-edusystem30-reference.json /tmp/trap-edusystem30-reference.json
 ```
 
+## LITQZ
+
+The [March 1975 printing, page 150](https://www.bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=150)
+credits Pamela McGinley and identifies EDUSYSTEM 30. The pinned
+[raw source](../scripts/package/fixtures/classic/litqz.bas) has 46 lines and
+SHA-256 `7a5413791f32b84ab360d4a842aeb30b8c479ff302c9bc220a1cb50f85d95c8b`.
+The [reviewed source](../scripts/package/fixtures/classic/litqz-mar75-text.bas)
+has SHA-256 `ce16e0971e65cd37913d0a3be885c5fdd3769eb988fb24f377e56522baccc526`.
+It restores backslashes at 53, 63 and 73 and one trailing space inside
+each literal at 10, 12, 13, 44, 46, 54, 64, 74, 94 and 205. All other bytes
+match the pinned source, including the unterminated last line.
+
+Two independent [EDU30.SV captures](litqz-edusystem30-reference.json) agree.
+Each includes the printed three-correct sample, a perfect quiz and a quiz
+with zero correct answers. The first two end at `STOP` (96 and 130) and the
+last ends at `END` (999). A separate probe uses both spellings inside a
+backslash sequence and confirms that the statements after them do not run.
+Both return to `READY` with the same terminal newline, and the archive
+rejects `CONT`. The public transcript excludes input echo, the OS/8 banner
+and the terminal newline before `READY`.
+
+```sh
+python3 scripts/research/capture-edusystem30.py --litqz \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/litqz-edusystem30-reference.json
+diff -u docs/litqz-edusystem30-reference.json /tmp/litqz-edusystem30-reference.json
+```
+
 ## LIFE2
 
 ### Pinned source and March 1975 review

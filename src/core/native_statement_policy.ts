@@ -132,6 +132,7 @@ export function createNativeStatementPolicy(services: {
           services.randomize!(statement.location);
           break;
         case 'EndStatement':
+        case 'StopStatement':
           context.halt();
           break;
       }

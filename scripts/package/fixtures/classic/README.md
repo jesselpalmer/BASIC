@@ -117,3 +117,10 @@ The printed description credits Bob Albrecht's original and names EDUSYSTEM
 `trap-mar75-text.bas` preserves the same game with a corrected remark date,
 two commas and seven restored spaces. The [March 1975 review](../../../../docs/classic-source-review.md#trap)
 records the file identities, printed EDUSYSTEM 30 heading and archived play.
+
+## LITQZ
+
+`litqz.bas` retains the [pinned upstream bytes](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/litqz.bas).
+`litqz-mar75-text.bas` restores three backslash separators and ten literal
+spaces. The [March 1975 review](../../../../docs/classic-source-review.md#litqz)
+records the source identities, printed system and archived quiz endings.

@@ -2,9 +2,10 @@
 
 The bounded `edusystem-30` profile runs the reviewed March 1975
 [23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run),
-[LETTER](classic-source-review.md#letter) and [TRAP](classic-source-review.md#trap)
-listings. All three automatically start another round. The book and archived
-`EDU30.SV` runs supply the references.
+[LETTER](classic-source-review.md#letter), [TRAP](classic-source-review.md#trap)
+and [LITQZ](classic-source-review.md#litqz) listings. The first three start
+another round automatically. LITQZ finishes after four answers. The book and
+archived `EDU30.SV` runs supply the references.
 
 - In the [playground](https://basic-playground-rho.vercel.app/), choose
   **23MTCH · EDUSYSTEM-30 selected profile** and select **Run program**.
@@ -13,6 +14,8 @@ listings. All three automatically start another round. The book and archived
   at a time. Its higher and lower clues narrow the guess.
   For **TRAP · EDUSYSTEM-30 selected profile**, submit two bounds separated by
   a comma. Enter the same number twice to make an exact guess.
+  For **LITQZ · EDUSYSTEM-30 selected profile**, enter an answer from 1 to 4
+  for each question. Select Run again to start a fresh quiz.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -29,7 +32,7 @@ listings. All three automatically start another round. The book and archived
 
 | Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                        |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE and END. Complete nonempty source ends in END at the highest label.                                                                                                                  |
+| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE, STOP and END. Complete nonempty source ends in END at the highest label.                                                                                                            |
 | Values and expressions | Single-letter numeric scalars, small unsigned integer source literals, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator for the game.                                                                                                                                                                 |
 | INPUT                  | Unprompted numeric INPUT accepts one or two single-letter scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses. |
 | PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                                                                                                                                 |
@@ -41,6 +44,8 @@ dialect through import, save and reload. Immediate library statements are
 native-only. Historical numeric precision, diagnostic continuation, general
 `RND(X)`, and additional language forms require separate evidence.
 A false line-target IF continues with the next backslash statement.
+STOP finishes the run like END and skips later statements on the same line.
+A subsequent RUN starts over. The program must still end in END.
 
 Numeric INPUT skips blank fields and spaces, retains surplus fields for later
 numeric INPUT in the same run, and retries a bad field after dropping the
@@ -69,3 +74,9 @@ retry, reversed bounds, a win, a six-guess loss, and replay. Its separate
 terminal probe verifies retained fields across numeric INPUT statements,
 missing fields and retyping only the failed value. Installed CLI/editor and
 Chromium also interrupt a partially entered guess and start a fresh run.
+
+The [LITQZ capture](litqz-edusystem30-reference.json) verifies the printed
+sample's three-correct finish, the four-correct finish and the zero-correct
+finish. An isolated archive probe compares STOP and END inside a backslash
+sequence. Both return to the interpreter without executing the following
+statements, and the archive rejects CONT.

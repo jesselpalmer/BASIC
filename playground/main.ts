@@ -20,6 +20,7 @@ import life2 from '../scripts/package/fixtures/classic/life2-mar75-reviewed.bas'
 import matches from '../scripts/package/fixtures/classic/23mtch-mar75-text.bas' with {type: 'text'};
 import letter from '../scripts/package/fixtures/classic/letter-mar75-text.bas' with {type: 'text'};
 import trap from '../scripts/package/fixtures/classic/trap-mar75-text.bas' with {type: 'text'};
+import litqz from '../scripts/package/fixtures/classic/litqz-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -72,6 +73,7 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   matches: {source: matches, dialect: 'edusystem-30'},
   letter: {source: letter, dialect: 'edusystem-30'},
   trap: {source: trap, dialect: 'edusystem-30'},
+  litqz: {source: litqz, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');

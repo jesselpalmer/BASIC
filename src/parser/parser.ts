@@ -373,6 +373,10 @@ class Parser {
         this.take();
         return this.node('ReturnStatement', command, command, {});
       }
+      if (this.eduSystem30 && command.value === 'STOP') {
+        this.take();
+        return this.node('StopStatement', command, command, {});
+      }
       // GO stays a variable name. Only the statement-position pair GO TO
       // is an alias; splitting arbitrary names would change native programs.
       if (command.value === 'GO' && following.type === 'KEYWORD' && following.value === 'TO') {

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {letterOptions, letterPrompt, letterSource} from '../letter-acceptance.ts';
+import {assertLitqzOutput, litqzOptions, litqzRounds, litqzSource} from '../litqz-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -75,6 +76,43 @@ export async function checkTrapCli(executable: string, directory: string): Promi
   assert.equal(editor.status, 0);
   assert.equal(editor.stderr, '');
   assert.ok(editor.stdout.includes(direct.stdout));
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
+}
+
+export function checkLitqzCli(executable: string, directory: string): void {
+  const file = join(directory, 'litqz-edusystem30.basic.json');
+  const saved = join(directory, 'litqz-edusystem30-copy.basic.json');
+  const document = {format: 'basic-program', version: 1, ...litqzOptions, source: litqzSource};
+  writeFileSync(file, JSON.stringify(document));
+  const transcripts = litqzRounds.map((round) => {
+    const result = runProcess({
+      cwd: directory,
+      args: [executable, file],
+      input: round.answers.join('\n') + '\n',
+    });
+    assert.equal(result.stderr, '');
+    assertLitqzOutput(result.stdout, round);
+    return result.stdout;
+  });
+  const editor = runProcess({
+    cwd: directory,
+    args: [executable],
+    input: [
+      `LOAD "${file}"`,
+      `SAVE "${saved}"`,
+      `LOAD "${saved}"`,
+      ...litqzRounds.flatMap(({answers}) => ['RUN', ...answers]),
+      'EXIT',
+      '',
+    ].join('\n'),
+  });
+  assert.equal(editor.stderr, '');
+  let offset = 0;
+  for (const transcript of transcripts) {
+    const position = editor.stdout.indexOf(transcript, offset);
+    assert.ok(position >= offset, editor.stdout);
+    offset = position + transcript.length;
+  }
   assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
 }
 

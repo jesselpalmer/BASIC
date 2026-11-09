@@ -2475,8 +2475,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "classic-source-review.md#litqz",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {

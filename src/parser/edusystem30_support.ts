@@ -78,6 +78,7 @@ function validateStatement(statement: SimpleStatement): void {
   switch (statement.type) {
     case 'RemStatement':
     case 'EndStatement':
+    case 'StopStatement':
     case 'GotoStatement':
     case 'GosubStatement':
     case 'ReturnStatement':
@@ -115,7 +116,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE and END',
+        'REM, LET, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
       );
   }
 }
