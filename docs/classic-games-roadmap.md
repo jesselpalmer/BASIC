@@ -38,6 +38,12 @@ such as `20,40`. An exact guess uses the same number twice. The library,
 portable CLI/editor and browser match the archived win, six-guess loss and
 automatic replay.
 
+The [reviewed LITQZ listing](classic-source-review.md#litqz) adds `STOP` to
+EDUSYSTEM-30. Choose **LITQZ · EDUSYSTEM-30 selected profile** in the playground
+and enter one answer from 1 to 4 for each of the four questions. The library,
+portable CLI/editor and browser match all three archived endings. Select Run
+again for a fresh quiz.
+
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
 under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
@@ -49,15 +55,14 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
 | Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
-| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER and TRAP run across the library, CLI/editor and browser. Archived traces cover loss, win, replay, character and paired numeric input, and fresh RUN.                                                                                                                                                                                 | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
+| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP and LITQZ run across the library, CLI/editor and browser. Archived traces cover loss, win, replay, three quiz endings, character and paired numeric input, and fresh RUN.                                                                                                                                                      | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                         |
 | Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
-The [corpus ledger](classic-games-ledger.json) records **5 reviewed
-source differences / 103 unresolved**, **3 printed-system identifications / 105
+The [corpus ledger](classic-games-ledger.json) records **6 reviewed
+source differences / 102 unresolved**, **4 printed-system identifications / 104
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
-evidence categories, not a release-completion percentage. The selected
-reviewed-text run does not alter the raw corpus ledger.
+evidence categories. Raw execution has a separate evidence column.
 
 ## Remaining blockers for the first game
 
@@ -94,6 +99,7 @@ profile. Acceptance checks cover the complete loss/replay/win and fresh RUN.
 Keep raw, one-byte-corrected and reviewed text separate. LETTER adds bounded
 character input, `RANDOMIZE`, backslash sequences and `CHR$(7)` output. TRAP
 adds numeric fields carried across INPUT statements and `GOSUB`/`RETURN`.
+LITQZ adds normal program termination via `STOP` before the required final `END`.
 General EDUSYSTEM-30 arithmetic and RNG argument semantics remain under
 #116 and #123.
 

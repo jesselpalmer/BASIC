@@ -278,6 +278,7 @@ export interface NodeFields {
   CircleStatement: {readonly x: Expression; readonly y: Expression; readonly radius: Expression};
   ClsStatement: Record<never, never>;
   EndStatement: Record<never, never>;
+  StopStatement: Record<never, never>;
   RunStatement: Record<never, never>;
   RandomizeStatement: Record<never, never>;
   StatementSequence: {
@@ -340,6 +341,7 @@ export type SimpleStatement = Nodes<
   | 'CircleStatement'
   | 'ClsStatement'
   | 'EndStatement'
+  | 'StopStatement'
   | 'RunStatement'
   | 'RandomizeStatement'
 >;

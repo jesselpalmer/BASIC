@@ -66,6 +66,13 @@ export function validateSourceLines(
         statement.location.start,
         statement.location.label,
       );
+    if (statement.type === 'StopStatement' && dialect !== 'edusystem-30')
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'STOP requires the EDUSYSTEM-30 profile',
+        statement.location.start,
+        statement.location.label,
+      );
     if (
       dialect !== 'edusystem-30' &&
       (statement.type === 'RandomizeStatement' ||

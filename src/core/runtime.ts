@@ -724,6 +724,7 @@ export default class Basic {
       if (
         !this.#immediate &&
         statement.type !== 'EndStatement' &&
+        statement.type !== 'StopStatement' &&
         statement.type !== 'RunStatement'
       )
         this.#controlFlow.finishInstruction();

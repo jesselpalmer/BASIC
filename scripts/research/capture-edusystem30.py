@@ -40,6 +40,13 @@ TRAP_INPUT_LINES = [
     '10 INPUT A', '20 INPUT B,C', '30 PRINT "A";A;"B";B;"C";C', '40 GOTO 10', '50 END',
 ]
 TRAP_INPUT_ANSWERS = ['1,2,BAD', '3,4,5,6', '7,,8', '9', '', '1 . 5, - 2, + 3']
+LITQZ_FIXTURE = 'scripts/package/fixtures/classic/litqz-mar75-text.bas'
+LITQZ_SHA256 = 'ce16e0971e65cd37913d0a3be885c5fdd3769eb988fb24f377e56522baccc526'
+LITQZ_ROUNDS = [
+    (['3', '2', '4', '1'], 96, 'READING THE NURSERY GREATS. '),
+    (['3', '2', '4', '3'], 130, 'LITERATURE (HA, HA, HA)'),
+    (['1', '1', '1', '1'], 999, 'NURSERY SCHOOL FOR YOU, MY FRIEND. '),
+]
 
 
 def digest(data):
@@ -307,6 +314,48 @@ def capture_trap(console, source):
     }
 
 
+def capture_litqz(console, source):
+    for line in source.splitlines():
+        send_line(console, line)
+    rounds = []
+    prompts = ['4)GUIPETTO?', "4)STROMBOLI'S?", '4)TOTO?', '4)WENDY?']
+    for answers, last_label, ending in LITQZ_ROUNDS:
+        send_line(console, 'RUN')
+        console.expect_exact('EDUSYSTEM-30\r\n\r\n')
+        chunks = []
+        for prompt, answer in zip(prompts, answers):
+            console.expect_exact(prompt)
+            chunks.append(console.before + prompt)
+            send_line(console, answer)
+        console.expect_exact('READY')
+        tail = normalize(console.before)
+        assert tail.endswith(ending + '\n\n'), repr(tail)
+        # The shell emits one final newline before READY for both STOP and END.
+        transcript = normalize(''.join(chunks)) + tail[:-1]
+        rounds.append({
+            'answers': answers,
+            'lastLabel': last_label,
+            'outputSha256': digest(transcript.encode('ascii')),
+        })
+    return rounds
+
+
+def capture_stop(console):
+    for line in ['20 PRINT "ALSO WRONG"', '30 END']:
+        send_line(console, line)
+    outputs = {}
+    for command in ['STOP', 'END']:
+        send_line(console, f'10 PRINT "BEFORE";\\{command}\\PRINT "WRONG"')
+        send_line(console, 'RUN')
+        console.expect_exact('EDUSYSTEM-30\r\n\r\n')
+        console.expect_exact('READY')
+        outputs[command] = normalize(console.before)
+        assert outputs[command] == 'BEFORE\n', repr(outputs[command])
+    send_line(console, 'CONT')
+    console.expect_exact('WHAT?')
+    return {'beforeReady': outputs, 'continueResponse': console.after}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
@@ -315,6 +364,7 @@ def main():
     game = parser.add_mutually_exclusive_group()
     game.add_argument('--letter', action='store_true', help='Capture the LETTER replay')
     game.add_argument('--trap', action='store_true', help='Capture the TRAP replay and numeric INPUT')
+    game.add_argument('--litqz', action='store_true', help='Capture the LITQZ endings and STOP behavior')
     args = parser.parse_args()
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert digest(tape.read_bytes()) == TAPE_SHA256
@@ -339,6 +389,22 @@ def main():
             'source': '\n'.join(TRAP_INPUT_LINES),
             'answers': TRAP_INPUT_ANSWERS,
             'output': output,
+        }
+        args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
+        return
+    if args.litqz:
+        source = (root / LITQZ_FIXTURE).read_bytes()
+        assert digest(source) == LITQZ_SHA256
+        with edu30(simulator, tape) as console:
+            rounds = capture_litqz(console, source.decode('ascii'))
+        with edu30(simulator, tape) as console:
+            stop = capture_stop(console)
+        evidence = {
+            'simulatorCommit': SIMULATOR,
+            'tapeSha256': TAPE_SHA256,
+            'fixtureSha256': LITQZ_SHA256,
+            'rounds': rounds,
+            'stopProbe': stop,
         }
         args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
         return

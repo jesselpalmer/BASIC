@@ -1,0 +1,29 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "ce16e0971e65cd37913d0a3be885c5fdd3769eb988fb24f377e56522baccc526",
+  "rounds": [
+    {
+      "answers": ["3", "2", "4", "1"],
+      "lastLabel": 96,
+      "outputSha256": "d569a195613a1a045161aee7337661832b8d0927df8d603ee6ac5eb868bd8f45"
+    },
+    {
+      "answers": ["3", "2", "4", "3"],
+      "lastLabel": 130,
+      "outputSha256": "16d84124cf19d81bc9d0be0563742dcf3c97a103233a5169090f289f98feea18"
+    },
+    {
+      "answers": ["1", "1", "1", "1"],
+      "lastLabel": 999,
+      "outputSha256": "5c398e4e2ff5d207a4c13bfc534d00aafb3989b5cb103736c15018ca47eb4ede"
+    }
+  ],
+  "stopProbe": {
+    "beforeReady": {
+      "STOP": "BEFORE\n",
+      "END": "BEFORE\n"
+    },
+    "continueResponse": "WHAT?"
+  }
+}

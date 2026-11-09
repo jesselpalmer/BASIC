@@ -97,6 +97,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'life2-acceptance.ts',
       'letter-acceptance.ts',
       'trap-acceptance.ts',
+      'litqz-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -105,6 +106,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'life2-altair-reference.json',
       'letter-edusystem30-reference.json',
       'trap-edusystem30-reference.json',
+      'litqz-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);
