@@ -1,4 +1,4 @@
-"""Capture bounded RNG and 23MTCH observations from the archived EDU30.SV.
+"""Capture bounded RNG and classic-game observations from the archived EDU30.SV.
 
 Requires Python with pexpect and the pinned SIMH PDP-8 simulator and DECtape.
 See docs/classic-source-review.md for provenance and reproduction.
@@ -33,6 +33,13 @@ LETTER_FIXTURE = 'scripts/package/fixtures/classic/letter-mar75-text.bas'
 LETTER_FIXTURE_SHA256 = 'c454938f15d835185d5512fbbc7dae548010da77f4ab6394ecec26672524dcb0'
 LETTER_CLOCK_WORD = 0o2304
 LETTER_ANSWERS = list('AZDAAAAAW')
+TRAP_FIXTURE = 'scripts/package/fixtures/classic/trap-mar75-text.bas'
+TRAP_FIXTURE_SHA256 = 'c814cd6a28870e3459a28b1a1e3e3b48722565adbf2afe5d86c26cfd34d092ba'
+TRAP_ANSWERS = ['1', '23', 'BAD', '20', '30,40', '0,20', '23,23', *['0,0'] * 6, '37,37']
+TRAP_INPUT_LINES = [
+    '10 INPUT A', '20 INPUT B,C', '30 PRINT "A";A;"B";B;"C";C', '40 GOTO 10', '50 END',
+]
+TRAP_INPUT_ANSWERS = ['1,2,BAD', '3,4,5,6', '7,,8', '9', '', '1 . 5, - 2, + 3']
 
 
 def digest(data):
@@ -263,12 +270,51 @@ def capture_letter_sequences(console):
     return result
 
 
+def capture_numeric_input_run(console, lines, answers):
+    for line in lines:
+        send_line(console, line)
+    send_line(console, 'RUN')
+    console.expect_exact('EDUSYSTEM-30\r\n\r\n')
+    chunks = []
+    for answer in answers:
+        console.expect_exact('?')
+        chunks.append(console.before + '?')
+        send_line(console, answer)
+    console.expect_exact('?')
+    chunks.append(console.before + '?')
+    transcript = normalize(''.join(chunks))
+    console.sendcontrol('c')
+    console.expect_exact('READY')
+    return transcript
+
+
+def capture_trap(console, source):
+    transcript = capture_numeric_input_run(console, source.splitlines(), TRAP_ANSWERS)
+    assert transcript.startswith('WANT INSTRUCTIONS (1 FOR YES)?')
+    assert 'GUESS # 1 ??BAD DATA-RETYPE FROM ERROR.\n?YOU HAVE TRAPPED MY NUMBER.' in transcript
+    assert 'MY NUMBER IS SMALLER THAN YOUR TRAP NUMBERS.' in transcript
+    assert 'MY NUMBER IS LARGER THAN YOUR TRAP NUMBERS.' in transcript
+    assert re.findall(r'GUESS # (\d+) ', transcript) == list('123412345611')
+    assert transcript.count('YOU GOT IT!!!') == 2
+    assert transcript.count('SORRY, THAT\'S 6 GUESSES. NUMBER WAS 27 ') == 1
+    assert transcript.count('TRY AGAIN.') == 3
+    return {
+        'simulatorCommit': SIMULATOR,
+        'tapeSha256': TAPE_SHA256,
+        'fixtureSha256': digest(source.encode('ascii')),
+        'answers': TRAP_ANSWERS,
+        'outputSha256': digest(transcript.encode('ascii')),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
     parser.add_argument('--tape', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--letter', action='store_true', help='Capture the LETTER replay')
+    game = parser.add_mutually_exclusive_group()
+    game.add_argument('--letter', action='store_true', help='Capture the LETTER replay')
+    game.add_argument('--trap', action='store_true', help='Capture the TRAP replay and numeric INPUT')
     args = parser.parse_args()
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert digest(tape.read_bytes()) == TAPE_SHA256
@@ -280,6 +326,20 @@ def main():
             evidence = capture_letter(console, letter.decode('ascii'))
         with edu30(simulator, tape, space_parity=True) as console:
             evidence['sequenceProbeOutput'] = capture_letter_sequences(console)
+        args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
+        return
+    if args.trap:
+        trap = (root / TRAP_FIXTURE).read_bytes()
+        assert digest(trap) == TRAP_FIXTURE_SHA256
+        with edu30(simulator, tape) as console:
+            evidence = capture_trap(console, trap.decode('ascii'))
+        with edu30(simulator, tape) as console:
+            output = capture_numeric_input_run(console, TRAP_INPUT_LINES, TRAP_INPUT_ANSWERS)
+        evidence['inputProbe'] = {
+            'source': '\n'.join(TRAP_INPUT_LINES),
+            'answers': TRAP_INPUT_ANSWERS,
+            'output': output,
+        }
         args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
         return
     fixture = (root / FIXTURE).read_bytes()

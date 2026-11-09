@@ -434,6 +434,40 @@ listing through the library, portable CLI and browser. Its line-oriented
 hosts submit one ASCII character at a time. The public comparison normalizes
 host input echo and excludes the archived run banner.
 
+## TRAP
+
+The [March 1975 printing, pages 224–225](https://bitsavers.trailing-edge.com/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=224)
+credits Steve Ullman's original and Bob Albrecht's revisions. The listing
+and sample identify EDUSYSTEM 30. The pinned [raw source](../scripts/package/fixtures/classic/trap.bas)
+has 46 lines and SHA-256
+`a7b881e91d474194732766ee4f6bc42ba6d6af76d8e4fb122fd2a1f9a1380b23`.
+The [reviewed source](../scripts/package/fixtures/classic/trap-mar75-text.bas)
+has SHA-256 `c814cd6a28870e3459a28b1a1e3e3b48722565adbf2afe5d86c26cfd34d092ba`.
+It corrects the year in the remark at 40 and the commas at 100 and 340.
+It restores one trailing space inside each string at 140, 160, 170, 280,
+300, 320 and 420. All other bytes agree with the pinned source.
+
+The [archived EDU30.SV capture](trap-edusystem30-reference.json) runs the
+reviewed bytes from a fresh RUN. The first guess submits 23 on one line,
+retries a bad second field, then submits 20. The reversed bounds exercise
+the swap subroutine and trap the number. Both directional clues follow
+before the exact win. Six wrong guesses reveal 27 on the second round,
+and a third-round win at 37 confirms the replay uses the continuing RNG.
+The capture removes input echo and the OS/8 run banner.
+
+A second program verifies that numeric INPUT keeps unused comma fields
+for later statements, skips empty fields and spaces, and retains earlier
+values when a later field needs retyping. The [public profile](edusystem30-profile.md)
+uses the shared call stack, stages paired values until the statement completes,
+and matches both archive transcripts.
+
+```sh
+python3 scripts/research/capture-edusystem30.py --trap \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/trap-edusystem30-reference.json
+diff -u docs/trap-edusystem30-reference.json /tmp/trap-edusystem30-reference.json
+```
+
 ## LIFE2
 
 ### Pinned source and March 1975 review

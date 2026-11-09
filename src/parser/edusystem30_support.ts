@@ -79,6 +79,8 @@ function validateStatement(statement: SimpleStatement): void {
     case 'RemStatement':
     case 'EndStatement':
     case 'GotoStatement':
+    case 'GosubStatement':
+    case 'ReturnStatement':
     case 'RandomizeStatement':
       return;
     case 'LetStatement':
@@ -92,6 +94,11 @@ function validateStatement(statement: SimpleStatement): void {
     case 'InputStatement':
       if (statement.prompt) unsupported(statement.prompt, 'unprompted scalar INPUT');
       validateScalar(statement.target);
+      return;
+    case 'InputTargetsStatement':
+      if (statement.prompt || statement.targets.length !== 2)
+        unsupported(statement, 'unprompted INPUT with two numeric scalars');
+      statement.targets.forEach(validateScalar);
       return;
     case 'ForStatement':
       validateScalar(statement.variable);
@@ -108,7 +115,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, IF with a line target, GO TO, INPUT, FOR/NEXT, PRINT, RANDOMIZE and END',
+        'REM, LET, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE and END',
       );
   }
 }

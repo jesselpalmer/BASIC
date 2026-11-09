@@ -1,15 +1,18 @@
 # EDUSYSTEM-30 selected profile
 
 The bounded `edusystem-30` profile runs the reviewed March 1975
-[23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
-and [LETTER](classic-source-review.md#letter) listings. Both automatically
-start another round. The book and archived `EDU30.SV` runs supply the references.
+[23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run),
+[LETTER](classic-source-review.md#letter) and [TRAP](classic-source-review.md#trap)
+listings. All three automatically start another round. The book and archived
+`EDU30.SV` runs supply the references.
 
 - In the [playground](https://basic-playground-rho.vercel.app/), choose
   **23MTCH · EDUSYSTEM-30 selected profile** and select **Run program**.
   Enter 1, 2 or 3 on each turn. Select **Stop program** to end the session.
   For **LETTER · EDUSYSTEM-30 selected profile**, submit one uppercase letter
   at a time. Its higher and lower clues narrow the guess.
+  For **TRAP · EDUSYSTEM-30 selected profile**, submit two bounds separated by
+  a comma. Enter the same number twice to make an exact guess.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -24,13 +27,13 @@ start another round. The book and archived `EDU30.SV` runs supply the references
 
 ## Admitted forms
 
-| Area                   | Supported slice                                                                                                                                                                                                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, scalar INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE and END. Complete nonempty source ends in END at the highest label.                                 |
-| Values and expressions | Single-letter numeric scalars, small unsigned integer source literals, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator for the game.                                                             |
-| INPUT                  | Numeric input prompts with a bare `?` and retries invalid numbers. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty response to Return (13) and retries longer or non-ASCII responses. |
-| PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                             |
-| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                  |
+| Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE and END. Complete nonempty source ends in END at the highest label.                                                                                                                  |
+| Values and expressions | Single-letter numeric scalars, small unsigned integer source literals, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator for the game.                                                                                                                                                                 |
+| INPUT                  | Unprompted numeric INPUT accepts one or two single-letter scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses. |
+| PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                                                                                                                                 |
+| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                                                      |
 
 All lines are checked before execution, including unreachable lines. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
@@ -38,6 +41,13 @@ dialect through import, save and reload. Immediate library statements are
 native-only. Historical numeric precision, diagnostic continuation, general
 `RND(X)`, and additional language forms require separate evidence.
 A false line-target IF continues with the next backslash statement.
+
+Numeric INPUT skips blank fields and spaces, retains surplus fields for later
+numeric INPUT in the same run, and retries a bad field after dropping the
+remainder of that response. Values already read for that statement are kept
+through the retry. The host commits targets when the statement has all its
+values, so cancellation during a partial read leaves the targets unchanged.
+Fresh RUN clears the field buffer. This profile uses finite decimal input.
 
 ## Verification
 
@@ -53,3 +63,9 @@ printed loss, rejected zero, replay and win, and then a third-round probe.
 Entering 2 in that third round leaves 19 matches. Entering 2 after a fresh
 RUN leaves 20. The browser also verifies Step, Stop, and retention of a waiting
 session when a replacement contains an unsupported statement.
+
+The [TRAP capture](trap-edusystem30-reference.json) verifies paired input,
+retry, reversed bounds, a win, a six-guess loss, and replay. Its separate
+terminal probe verifies retained fields across numeric INPUT statements,
+missing fields and retyping only the failed value. Installed CLI/editor and
+Chromium also interrupt a partially entered guess and start a fresh run.
