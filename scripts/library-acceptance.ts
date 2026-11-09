@@ -1,6 +1,8 @@
 import {runAltairLife2Acceptance} from './life2-acceptance.ts';
 import {runLetterAcceptance} from './letter-acceptance.ts';
 import {runLitqzAcceptance} from './litqz-acceptance.ts';
+import {runMathdAcceptance} from './mathd-acceptance.ts';
+import {runNumberAcceptance} from './number-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -38,6 +40,8 @@ export const libraryAcceptanceCases = [
   'reviewed LETTER matches the EDUSYSTEM-30 guesses, bell and replay',
   'reviewed TRAP matches the EDUSYSTEM-30 win, loss, replay and numeric INPUT',
   'reviewed LITQZ matches all EDUSYSTEM-30 quiz endings and STOP',
+  'reviewed MATHD matches archived dice, retries, reveals and fresh RUN',
+  'reviewed NUMBER matches archived scores, jackpots and both wins',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -300,6 +304,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed LITQZ matches all EDUSYSTEM-30 quiz endings and STOP', () =>
     runLitqzAcceptance(api),
+  );
+  await check('reviewed MATHD matches archived dice, retries, reveals and fresh RUN', () =>
+    runMathdAcceptance(api),
+  );
+  await check('reviewed NUMBER matches archived scores, jackpots and both wins', () =>
+    runNumberAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

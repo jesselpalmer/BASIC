@@ -197,7 +197,7 @@ export class Evaluator {
     return evaluateTree(expression, {
       kind: 'native',
       variables: this.variables,
-      defaultNumericScalars: this.#altair,
+      defaultNumericScalars: this.#altair || this.#eduSystem30Random !== null,
       arrays: () => this.arrays,
       host: this.host,
       randomArgumentCount: this.#eduSystem30Random ? 1 : 0,

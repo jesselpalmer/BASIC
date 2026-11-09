@@ -124,3 +124,11 @@ records the file identities, printed EDUSYSTEM 30 heading and archived play.
 `litqz-mar75-text.bas` restores three backslash separators and ten literal
 spaces. The [March 1975 review](../../../../docs/classic-source-review.md#litqz)
 records the source identities, printed system and archived quiz endings.
+
+## MATHD, NUMBER and CHANGE
+
+The `mathd.bas`, `number.bas` and `change.bas` fixtures retain the pinned
+transcriptions. Their `*-mar75-text.bas` counterparts carry separate scan
+reviews and archive evidence. See the [MATHD review](../../../../docs/classic-source-review.md#mathd),
+[NUMBER review](../../../../docs/number-edusystem30.md) and
+[CHANGE review](../../../../docs/change-edusystem30-review.md).

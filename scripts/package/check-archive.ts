@@ -98,6 +98,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'letter-acceptance.ts',
       'trap-acceptance.ts',
       'litqz-acceptance.ts',
+      'mathd-acceptance.ts',
+      'number-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -107,6 +109,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'letter-edusystem30-reference.json',
       'trap-edusystem30-reference.json',
       'litqz-edusystem30-reference.json',
+      'mathd-edusystem30-reference.json',
+      'number-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

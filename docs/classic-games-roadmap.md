@@ -44,6 +44,22 @@ and enter one answer from 1 to 4 for each of the four questions. The library,
 portable CLI/editor and browser match all three archived endings. Select Run
 again for a fresh quiz.
 
+The [reviewed MATHD listing](classic-source-review.md#mathd) rolls two printed
+dice and asks for their sum. The archive replay covers every face, a correct
+answer, a retry and an answer reveal. Choose **MATHD · EDUSYSTEM-30 selected
+profile** in the playground and use Stop to end the drill.
+
+The [reviewed NUMBER listing](number-edusystem30.md) accepts guesses from 1 to
+5 and awards points and jackpots. Both archived games, including the printed
+716-point win, match the library, CLI/editor and browser. Choose
+**NUMBER · EDUSYSTEM-30 selected profile** to play.
+
+The [CHANGE source and archive review](change-edusystem30-review.md) records
+the printed sales and exposes the numeric rules still needed for public play.
+Its archive can print the same change total for two sales and return different
+denominations. The recorded scalar words will test decimal conversion and
+arithmetic before activation.
+
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
 under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
@@ -55,12 +71,12 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
 | Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
-| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP and LITQZ run across the library, CLI/editor and browser. Archived traces cover loss, win, replay, three quiz endings, character and paired numeric input, and fresh RUN.                                                                                                                                                      | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
+| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD and NUMBER run across the library, CLI and browser. Archived traces cover wins, losses, replay, quiz endings, dice retries and jackpot scoring.                                                                                                                                                                  | Bounded game forms and literal `RND(0)`. See the [profile scope](edusystem30-profile.md).                                                   |
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                         |
 | Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
-The [corpus ledger](classic-games-ledger.json) records **6 reviewed
-source differences / 102 unresolved**, **4 printed-system identifications / 104
+The [corpus ledger](classic-games-ledger.json) records **9 reviewed
+source differences / 99 unresolved**, **6 printed-system identifications / 102
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 
@@ -100,6 +116,8 @@ Keep raw, one-byte-corrected and reviewed text separate. LETTER adds bounded
 character input, `RANDOMIZE`, backslash sequences and `CHR$(7)` output. TRAP
 adds numeric fields carried across INPUT statements and `GOSUB`/`RETURN`.
 LITQZ adds normal program termination via `STOP` before the required final `END`.
+MATHD verifies default-zero and numbered numeric scalars. NUMBER verifies the
+literal `.5` on its score-halving branch.
 General EDUSYSTEM-30 arithmetic and RNG argument semantics remain under
 #116 and #123.
 

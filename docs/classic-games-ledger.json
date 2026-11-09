@@ -1139,8 +1139,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "change-edusystem30-review.md#change-source-and-archive-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [30, 100, 380]
@@ -2509,8 +2510,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "classic-source-review.md#mathd",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [100]
@@ -2743,8 +2746,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "number-edusystem30.md#number-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [35, 45, 55, 65, 85]

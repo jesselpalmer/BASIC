@@ -12,8 +12,8 @@ function unsupported(node: {location: ParsedLine['location']}, detail: string): 
 }
 
 function validateScalar(node: Expression): void {
-  if (node.type !== 'Variable' || !/^[A-Z]$/.test(node.name))
-    unsupported(node, 'single-letter numeric scalars');
+  if (node.type !== 'Variable' || !/^[A-Z][0-9]?$/.test(node.name))
+    unsupported(node, 'numeric scalars named with a letter and optional digit');
 }
 
 function validateNumber(expression: Expression): void {
@@ -27,7 +27,8 @@ function validateNumber(expression: Expression): void {
         validateScalar(node);
         break;
       case 'NumberLiteral':
-        if (!/^\d{1,4}$/.test(node.raw)) unsupported(node, 'small unsigned integer literals');
+        if (!/^\d{1,4}$/.test(node.raw) && node.raw !== '.5')
+          unsupported(node, 'small unsigned integers and the literal .5');
         break;
       case 'GroupExpression':
         pending.push(node.expression);

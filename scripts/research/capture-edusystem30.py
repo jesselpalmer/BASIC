@@ -47,6 +47,14 @@ LITQZ_ROUNDS = [
     (['3', '2', '4', '3'], 130, 'LITERATURE (HA, HA, HA)'),
     (['1', '1', '1', '1'], 999, 'NURSERY SCHOOL FOR YOU, MY FRIEND. '),
 ]
+MATHD_FIXTURE = 'scripts/package/fixtures/classic/mathd-mar75-text.bas'
+MATHD_SHA256 = 'c93150f295767386f555c4a0e8d2f105ad922dac462384c33d4b233a8fa6d1e2'
+MATHD_CLOCK_WORDS = [2, 4, 2, 1, 3, 1, 3, 4]
+MATHD_ROUNDS = [['7'], ['0', '7'], ['0', '0'], []]
+MATHD_SCALAR_PROBE = [
+    '10 PRINT A;A0;A9;T1;T2', '20 A=1', '30 A0=2', '40 A9=3', '50 T1=4', '60 T2=5',
+    '70 PRINT A;A0;A9;T1;T2', '80 END',
+]
 
 
 def digest(data):
@@ -356,6 +364,70 @@ def capture_stop(console):
     return {'beforeReady': outputs, 'continueResponse': console.after}
 
 
+def capture_mathd(console, source):
+    for line in source.splitlines():
+        send_line(console, line)
+
+    def command(text):
+        console.sendline(text)
+        console.expect_exact('sim> ')
+
+    console.sendcontrol('e')
+    console.expect_exact('sim> ')
+    command('break 02755')
+    console.sendline('continue')
+    send_line(console, 'RUN')
+    console.expect_exact('EDUSYSTEM-30\r\n\r\n')
+    prompt = '       = ?'
+    chunks = []
+    clock = iter(MATHD_CLOCK_WORDS)
+    for answers in MATHD_ROUNDS:
+        for _ in range(2):
+            console.expect_exact('\r\nBreakpoint, PC: 02755')
+            chunks.append(console.before)
+            console.expect_exact('sim> ')
+            command(f'deposit 7471 {next(clock):o}')
+            console.sendline('continue')
+            console.expect_exact('continue\r\n')
+        for answer in answers:
+            console.expect_exact(prompt)
+            chunks.append(console.before + prompt)
+            send_line(console, answer)
+    console.expect_exact(prompt)
+    chunks.append(console.before + prompt)
+    console.sendcontrol('c')
+    console.expect_exact('READY')
+    # SIMH can flush the tape buffer in the middle of a terminal line.
+    transcript = normalize(''.join(chunks).replace('DT0: writing buffer to file: working.tu56\r\n', ''))
+    faces = [sum(line.count('*') for line in die) for die in
+             re.findall(r'^I([ *]+)I\nI([ *]+)I\nI([ *]+)I$', transcript, re.M)]
+    assert faces == [1, 6, 2, 5, 3, 4, 1, 2], transcript
+    assert transcript.count('RIGHT!') == 2
+    assert transcript.count('NO, COUNT THE SPOTS AND GIVE ANOTHER ANSWER.') == 2
+    assert transcript.count('NO, THE ANSWER IS  7 \n') == 1
+    assert transcript.count('THE DICE ROLL AGAIN.....') == 3
+    return {
+        'simulatorCommit': SIMULATOR,
+        'tapeSha256': TAPE_SHA256,
+        'fixtureSha256': MATHD_SHA256,
+        'clockWords': MATHD_CLOCK_WORDS,
+        'faces': faces,
+        'answers': [answer for round_answers in MATHD_ROUNDS for answer in round_answers],
+        'outputSha256': digest(transcript.encode('ascii')),
+    }
+
+
+def capture_mathd_scalars(console):
+    for line in MATHD_SCALAR_PROBE:
+        send_line(console, line)
+    send_line(console, 'RUN')
+    console.expect_exact('EDUSYSTEM-30\r\n\r\n')
+    console.expect_exact('READY')
+    output = normalize(console.before).removesuffix('\n')
+    assert output == ' 0  0  0  0  0 \n 1  2  3  4  5 \n', repr(output)
+    return {'source': '\n'.join(MATHD_SCALAR_PROBE), 'output': output}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
@@ -365,6 +437,7 @@ def main():
     game.add_argument('--letter', action='store_true', help='Capture the LETTER replay')
     game.add_argument('--trap', action='store_true', help='Capture the TRAP replay and numeric INPUT')
     game.add_argument('--litqz', action='store_true', help='Capture the LITQZ endings and STOP behavior')
+    game.add_argument('--mathd', action='store_true', help='Capture the MATHD dice and retries')
     args = parser.parse_args()
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert digest(tape.read_bytes()) == TAPE_SHA256
@@ -406,6 +479,15 @@ def main():
             'rounds': rounds,
             'stopProbe': stop,
         }
+        args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
+        return
+    if args.mathd:
+        source = (root / MATHD_FIXTURE).read_bytes()
+        assert digest(source) == MATHD_SHA256
+        with edu30(simulator, tape) as console:
+            evidence = capture_mathd(console, source.decode('ascii'))
+        with edu30(simulator, tape) as console:
+            evidence['scalarProbe'] = capture_mathd_scalars(console)
         args.output.write_text(json.dumps(evidence, indent=2) + '\n', encoding='ascii')
         return
     fixture = (root / FIXTURE).read_bytes()

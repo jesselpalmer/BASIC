@@ -496,6 +496,33 @@ python3 scripts/research/capture-edusystem30.py --litqz \
 diff -u docs/litqz-edusystem30-reference.json /tmp/litqz-edusystem30-reference.json
 ```
 
+## MATHD
+
+The [March 1975 printing, page 152](https://www.bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=152)
+identifies EDUSYSTEM 30 and credits Jim Gerrish in the listing. The
+[pinned transcription](../scripts/package/fixtures/classic/mathd.bas) has 68 lines
+and SHA-256 `0bd1003eeffa08a8d6dd35ef125de3e067611bcbee9c913c593f80e7217efe9e`.
+The [reviewed text](../scripts/package/fixtures/classic/mathd-mar75-text.bas)
+restores the comma at 15, the printed spelling `DERRIVED` at 16, and the
+five-dash bottom of the die at 360. Its SHA-256 is
+`c93150f295767386f555c4a0e8d2f105ad922dac462384c33d4b233a8fa6d1e2`.
+
+The [archive capture](mathd-edusystem30-reference.json) injects a known 12-bit
+clock word at each RANDOMIZE. Eight dice show all six faces. The first sum
+is correct, the second is corrected on retry, and the third is revealed
+after two wrong answers. The next dice appear before Ctrl+C ends the session.
+The capture removes the OS/8 banner, input echo and SIMH monitor messages.
+A separate probe verifies that `A`, `A0`, `A9`, `T1` and `T2` are distinct
+numeric scalars and read zero before assignment.
+
+```sh
+python3 scripts/research/capture-edusystem30.py --mathd \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/mathd-edusystem30-reference.json
+diff -u <(python3 -m json.tool docs/mathd-edusystem30-reference.json) \
+  <(python3 -m json.tool /tmp/mathd-edusystem30-reference.json)
+```
+
 ## LIFE2
 
 ### Pinned source and March 1975 review

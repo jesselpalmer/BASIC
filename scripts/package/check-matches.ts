@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {letterOptions, letterPrompt, letterSource} from '../letter-acceptance.ts';
-import {assertLitqzOutput, litqzOptions, litqzRounds, litqzSource} from '../litqz-acceptance.ts';
+import {assertLitqzOutput, litqzRounds, litqzSource} from '../litqz-acceptance.ts';
+import {mathdOptions, mathdPrompt, mathdSource} from '../mathd-acceptance.ts';
+import {assertNumberOutput, numberGames, numberSource} from '../number-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -79,19 +81,60 @@ export async function checkTrapCli(executable: string, directory: string): Promi
   assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
 }
 
-export function checkLitqzCli(executable: string, directory: string): void {
-  const file = join(directory, 'litqz-edusystem30.basic.json');
-  const saved = join(directory, 'litqz-edusystem30-copy.basic.json');
-  const document = {format: 'basic-program', version: 1, ...litqzOptions, source: litqzSource};
+export function checkMathdCli(executable: string, directory: string): void {
+  const file = join(directory, 'mathd-edusystem30.basic.json');
+  writeFileSync(
+    file,
+    JSON.stringify({format: 'basic-program', version: 1, ...mathdOptions, source: mathdSource}),
+  );
+  const result = runProcess({
+    cwd: directory,
+    args: [executable, file],
+    input: '0\n0\n',
+    expectedStatus: 1,
+  });
+  const rows = result.stdout.match(/^I[ *]+I$/gm) ?? [];
+  assert.equal(rows.length, 12);
+  const sum = rows.slice(0, 6).join('').match(/\*/g)?.length ?? 0;
+  assert.ok(sum >= 2 && sum <= 12);
+  assert.ok(result.stdout.includes(`NO, THE ANSWER IS  ${sum} \n`));
+  assert.ok(result.stdout.includes('NO, COUNT THE SPOTS AND GIVE ANOTHER ANSWER.'));
+  assert.ok(result.stdout.endsWith(mathdPrompt));
+  assert.match(result.stderr, /^Line 520, column \d+: Input ended before a value was received\n$/);
+}
+
+export function checkCompletedEduSystem30Cli(executable: string, directory: string): void {
+  checkCompletedGame(executable, directory, 'litqz', litqzSource, litqzRounds, assertLitqzOutput);
+  checkCompletedGame(
+    executable,
+    directory,
+    'number',
+    numberSource,
+    numberGames,
+    assertNumberOutput,
+  );
+}
+
+function checkCompletedGame<Round extends {readonly answers: readonly string[]}>(
+  executable: string,
+  directory: string,
+  name: string,
+  source: string,
+  rounds: readonly Round[],
+  assertOutput: (output: string, round: Round) => void,
+): void {
+  const file = join(directory, `${name}-edusystem30.basic.json`);
+  const saved = join(directory, `${name}-edusystem30-copy.basic.json`);
+  const document = {format: 'basic-program', version: 1, dialect: eduSystem30Dialect, source};
   writeFileSync(file, JSON.stringify(document));
-  const transcripts = litqzRounds.map((round) => {
+  const transcripts = rounds.map((round) => {
     const result = runProcess({
       cwd: directory,
       args: [executable, file],
       input: round.answers.join('\n') + '\n',
     });
     assert.equal(result.stderr, '');
-    assertLitqzOutput(result.stdout, round);
+    assertOutput(result.stdout, round);
     return result.stdout;
   });
   const editor = runProcess({
@@ -101,7 +144,7 @@ export function checkLitqzCli(executable: string, directory: string): void {
       `LOAD "${file}"`,
       `SAVE "${saved}"`,
       `LOAD "${saved}"`,
-      ...litqzRounds.flatMap(({answers}) => ['RUN', ...answers]),
+      ...rounds.flatMap(({answers}) => ['RUN', ...answers]),
       'EXIT',
       '',
     ].join('\n'),
