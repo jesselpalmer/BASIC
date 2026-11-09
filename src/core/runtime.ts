@@ -2,7 +2,7 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {createAltairEvaluator, createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
-import {eduSystem30InputPresentation, formatEduSystem30PrintValue} from './edusystem30_terminal.ts';
+import {eduSystem30InputPresentation, formatEduSystem30PrintItem} from './edusystem30_terminal.ts';
 import {AltairTerminal} from './altair_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
@@ -95,23 +95,26 @@ export default class Basic {
     this.#privateSelected = internal !== undefined;
     this.#dialect = validateDialect(options.dialect);
     this.#internalSelected = internal !== undefined || this.#dialect === 'basic-plus-v4a12-ma2';
-    const eduSystem30 = this.#dialect === 'edusystem-30';
     this.#altair = this.#dialect === 'altair-8k-4.0' ? new AltairTerminal() : null;
     this.#emptyProgram = prepareProgram('', this.#internalSelected ? 'native' : this.#dialect);
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    this.#evaluator = eduSystem30
-      ? createEduSystem30Evaluator(this.#host)
-      : this.#altair
-        ? createAltairEvaluator(this.#host)
-        : new Evaluator(this.#host);
+    const eduSystem30 =
+      this.#dialect === 'edusystem-30' ? createEduSystem30Evaluator(this.#host) : null;
+    this.#evaluator =
+      eduSystem30?.evaluator ??
+      (this.#altair ? createAltairEvaluator(this.#host) : new Evaluator(this.#host));
     this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
     this.#data = new DataReader(this.#prepared.dataItems);
     this.#statementPolicy = createNativeStatementPolicy({
       evaluator: this.#evaluator,
       data: () => this.#data,
       graphics: this.#graphics,
-      formatPrintValue: eduSystem30 ? formatEduSystem30PrintValue : undefined,
+      formatPrintItem: eduSystem30
+        ? (item) => formatEduSystem30PrintItem(item, this.#evaluator)
+        : undefined,
+      randomize: eduSystem30?.randomize,
+      fallThroughIfFalse: eduSystem30 !== null,
     });
     if (internal) {
       if (typeof internal.program === 'string') this.reset(internal.program);

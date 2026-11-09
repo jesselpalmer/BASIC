@@ -42,6 +42,7 @@ const simpleKinds: Record<SimpleStatement['type'], true> = {
   ClsStatement: true,
   EndStatement: true,
   RunStatement: true,
+  RandomizeStatement: true,
 };
 
 export interface Instruction {

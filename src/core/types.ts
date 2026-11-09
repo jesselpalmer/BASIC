@@ -241,6 +241,8 @@ export interface NodeFields {
   InputStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly target: NodeOf<'Variable'>;
+    /** EDUSYSTEM-30 INPUT $ converts one character to its ASCII code. */
+    readonly character?: true;
   };
   InputLineStatement: {readonly target: AssignmentTarget};
   InputTargetsStatement: {
@@ -277,6 +279,7 @@ export interface NodeFields {
   ClsStatement: Record<never, never>;
   EndStatement: Record<never, never>;
   RunStatement: Record<never, never>;
+  RandomizeStatement: Record<never, never>;
   StatementSequence: {
     readonly statements: readonly SimpleStatement[];
     readonly separators: readonly Location[];
@@ -338,6 +341,7 @@ export type SimpleStatement = Nodes<
   | 'ClsStatement'
   | 'EndStatement'
   | 'RunStatement'
+  | 'RandomizeStatement'
 >;
 export type Statement = SimpleStatement | NodeOf<'StatementSequence'>;
 export type GraphicsStatement = Extract<

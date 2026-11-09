@@ -37,6 +37,11 @@ from the default seed, and replay within one run keeps consuming that stream.
 In the reviewed 23MTCH trace, the sixth draw after replay yields a computer
 move of two, while a fresh stream's first draw yields one.
 
-The [selected 23MTCH profile](edusystem30-profile.md) uses this stream for
-`RND(0)`. General argument evaluation and continuation diagnostics,
-`RANDOMIZE` and wider numeric behavior remain separate compatibility work.
+The [selected EDUSYSTEM-30 profile](edusystem30-profile.md) uses this stream for
+`RND(0)`. In `EDU30.SV`, the `RANDOMIZE` routine at octal 02755–02757 adds
+the 12-bit clock word at 07471 to the high state word at 00150 modulo 4096
+and leaves 00151 unchanged. The [LETTER capture](letter-edusystem30-reference.json)
+sets that clock word to octal 2304 and observes the high word change from
+1461 to 3765. The portable profile uses `floor(host.random() * 4096)` as
+the clock word, preserving an injectable entropy source. General argument
+evaluation, continuation diagnostics and wider arithmetic remain separate.

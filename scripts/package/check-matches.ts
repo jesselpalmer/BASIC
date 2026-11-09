@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {letterOptions, letterPrompt, letterSource} from '../letter-acceptance.ts';
 import {
   assertReviewedTranscript,
   eduSystem30Dialect,
@@ -11,6 +12,23 @@ import {
   reviewedAnswers,
 } from '../matches-acceptance.ts';
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
+
+export function checkLetterCli(executable: string, directory: string): void {
+  const file = join(directory, 'letter-edusystem30.basic.json');
+  const document = {format: 'basic-program', version: 1, ...letterOptions, source: letterSource};
+  writeFileSync(file, JSON.stringify(document));
+  const guesses = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.repeat(2)];
+  const result = runProcess({
+    cwd: directory,
+    args: [executable, file],
+    input: ['AB', ...guesses, ''].join('\n'),
+    expectedStatus: 1,
+  });
+  assert.match(result.stderr, /^Line 430, column \d+: Input ended before a value was received\n$/);
+  assert.match(result.stdout, /Enter one ASCII character\./);
+  assert.ok((result.stdout.match(/YOU GOT IT IN \d+ GUESSES!!/g)?.length ?? 0) >= 2);
+  assert.ok(result.stdout.endsWith(letterPrompt));
+}
 
 /** Run both byte-pinned sources through the real executable, outside the checkout. */
 export function checkMatchesCli(executable: string, directory: string): void {

@@ -135,6 +135,14 @@ export async function readInput(
   signal: AbortSignal,
   presentation?: {readonly prompt: string; readonly invalidNumber: string},
 ): Promise<readonly BasicValue[]> {
+  if (statement.type === 'InputStatement' && statement.character) {
+    for (;;) {
+      const text = await readInputResponse(host, '', statement.location, signal);
+      if (!text.length) return [13]; // A submitted empty line represents Return.
+      if (text.length === 1 && text.charCodeAt(0) <= 127) return [text.charCodeAt(0)];
+      host.write('\nEnter one ASCII character.\n');
+    }
+  }
   const prompt =
     presentation?.prompt ??
     (statement.type === 'InputLineStatement' ? '' : `${statement.prompt?.value ?? ''}? `);

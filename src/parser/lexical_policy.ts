@@ -2,12 +2,13 @@ import {historicalNumericIntrinsicNames} from '../core/intrinsics.ts';
 
 // Internal scanner conformance is deliberately separate from public Dialect.
 // A token stream alone cannot supply a historical program's runtime semantics.
-export type LexicalPolicy = 'native' | 'basic-plus-1972-10' | 'altair-8k-4.0';
+export type LexicalPolicy = 'native' | 'basic-plus-1972-10' | 'altair-8k-4.0' | 'edusystem-30';
 
 interface ScannerPolicy {
   readonly compact: boolean;
   readonly maximumLabel: number;
   readonly ma2: boolean;
+  readonly eduSystem30?: true;
   readonly word: typeof historicalWord;
 }
 
@@ -24,6 +25,7 @@ const basicPlus = Object.freeze({
   word: historicalWord,
 });
 const altair = Object.freeze({compact: true, maximumLabel: 65535, ma2: false, word: altairWord});
+const eduSystem30 = Object.freeze({...native, eduSystem30: true as const});
 
 export function scannerPolicy(policy: LexicalPolicy = 'native'): ScannerPolicy {
   switch (policy) {
@@ -33,6 +35,8 @@ export function scannerPolicy(policy: LexicalPolicy = 'native'): ScannerPolicy {
       return basicPlus;
     case 'altair-8k-4.0':
       return altair;
+    case 'edusystem-30':
+      return eduSystem30;
     default:
       throw new TypeError(`Unsupported internal lexical policy ${JSON.stringify(policy)}`);
   }

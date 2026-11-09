@@ -18,6 +18,7 @@ import move from '../examples/move.bas' with {type: 'text'};
 import pong from '../examples/pong.bas' with {type: 'text'};
 import life2 from '../scripts/package/fixtures/classic/life2-mar75-reviewed.bas' with {type: 'text'};
 import matches from '../scripts/package/fixtures/classic/23mtch-mar75-text.bas' with {type: 'text'};
+import letter from '../scripts/package/fixtures/classic/letter-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -68,6 +69,7 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   pong: {source: pong, dialect: 'native'},
   checker: {source: checker, dialect: 'basic-plus-v4a12-ma2'},
   matches: {source: matches, dialect: 'edusystem-30'},
+  letter: {source: letter, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
@@ -95,6 +97,7 @@ const documentModel = new BrowserDocument(greeting, {
 const transcript = new Transcript();
 let pendingFrame: number | null = null;
 let submitInput: ((text: string) => boolean) | null = null;
+let inputEchoSuffix = '\n';
 let runRequest = 0;
 let inspectionState: BrowserState | null = null;
 
@@ -281,9 +284,11 @@ const session = new BrowserSession({
   stateChanged,
   requestInput(prompt, submit) {
     submitInput = submit;
+    inputEchoSuffix = '\n';
     if (session.state.dialect === 'edusystem-30') {
       write(prompt);
-      inputPrompt.textContent = 'Enter a number';
+      inputPrompt.textContent = prompt ? 'Enter a number' : 'Enter one ASCII character';
+      if (!prompt) inputEchoSuffix = '';
     } else if (session.state.dialect === 'altair-8k-4.0') {
       write(prompt);
       inputPrompt.textContent =
@@ -403,8 +408,9 @@ inputForm.addEventListener('submit', (event) => {
   event.preventDefault();
   // Capture this request's closure; a late submission can never answer a replacement run.
   const submit = submitInput;
+  const suffix = inputEchoSuffix;
   if (submit?.(inputValue.value)) {
-    write(`${inputValue.value}\n`);
+    write(inputValue.value + suffix);
     inputValue.value = '';
   }
 });

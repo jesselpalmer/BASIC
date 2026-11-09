@@ -140,7 +140,10 @@ class Scanner {
         const operator = ['<=', '>=', '<>'].includes(pair) ? pair : character;
         this.index += operator.length;
         this.emit('OPERATOR', start, operator);
-      } else if ('();,:'.includes(character)) {
+      } else if (
+        '();,:'.includes(character) ||
+        (this.policy.eduSystem30 && '\\$'.includes(character))
+      ) {
         const start = this.position();
         this.index++;
         this.emit('PUNCTUATION', start, character);
@@ -450,7 +453,8 @@ class Scanner {
     const type = (
       this.policy.compact
         ? historicalKeyword && value !== 'USING' && !altairContextual
-        : reservedWords.has(value)
+        : reservedWords.has(value) ||
+          (this.policy.eduSystem30 && (value === 'RANDOMIZE' || value === 'CHR$'))
     )
       ? 'KEYWORD'
       : 'IDENTIFIER';

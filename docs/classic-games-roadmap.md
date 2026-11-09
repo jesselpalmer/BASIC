@@ -25,6 +25,12 @@ The [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded
 in #129. Jesse's personal acceptance and 1CHECK's original interpreter
 attribution remain separate checkpoints.
 
+The [reviewed LETTER listing](classic-source-review.md#letter) runs under the
+existing EDUSYSTEM-30 profile. Choose **LETTER · EDUSYSTEM-30 selected profile**
+in the editor and submit one uppercase letter per guess. Library and browser
+acceptance match two archived rounds, including clues, the bell and automatic
+replay. Installed CLI acceptance plays with fresh entropy.
+
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
 under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
@@ -40,8 +46,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                         |
 | Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
-The [corpus ledger](classic-games-ledger.json) still records **3 reviewed
-source differences / 105 unresolved**, **1 printed-system identification / 107
+The [corpus ledger](classic-games-ledger.json) records **4 reviewed
+source differences / 104 unresolved**, **2 printed-system identifications / 106
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories, not a release-completion percentage. The selected
 reviewed-text run does not alter the raw corpus ledger.
@@ -78,8 +84,10 @@ atomic replacement and fresh runs across all supported distributions.
 The [reviewed 23MTCH fixture](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
 reproduces the printed game through archived `EDU30.SV` and the public selected
 profile. Acceptance checks cover the complete loss/replay/win and fresh RUN.
-Keep raw, one-byte-corrected and reviewed text separate. General EDUSYSTEM-30
-arithmetic, RNG arguments and further statements remain under #116 and #123.
+Keep raw, one-byte-corrected and reviewed text separate. LETTER adds bounded
+character input, `RANDOMIZE`, backslash sequences and `CHR$(7)` output.
+General EDUSYSTEM-30 arithmetic and RNG argument semantics remain under
+#116 and #123.
 
 The [Altair profile](altair-life2-profile.md) runs the reviewed LIFE2
 source with compact admission, indexed INPUT, terminal controls and numbered

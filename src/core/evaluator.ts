@@ -92,8 +92,13 @@ const eduSystem30Token = Symbol('edusystem-30-evaluator');
 const altairToken = Symbol('altair-evaluator');
 
 /** Used only after Basic has admitted the bounded EDUSYSTEM-30 source. */
-export function createEduSystem30Evaluator(host: Partial<Host>): Evaluator {
-  return new Evaluator(host, {}, eduSystem30Token);
+export function createEduSystem30Evaluator(host: Host) {
+  const random = new EduSystem30Random();
+  return {
+    evaluator: new Evaluator(host, {}, {token: eduSystem30Token, random}),
+    randomize: (location: Location) =>
+      random.randomize(Math.floor(readHostRandom(host, location) * 4096)),
+  };
 }
 
 export function createAltairEvaluator(host: Partial<Host>): Evaluator {
@@ -106,16 +111,21 @@ export class Evaluator {
   readonly #altair: boolean;
   private readonly variables = new Map<string, BasicValue>();
   private arrays = new ArrayStore();
-  #eduSystem30Random: EduSystem30Random | null;
+  readonly #eduSystem30Random: EduSystem30Random | null;
   private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
   constructor(
     host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
     options: LanguageOptions = {},
-    internal?: typeof eduSystem30Token | typeof altairToken,
+    internal?:
+      | {readonly token: typeof eduSystem30Token; readonly random: EduSystem30Random}
+      | typeof altairToken,
   ) {
     this.#altair = internal === altairToken;
-    this.#eduSystem30Random = internal === eduSystem30Token ? new EduSystem30Random() : null;
+    this.#eduSystem30Random =
+      internal && internal !== altairToken && internal.token === eduSystem30Token
+        ? internal.random
+        : null;
     this.#dialect = validateDialect(options.dialect, 'native');
     this.host = createHost(host);
   }
@@ -128,7 +138,7 @@ export class Evaluator {
     const arrays = new ArrayStore(declarations, this.#altair ? 'altair' : 'native');
     this.variables.clear();
     this.arrays = arrays;
-    if (this.#eduSystem30Random) this.#eduSystem30Random = new EduSystem30Random();
+    this.#eduSystem30Random?.reset();
   }
 
   snapshotArrays(): readonly ArraySnapshot[] {
@@ -191,28 +201,28 @@ export class Evaluator {
       arrays: () => this.arrays,
       host: this.host,
       randomArgumentCount: this.#eduSystem30Random ? 1 : 0,
-      random: (location) => this.#eduSystem30Random?.next() ?? this.nextRandom(location),
+      random: (location) => this.#eduSystem30Random?.next() ?? readHostRandom(this.host, location),
     });
   }
+}
 
-  private nextRandom(location: Location): number {
-    let value: number;
-    try {
-      value = this.host.random();
-    } catch (cause) {
-      throw new BasicRuntimeError(
-        'RANDOM_FAILED',
-        'Random source failed',
-        location.start,
-        location.label,
-        {cause},
-      );
-    }
-    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value >= 1) {
-      fail('INVALID_RANDOM_VALUE', 'Random source must return a number >= 0 and < 1', location);
-    }
-    return value;
+function readHostRandom(host: Pick<Host, 'random'>, location: Location): number {
+  let value: number;
+  try {
+    value = host.random();
+  } catch (cause) {
+    throw new BasicRuntimeError(
+      'RANDOM_FAILED',
+      'Random source failed',
+      location.start,
+      location.label,
+      {cause},
+    );
   }
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value >= 1) {
+    fail('INVALID_RANDOM_VALUE', 'Random source must return a number >= 0 and < 1', location);
+  }
+  return value;
 }
 
 interface NativeContext {

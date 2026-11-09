@@ -391,6 +391,49 @@ same archived build. The [bounded EDUSYSTEM-30 profile](edusystem30-profile.md)
 matches the archived game transcript through library, CLI and browser. The
 partial native path remains available for the raw and one-byte-corrected sources.
 
+## LETTER
+
+The [March 1975 printing, pages 141–142](https://bitsavers.trailing-edge.com/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=141)
+credits Bob Albrecht's original and identifies this adaptation as
+EDUSYSTEM 15/30/35. The listing and sample headings name EDUSYSTEM 30.
+The pinned [raw listing](../scripts/package/fixtures/classic/letter.bas) has
+24 lines and SHA-256
+`cd8b98f301030f3dacde48a8315861befcd113fe8cfe9bcaf318b35db1015568`.
+The [reviewed listing](../scripts/package/fixtures/classic/letter-mar75-text.bas)
+sets two exclamation marks at 500 and two spaces before the exclamation
+marks at 508. All other bytes match the pinned listing.
+
+The existing [EDU30.SV tape](https://www.pdp8online.com/ftp/images/os8/edu30.tu56)
+runs this listing with SIMH's 7-bit TTI and space parity. The default mark
+parity sets bit seven, so `INPUT $A` returns 193 for A instead of 65. With
+space parity, the same instruction consumes one keystroke, writes its ASCII
+code and emits no prompt. The listing prints the question before it reads.
+
+The [capture](letter-edusystem30-reference.json) pins the SIMH build, tape,
+listing and output excluding input echo and the OS/8 run banner. For a
+repeatable game, it sets the clock word to octal 2304 at the `RANDOMIZE`
+instruction. The first round guesses A, Z and D, prints both clues, and
+rings 15 bells. The second takes six guesses, prints the slower-round
+message and starts a third round.
+
+An isolated sequence probe skips a loop whose start exceeds its end, runs
+a zero-to-zero loop once and executes the next backslash statement after a
+false line-target IF. The public profile follows those observed paths.
+
+```sh
+python3 scripts/research/capture-edusystem30.py --letter \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/letter-edusystem30-reference.json
+diff -u \
+  <(python3 -m json.tool docs/letter-edusystem30-reference.json) \
+  <(python3 -m json.tool /tmp/letter-edusystem30-reference.json)
+```
+
+The [public EDUSYSTEM-30 profile](edusystem30-profile.md) runs the reviewed
+listing through the library, portable CLI and browser. Its line-oriented
+hosts submit one ASCII character at a time. The public comparison normalizes
+host input echo and excludes the archived run banner.
+
 ## LIFE2
 
 ### Pinned source and March 1975 review

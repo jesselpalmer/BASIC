@@ -102,3 +102,11 @@ hashes, the terminal mask uncertainty and the exact scope of the corrections.
 `life2-sample.json` records the seven printed boards and a reconstructed
 sequence of masked inputs, verified by a separate board model. Both files
 are test fixtures excluded from npm. The original dialect remains unverified.
+
+## LETTER
+
+`letter.bas` retains the exact bytes of the
+[pinned upstream listing](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/letter.bas).
+`letter-mar75-text.bas` is the separate [reviewed March 1975 text](../../../../docs/classic-source-review.md#letter).
+The printed description credits Bob Albrecht's original and names EDUSYSTEM
+15/30/35 for this adaptation.
