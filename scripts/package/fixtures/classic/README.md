@@ -91,3 +91,14 @@ and every game branch. Its SHA-256 is
 `6b4ce01cdd00a638a415801bd912f9cbfe8ae02d1e42c6b41e759246f1f94ecc`.
 The [March 1975 source review](../../../../docs/classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run)
 records the scan provenance and the archived EDU30.SV run of these exact bytes.
+
+## LIFE2 — March 1975 reviewed listing and sample
+
+`life2-mar75-reviewed.bas` retains the pinned LIFE2 transcription with
+scan-backed corrections at ten labels. The fixture credits Brian Wyvill and
+is tied to printed page 148 of the March 1975 third printing. The
+[review](../../../../docs/classic-source-review.md#life2) records both source
+hashes, the terminal mask uncertainty and the exact scope of the corrections.
+`life2-sample.json` records the seven printed boards and a reconstructed
+sequence of masked inputs, verified by a separate board model. Both files
+are test fixtures excluded from npm. The original dialect remains unverified.

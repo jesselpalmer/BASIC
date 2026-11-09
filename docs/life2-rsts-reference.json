@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "build": "RSTS V4A-12 V4A12MA2",
+  "sourceSha256": "7994b561062b02ba16c467350e83aff60c693659f94ab7b121d98a17ef728789",
+  "entryIllegalVerbLabels": [574, 575],
+  "coordinatePrompt": "XXXX\r@@@@\r\n? ",
+  "drawAnswers": ["1,1", "3,1", "5,1", "1,5", "3,5", "5,5"],
+  "exactWin": {
+    "boards": 7,
+    "ending": "ILLEGAL STATEMENT at line 575",
+    "transcriptSha256": "9c0e6f8f48993311e2b80a8515024bbcfaad89ff0410db8b4ae6f1276af7c265"
+  },
+  "exactDraw": {
+    "boards": 2,
+    "ending": "ILLEGAL STATEMENT at line 574",
+    "transcriptSha256": "16d85294f945b6d374f4e6daa2e4d3031f6eab7ab39477f03550d9cd20fd585f"
+  },
+  "endProbeWin": {
+    "boards": 7,
+    "ending": "PLAYER 1 IS THE WINNER",
+    "transcriptSha256": "93f5e5bdbcfc878ca08b6683234f5709a205f1578c015918a405e92a162819d1"
+  },
+  "endProbeDraw": {
+    "boards": 2,
+    "ending": "A DRAW",
+    "transcriptSha256": "47ad621b0f7bbb92f63fe574deb03485ece529ed518bdad568d2ad5af26d386a"
+  },
+  "occupiedOffsetProbe": ["BEFORE 100  1000 ", "AFTER 0  1000  99 "]
+}

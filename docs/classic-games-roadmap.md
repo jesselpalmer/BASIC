@@ -13,8 +13,10 @@ archived EDUSYSTEM-30 transcript through the library, portable CLI/editor and
 browser. Choose **23MTCH · EDUSYSTEM-30 selected profile** in the normal editor.
 
 Record independent and user acceptance of 23MTCH under #129.
-In parallel, continue source and dialect review for LIFE2 under #115 so its
-loop and board behavior can be verified before expanding a profile. The
+The [LIFE2 source and archive review](classic-source-review.md#life2) pins a
+March 1975 fixture and reproduces all seven printed boards on RSTS V4A-12 MA2.
+That build rejects the in-program `RUN` at both result labels. Resolve the
+restart and original dialect under #115 and #116 before expanding a profile. The
 [1CHECK](first-game-milestone.md) delegated Chrome playthrough is recorded in
 #129. Jesse's personal acceptance and 1CHECK's original interpreter attribution
 remain separate checkpoints.

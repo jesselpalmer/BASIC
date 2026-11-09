@@ -393,45 +393,89 @@ partial native path remains available for the raw and one-byte-corrected sources
 
 ## LIFE2
 
-### Reviewed loop-delimiter differences
+### Pinned source and March 1975 review
 
-- Pinned file: [life2.bas](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/life2.bas).
-- Raw SHA-256: `047474f16b61cac8e57fb573ef9c783c5c5eabe6f8eed13ac7bcee610f6a9dde`;
-  1,944 bytes and 79 physical lines, including the final unterminated line.
-- The description begins on printed page 146. The listing and sample run are
-  on printed page **148**, one-based PDF page **150**, leaf **n149** of the
-  [available book scan](https://archive.org/details/101basiccomputer0000davi/page/n149/mode/1up).
-- The downloaded PDF has SHA-256
-  `c8a7549a649e9b6a99d80cab9ec8e3d78f6a872f127daee617fe692c40b92867`.
-  Its catalog describes 1974, while the pinned repository describes a 1975 third
-  printing. Record the difference without asserting identical editions or its
-  transcription/OCR cause.
+Brian Wyvill is credited on printed page 147. The pinned upstream
+[life2.bas](https://github.com/maurymarkowitz/101-BASIC-Computer-Games/blob/45f75052be3f436f2e575f58d4aa611484268227/life2.bas)
+has 1,944 bytes and 79 physical lines, including its final unterminated line.
+Its SHA-256 is `047474f16b61cac8e57fb573ef9c783c5c5eabe6f8eed13ac7bcee610f6a9dde`.
 
-At labels **510/511**, physical lines **44/45**, the pinned text is:
+The description begins on printed page 146. The listing and sample run are on
+printed page 148, PDF page 150 of the
+[earlier scan](https://archive.org/details/101basiccomputer0000davi/page/n149/mode/1up)
+and PDF page 148 of the
+[March 1975 third printing](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=148).
+The March 1975 PDF has SHA-256
+`311c1be8d3c9361ee9badb59b5a43c43a5b0bf4803298943be1cb617b8f33ad7`.
 
-```bas
-510 FORJ=1T05
-511 FORK=1T05
+The [reviewed fixture](../scripts/package/fixtures/classic/life2-mar75-reviewed.bas)
+has 1,941 bytes, 79 physical lines and SHA-256
+`7994b561062b02ba16c467350e83aff60c693659f94ab7b121d98a17ef728789`.
+It preserves the pinned transcription's spacing outside the following edits.
+
+| Labels                  | Reviewed difference                                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 13                      | Put the same eight neighbor-offset pairs in printed order.                                                     |
+| 500                     | Remove the second period from the board title.                                                                 |
+| 510, 511, 519, 535, 580 | Use the letter O in the five `TO` loop delimiters. The scan's digit zero has a different, slashed glyph.       |
+| 574, 575                | Separate the result PRINT from `RUN` with a colon.                                                             |
+| 575                     | Remove the leading space inside the winner literal.                                                            |
+| 700                     | End the coordinate-label PRINT at its colon and separate the final `CHR$(13)` from indexed INPUT with a colon. |
+
+The four-character mask at 700 is dark in the scan. The fixture retains the
+pinned `@@@@` reading, the two carriage returns and the order of the indexed
+INPUT targets. The source review leaves the original interpreter attribution
+open. BASIC-PLUS is the upstream README's dialect hint.
+
+### Printed board replay
+
+The [sample fixture](../scripts/package/fixtures/classic/life2-sample.json)
+contains the seven printed boards, beginning with the six opening pieces and
+ending with Player 1's win. The input is masked in the scan, so the coordinate
+sequence is a reconstruction. The [board test](../scripts/life2-sample.test.ts)
+uses a separate five-by-five Life model to verify every printed board from
+those coordinates. It accepts coordinates in column,row order, following the
+listing's `INPUT Y(B),X(B)` and subsequent row-first array lookup.
+
+The final turn selects the same empty coordinate for both players. Line 741
+clears the cell one row and one column away. That cell is also empty in this
+replay.
+
+### RSTS V4A-12 MA2 reference run
+
+A fresh [selected RSTS build](rsts-v4a-build.md) listed all 79 lines of the
+reviewed fixture. It flagged `RUN` as an illegal verb at 574 and 575 during
+entry. The exact listing still reached all seven printed boards, including the
+same-coordinate message and final winning board. At the result branch it
+reported an illegal statement at 575. A separate all-dead opening reached the
+same error at 574.
+
+A diagnostic variant substitutes `END` for `RUN` at only those two labels.
+It reproduces the same boards and prints the Player 1 and draw results before
+returning to Ready. The coordinate prompt emits the two mask strings with
+carriage returns before the indexed input. An isolated execution of the exact
+line 741 clears an occupied offset cell, preserves a separate occupied cell
+and sets B to 99.
+
+The [capture record](life2-rsts-reference.json) stores the observed boundaries
+and transcript hashes. They omit the RUN command and its time header, normalize
+CRLF to LF, and preserve standalone carriage returns, spacing and input echo.
+The [capture script](../scripts/research/capture-life2-rsts.py) boots a disposable
+copy of the raw RK05 disk before REFRESH. It compares LIST and the archived
+boards to the committed fixtures. Run it with the pinned SIMH PDP-11 binary and
+`pexpect` installed.
+
+```sh
+python3 scripts/research/capture-life2-rsts.py \
+  --simulator /path/to/pdp11 --disk /path/to/uninitialized-rk05.dsk \
+  --output /tmp/life2-rsts-reference.json
+diff -u \
+  <(python3 -m json.tool docs/life2-rsts-reference.json) \
+  <(python3 -m json.tool /tmp/life2-rsts-reference.json)
 ```
 
-The visually inspected printed listing instead reads:
-
-```bas
-510 FORJ=1TO5
-511 FORK=1TO5
-```
-
-Each delimiter's second character is the letter **O** in the scan and the digit
-**0** in the pinned source. The nearby printed assignment zeros use a visibly
-different slashed-zero glyph. This source comparison, rather than a parser
-rejection, establishes reviewed differences at those locations. It does not
-certify every other character, repair other loops, or establish the exact
-original dialect: the README's BASIC-PLUS hint remains unverified.
-
-The ledger retains the unmodified raw identity and all source, dialect, feature,
-and behavioral blockers. No corrected LIFE2 fixture or game pass is introduced.
-The existing conditional feature probe remains a separately authored excerpt;
-it is not evidence that this complete listing executes correctly.
+This establishes behavior on the selected archive. LIFE2's original
+interpreter and the printed in-program restart behavior still need evidence.
 
 ## Attribution and fixture policy
 
