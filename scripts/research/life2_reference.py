@@ -1,5 +1,8 @@
 """Shared printed board decoder for the LIFE2 archive probes."""
 
+import json
+from pathlib import Path
+
 BORDER = ' 0  1  2  3  4  5  0 '
 DRAW_ANSWERS = ['1,1', '3,1', '5,1', '1,5', '3,5', '5,5']
 
@@ -17,3 +20,14 @@ def boards(transcript):
         assert lines[index + 6].startswith(BORDER)
         result.append([''.join(row[4:18:3]).replace(' ', '.') for row in rows])
     return result
+
+
+def annotated_sample():
+    path = Path(__file__).resolve().parents[2] / 'docs/life2-annotated-sample.json'
+    return json.loads(path.read_text(encoding='ascii'))
+
+
+def verify_annotated_sample(transcript, sample):
+    assert boards(transcript) == sample['boards']
+    assert transcript.count('ILLEGAL COORDS. RETYPE') == sample['coordinateRetries']
+    assert transcript.count('SAME COORD. SET TO 0') == sample['sameCoordinateMoves']

@@ -1,0 +1,31 @@
+{
+  "rsts": {
+    "schemaVersion": 1,
+    "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+    "build": "RSTS V4A-12 V4A12MA2",
+    "sourceSha256": "7994b561062b02ba16c467350e83aff60c693659f94ab7b121d98a17ef728789",
+    "printedPage": 149,
+    "ruboutEcho": "5,3\\3\\2",
+    "coordinateRetries": 4,
+    "sameCoordinateMoves": 2,
+    "boards": 12,
+    "ending": "ILLEGAL STATEMENT at line 575",
+    "transcriptSha256": "b2a821692ced09c8a121d7dc664f469d1ef082fcb2c7e1a5a563255256c1d671"
+  },
+  "altair": {
+    "schemaVersion": 2,
+    "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+    "build": "Altair BASIC 4.0 [Eight-K Version], 1976",
+    "imageSha256": "588e1f69dd30f595a3032d39fbebd452d5506d0d01aebc59b664abd7d2703d5f",
+    "sourceSha256": "7994b561062b02ba16c467350e83aff60c693659f94ab7b121d98a17ef728789",
+    "editorError": "?SN ERROR",
+    "maskAddressHex": "1e13",
+    "printedPage": 149,
+    "editEcho": "5,3_2",
+    "boards": 12,
+    "coordinateRetries": 4,
+    "sameCoordinateMoves": 2,
+    "winner": "PLAYER 2 IS THE WINNER",
+    "outputAndPromptsSha256": "1420f18965e6fbd6d272e34dba3e398e4244d5aaf1d8a98baa7610a2d853dbe9"
+  }
+}

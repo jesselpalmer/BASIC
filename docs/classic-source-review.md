@@ -401,10 +401,10 @@ has 1,944 bytes and 79 physical lines, including its final unterminated line.
 Its SHA-256 is `047474f16b61cac8e57fb573ef9c783c5c5eabe6f8eed13ac7bcee610f6a9dde`.
 
 The description begins on printed page 146. The listing and sample run are on
-printed page 148, PDF page 150 of the
-[earlier scan](https://archive.org/details/101basiccomputer0000davi/page/n149/mode/1up)
-and PDF page 148 of the
-[March 1975 third printing](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=148).
+printed page 148 of the March 1975 third printing. It is PDF page 150 in the
+[Internet Archive scan](https://archive.org/details/101basiccomputer0000davi/page/n149/mode/1up)
+and PDF page 148 in the
+[Bitsavers scan](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=148).
 The March 1975 PDF has SHA-256
 `311c1be8d3c9361ee9badb59b5a43c43a5b0bf4803298943be1cb617b8f33ad7`.
 
@@ -440,6 +440,41 @@ listing's `INPUT Y(B),X(B)` and subsequent row-first array lookup.
 The final turn selects the same empty coordinate for both players. Line 741
 clears the cell one row and one column away. That cell is also empty in this
 replay.
+
+### Annotated page 149 replay
+
+The second sample prints the coordinates, all 12 boards, four rejected moves,
+two same-coordinate moves and a Player 2 win. One input appears as
+`5,3\3\2`. Replacing the final 3 with 2 gives the next printed board. The
+[sample fixture](life2-annotated-sample.json) records the accepted value and
+the corresponding keystrokes separately.
+[Annotated transcript, page 149](https://archive.org/details/101basiccomputer0000davi/page/n150/mode/1up)
+
+| Archived build      | Editing `5,3` to `5,2`                                             | Result after the 12th board                                |
+| ------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------- |
+| RSTS V4A-12 MA2     | DEL (Rubout) produces the printed `5,3\3\2` echo and enters `5,2`. | `ILLEGAL STATEMENT at line 575` before the winner message. |
+| Altair 8K BASIC 4.0 | The underscore key produces `5,3_2` and enters `5,2`.              | `PLAYER 2 IS THE WINNER`, then a fresh opening prompt.     |
+
+Both builds reproduce every board and retry from the reviewed listing. The
+Rubout echo is a terminal behavior shared by multiple DEC environments.
+The RSTS user guide and the 1972 DECsystem-10 BASIC handbook both document
+it. Version 17A of DECsystem-10 BASIC documents `CHR$` but excludes character
+codes 10 through 13. The book listing calls `CHR$(13)` twice at 700. Compare
+the terminal echo, the carriage returns and the outcome when evaluating
+another candidate.
+[RSTS System User's Guide, §§2.2.3 and 3.4](https://ftpmirror.your.org/pub/misc/bitsavers/pdf/dec/pdp11/rsts_e/V06/DEC-11-ORSUA-D-D_RSTS_SystemUserGuide_Jul75.pdf) · [DECsystem-10 BASIC manual, §§4.2 and 8.6.2](https://bitsavers.trailing-edge.com/pdf/dec/pdp10/TOPS10_softwareNotebooks/vol06/DEC-10-LBLMA-A-D_BASIC_Conversational_Language_Manual_Mar74.pdf)
+
+The [capture record](life2-annotated-reference.json) pins both results. Use
+the simulator and image setup described below for each build.
+
+```sh
+python3 scripts/research/capture-life2-rsts.py --annotated \
+  --simulator /path/to/pdp11 --disk /path/to/uninitialized-rk05.dsk \
+  --output /tmp/life2-annotated-rsts.json
+python3 scripts/research/capture-life2-altair.py --annotated \
+  --simulator /path/to/altairz80 --image /path/to/8kbas40.bin \
+  --output /tmp/life2-annotated-altair.json
+```
 
 ### RSTS V4A-12 MA2 reference run
 
@@ -553,6 +588,21 @@ The listing and its sample run carry no machine or interpreter identifier.
 Wyvill recalls being a graduate student in Bradford in early 1972.
 [Printed author credit](https://www.cs.brandeis.edu/~storer/LunarLander/zzzOtherStuff/101BasicComputerGames_1975-OnLineText.pdf#page=147) · [Wyvill's account](https://www.brianwyvill.com/blog/climbing-gf3t4)
 
+#### Publication chronology
+
+The March 1975 scan preserves a preface dated July 1973 that names LIFE-2
+among the submissions. In his later account, Ahl says the original collection
+used several BASIC dialects. The July date precedes the DECUS package's
+September 1973 date. The LIFE-2 listing and sample run from the first printing
+still need comparison with the DECUS and March 1975 versions.
+[Preface, pages 7–9](https://bitsavers.trailing-edge.com/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=7) · [Ahl's account](https://www.mocagh.org/miscgame/cc-catalog8.pdf)
+
+The same book identifies Geoff Wyvill's Bradford-affiliated AWARI as DIGITAL
+PDP-11 BASIC. That credit identifies a dialect for AWARI. The LIFE-2
+description identifies Brian Wyvill as the author of the game and its write-up
+and leaves his system unspecified.
+[AWARI, page 20](https://bitsavers.trailing-edge.com/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=20) · [LIFE-2, page 147](https://bitsavers.trailing-edge.com/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=147)
+
 #### DECUS BASIC-PLUS edition
 
 DECUS RSTS-11-14, _Games, Puzzles and Recreation—2_, is catalogued as a
@@ -575,11 +625,8 @@ transcript hashes.
 
 This establishes BASIC-PLUS for the DEC-distributed edition. The catalogue
 dates the package, while the surviving extraction and the replay establish
-the listing and its behavior. The book's July 1973 first printing predates the
-DECUS package date. The Smithsonian holds an April 1974 second printing for a
-future listing comparison. Wyvill's submission and the source system for the
-exact March 1975 listing and sample output remain unverified.
-[Book printing history](https://www.bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=2) · [Smithsonian second printing](https://www.si.edu/object/book-101-basic-computer-games%3Anmah_1465425)
+the listing and its behavior. Wyvill's submission and the source system for
+the exact March 1975 listing and sample output remain unverified.
 
 Download the linked `LIFE2.BAS` without converting its line endings. With
 the [same RSTS setup](#rsts-v4a-12-ma2-reference-run), run:
@@ -596,22 +643,38 @@ diff -u \
 #### Bradford computing records
 
 A 1967 UK parliamentary inventory lists a Zebra and an ICT 1909 at Bradford.
-A departmental report dated December 1967 records computation on Bradford's 1909. This establishes local hardware and leaves the game's connection to it
-open. ICL's contemporary GEORGE 3 Mark 7 operator manual excludes the
-unsuffixed 1909. GEORGE 3 BASIC remains a separate comparison environment.
-[Parliamentary inventory](https://hansard.parliament.uk/Commons/1967-03-06/debates/aa082011-c2a9-4d23-8aa2-fd0389869448/Computers) · [Bradford departmental report](https://ismar.org/wp-content/uploads/TAMU/1968/TAMU-NMR-Newsletter-112-January-1968.pdf) · [ICL operator manual, preface](https://www.icl1900.co.uk/techpub/tp4310.pdf) · [1973 ICL BASIC description](https://bitsavers.trailing-edge.com/pdf/datapro/datapro_reports_70s-90s/ICL/70C-533-01_7302_ICL_1900.pdf)
+A departmental report dated December 1967 records computation on the 1909.
+A September 1971 fisheries study independently documents running its analysis
+on Bradford University's ICL 1909. That puts the 1909 in use close to
+Wyvill's time as a graduate student. The report names the machine and leaves
+the operating system and programming language unspecified.
+[Parliamentary inventory](https://hansard.parliament.uk/Commons/1967-03-06/debates/aa082011-c2a9-4d23-8aa2-fd0389869448/Computers) · [Bradford departmental report](https://ismar.org/wp-content/uploads/TAMU/1968/TAMU-NMR-Newsletter-112-January-1968.pdf) · [September 1971 study, page 118 note 20](https://ageconsearch.umn.edu/record/233398/files/us-fisheries-marine-095-01.pdf#page=131)
 
-A 1975 Purdue report lists MAXIMOP on an ICL 1909. The preservation
-catalogue identifies a separate MAXIMOP BASIC binary, and the Computer
-Conservation Society records recovery of the MAXIMOP issue tape. The
-documented 1909 compatibility makes that BASIC a candidate for a feature
-probe. Bradford's use of MAXIMOP and the game's interpreter remain open.
-[Purdue report, table I](https://docs.lib.purdue.edu/cstech/117/) · [ICL preservation catalogue](https://icl1900.co.uk/icl1900/proglang.html) · [Resurrection 84, page 9](https://computerconservationsociety.org/resurrection/pdfs/res84.pdf)
+ICL's contemporary GEORGE 3 Mark 7 operator manual excludes the unsuffixed 1909. A 1975 Purdue report lists MAXIMOP on an ICL 1909. The preservation
+catalogue describes a surviving ICL-CES BASIC binary that runs under both
+GEORGE 3 and MAXIMOP. The Computer Conservation Society records recovery of
+the MAXIMOP issue tape. Bradford's use of MAXIMOP and the game's interpreter
+remain open.
+[ICL operator manual, preface](https://www.icl1900.co.uk/techpub/tp4310.pdf) · [Purdue report, table I](https://docs.lib.purdue.edu/cstech/117/) · [ICL preservation catalogue](https://icl1900.co.uk/icl1900/proglang.html) · [Resurrection 84, page 9](https://computerconservationsociety.org/resurrection/pdfs/res84.pdf)
 
 The PiDP-8/I archive identifies its LIFE2 as an OS/8 copy in a collection
-of ports and re-ports. Keep that adaptation separate from the reviewed
-listing and the original interpreter attribution.
+of ports and re-ports. The adaptation has a separate provenance.
 [PiDP-8/I source archive](https://tangentsoft.com/pidp8i/dir?ci=release&name=src/basic-games)
+
+#### Records to compare
+
+- Compare the LIFE-2 listing and sample run in the July 1973 or April 1974
+  printing. Check the restart at 574 and 575, the coordinate mask at 700,
+  and any interpreter or terminal header. The Smithsonian's copy is the
+  April 1974 printing, catalogue number 2014.3067.01. The Internet Archive
+  item dated 1974 in its metadata has the third printing's March 1975 date
+  on its scanned copyright page.
+  [Smithsonian copy](https://www.si.edu/object/book-101-basic-computer-games%3Anmah_1465425) · [Internet Archive copyright page](https://archive.org/details/101basiccomputer0000davi/page/n3/mode/1up)
+- Look for a dated submission or a Bradford computing service record from
+  1971–73 that names the BASIC offered and how users accessed it. The Bradford
+  archive holds calendars, correspondence and committee papers for this
+  period. Wyvill's 1975 thesis is a separate lead for the systems he used.
+  [Bradford University Archive, UNI](https://www.bradford.ac.uk/library/special-collections/our-collections/university-of-bradford-archive) · [Wyvill thesis record](https://dblp.org/rec/phd/ethos/Wyvill75)
 
 ## Attribution and fixture policy
 
