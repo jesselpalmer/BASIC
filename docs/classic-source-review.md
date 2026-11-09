@@ -474,8 +474,53 @@ diff -u \
   <(python3 -m json.tool /tmp/life2-rsts-reference.json)
 ```
 
-This establishes behavior on the selected archive. LIFE2's original
-interpreter and the printed in-program restart behavior still need evidence.
+### Altair 8K BASIC archive run
+
+An archived 1976 Altair 8K BASIC 4.0 image runs all seven printed LIFE2 boards
+and prints Player 1's win. The numbered RUN returns to the opening prompt.
+A second game in the same session uses six isolated opening pieces and prints
+a draw after the empty generation. It returns to the opening prompt again.
+The capture interrupts that third game at line 700. The archived image is
+`8kbas40.bin` from the [Altair BASIC binary archive](https://deramp.com/downloads/mfe_archive/010-S100%20Computers%20and%20Boards/00-MITS/40-Software/BASIC/Altair%20BASIC%204.0/Binaries/).
+
+The Altair editor treats `@` as line erase, including inside a quoted literal.
+Typing reviewed line 700 yields a syntax error. The capture enters the reviewed
+source with a four-character placeholder in that literal, locates the stored
+line using all 79 linked line headers, and replaces those four program bytes
+through the SIMH monitor. A before/after RAM comparison checks the exact
+four-byte change. LIST then matches the reviewed source after ignoring spaces
+outside quotes. The interpreter executes its own tokens for the complete
+listing, including both original numbered RUN statements.
+[MITS 1975 BASIC reference, keyboard input and commands](https://www.bitsavers.org/pdf/mits/MITS_AltairBASIC_1975.pdf)
+
+The [capture record](life2-altair-reference.json) pins the archived image and
+the transcript. It normalizes CRLF to LF and retains the mask's standalone
+carriage returns, printed spacing and input echo.
+Use `pexpect` and build `altairz80` from the SIMH revision pinned for the
+RSTS capture.
+
+```sh
+python3 scripts/research/capture-life2-altair.py \
+  --simulator /path/to/altairz80 --image /path/to/8kbas40.bin \
+  --output /tmp/life2-altair-reference.json
+diff -u \
+  <(python3 -m json.tool docs/life2-altair-reference.json) \
+  <(python3 -m json.tool /tmp/life2-altair-reference.json)
+```
+
+### Other archive boundaries
+
+| Build                            | Probe result                                                                              | First blocker for the exact listing                      |
+| -------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| BASIC/CAPS-11 V01-01             | TAB and CHR$(13) print correctly. A colon and a numbered RUN each produce a syntax error. | Syntax error at line 10, the first colon-separated line. |
+| BASIC-11/RT-11 V2.1              | TAB and CHR$(13) print correctly. A colon and a numbered RUN each produce a syntax error. | Syntax error at line 10.                                 |
+| Microsoft BASIC-80 5.21 for CP/M | TAB, CHR$(13) and the colon probe run. The terminal accepts the literal @ characters.     | Syntax error at the compact DIM on line 1.               |
+
+The DEC builds were booted from the [CAPS-11 tape archive](https://archive.decromancer.ca/bitsavers.org/bits/DEC/pdp11/caps-11/)
+and the [RT-11 V5.3 SIMH disk set](https://archive.decromancer.ca/bitsavers.org/bits/DEC/pdp11/simh_images/).
+The BASIC-80 build is included in [Schorn's CP/M 2 simulator disk](https://schorn.ch/altair.html).
+The Altair replay establishes a later working historical configuration. The
+book's original LIFE2 interpreter attribution remains open.
 
 ## Attribution and fixture policy
 
