@@ -377,6 +377,10 @@ class Parser {
         this.take();
         return this.node('StopStatement', command, command, {});
       }
+      if (this.eduSystem30 && command.value === 'RANDOM') {
+        this.take();
+        return this.node('RandomizeStatement', command, command, {});
+      }
       // GO stays a variable name. Only the statement-position pair GO TO
       // is an alias; splitting arbitrary names would change native programs.
       if (command.value === 'GO' && following.type === 'KEYWORD' && following.value === 'TO') {

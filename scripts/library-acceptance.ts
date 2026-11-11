@@ -4,6 +4,7 @@ import {runLitqzAcceptance} from './litqz-acceptance.ts';
 import {runMathdAcceptance} from './mathd-acceptance.ts';
 import {runNumberAcceptance} from './number-acceptance.ts';
 import {runStarsAcceptance} from './stars-acceptance.ts';
+import {runHurkleAcceptance} from './hurkle-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -44,6 +45,7 @@ export const libraryAcceptanceCases = [
   'reviewed MATHD matches archived dice, retries, reveals and fresh RUN',
   'reviewed NUMBER matches archived scores, jackpots and both wins',
   'reviewed STARS matches archived clues, loss, replay and fresh RUN',
+  'reviewed HURKLE matches archived directions, win, loss, replay and fresh RUN',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -315,6 +317,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed STARS matches archived clues, loss, replay and fresh RUN', () =>
     runStarsAcceptance(api),
+  );
+  await check('reviewed HURKLE matches archived directions, win, loss, replay and fresh RUN', () =>
+    runHurkleAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

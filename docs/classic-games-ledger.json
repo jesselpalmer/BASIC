@@ -2254,14 +2254,15 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "hurkle-edusystem30.md#hurkle-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [105],
         "gosub": [360],
-        "spaced-jump": [470, 540, 650, 700],
-        "data": [670, 680]
+        "spaced-jump": [470, 540, 650, 700]
       },
       "firstNativeDiagnostic": {
         "code": "UNEXPECTED_CHARACTER",

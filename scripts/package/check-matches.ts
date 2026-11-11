@@ -6,6 +6,7 @@ import {assertLitqzOutput, litqzRounds, litqzSource} from '../litqz-acceptance.t
 import {mathdOptions, mathdPrompt, mathdSource} from '../mathd-acceptance.ts';
 import {assertNumberOutput, numberGames, numberSource} from '../number-acceptance.ts';
 import {starsOptions, starsPrompt, starsSource} from '../stars-acceptance.ts';
+import {hurkleOptions, hurklePrompt, hurkleSource} from '../hurkle-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -125,6 +126,25 @@ export function checkStarsCli(executable: string, directory: string): void {
   );
   assert.ok(result.stdout.endsWith(starsPrompt));
   assert.match(result.stderr, /^Line 360, column \d+: Input ended before a value was received\n$/);
+}
+
+export function checkHurkleCli(executable: string, directory: string): void {
+  const file = join(directory, 'hurkle-edusystem30.basic.json');
+  writeFileSync(
+    file,
+    JSON.stringify({format: 'basic-program', version: 1, ...hurkleOptions, source: hurkleSource}),
+  );
+  const result = runProcess({
+    cwd: directory,
+    args: [executable, file],
+    input: '-1,-1\n'.repeat(5),
+    expectedStatus: 1,
+  });
+  assert.equal(result.stdout.match(/GO NORTHEAST\n/g)?.length, 5);
+  assert.match(result.stdout, /THE HURKLE IS AT +[0-9] +, +[0-9] /);
+  assert.ok(result.stdout.includes("LET'S PLAY AGAIN. HURKLE IS HIDING."));
+  assert.ok(result.stdout.endsWith(hurklePrompt));
+  assert.match(result.stderr, /^Line 330, column \d+: Input ended before a value was received\n$/);
 }
 
 export function checkCompletedEduSystem30Cli(executable: string, directory: string): void {

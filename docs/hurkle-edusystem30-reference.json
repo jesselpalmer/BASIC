@@ -1,0 +1,17 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "7616322434de68eed19ea83980a63dd0c365a693d91eb4a09bc1abea5eb643e0",
+  "clockWord": 4,
+  "rounds": [
+    {
+      "answers": ["5,5", "7,7", "8,7", "4,9", "6,9", "6,8", "5,9", "5,7", "8,3"],
+      "outputSha256": "aa4968e0beae15a789984a5c4f9b99c06f448e4fe5abd77b6b2bf85a5e51be54"
+    },
+    {
+      "answers": ["8,7"],
+      "outputSha256": "dc16b7bdbd29b9024157573fd11215aee0bedef9d696b0bde2d2af5e29cf2e56"
+    }
+  ],
+  "randomizeAliasVerified": true
+}

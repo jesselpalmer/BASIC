@@ -6,6 +6,7 @@ import {runProcess, runWithOpenInput} from '../subprocess.ts';
 import {
   checkCompletedEduSystem30Cli,
   checkEduSystem30Cli,
+  checkHurkleCli,
   checkLetterCli,
   checkMathdCli,
   checkMatchesCli,
@@ -43,6 +44,7 @@ export async function checkPersistenceSessions(executable: string): Promise<void
     checkCompletedEduSystem30Cli(executable, directory);
     checkMathdCli(executable, directory);
     checkStarsCli(executable, directory);
+    checkHurkleCli(executable, directory);
     const lineSource = '10 INPUT LINE S$:PRINT "[";S$;"]":END';
     const linePath = join(directory, 'line-input.basic.json');
     const raw = '  a,b,"quoted"  ';

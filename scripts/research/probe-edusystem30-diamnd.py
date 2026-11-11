@@ -8,14 +8,23 @@ from pathlib import Path
 
 
 SOURCE_SHA256 = '15ec624beae75585d8881fdb08607aa52bf6ac27ee671c8f093f0959d412ba5a'
+ROW_MARKER = 'PRINTED'
 LOOP_PROBE_LINES = [
     '7 PRINT "Q";Q; "R";R',
     '9 PRINT "L";L',
     '21 PRINT "N";N',
     '27 PRINT "A"',
     '57 PRINT "M";M',
-    '61 PRINT "PRINTED"',
 ]
+
+
+def diamond_rows(size):
+    widths = [*range(1, size + 1, 2), *range(size - 2, 0, -2)]
+    rows = []
+    for width in widths:
+        motif = ('DEC' + '!' * width)[:width]
+        rows.append(' ' * ((size - width) // 2) + (' ' * (size - width)).join([motif] * (60 // size)))
+    return rows * (60 // size)
 
 
 def main():
@@ -44,16 +53,23 @@ def main():
         after_response = {size: run(console, size) for size in (5, 15, 31)}
         assert all(output == '\n\n' for output in after_response.values()), after_response
 
+        send_line(console, f'61 PRINT "{ROW_MARKER}"')
+        lines = run(console, 15).strip('\n').split('\n')
+        rows = lines[::2]
+        assert rows == diamond_rows(15), repr(rows)
+        assert lines[1::2] == [ROW_MARKER] * len(rows), lines[1::2]
+
         for line in LOOP_PROBE_LINES:
             send_line(console, line)
         output = run(console, 31)
         row_widths = [int(match) for match in re.findall(r'^N (\d+) $', output, re.M)]
         assert row_widths == list(range(1, 32, 2)) + list(range(29, 0, -2)), repr(output)
-        assert '\nDEC' + '!' * 28 + '\nPRINTED\n' in output, repr(output)
+        assert '\nDEC' + '!' * 28 + f'\n{ROW_MARKER}\n' in output, repr(output)
 
     print(json.dumps({
         'fixtureSha256': SOURCE_SHA256,
         'reviewedOutputAfterInput': after_response,
+        'size15RowsWithOnlyLine61Added': len(rows),
         'instrumentedSize31RowWidths': row_widths,
     }, indent=2))
 

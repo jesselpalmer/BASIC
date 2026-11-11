@@ -140,3 +140,10 @@ The reviewed files restore printed source and retain separate archive evidence.
 The [STARS review](../../../../docs/stars-edusystem30.md) records the two
 playthroughs. The [DIAMND review](../../../../docs/diamnd-edusystem30-review.md)
 records the output mismatch on EDU30.SV.
+
+## HURKLE
+
+`hurkle.bas` preserves the pinned transcription. The `hurkle-mar75-text.bas`
+fixture restores printed string spacing and removes two transcription
+annotations. The [HURKLE review](../../../../docs/hurkle-edusystem30.md)
+records the archive playthroughs.

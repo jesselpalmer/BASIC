@@ -1,0 +1,295 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "scalarProbe": {
+    "source": "10 INPUT A\n20 PRINT \"L\";A;\"R\";-A;\"X\"\n30 INPUT W\n40 GO TO 10\n50 END",
+    "observations": [
+      {
+        "input": "0",
+        "scalarWordsOctal": ["0000", "0000", "0000"],
+        "field": " 0 ",
+        "negatedField": " 0 "
+      },
+      {
+        "input": "-0",
+        "scalarWordsOctal": ["0000", "0000", "0000"],
+        "field": " 0 ",
+        "negatedField": " 0 "
+      },
+      {
+        "input": "1",
+        "scalarWordsOctal": ["0001", "2000", "0000"],
+        "field": " 1 ",
+        "negatedField": "-1 "
+      },
+      {
+        "input": "-2",
+        "scalarWordsOctal": ["0002", "6000", "0000"],
+        "field": "-2 ",
+        "negatedField": " 2 "
+      },
+      {
+        "input": "0.01",
+        "scalarWordsOctal": ["7772", "2436", "5605"],
+        "field": " 1E-2 ",
+        "negatedField": "-1E-2 "
+      },
+      {
+        "input": "0.10",
+        "scalarWordsOctal": ["7775", "3146", "3146"],
+        "field": " 1E-1 ",
+        "negatedField": "-1E-1 "
+      },
+      {
+        "input": "0.12",
+        "scalarWordsOctal": ["7775", "3656", "0510"],
+        "field": " 1.2E-1 ",
+        "negatedField": "-1.2E-1 "
+      },
+      {
+        "input": ".1249998",
+        "scalarWordsOctal": ["7775", "3777", "7766"],
+        "field": " 1.24999E-1 ",
+        "negatedField": "-1.24999E-1 "
+      },
+      {
+        "input": ".1249999",
+        "scalarWordsOctal": ["7775", "3777", "7772"],
+        "field": " .125 ",
+        "negatedField": "-.125 "
+      },
+      {
+        "input": ".125",
+        "scalarWordsOctal": ["7776", "2000", "0000"],
+        "field": " .125 ",
+        "negatedField": "-.125 "
+      },
+      {
+        "input": ".13",
+        "scalarWordsOctal": ["7776", "2050", "7534"],
+        "field": " .13 ",
+        "negatedField": "-.13 "
+      },
+      {
+        "input": ".2",
+        "scalarWordsOctal": ["7776", "3146", "3146"],
+        "field": " .2 ",
+        "negatedField": "-.2 "
+      },
+      {
+        "input": ".5",
+        "scalarWordsOctal": ["0000", "2000", "0000"],
+        "field": " .5 ",
+        "negatedField": "-.5 "
+      },
+      {
+        "input": ".51",
+        "scalarWordsOctal": ["0000", "2024", "3657"],
+        "field": " .51 ",
+        "negatedField": "-.51 "
+      },
+      {
+        "input": ".12345678",
+        "scalarWordsOctal": ["7775", "3746", "5564"],
+        "field": " 1.23456E-1 ",
+        "negatedField": "-1.23456E-1 "
+      },
+      {
+        "input": ".23456789",
+        "scalarWordsOctal": ["7776", "3601", "4506"],
+        "field": " .234568 ",
+        "negatedField": "-.234568 "
+      },
+      {
+        "input": ".999999",
+        "scalarWordsOctal": ["0000", "3777", "7770"],
+        "field": " .999999 ",
+        "negatedField": "-.999999 "
+      },
+      {
+        "input": ".9999993",
+        "scalarWordsOctal": ["0000", "3777", "7772"],
+        "field": " 1 ",
+        "negatedField": "-1 "
+      },
+      {
+        "input": ".9999994",
+        "scalarWordsOctal": ["0000", "3777", "7776"],
+        "field": " 1 ",
+        "negatedField": "-1 "
+      },
+      {
+        "input": ".9999998",
+        "scalarWordsOctal": ["0000", "3777", "7776"],
+        "field": " 1 ",
+        "negatedField": "-1 "
+      },
+      {
+        "input": "1.000001",
+        "scalarWordsOctal": ["0001", "2000", "0004"],
+        "field": " 1 ",
+        "negatedField": "-1 "
+      },
+      {
+        "input": "1.234564",
+        "scalarWordsOctal": ["0001", "2360", "1430"],
+        "field": " 1.23456 ",
+        "negatedField": "-1.23456 "
+      },
+      {
+        "input": "1.234567",
+        "scalarWordsOctal": ["0001", "2360", "1445"],
+        "field": " 1.23456 ",
+        "negatedField": "-1.23456 "
+      },
+      {
+        "input": "1.234568",
+        "scalarWordsOctal": ["0001", "2360", "1451"],
+        "field": " 1.23456 ",
+        "negatedField": "-1.23456 "
+      },
+      {
+        "input": "1.234569",
+        "scalarWordsOctal": ["0001", "2360", "1456"],
+        "field": " 1.23457 ",
+        "negatedField": "-1.23457 "
+      },
+      {
+        "input": "1.234575",
+        "scalarWordsOctal": ["0001", "2360", "1507"],
+        "field": " 1.23457 ",
+        "negatedField": "-1.23457 "
+      },
+      {
+        "input": "1.234585",
+        "scalarWordsOctal": ["0001", "2360", "1561"],
+        "field": " 1.23458 ",
+        "negatedField": "-1.23458 "
+      },
+      {
+        "input": "4.59",
+        "scalarWordsOctal": ["0003", "2227", "0243"],
+        "field": " 4.59 ",
+        "negatedField": "-4.59 "
+      },
+      {
+        "input": "5.41",
+        "scalarWordsOctal": ["0003", "2550", "7534"],
+        "field": " 5.41 ",
+        "negatedField": "-5.41 "
+      },
+      {
+        "input": "-4.83",
+        "scalarWordsOctal": ["0003", "5453", "4122"],
+        "field": "-4.83 ",
+        "negatedField": " 4.83 "
+      },
+      {
+        "input": "16.91",
+        "scalarWordsOctal": ["0005", "2072", "1727"],
+        "field": " 16.91 ",
+        "negatedField": "-16.91 "
+      },
+      {
+        "input": "100",
+        "scalarWordsOctal": ["0007", "3100", "0000"],
+        "field": " 100 ",
+        "negatedField": "-100 "
+      },
+      {
+        "input": "12345.67",
+        "scalarWordsOctal": ["0016", "3007", "1527"],
+        "field": " 12345.6 ",
+        "negatedField": "-12345.6 "
+      },
+      {
+        "input": "123456.9",
+        "scalarWordsOctal": ["0021", "3611", "0071"],
+        "field": " 123457 ",
+        "negatedField": "-123457 "
+      },
+      {
+        "input": "999999",
+        "scalarWordsOctal": ["0024", "3641", "0770"],
+        "field": " 999999 ",
+        "negatedField": "-999999 "
+      },
+      {
+        "input": "999999.25",
+        "scalarWordsOctal": ["0024", "3641", "0772"],
+        "field": " 1000000 ",
+        "negatedField": "-1000000 "
+      },
+      {
+        "input": "1000000",
+        "scalarWordsOctal": ["0024", "3641", "1000"],
+        "field": " 1000000 ",
+        "negatedField": "-1000000 "
+      },
+      {
+        "input": "1000000.125",
+        "scalarWordsOctal": ["0024", "3641", "1001"],
+        "field": " 1000001 ",
+        "negatedField": "-1000001 "
+      },
+      {
+        "input": "1048575.75",
+        "scalarWordsOctal": ["0024", "3777", "7776"],
+        "field": " 1.04857E6 ",
+        "negatedField": "-1.04857E6 "
+      },
+      {
+        "input": "1048575.875",
+        "scalarWordsOctal": ["0024", "3777", "7777"],
+        "field": " 1.04857E6 ",
+        "negatedField": "-1.04857E6 "
+      },
+      {
+        "input": "1048576",
+        "scalarWordsOctal": ["0025", "2000", "0000"],
+        "field": " 1.04857E6 ",
+        "negatedField": "-1.04857E6 "
+      },
+      {
+        "input": "1234567",
+        "scalarWordsOctal": ["0025", "2265", "5034"],
+        "field": " 1.23456E6 ",
+        "negatedField": "-1.23456E6 "
+      },
+      {
+        "input": "1E8",
+        "scalarWordsOctal": ["0033", "2765", "7020"],
+        "field": " 1E8 ",
+        "negatedField": "-1E8 "
+      },
+      {
+        "input": "1E-8",
+        "scalarWordsOctal": ["7746", "2536", "3074"],
+        "field": " 1E-8 ",
+        "negatedField": "-1E-8 "
+      },
+      {
+        "input": "1E40",
+        "scalarWordsOctal": ["0205", "3530", "6245"],
+        "field": " 1E40 ",
+        "negatedField": "-1E40 "
+      },
+      {
+        "input": "1E-40",
+        "scalarWordsOctal": ["7574", "2133", "0233"],
+        "field": " 1E-40 ",
+        "negatedField": "-1E-40 "
+      }
+    ]
+  },
+  "formProbe": {
+    "source": "10 INPUT A,P\n20 C=P-A\n30 PRINT \"CHANGE,$\";C\n40 PRINT \"SHORT,$\";A-P\n50 PRINT INT(C);\" BILL(S)\"\n60 PRINT C;\n70 PRINT \"END OF LINE\"\n80 PRINT C;C\n90 GO TO 10\n100 END",
+    "inputs": ["4.59,10", "0.10,1.10", "0.51,1.01", "3.42,2", "0,0"],
+    "output": "?CHANGE,$ 5.41 \nSHORT,$-5.41 \n 5  BILL(S)\n 5.41 END OF LINE\n 5.41  5.41 \n?CHANGE,$ 1 \nSHORT,$-1 \n 0  BILL(S)\n 1 END OF LINE\n 1  1 \n?CHANGE,$ .5 \nSHORT,$-.5 \n 0  BILL(S)\n .5 END OF LINE\n .5  .5 \n?CHANGE,$-1.42 \nSHORT,$ 1.42 \n-2  BILL(S)\n-1.42 END OF LINE\n-1.42 -1.42 \n?CHANGE,$ 0 \nSHORT,$ 0 \n 0  BILL(S)\n 0 END OF LINE\n 0  0 \n?"
+  },
+  "arithmeticProbe": {
+    "source": "10 INPUT A,P\n20 C=P-A\n30 PRINT \"A\";A;\"P\";P;\"C\";C\n40 GO TO 10\n50 END",
+    "inputCount": 57,
+    "outputSha256": "5f325cea5e83fac6d1abfdeb10e402594d38b7d0bef471dfffa3e7d78b91b118"
+  }
+}
