@@ -58,7 +58,7 @@ function validatePrint(statement: NodeOf<'PrintStatement'>): void {
       item.arguments[0].raw === '7'
     )
       continue;
-    if (item.type !== 'StringLiteral') validateScalar(item);
+    if (item.type !== 'StringLiteral') validateNumber(item);
   }
 }
 

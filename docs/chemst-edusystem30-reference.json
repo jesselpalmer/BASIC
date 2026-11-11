@@ -1,0 +1,22 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "94f3d0dc79464473276d21de6e338488c7e84b6feac17364dd71ce93637634c5",
+  "game": {
+    "answers": [
+      "BAD",
+      "24.4",
+      "31.9",
+      "42",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000",
+      "1000"
+    ],
+    "outputSha256": "16652891d0880a61dd0aa3a39d71a8d389126e03598495b2508be4e9b2da0ce7"
+  }
+}

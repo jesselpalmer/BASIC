@@ -7,6 +7,8 @@ import {mathdOptions, mathdPrompt, mathdSource} from '../mathd-acceptance.ts';
 import {assertNumberOutput, numberGames, numberSource} from '../number-acceptance.ts';
 import {starsOptions, starsPrompt, starsSource} from '../stars-acceptance.ts';
 import {hurkleOptions, hurklePrompt, hurkleSource} from '../hurkle-acceptance.ts';
+import {changeOptions, changeRuns, changeSource} from '../change-acceptance.ts';
+import {assertChemstOutput, chemstGame, chemstSource} from '../chemst-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -147,6 +149,52 @@ export function checkHurkleCli(executable: string, directory: string): void {
   assert.match(result.stderr, /^Line 330, column \d+: Input ended before a value was received\n$/);
 }
 
+export async function checkChangeCli(executable: string, directory: string): Promise<void> {
+  const file = join(directory, 'change-edusystem30.basic.json');
+  const saved = join(directory, 'change-edusystem30-copy.basic.json');
+  const document = {format: 'basic-program', version: 1, ...changeOptions, source: changeSource};
+  writeFileSync(file, JSON.stringify(document));
+  const [full, fresh] = changeRuns;
+  const input = (run: (typeof changeRuns)[number]) => run.answers.join('\n') + '\n';
+  const direct = runProcess({
+    cwd: directory,
+    args: [executable, file],
+    input: input(full),
+    expectedStatus: 1,
+  });
+  assert.equal(direct.stdout, full.output);
+  assert.match(direct.stderr, /^Line 10, column \d+: Input ended before a value was received\n$/);
+
+  if (process.platform === 'win32') return;
+  let phase: 'start' | 'play' | 'stopped' | 'fresh' | 'stopped-again' | 'exit' = 'start';
+  const editor = await runWithOpenInput({
+    cwd: directory,
+    args: [executable],
+    onOutput(stdout, child) {
+      if (phase === 'start' && stdout.endsWith('>>> ')) {
+        phase = 'play';
+        child.stdin.write(`LOAD "${file}"\nSAVE "${saved}"\nRUN\n${input(full)}`);
+      } else if (phase === 'play' && stdout.endsWith(full.output)) {
+        phase = 'stopped';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped' && stdout.endsWith('\n>>> ')) {
+        phase = 'fresh';
+        child.stdin.write(`LOAD "${saved}"\nRUN\n${input(fresh)}`);
+      } else if (phase === 'fresh' && stdout.endsWith(fresh.output)) {
+        phase = 'stopped-again';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped-again' && stdout.endsWith('\n>>> ')) {
+        phase = 'exit';
+        child.stdin.write('EXIT\n');
+      }
+    },
+  });
+  assert.equal(phase, 'exit', editor.stdout);
+  assert.equal(editor.status, 0);
+  assert.equal(editor.stderr, '');
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
+}
+
 export function checkCompletedEduSystem30Cli(executable: string, directory: string): void {
   checkCompletedGame(executable, directory, 'litqz', litqzSource, litqzRounds, assertLitqzOutput);
   checkCompletedGame(
@@ -156,6 +204,14 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     numberSource,
     numberGames,
     assertNumberOutput,
+  );
+  checkCompletedGame(
+    executable,
+    directory,
+    'chemst',
+    chemstSource,
+    [chemstGame, chemstGame],
+    assertChemstOutput,
   );
 }
 

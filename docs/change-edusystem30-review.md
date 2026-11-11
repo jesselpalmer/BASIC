@@ -27,11 +27,10 @@ input echo and the OS/8 run banner.
 | 0.17  | 5.00    | 4.83   | Four one-dollar bills, half-dollar, quarter, nickel, three pennies |
 | 18.88 | 20      | 1.12   | One-dollar bill, dime, two pennies                                 |
 
-## Numeric compatibility blockers
+## Numeric compatibility
 
-The public profile still requires numeric expressions in PRINT and
-source-backed decimal conversion, arithmetic and formatting before this
-listing can be enabled. The archive prints `.5` for both a cost of 0.01
+The selected profile uses archived decimal conversion, arithmetic and
+numeric PRINT formatting. The archive prints `.5` for both a cost of 0.01
 paid with 0.51 and a cost of 0.51 paid with 1.01. The first sale returns a
 half-dollar. The second returns a quarter, two dimes and five pennies. At
 a nominal one dollar of change, the archive reports these paths.
@@ -121,11 +120,15 @@ python3 scripts/research/check-edusystem30-input.py /tmp/edusystem30-input-refer
 
 ### Numeric PRINT evidence
 
-The [PRINT capture and checker](edusystem30-print.md) match 263 archived
+The [PRINT capture and checker](edusystem30-print.md) match 281 archived
 numeric fields, including receipt expressions and signs. The capture traces
-the archived pre-display multiplication and fixed/scientific boundary. Public
-CHANGE still requires applying the bounded numeric rules in the selected
-profile and comparing complete receipts across the supported entry points.
+the archived pre-display multiplication, fixed/scientific boundary and
+fractional digit cutoff.
+
+The library, installed CLI/editor and browser replay all ten captured sales
+with their exact receipt text, then start a fresh run. In the playground,
+choose **CHANGE · EDUSYSTEM-30 selected profile**. Enter `4.59` for the cost
+and `10` for the payment to reproduce the first printed example.
 
 ```sh
 python3 scripts/research/capture-edusystem30-change.py \

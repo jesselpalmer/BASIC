@@ -8,6 +8,15 @@ import {firstMa2Literal} from './foreign_literal.ts';
 import {truncateMa2ToWord} from './ma2_word_conversion.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {EduSystem30Random} from './edusystem30_rng.ts';
+import {
+  compareEduSystem30,
+  eduSystem30Absolute,
+  eduSystem30FromNumber,
+  eduSystem30Integer,
+  evaluateEduSystem30Arithmetic,
+  observeEduSystem30,
+  type EduSystem30FloatingValue,
+} from './edusystem30_floating.ts';
 import {readKey, keyDown} from './keyboard.ts';
 import {
   parseBasicPlusMa2NumericExpression,
@@ -88,14 +97,13 @@ function binary(node: NodeOf<'BinaryExpression'>, left: BasicValue, right: Basic
 
 type Frame = {node: Expression; ready: boolean};
 
-const eduSystem30Token = Symbol('edusystem-30-evaluator');
 const altairToken = Symbol('altair-evaluator');
 
 /** Used only after Basic has admitted the bounded EDUSYSTEM-30 source. */
 export function createEduSystem30Evaluator(host: Host) {
   const random = new EduSystem30Random();
   return {
-    evaluator: new Evaluator(host, {}, {token: eduSystem30Token, random}),
+    evaluator: new EduSystem30Evaluator(random),
     randomize: (location: Location) =>
       random.randomize(Math.floor(readHostRandom(host, location) * 4096)),
   };
@@ -111,21 +119,14 @@ export class Evaluator {
   readonly #altair: boolean;
   private readonly variables = new Map<string, BasicValue>();
   private arrays = new ArrayStore();
-  readonly #eduSystem30Random: EduSystem30Random | null;
   private readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
 
   constructor(
     host: Partial<Pick<Host, 'random' | 'readKey' | 'keyDown'>> = {},
     options: LanguageOptions = {},
-    internal?:
-      | {readonly token: typeof eduSystem30Token; readonly random: EduSystem30Random}
-      | typeof altairToken,
+    internal?: typeof altairToken,
   ) {
     this.#altair = internal === altairToken;
-    this.#eduSystem30Random =
-      internal && internal !== altairToken && internal.token === eduSystem30Token
-        ? internal.random
-        : null;
     this.#dialect = validateDialect(options.dialect, 'native');
     this.host = createHost(host);
   }
@@ -138,7 +139,6 @@ export class Evaluator {
     const arrays = new ArrayStore(declarations, this.#altair ? 'altair' : 'native');
     this.variables.clear();
     this.arrays = arrays;
-    this.#eduSystem30Random?.reset();
   }
 
   snapshotArrays(): readonly ArraySnapshot[] {
@@ -197,12 +197,58 @@ export class Evaluator {
     return evaluateTree(expression, {
       kind: 'native',
       variables: this.variables,
-      defaultNumericScalars: this.#altair || this.#eduSystem30Random !== null,
+      defaultNumericScalars: this.#altair,
       arrays: () => this.arrays,
       host: this.host,
-      randomArgumentCount: this.#eduSystem30Random ? 1 : 0,
-      random: (location) => this.#eduSystem30Random?.next() ?? readHostRandom(this.host, location),
+      random: (location) => readHostRandom(this.host, location),
     });
+  }
+}
+
+const eduSystem30Zero = eduSystem30FromNumber(0);
+
+class EduSystem30Evaluator extends Evaluator {
+  readonly #scalars = new Map<string, EduSystem30FloatingValue>();
+
+  constructor(private readonly random: EduSystem30Random) {
+    super();
+  }
+
+  override reset(): void {
+    this.#scalars.clear();
+    this.random.reset();
+  }
+
+  override snapshotVariables(): readonly VariableSnapshot[] {
+    return Object.freeze(
+      Array.from(this.#scalars, ([name, value]) =>
+        Object.freeze({name, value: observeEduSystem30(value)}),
+      ),
+    );
+  }
+
+  override evaluate(expression: Expression): number {
+    return number(observeEduSystem30(this.evaluateNumber(expression)), expression.location);
+  }
+
+  override compare(condition: Comparison): boolean {
+    const left = this.evaluateNumber(condition.left);
+    const right = this.evaluateNumber(condition.right);
+    return compareValues(compareEduSystem30(left, right), 0, condition);
+  }
+
+  override assign(target: AssignmentTarget, value: BasicValue): void {
+    this.assignNumber(target, eduSystem30FromNumber(number(value, target.location)));
+  }
+
+  assignNumber(target: AssignmentTarget, value: EduSystem30FloatingValue): void {
+    // Public variable snapshots and the shared FOR cursor expose finite numbers.
+    number(observeEduSystem30(value), target.location);
+    this.#scalars.set(target.name.toUpperCase(), value);
+  }
+
+  evaluateNumber(expression: Expression): EduSystem30FloatingValue {
+    return evaluateTree(expression, {kind: 'edu30', scalars: this.#scalars, random: this.random});
   }
 }
 
@@ -231,8 +277,12 @@ interface NativeContext {
   readonly defaultNumericScalars: boolean;
   readonly arrays: () => ArrayStore;
   readonly host: Pick<Host, 'random' | 'readKey' | 'keyDown'>;
-  readonly randomArgumentCount: 0 | 1;
   readonly random: (location: Location) => number;
+}
+interface EduSystem30Context {
+  readonly kind: 'edu30';
+  readonly scalars: ReadonlyMap<string, EduSystem30FloatingValue>;
+  readonly random: EduSystem30Random;
 }
 interface Ma2Context {
   readonly kind: 'ma2-conformance';
@@ -602,19 +652,23 @@ function evaluateTree(expression: Expression, context: NativeContext): BasicValu
 function evaluateTree(expression: Expression, context: Ma2Context): Ma2ConstantResult;
 function evaluateTree(
   expression: Expression,
-  context: NativeContext | Ma2Context,
-): BasicValue | Ma2ConstantResult {
+  context: EduSystem30Context,
+): EduSystem30FloatingValue;
+function evaluateTree(
+  expression: Expression,
+  context: NativeContext | Ma2Context | EduSystem30Context,
+): BasicValue | Ma2ConstantResult | EduSystem30FloatingValue {
   // A flat expression can contain thousands of left-associated nodes. An
   // explicit traversal also preserves left-to-right host callback ordering.
   const pending: Frame[] = [{node: expression, ready: false}];
-  const values: (BasicValue | Ma2Value)[] = [];
+  const values: (BasicValue | Ma2Value | EduSystem30FloatingValue)[] = [];
   while (pending.length) {
     const {node, ready} = pending.pop()!;
     let ma2Operation:
       {result: ReturnType<typeof ma2Unary> | Ma2BinaryResult; location: Location} | undefined;
     switch (node.type) {
       case 'Ma2NumberLiteral':
-        if (context.kind === 'native')
+        if (context.kind !== 'ma2-conformance')
           return fail(
             'UNSUPPORTED_NUMERIC_LITERAL',
             'MA2 literals require a supported historical context',
@@ -624,13 +678,21 @@ function evaluateTree(
         values.push(Object.freeze({kind: 'ma2', words: node.words}));
         break;
       case 'NumberLiteral':
-        values.push(number(node.value, node.location));
+        values.push(
+          context.kind === 'edu30'
+            ? eduSystem30FromNumber(node.value)
+            : number(node.value, node.location),
+        );
         break;
       case 'StringLiteral':
         values.push(node.value);
         break;
       case 'Variable': {
         const name = node.name.toUpperCase();
+        if (context.kind === 'edu30') {
+          values.push(context.scalars.get(name) ?? eduSystem30Zero);
+          break;
+        }
         const value =
           context.kind === 'native' ? context.variables.get(name) : context.scalars?.get(name);
         if (value === undefined) {
@@ -658,6 +720,7 @@ function evaluateTree(
         break;
       }
       case 'ArrayReference':
+        if (context.kind === 'edu30') throw new Error('EDUSYSTEM-30 array escaped admission');
         if (!ready) {
           (context.kind === 'native' ? context.arrays() : context.arrays!).checkReference(node);
           pending.push({node, ready: true});
@@ -677,6 +740,8 @@ function evaluateTree(
         pending.push({node: node.expression, ready: false});
         break;
       case 'UnaryExpression':
+        if (context.kind === 'edu30')
+          throw new Error('EDUSYSTEM-30 unary operator escaped admission');
         if (!ready) {
           pending.push({node, ready: true}, {node: node.argument, ready: false});
         } else if (context.kind === 'ma2-conformance') {
@@ -721,6 +786,25 @@ function evaluateTree(
               result: ma2Binary(left as Ma2Value, operation, right as Ma2Value),
               location: node.operatorLocation,
             };
+          } else if (context.kind === 'edu30') {
+            const a = left as EduSystem30FloatingValue;
+            const b = right as EduSystem30FloatingValue;
+            const operator = node.operator;
+            if (operator !== '+' && operator !== '-' && operator !== '*' && operator !== '/')
+              throw new Error('EDUSYSTEM-30 binary operator escaped admission');
+            if (operator === '/' && b.significand === 0n)
+              fail('DIVISION_BY_ZERO', 'Cannot divide by zero', node.operatorLocation);
+            try {
+              values.push(evaluateEduSystem30Arithmetic(operator, a, b));
+            } catch (cause) {
+              throw new BasicRuntimeError(
+                'NON_FINITE_NUMBER',
+                'EDUSYSTEM-30 binary exponent is outside its supported range',
+                node.operatorLocation.start,
+                node.operatorLocation.label,
+                {cause},
+              );
+            }
           } else values.push(binary(node, left as BasicValue, right as BasicValue));
         }
         break;
@@ -730,7 +814,7 @@ function evaluateTree(
             const signature = nativeIntrinsic(node.name);
             if (signature === null)
               fail('UNKNOWN_FUNCTION', `Unknown function ${node.name}`, node.nameLocation);
-            const arity = signature.name === 'RND' ? context.randomArgumentCount : signature.arity;
+            const arity = signature.arity;
             if (node.arguments.length !== arity) {
               fail(
                 'INVALID_ARGUMENT_COUNT',
@@ -751,12 +835,16 @@ function evaluateTree(
             ),
             location: node.nameLocation,
           };
+        } else if (context.kind === 'edu30') {
+          const argument = values.pop()! as EduSystem30FloatingValue;
+          if (node.name === 'RND') values.push(eduSystem30FromNumber(context.random.next()));
+          else if (node.name === 'ABS') values.push(eduSystem30Absolute(argument));
+          else values.push(eduSystem30Integer(argument));
         } else if (node.name === 'INKEY$') {
           values.push(readKey(context.host, node.nameLocation));
         } else if (node.name === 'KEYDOWN') {
           values.push(keyDown(context.host, values.pop()! as BasicValue, node.nameLocation));
         } else if (node.name === 'RND') {
-          if (context.randomArgumentCount) values.pop();
           values.push(context.random(node.nameLocation));
         } else {
           const value = number(values.pop()!, node.nameLocation);
@@ -770,6 +858,7 @@ function evaluateTree(
       values.push(result.value);
     }
   }
+  if (context.kind === 'edu30') return values[0] as EduSystem30FloatingValue;
   return context.kind === 'native'
     ? (values[0] as BasicValue)
     : Object.freeze({kind: 'value', value: values[0] as Ma2Value});

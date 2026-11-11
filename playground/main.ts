@@ -25,6 +25,8 @@ import mathd from '../scripts/package/fixtures/classic/mathd-mar75-text.bas' wit
 import numberGame from '../scripts/package/fixtures/classic/number-mar75-text.bas' with {type: 'text'};
 import stars from '../scripts/package/fixtures/classic/stars-mar75-text.bas' with {type: 'text'};
 import hurkle from '../scripts/package/fixtures/classic/hurkle-mar75-text.bas' with {type: 'text'};
+import changeEdu30 from '../scripts/package/fixtures/classic/change-mar75-text.bas' with {type: 'text'};
+import chemst from '../scripts/package/fixtures/classic/chemst.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -82,6 +84,8 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   number: {source: numberGame, dialect: 'edusystem-30'},
   stars: {source: stars, dialect: 'edusystem-30'},
   hurkle: {source: hurkle, dialect: 'edusystem-30'},
+  'change-edu30': {source: changeEdu30, dialect: 'edusystem-30'},
+  chemst: {source: chemst, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');

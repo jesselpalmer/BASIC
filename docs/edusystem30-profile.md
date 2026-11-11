@@ -4,8 +4,9 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run),
 [LETTER](classic-source-review.md#letter), [TRAP](classic-source-review.md#trap),
 [LITQZ](classic-source-review.md#litqz), [MATHD](classic-source-review.md#mathd),
-[NUMBER](number-edusystem30.md), [STARS](stars-edusystem30.md), and
-[HURKLE](hurkle-edusystem30.md) listings.
+[NUMBER](number-edusystem30.md), [STARS](stars-edusystem30.md),
+[HURKLE](hurkle-edusystem30.md), [CHANGE](change-edusystem30-review.md), and
+[CHEMST](chemst-edusystem30.md) listings.
 The book and archived `EDU30.SV`
 runs supply the references.
 
@@ -25,6 +26,10 @@ runs supply the references.
   More stars mean your guess is closer.
   For **HURKLE · EDUSYSTEM-30 selected profile**, enter a pair such as `5,5`
   and use the compass hints to find the Hurkle in five guesses.
+  For **CHANGE · EDUSYSTEM-30 selected profile**, enter a cost such as `4.59`
+  and a payment such as `10` to see the receipt and denominations.
+  For **CHEMST · EDUSYSTEM-30 selected profile**, enter `26` for the first
+  dilution and try to stay within five percent of the amount required each round.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -42,16 +47,16 @@ runs supply the references.
 | Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                          |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label.                                                                                    |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, `+`, `-`, `*`, `/`, `ABS(expression)`, `INT(expression)` and `RND(expression)`. Arithmetic uses the shared finite numeric evaluator.                                                                                      |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, `+`, `-`, `*`, `/`, `ABS(expression)`, `INT(expression)` and `RND(expression)`. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                               |
 | INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses. |
-| PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                                                                                                                   |
+| PRINT                  | Literal text, bounded numeric expressions and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                                                        |
 | RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                    |
 
 All lines are checked before execution, including unreachable lines. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
 dialect through import, save and reload. Immediate library statements are
-native-only. Historical numeric precision, diagnostic continuation, and
-additional language forms require separate evidence.
+native-only. Numeric precision outside the captured cases, diagnostic
+continuation, and additional language forms require separate evidence.
 A false line-target IF continues with the next backslash statement.
 STOP finishes the run like END and skips later statements on the same line.
 A subsequent RUN starts over. The program must still end in END.
@@ -61,7 +66,14 @@ numeric INPUT in the same run, and retries a bad field after dropping the
 remainder of that response. Values already read for that statement are kept
 through the retry. The host commits targets when the statement has all its
 values, so cancellation during a partial read leaves the targets unchanged.
-Fresh RUN clears the field buffer. This profile uses finite decimal input.
+Fresh RUN clears the field buffer. INPUT converts decimal digits in the
+archived order and retains the stored numeric value. Public variable
+snapshots and the shared FOR cursor observe finite JavaScript numbers.
+FOR with the implicit step of one counts iterations independently of the
+visible scalar. An archive probe from 8388608 to 8388610 runs the body three
+times while the scalar's increment rounds away. A probe that increments the
+visible scalar inside `FOR I=1 TO 3` prints `1`, `3`, and `5` in the body,
+then `6` after the terminating NEXT.
 
 ## Verification
 
@@ -96,6 +108,8 @@ checks the printed scores, halving and jackpots through both wins. The
 [STARS capture](stars-edusystem30-reference.json) checks all seven clue lengths,
 a loss, a replay win and a fresh run. The [HURKLE capture](hurkle-edusystem30-reference.json)
 checks the printed opening win, compass clues, a loss and automatic replay.
-The [CHANGE review](change-edusystem30-review.md) records word-level arithmetic,
-decimal input conversion and numeric PRINT evidence for its future public
-execution.
+The [CHANGE review](change-edusystem30-review.md) records the arithmetic,
+decimal INPUT and numeric PRINT evidence. Its full receipt transcript verifies
+all ten archived sales and a fresh run.
+The [CHEMST capture](chemst-edusystem30-reference.json) checks invalid-input
+retry, successful and failed dilutions, the ninth miss and a fresh run.

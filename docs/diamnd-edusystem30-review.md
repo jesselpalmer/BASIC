@@ -20,11 +20,38 @@ center row contains `DEC` followed by 28 exclamation points.
 At size 15, adding only `61 PRINT "PRINTED"` after the end-of-row `PRINT`
 makes the archive emit 60 pattern rows, each followed by the diagnostic
 marker. The probe checks every row's indentation, the four repeats per row,
-and the four vertical repeats. The reason the added output changes execution
-is unresolved. Public DIAMND still requires the reviewed listing to produce
-the printed pattern.
+and the four vertical repeats.
 
 ```sh
 python3 scripts/research/probe-edusystem30-diamnd.py \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56
+```
+
+## Compiled constant table
+
+At the input prompt, the reviewed listing and the line-61 variant already
+have different constant tables in PDP-8 data field one. Breakpoint `00322`
+stops at the first load from that table after the response, at BASIC line 6.
+The original RUN loads `1` for the `60` in `Q=INT(60/R)`, sets `Q` to zero,
+and skips from the outer `FOR` on line 8 to `END` on line 99. The line-61
+variant loads `60` in the same operation.
+
+| Value in the working table | First address (octal) | Reviewed listing words | Line-61 variant words |
+| -------------------------- | --------------------- | ---------------------- | --------------------- |
+| 1                          | `10403`               | `0001 2000 0000`       | `0001 2000 0000`      |
+| 70                         | `10406`               | `0000 0000 0000`       | `0007 2140 0000`      |
+| 60                         | `10411`               | `0001 2000 0000`       | `0006 3600 0000`      |
+| 2                          | `10414`               | `0000 0000 0000`       | `0002 2000 0000`      |
+| 3                          | `10417`               | `0001 2000 0000`       | `0002 3000 0000`      |
+
+Copying the eight differing words from the working table with the simulator
+debugger gives 60 pattern rows at size 5, 60 at size 15, and 31 at size 31.
+Every row matches the expected geometry, using the reviewed source bytes in
+each run. The trigger for the bad table during archive compilation or loading
+is still open. Public DIAMND still needs runtime support and acceptance for the
+reviewed listing.
+
+```sh
+python3 scripts/research/probe-edusystem30-diamnd-constants.py \
   --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56
 ```
