@@ -68,13 +68,7 @@ export async function runLetterAcceptance(
   assert.equal(output.match(/TOO HIGH\. TRY A LOWER LETTER\./g)?.length, 2);
   assert.match(output, /YOU GOT IT IN 4 GUESSES!!/);
   assert.throws(() => api.parseProgram(letterSource), api.BasicSyntaxError);
-  for (const form of [
-    'INPUT $A$',
-    'PRINT CHR$(8)',
-    'FOR I=1 TO 3 STEP 2',
-    'RANDOMIZE 1',
-    'PRINT "X":PRINT "Y"',
-  ]) {
+  for (const form of ['INPUT $A$', 'PRINT CHR$(8)', 'RANDOMIZE 1', 'PRINT "X":PRINT "Y"']) {
     assert.throws(
       () => api.parseProgram(`10 END\n20 ${form}\n30 END`, letterOptions),
       api.BasicSyntaxError,

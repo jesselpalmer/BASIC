@@ -736,7 +736,7 @@ class Parser {
     }
   }
 
-  /** Candidate-only PRINT control; TAB remains an ordinary native array name. */
+  /** Selected PRINT control. TAB remains an ordinary native array name. */
   printTab(): NodeOf<'CallExpression'> {
     const name = this.expect('KEYWORD', 'TAB', 'Expected TAB');
     const open = this.expect('PUNCTUATION', '(', 'Expected ( after TAB');
@@ -763,7 +763,7 @@ class Parser {
       for (;;) {
         const first = this.peek();
         last =
-          (this.candidate || this.altair) &&
+          (this.candidate || this.altair || this.eduSystem30) &&
           this.at('KEYWORD', 'TAB') &&
           this.tokens[this.index + 1]?.type === 'PUNCTUATION' &&
           this.tokens[this.index + 1]?.value === '('

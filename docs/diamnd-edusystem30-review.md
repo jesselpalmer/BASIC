@@ -48,10 +48,22 @@ Copying the eight differing words from the working table with the simulator
 debugger gives 60 pattern rows at size 5, 60 at size 15, and 31 at size 31.
 Every row matches the expected geometry, using the reviewed source bytes in
 each run. The trigger for the bad table during archive compilation or loading
-is still open. Public DIAMND still needs runtime support and acceptance for the
-reviewed listing.
+is still open.
+
+## Selected profile
+
+The `edusystem-30` profile reads the reviewed listing and evaluates the
+constants in its source. Library, installed CLI/editor and browser tests
+match the full [repaired archive transcripts](diamnd-edusystem30-reference.json)
+at sizes 5, 15 and 31, including every row's indentation. The browser runs
+each size from a fresh session and scrolls horizontally to preserve columns.
+Choose **DIAMND · EDUSYSTEM-30 selected
+profile** in the playground and enter an odd size from 5 to 31.
 
 ```sh
 python3 scripts/research/probe-edusystem30-diamnd-constants.py \
-  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/diamnd-edusystem30-reference.json
+diff -u <(python3 -m json.tool docs/diamnd-edusystem30-reference.json) \
+  <(python3 -m json.tool /tmp/diamnd-edusystem30-reference.json)
 ```

@@ -6,7 +6,7 @@ import type {DataReader} from './data.ts';
 import type {Evaluator} from './evaluator.ts';
 import type {GraphicsState} from './graphics.ts';
 import type {Instruction} from './instructions.ts';
-import type {AssignmentTarget, Expression, Host, Location} from './types.ts';
+import type {AssignmentTarget, Expression, Host, Location, NodeOf} from './types.ts';
 
 export interface StatementExecutionContext {
   readonly controlFlow: ControlFlow;
@@ -25,13 +25,16 @@ export function createNativeStatementPolicy(services: {
   readonly evaluator: Evaluator;
   readonly data: () => DataReader;
   readonly graphics: GraphicsState;
-  readonly formatPrintItem?: (item: Expression) => string;
+  readonly formatPrint?: (statement: NodeOf<'PrintStatement'>) => string;
   readonly assignExpression?: (target: AssignmentTarget, expression: Expression) => void;
   readonly randomize?: (location: Location) => void;
   readonly fallThroughIfFalse?: boolean;
 }): StatementExecutionPolicy {
-  const formatPrintItem =
-    services.formatPrintItem ?? ((item) => String(services.evaluator.evaluate(item)));
+  const formatPrint =
+    services.formatPrint ??
+    ((statement) =>
+      statement.items.map((item) => String(services.evaluator.evaluate(item))).join('') +
+      (statement.trailingSemicolon ? '' : '\n'));
   const assignExpression =
     services.assignExpression ??
     ((target, expression) =>
@@ -108,11 +111,9 @@ export function createNativeStatementPolicy(services: {
           context.callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
           break;
         }
-        case 'PrintStatement': {
-          const text = statement.items.map(formatPrintItem).join('');
-          context.callHost('write', line, text + (statement.trailingSemicolon ? '' : '\n'));
+        case 'PrintStatement':
+          context.callHost('write', line, formatPrint(statement));
           break;
-        }
         case 'ColorStatement':
         case 'PsetStatement':
         case 'LineStatement':

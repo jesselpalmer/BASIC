@@ -454,7 +454,7 @@ class Scanner {
       this.policy.compact
         ? historicalKeyword && value !== 'USING' && !altairContextual
         : reservedWords.has(value) ||
-          (this.policy.eduSystem30 && (value === 'RANDOMIZE' || value === 'CHR$'))
+          (this.policy.eduSystem30 && ['RANDOMIZE', 'CHR$', 'TAB'].includes(value))
     )
       ? 'KEYWORD'
       : 'IDENTIFIER';

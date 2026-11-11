@@ -139,7 +139,8 @@ The `stars.bas` and `diamnd.bas` fixtures preserve the pinned transcriptions.
 The reviewed files restore printed source and retain separate archive evidence.
 The [STARS review](../../../../docs/stars-edusystem30.md) records the two
 playthroughs. The [DIAMND review](../../../../docs/diamnd-edusystem30-review.md)
-records the output mismatch on EDU30.SV.
+records the output mismatch on EDU30.SV and the debugger-repaired reference
+patterns that the selected profile reproduces.
 
 ## HURKLE
 
@@ -153,3 +154,10 @@ records the archive playthroughs.
 `chemst.bas` preserves the pinned transcription and the printed LIST's `ACIE`
 on line 20. The [CHEMST review](../../../../docs/chemst-edusystem30.md) records
 the printed sample's different spelling and the archived complete playthrough.
+
+## BATNUM
+
+`batnum.bas` preserves the pinned transcription. `batnum-mar75-text.bas`
+restores source from the March 1975 printed listing. The
+[BATNUM review](../../../../docs/batnum-edusystem30.md) records the differences
+and the archived games.

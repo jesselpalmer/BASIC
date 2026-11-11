@@ -104,6 +104,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'hurkle-acceptance.ts',
       'change-acceptance.ts',
       'chemst-acceptance.ts',
+      'diamnd-acceptance.ts',
+      'batnum-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -119,6 +121,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'hurkle-edusystem30-reference.json',
       'change-edusystem30-reference.json',
       'chemst-edusystem30-reference.json',
+      'diamnd-edusystem30-reference.json',
+      'batnum-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

@@ -27,6 +27,8 @@ import stars from '../scripts/package/fixtures/classic/stars-mar75-text.bas' wit
 import hurkle from '../scripts/package/fixtures/classic/hurkle-mar75-text.bas' with {type: 'text'};
 import changeEdu30 from '../scripts/package/fixtures/classic/change-mar75-text.bas' with {type: 'text'};
 import chemst from '../scripts/package/fixtures/classic/chemst.bas' with {type: 'text'};
+import diamnd from '../scripts/package/fixtures/classic/diamnd-mar75-text.bas' with {type: 'text'};
+import batnum from '../scripts/package/fixtures/classic/batnum-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -86,6 +88,8 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   hurkle: {source: hurkle, dialect: 'edusystem-30'},
   'change-edu30': {source: changeEdu30, dialect: 'edusystem-30'},
   chemst: {source: chemst, dialect: 'edusystem-30'},
+  diamnd: {source: diamnd, dialect: 'edusystem-30'},
+  batnum: {source: batnum, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
@@ -258,6 +262,7 @@ function renderInspection(state: BrowserState): void {
 function stateChanged(state: BrowserState): void {
   keyboard.update(state);
   inspectionState = state;
+  output.classList.toggle('terminal-columns', state.dialect === 'edusystem-30');
   if (status.textContent !== statusLabels[state.status])
     status.textContent = statusLabels[state.status];
   status.dataset.status = state.status;

@@ -1,4 +1,10 @@
 import {BasicRuntimeError} from './diagnostic.ts';
+import {
+  eduSystem30FromNumber,
+  evaluateEduSystem30Arithmetic,
+  observeEduSystem30,
+  type EduSystem30FloatingValue,
+} from './edusystem30_floating.ts';
 import {containsLoopBody} from './loops.ts';
 import type {LoopPair} from './loops.ts';
 import type {PreparedProgram} from './prepared_program.ts';
@@ -26,13 +32,31 @@ export interface LoopValues {
   validateIncrement?(value: number, location: Location): void;
 }
 
-/** Selected MA2 loop observations retain the value present at terminating NEXT. */
+/** Selected loop observations retain the value present at terminating NEXT. */
 export type LoopPolicy = 'native' | 'selected-ma2' | 'selected-edu30';
 
 type FlowProgram = Pick<
   PreparedProgram,
   'instructions' | 'labelIndices' | 'loopPairs' | 'pairsByFor' | 'pairsByNext'
 >;
+
+function eduSystem30LoopValue(
+  evaluate: () => EduSystem30FloatingValue,
+  location: Location,
+): number {
+  try {
+    const value = observeEduSystem30(evaluate());
+    if (Number.isFinite(value)) return value;
+  } catch (error) {
+    if (!(error instanceof RangeError)) throw error;
+  }
+  throw new BasicRuntimeError(
+    'NON_FINITE_NUMBER',
+    'EDUSYSTEM-30 loop value exceeds its supported range',
+    location.start,
+    location.label,
+  );
+}
 
 /** The cursor and active loops belong to one execution of a prepared snapshot. */
 export class ControlFlow {
@@ -164,19 +188,30 @@ export class ControlFlow {
         statement.location.label,
       );
     }
+    const skip = step > 0 ? start > limit : start < limit;
+    // The visible scalar can round away an increment or be changed by LET.
+    // The archived loop's separate countdown starts with a stored quotient.
+    const remainingEduSystem30Steps =
+      !skip && this.loopPolicy === 'selected-edu30'
+        ? eduSystem30LoopValue(() => {
+            const difference = evaluateEduSystem30Arithmetic(
+              '-',
+              eduSystem30FromNumber(limit),
+              eduSystem30FromNumber(start),
+            );
+            return evaluateEduSystem30Arithmetic('/', difference, eduSystem30FromNumber(step));
+          }, statement.location)
+        : null;
     this.evaluator.assign(statement.variable, start);
     // The actual header position is independent of its prepared successor.
     const pair = this.prepared.pairsByFor.get(this.#currentIndex)!;
-    if (step > 0 ? start > limit : start < limit)
-      this.#moveTo(pair.nextIndex + 1, statement.location);
+    if (skip) this.#moveTo(pair.nextIndex + 1, statement.location);
     else {
       this.#loopFrames.set(pair.forIndex, {
         ...pair,
         limit,
         step,
-        // This profile admits only step one. The visible scalar can round away
-        // an increment while the archived loop still advances to its limit.
-        remainingEduSystem30Steps: this.loopPolicy === 'selected-edu30' ? limit - start : null,
+        remainingEduSystem30Steps,
       });
       this.#activeLoopVariables.add(statement.variable.name);
     }
@@ -193,33 +228,40 @@ export class ControlFlow {
         statement.location.label,
       );
     }
-    const current = this.#loopNumber(statement.variable);
-    const value = current + frame.step;
-    if (!Number.isFinite(value)) {
-      throw new BasicRuntimeError(
-        'NON_FINITE_NUMBER',
-        'Loop increment must be finite',
-        statement.variable.location.start,
-        statement.location.label,
-      );
-    }
-    this.evaluator.validateIncrement?.(value, statement.variable.location);
     const remaining = frame.remainingEduSystem30Steps;
-    if (
-      remaining === null
-        ? frame.step > 0
-          ? value <= frame.limit
-          : value >= frame.limit
-        : remaining >= 1
-    ) {
-      if (remaining !== null) frame.remainingEduSystem30Steps = remaining - 1;
-      this.evaluator.assign(statement.variable, value);
-      this.#moveTo(frame.forIndex + 1, statement.location);
-    } else {
+    if (remaining === null || remaining >= 1) {
+      const current = this.#loopNumber(statement.variable);
+      const location = statement.variable.location;
+      const value =
+        remaining === null
+          ? current + frame.step
+          : eduSystem30LoopValue(
+              () =>
+                evaluateEduSystem30Arithmetic(
+                  '+',
+                  eduSystem30FromNumber(current),
+                  eduSystem30FromNumber(frame.step),
+                ),
+              location,
+            );
+      if (!Number.isFinite(value))
+        throw new BasicRuntimeError(
+          'NON_FINITE_NUMBER',
+          'Loop increment must be finite',
+          location.start,
+          location.label,
+        );
+      this.evaluator.validateIncrement?.(value, location);
+      if (remaining !== null || (frame.step > 0 ? value <= frame.limit : value >= frame.limit)) {
+        if (remaining !== null) frame.remainingEduSystem30Steps = remaining - 1;
+        this.evaluator.assign(statement.variable, value);
+        this.#moveTo(frame.forIndex + 1, statement.location);
+        return;
+      }
       if (this.loopPolicy === 'native') this.evaluator.assign(statement.variable, value);
-      this.#loopFrames.delete(frame.forIndex);
-      this.#activeLoopVariables.delete(frame.variable);
     }
+    this.#loopFrames.delete(frame.forIndex);
+    this.#activeLoopVariables.delete(frame.variable);
   }
 
   #moveTo(index: number, location: Location): void {

@@ -507,8 +507,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "batnum-edusystem30.md#batnum-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "gosub": [550, 570],

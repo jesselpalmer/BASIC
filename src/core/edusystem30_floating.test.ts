@@ -103,7 +103,6 @@ test('EDUSYSTEM-30 evaluator guards syntax reserved for native expressions', () 
   const {evaluator} = createEduSystem30Evaluator(createHost({}));
   for (const [expression, message] of [
     ['A(1)', 'array'],
-    ['-1', 'unary operator'],
     ['2^3', 'binary operator'],
   ]) {
     const statement = parseLine(`10 LET X=${expression}`)?.statement;

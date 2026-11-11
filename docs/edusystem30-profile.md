@@ -6,7 +6,8 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [LITQZ](classic-source-review.md#litqz), [MATHD](classic-source-review.md#mathd),
 [NUMBER](number-edusystem30.md), [STARS](stars-edusystem30.md),
 [HURKLE](hurkle-edusystem30.md), [CHANGE](change-edusystem30-review.md), and
-[CHEMST](chemst-edusystem30.md) listings.
+[CHEMST](chemst-edusystem30.md), [DIAMND](diamnd-edusystem30-review.md), and
+[BATNUM](batnum-edusystem30.md) listings.
 The book and archived `EDU30.SV`
 runs supply the references.
 
@@ -30,6 +31,9 @@ runs supply the references.
   and a payment such as `10` to see the receipt and denominations.
   For **CHEMST · EDUSYSTEM-30 selected profile**, enter `26` for the first
   dilution and try to stay within five percent of the amount required each round.
+  For **DIAMND · EDUSYSTEM-30 selected profile**, enter an odd size from 5 to 31.
+  For **BATNUM · EDUSYSTEM-30 selected profile**, enter a pile size and choose
+  whether taking the last object wins. Then enter the move bounds as a pair.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -46,10 +50,10 @@ runs supply the references.
 
 | Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                          |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label.                                                                                    |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, `+`, `-`, `*`, `/`, `ABS(expression)`, `INT(expression)` and `RND(expression)`. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                               |
+| Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label.                                                                                 |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `ABS(expression)`, `INT(expression)` and `RND(expression)`. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                     |
 | INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses. |
-| PRINT                  | Literal text, bounded numeric expressions and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                                                        |
+| PRINT                  | Literal text, bounded numeric expressions, literal `CHR$(7)` and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                           |
 | RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                    |
 
 All lines are checked before execution, including unreachable lines. A supplied
@@ -69,11 +73,20 @@ values, so cancellation during a partial read leaves the targets unchanged.
 Fresh RUN clears the field buffer. INPUT converts decimal digits in the
 archived order and retains the stored numeric value. Public variable
 snapshots and the shared FOR cursor observe finite JavaScript numbers.
-FOR with the implicit step of one counts iterations independently of the
-visible scalar. An archive probe from 8388608 to 8388610 runs the body three
+FOR counts iterations independently of the visible scalar and evaluates STEP
+at loop entry. The default step is one. A step that observes as zero at the
+JavaScript boundary produces `ZERO_STEP`, including a stored value that
+underflows there.
+An archive probe from 8388608 to 8388610 runs the body three
 times while the scalar's increment rounds away. A probe that increments the
 visible scalar inside `FOR I=1 TO 3` prints `1`, `3`, and `5` in the body,
 then `6` after the terminating NEXT.
+The [STEP capture](edusystem30-step-reference.json) checks descending loops,
+fractional steps, reversed bounds and a STEP expression changed in the body.
+
+`TAB` uses the archived column position across trailing semicolons. It wraps
+its target modulo 70 before rounding up. A lower target sends carriage return
+and NUL followed by the required padding. [TAB evidence](edusystem30-tab-evidence.md)
 
 ## Verification
 
@@ -113,3 +126,7 @@ decimal INPUT and numeric PRINT evidence. Its full receipt transcript verifies
 all ten archived sales and a fresh run.
 The [CHEMST capture](chemst-edusystem30-reference.json) checks invalid-input
 retry, successful and failed dilutions, the ninth miss and a fresh run.
+The [DIAMND capture](diamnd-edusystem30-reference.json) checks all pattern
+rows at sizes 5, 15 and 31 against the debugger-repaired archive. The
+[BATNUM capture](batnum-edusystem30-reference.json) checks the three printed
+games, fresh RUN, invalid settings and a forfeit.
