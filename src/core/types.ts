@@ -253,6 +253,8 @@ export interface NodeFields {
     readonly items: readonly Expression[];
     readonly separators: readonly Location[];
     readonly trailingSemicolon: boolean;
+    /** EDUSYSTEM-30 zone advances before the first item and after each item. */
+    readonly eduSystem30Commas?: readonly number[];
     /** Selected candidate punctuation after each item; null means adjacency/end. */
     readonly candidateSeparators?: readonly ('comma' | 'semicolon' | null)[];
     /** Extra consecutive commas after each candidate item's first comma. */

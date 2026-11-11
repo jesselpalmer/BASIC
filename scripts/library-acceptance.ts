@@ -9,6 +9,8 @@ import {runChangeAcceptance} from './change-acceptance.ts';
 import {runChemstAcceptance} from './chemst-acceptance.ts';
 import {runDiamndAcceptance} from './diamnd-acceptance.ts';
 import {runBatnumAcceptance} from './batnum-acceptance.ts';
+import {runEvenAcceptance} from './even-acceptance.ts';
+import {runRocketAcceptance} from './rocket-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -54,6 +56,8 @@ export const libraryAcceptanceCases = [
   'reviewed CHEMST matches archived dilution outcomes, retry, ending and fresh RUN',
   'reviewed DIAMND matches repaired archive patterns and fresh RUN',
   'reviewed BATNUM matches archived games, retries and fresh RUN',
+  'reviewed EVEN matches archived wins, losses, validation and fresh RUN',
+  'reviewed ROCKET matches archived landing, crash and fresh RUN',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -341,6 +345,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed BATNUM matches archived games, retries and fresh RUN', () =>
     runBatnumAcceptance(api),
+  );
+  await check('reviewed EVEN matches archived wins, losses, validation and fresh RUN', () =>
+    runEvenAcceptance(api),
+  );
+  await check('reviewed ROCKET matches archived landing, crash and fresh RUN', () =>
+    runRocketAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

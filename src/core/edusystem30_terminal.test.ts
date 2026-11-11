@@ -1,7 +1,35 @@
 import {expect, test} from 'bun:test';
 import {Basic, parseProgram} from '../index.ts';
+import commaReference from '../../docs/edusystem30-print-comma-reference.json';
 
 const options = {dialect: 'edusystem-30'} as const;
+
+for (const {name, source, answers, output: archived} of commaReference.probes) {
+  test(`EDUSYSTEM-30 PRINT commas reproduce archived ${name}`, async () => {
+    let output = '';
+    let answer = 0;
+    const basic = new Basic(
+      {
+        write: (text) => (output += text),
+        readLine(prompt) {
+          output += prompt ?? '';
+          return Promise.resolve(answers[answer++] ?? null);
+        },
+      },
+      options,
+    );
+    basic.reset(parseProgram(source.join('\n'), options));
+    await basic.runAsync();
+    expect(answer).toBe(answers.length);
+    expect(output).toBe(archived.replace(/\0\r\n$/, '').replaceAll('\r\n', '\n'));
+  });
+}
+
+test('EDUSYSTEM-30 keeps PRINT comma admission isolated from native syntax', () => {
+  expect(() => parseProgram('10 PRINT 1,2\n20 END')).toThrow();
+  for (const mixed of [',;', ';,'])
+    expect(() => parseProgram(`10 PRINT "X"${mixed}"Y"\n20 END`, options)).toThrow();
+});
 
 test('EDUSYSTEM-30 TAB wraps and rounds targets before comparing the current column', () => {
   const cases = [

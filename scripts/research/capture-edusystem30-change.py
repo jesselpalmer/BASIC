@@ -30,6 +30,10 @@ ARITHMETIC_INPUTS = [
     ('8', '0.125'), ('0.125', '8'), ('32', '7'), ('-3.25', '17.13'),
     ('-10', '-4.59'), ('-4.59', '-10'), ('4096', '0.03125'), ('0.03125', '4096'),
 ]
+ALIGNMENT_INPUTS = [
+    ('3E-8', '1.5'), ('6E-8', '1.5'), ('1.5', '-3E-8'),
+    ('1.5', '-6E-8'), ('2.3841861E-7', '-1.5'),
+]
 # These locations are for the exact compiled probe, with the high and low
 # mantissa words following the signed exponent.
 SCALARS = {'A': 0o17575, 'P': 0o17572, 'C': 0o17567,
@@ -129,10 +133,14 @@ def main():
         'tapeSha256': CAPTURE['TAPE_SHA256'],
     }
     if args.arithmetic:
+        inputs = arithmetic_inputs()
         with CAPTURE['edu30'](args.simulator.resolve(), args.tape.resolve()) as console:
-            result['arithmeticProbe'] = capture_words(
-                console, ARITHMETIC_PROBE, arithmetic_inputs(), 'inputs',
+            probe = capture_words(
+                console, ARITHMETIC_PROBE, inputs + ALIGNMENT_INPUTS, 'inputs',
             )
+        probe['alignmentObservations'] = probe['observations'][len(inputs):]
+        probe['observations'] = probe['observations'][:len(inputs)]
+        result['arithmeticProbe'] = probe
         args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
         return
     raw = (FIXTURES / 'change.bas').read_bytes()

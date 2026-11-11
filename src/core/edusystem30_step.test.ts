@@ -28,6 +28,6 @@ test('EDUSYSTEM-30 reports zero STEP before running the body', () => {
 
 test('EDUSYSTEM-30 preflights the STEP expression even after END', () => {
   expect(() =>
-    parseProgram('10 END\n20 FOR I=1 TO 3 STEP 2^2\n30 NEXT I\n40 END', options),
+    parseProgram('10 END\n20 FOR I=1 TO 3 STEP 2^6\n30 NEXT I\n40 END', options),
   ).toThrow(BasicSyntaxError);
 });

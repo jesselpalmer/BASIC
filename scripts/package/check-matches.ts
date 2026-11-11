@@ -10,7 +10,9 @@ import {hurkleOptions, hurklePrompt, hurkleSource} from '../hurkle-acceptance.ts
 import {changeOptions, changeRuns, changeSource} from '../change-acceptance.ts';
 import {assertChemstOutput, chemstGame, chemstSource} from '../chemst-acceptance.ts';
 import {assertDiamndOutput, diamndRuns, diamndSource} from '../diamnd-acceptance.ts';
-import {assertBatnumOutput, batnumOptions, batnumRuns, batnumSource} from '../batnum-acceptance.ts';
+import {assertBatnumOutput, batnumRuns, batnumSource} from '../batnum-acceptance.ts';
+import {assertEvenOutput, evenRuns, evenSource} from '../even-acceptance.ts';
+import {assertRocketOutput, rocketRuns, rocketSource} from '../rocket-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -216,15 +218,48 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     assertChemstOutput,
   );
   checkCompletedGame(executable, directory, 'diamnd', diamndSource, diamndRuns, assertDiamndOutput);
+  checkCompletedGame(executable, directory, 'even', evenSource, evenRuns, assertEvenOutput);
 }
 
-export async function checkBatnumCli(executable: string, directory: string): Promise<void> {
-  const file = join(directory, 'batnum-edusystem30.basic.json');
-  const saved = join(directory, 'batnum-edusystem30-copy.basic.json');
-  const document = {format: 'basic-program', version: 1, ...batnumOptions, source: batnumSource};
+export async function checkWaitingEduSystem30Cli(
+  executable: string,
+  directory: string,
+): Promise<void> {
+  await checkWaitingGame(
+    executable,
+    directory,
+    'batnum',
+    batnumSource,
+    batnumRuns,
+    340,
+    assertBatnumOutput,
+  );
+  await checkWaitingGame(
+    executable,
+    directory,
+    'rocket',
+    rocketSource,
+    rocketRuns,
+    21,
+    assertRocketOutput,
+  );
+}
+
+async function checkWaitingGame<Round extends {readonly answers: readonly string[]}>(
+  executable: string,
+  directory: string,
+  name: string,
+  source: string,
+  runs: readonly Round[],
+  inputLabel: number,
+  assertOutput: (output: string, run: Round) => void,
+): Promise<void> {
+  const file = join(directory, `${name}-edusystem30.basic.json`);
+  const saved = join(directory, `${name}-edusystem30-copy.basic.json`);
+  const document = {format: 'basic-program', version: 1, dialect: eduSystem30Dialect, source};
   writeFileSync(file, JSON.stringify(document));
-  const input = (run: (typeof batnumRuns)[number]) => run.answers.join('\n') + '\n';
-  const transcripts = batnumRuns.map((run) => {
+  const input = (run: Round) => run.answers.join('\n') + '\n';
+  const transcripts = runs.map((run) => {
     const result = runProcess({
       cwd: directory,
       args: [executable, file],
@@ -233,9 +268,9 @@ export async function checkBatnumCli(executable: string, directory: string): Pro
     });
     assert.match(
       result.stderr,
-      /^Line 340, column \d+: Input ended before a value was received\n$/,
+      new RegExp(`^Line ${inputLabel}, column \\d+: Input ended before a value was received\\n$`),
     );
-    assertBatnumOutput(result.stdout, run);
+    assertOutput(result.stdout, run);
     return result.stdout;
   });
   if (process.platform === 'win32') return;
@@ -247,7 +282,7 @@ export async function checkBatnumCli(executable: string, directory: string): Pro
       if (phase === 'start' && stdout.endsWith('>>> ')) {
         phase = 'play';
         child.stdin.write(
-          `LOAD "${file}"\nSAVE "${saved}"\nLOAD "${saved}"\nRUN\n${input(batnumRuns.at(-1)!)}`,
+          `LOAD "${file}"\nSAVE "${saved}"\nLOAD "${saved}"\nRUN\n${input(runs.at(-1)!)}`,
         );
       } else if (phase === 'play' && stdout.endsWith(transcripts.at(-1)!)) {
         phase = 'stopped';

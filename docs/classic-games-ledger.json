@@ -1457,8 +1457,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "dice-train-source-review.md#dice",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [10]
@@ -1566,8 +1567,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "even-edusystem30.md#even-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [20],
@@ -3085,8 +3087,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "rocket-edusystem30.md#rocket-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "scientific-literals": [15, 71],
@@ -3704,8 +3708,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "dice-train-source-review.md#train",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [5]

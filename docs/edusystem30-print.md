@@ -7,7 +7,7 @@ its negation between literal markers, then snapshots the three stored words
 while another INPUT waits. The separate receipt probe covers text before and
 after a numeric expression, a trailing semicolon, and adjacent numeric fields.
 The arithmetic probe prints both operands and their difference for the same
-57 input pairs as the [arithmetic capture](edusystem30-arithmetic-reference.json).
+original 57 input pairs in the [arithmetic capture](edusystem30-arithmetic-reference.json).
 All captures remove input echo, CR and terminal NUL padding while retaining
 the PRINT fields' spaces and line breaks. The table uses `␠` for a space.
 

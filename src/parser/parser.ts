@@ -756,8 +756,18 @@ class Parser {
     const separators: Location[] = [];
     const candidateSeparators: ('comma' | 'semicolon' | null)[] = [];
     const candidateCommaSkips: number[] = [];
+    const eduSystem30Commas = [0];
     let trailingSemicolon = false;
     let last: Token | Expression = command;
+    const takeEduSystem30Commas = () => {
+      while (this.at('PUNCTUATION', ',')) {
+        const comma = this.take();
+        separators.push(this.location(comma));
+        eduSystem30Commas[items.length]++;
+        last = comma;
+      }
+    };
+    if (this.eduSystem30) takeEduSystem30Commas();
     if (!this.atStatementEnd()) {
       let adjacent = false;
       for (;;) {
@@ -777,6 +787,15 @@ class Parser {
           this.fail('UNEXPECTED_TOKEN', `Unexpected token ${JSON.stringify(first.raw)}`, first);
         }
         items.push(last);
+        if (this.eduSystem30) {
+          eduSystem30Commas.push(0);
+          if (this.at('PUNCTUATION', ',')) {
+            takeEduSystem30Commas();
+            if (this.atStatementEnd()) break;
+            adjacent = false;
+            continue;
+          }
+        }
         if (this.candidate) {
           candidateSeparators.push(null);
           candidateCommaSkips.push(0);
@@ -791,7 +810,10 @@ class Parser {
             !(this.candidate && next.type === 'RAW_NUMBER') &&
             next.type !== 'STRING' &&
             next.type !== 'IDENTIFIER' &&
-            !(next.type === 'KEYWORD' && nativeIntrinsic(next.value) !== null) &&
+            !(
+              next.type === 'KEYWORD' &&
+              (nativeIntrinsic(next.value) !== null || (this.eduSystem30 && next.value === 'SQR'))
+            ) &&
             !this.at('PUNCTUATION', '(')
           )
             break;
@@ -827,6 +849,7 @@ class Parser {
       items,
       separators,
       trailingSemicolon,
+      ...(eduSystem30Commas.some((count) => count > 0) ? {eduSystem30Commas} : {}),
       ...(this.candidate ? {candidateSeparators} : {}),
       ...(candidateCommaSkips.some((count) => count > 0) ? {candidateCommaSkips} : {}),
     });
@@ -1043,7 +1066,8 @@ class Parser {
     if (
       token.type === 'KEYWORD' &&
       (nativeIntrinsic(token.value) !== null ||
-        ((this.altair || this.eduSystem30) && token.value === 'CHR$'))
+        ((this.altair || this.eduSystem30) && token.value === 'CHR$') ||
+        (this.eduSystem30 && token.value === 'SQR'))
     ) {
       return this.call();
     }
