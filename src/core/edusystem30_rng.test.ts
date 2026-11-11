@@ -25,6 +25,25 @@ test('an independent RUN starts at the first draw while replay can retain the st
   expect(Math.floor(3 * sixth) + 1).toBe(2);
 });
 
+test('EDUSYSTEM-30 RND evaluates its argument and consumes the archived stream', () => {
+  const expected = reference.rngState.committedStatesOctal
+    .slice(0, 12)
+    .map((words) => Number.parseInt(words, 8) / 2 ** 23);
+  expect(reference.rng.sameSequenceForArgumentsMinus2Through9).toBe(true);
+  let output = '';
+  const basic = new api.Basic({write: (text) => (output += text)}, {dialect: 'edusystem-30'});
+  const source = '10 FOR I=1 TO 12\n20 A=RND(I-3)\n30 PRINT A\n40 NEXT I\n50 END';
+  for (let run = 0; run < 2; run++) {
+    output = '';
+    basic.run(source);
+    expect(output.trim().split(/\s+/).map(Number)).toEqual(expected);
+  }
+  output = '';
+  basic.run('10 A=RND(RND(0))\n20 PRINT A\n30 END');
+  expect(Number(output)).toBe(expected[1]);
+  expect(() => basic.run('10 A=RND(1/0)\n20 END')).toThrow('Cannot divide by zero');
+});
+
 test('reviewed LETTER reproduces the archived EDUSYSTEM-30 game and replay', () =>
   runLetterAcceptance(api));
 

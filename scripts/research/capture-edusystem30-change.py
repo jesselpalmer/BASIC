@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import runpy
+import time
 from pathlib import Path
 
 
@@ -18,6 +19,16 @@ EDGE_SALES = [('0.20', '1.20'), ('0.10', '1.10'), ('0.01', '0.51'), ('0.51', '1.
 PROBE = [
     '10 INPUT A', '20 INPUT P', '30 C=P-A', '40 F=INT(C)',
     '50 N=C*100', '60 G=N/50', '70 INPUT W', '75 GO TO 10', '80 END',
+]
+ARITHMETIC_PROBE = [
+    '10 INPUT A', '20 INPUT P', '30 C=P-A', '40 F=P+A',
+    '50 N=P*A', '60 G=P/A', '70 INPUT W', '75 GO TO 10', '80 END',
+]
+ARITHMETIC_INPUTS = [
+    ('0.2', '1.2'), ('0.1', '1.1'), ('0.01', '0.51'), ('0.51', '1.01'),
+    ('10', '4.59'), ('4.59', '10'), ('123.45', '0'), ('1', '1'),
+    ('8', '0.125'), ('0.125', '8'), ('32', '7'), ('-3.25', '17.13'),
+    ('-10', '-4.59'), ('-4.59', '-10'), ('4096', '0.03125'), ('0.03125', '4096'),
 ]
 # These locations are for the exact compiled probe, with the high and low
 # mantissa words following the signed exponent.
@@ -56,24 +67,27 @@ def read_scalar_words(console):
             words.update(dict.fromkeys(range(first, last + 1), words[first - 1]))
     assert set(words) == set(range(0o17556, 0o17600)), words
     console.sendline('continue')
+    console.expect_exact('continue\r\n')
+    # SIMH switches the terminal back to emulation and flushes queued input.
+    time.sleep(0.5)
     return {name: [words[address + offset] for offset in range(3)]
             for name, address in SCALARS.items()}
 
 
-def capture_words(console):
+def capture_words(console, source, inputs, input_label):
     send_line = CAPTURE['send_line']
-    for line in PROBE:
+    for line in source:
         send_line(console, line)
     send_line(console, 'RUN')
     console.expect_exact('EDUSYSTEM-30\r\n\r\n')
     observations = []
-    for cost, payment in EDGE_SALES:
-        for value in (cost, payment):
+    for left, right in inputs:
+        for value in (left, right):
             console.expect_exact('?')
             send_line(console, value)
         console.expect_exact('?')
         observations.append({
-            'sale': [cost, payment],
+            input_label: [left, right],
             'scalarWordsOctal': read_scalar_words(console),
         })
         send_line(console, '1')
@@ -81,10 +95,24 @@ def capture_words(console):
     console.sendcontrol('c')
     console.expect_exact('READY')
     return {
-        'source': '\n'.join(PROBE),
+        'source': '\n'.join(source),
         'scalarAddressesOctal': {name: f'{address:05o}' for name, address in SCALARS.items()},
         'observations': observations,
     }
+
+
+def arithmetic_inputs():
+    def decimal(cents, negative):
+        units, remainder = divmod(cents, 100)
+        fraction = f'{remainder:02d}'.rstrip('0') or '0'
+        return f'{"-" if negative else ""}{units}.{fraction}'
+
+    samples = list(ARITHMETIC_INPUTS)
+    for index in range(1, 42):
+        left = decimal((index * 1129) % 9919 + 1, index % 2 == 0)
+        right = decimal((index * 1373) % 9971 + 1, index % 3 == 0)
+        samples.append((left, right))
+    return samples
 
 
 def main():
@@ -92,24 +120,34 @@ def main():
     parser.add_argument('--simulator', type=Path, required=True)
     parser.add_argument('--tape', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--arithmetic', action='store_true')
     args = parser.parse_args()
     digest = CAPTURE['digest']
     assert digest(args.tape.read_bytes()) == CAPTURE['TAPE_SHA256']
+    result = {
+        'simulatorCommit': CAPTURE['SIMULATOR'],
+        'tapeSha256': CAPTURE['TAPE_SHA256'],
+    }
+    if args.arithmetic:
+        with CAPTURE['edu30'](args.simulator.resolve(), args.tape.resolve()) as console:
+            result['arithmeticProbe'] = capture_words(
+                console, ARITHMETIC_PROBE, arithmetic_inputs(), 'inputs',
+            )
+        args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
+        return
     raw = (FIXTURES / 'change.bas').read_bytes()
     source = (FIXTURES / 'change-mar75-text.bas').read_bytes()
     assert digest(raw) == RAW_SHA256 and digest(source) == REVIEWED_SHA256
     with CAPTURE['edu30'](args.simulator.resolve(), args.tape.resolve()) as console:
         game = capture_sales(console, source.decode('ascii'))
     with CAPTURE['edu30'](args.simulator.resolve(), args.tape.resolve()) as console:
-        numeric_probe = capture_words(console)
-    result = {
-        'simulatorCommit': CAPTURE['SIMULATOR'],
-        'tapeSha256': CAPTURE['TAPE_SHA256'],
+        numeric_probe = capture_words(console, PROBE, EDGE_SALES, 'sale')
+    result.update({
         'rawSha256': RAW_SHA256,
         'fixtureSha256': REVIEWED_SHA256,
         'game': game,
         'numericProbe': numeric_probe,
-    }
+    })
     args.output.write_text(json.dumps(result, indent=2) + '\n', encoding='ascii')
 
 

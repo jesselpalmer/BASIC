@@ -1,0 +1,18 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "1121376962a0ffb59fe1a70c10174e195ef70a391781c70ebe4663930ce503cf",
+  "clockWord": 0,
+  "rounds": [
+    {
+      "answers": ["1", "100", "55", "7", "31", "19", "25", "22", "27"],
+      "starCounts": [1, 2, 3, 4, 5, 6, 7],
+      "outputSha256": "f5a1f8bb8b33c7d77ab8ee1d08ad6bc9a8641c5eb4d83bf5fdf90339e9ad4ee1"
+    },
+    {
+      "answers": ["0", "23"],
+      "starCounts": [],
+      "outputSha256": "5cccefc20177b2242b40a4151bb5b18c6fabeaf3699d5c01e985735a8e296bdb"
+    }
+  ]
+}

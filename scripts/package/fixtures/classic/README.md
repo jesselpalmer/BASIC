@@ -132,3 +132,11 @@ transcriptions. Their `*-mar75-text.bas` counterparts carry separate scan
 reviews and archive evidence. See the [MATHD review](../../../../docs/classic-source-review.md#mathd),
 [NUMBER review](../../../../docs/number-edusystem30.md) and
 [CHANGE review](../../../../docs/change-edusystem30-review.md).
+
+## STARS and DIAMND
+
+The `stars.bas` and `diamnd.bas` fixtures preserve the pinned transcriptions.
+The reviewed files restore printed source and retain separate archive evidence.
+The [STARS review](../../../../docs/stars-edusystem30.md) records the two
+playthroughs. The [DIAMND review](../../../../docs/diamnd-edusystem30-review.md)
+records the output mismatch on EDU30.SV.

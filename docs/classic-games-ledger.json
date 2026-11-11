@@ -1421,8 +1421,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "diamnd-edusystem30-review.md#diamnd-archive-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {
@@ -3481,8 +3482,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "stars-edusystem30.md#stars-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [130]
