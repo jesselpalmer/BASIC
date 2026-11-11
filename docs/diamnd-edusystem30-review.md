@@ -15,10 +15,14 @@ The printed listing leaves the runtime unspecified.
 The archived EDU30.SV build accepts 5, 15 and 31 and returns to READY. After
 each response it emits two newlines and no pattern. An instrumented size-31
 run prints row widths from 1 to 31 and back to 1 in steps of two, and the
-center row contains `DEC` followed by 28 exclamation points. The probe
-adds output statements inside the loop, so its transcript describes the
-instrumented program. DIAMND remains blocked on matching the printed
-pattern with the reviewed listing.
+center row contains `DEC` followed by 28 exclamation points.
+
+At size 15, adding only `61 PRINT "PRINTED"` after the end-of-row `PRINT`
+makes the archive emit 60 pattern rows, each followed by the diagnostic
+marker. The probe checks every row's indentation, the four repeats per row,
+and the four vertical repeats. The reason the added output changes execution
+is unresolved. Public DIAMND still requires the reviewed listing to produce
+the printed pattern.
 
 ```sh
 python3 scripts/research/probe-edusystem30-diamnd.py \

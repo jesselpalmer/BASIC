@@ -78,9 +78,7 @@ The resulting Link bit is added to the signed quotient before normalization.
 With this correction, all three result words agree for all four operations
 on every captured pair.
 
-The model starts from stored operands and tests nonzero divisors. Decimal
-INPUT conversion and numeric PRINT still need verified rules for public
-CHANGE execution.
+The arithmetic probes start from stored operands and test nonzero divisors.
 
 ```sh
 python3 scripts/research/capture-edusystem30-change.py --arithmetic \
@@ -90,6 +88,44 @@ diff -u <(python3 -m json.tool docs/edusystem30-arithmetic-reference.json) \
   <(python3 -m json.tool /tmp/edusystem30-arithmetic-reference.json)
 python3 scripts/research/check-edusystem30-arithmetic.py /tmp/edusystem30-arithmetic-reference.json
 ```
+
+### Verified decimal INPUT conversion
+
+The [INPUT capture](edusystem30-input-reference.json) records 66 typed values
+and their scalar words. It covers the receipt amounts, signed zero, leading
+and trailing decimal points, the integer precision boundary at 8388608,
+and scientific exponents through ±300.
+
+The archive accumulates whole and fractional digits separately. Each digit
+passes through a multiply by ten and an add, with normalization after each
+operation. The decimal scaling routine at octal `03146` uses a factor of
+100000000 for each group of eight places, then a factor of ten for each
+remaining place. It divides to scale down and multiplies to scale up.
+It scales the fractional digits down before adding them to the whole part,
+applies an explicit exponent to the sum, and applies the leading sign last.
+This sequence explains why decimal `0.51` is stored slightly above 0.51.
+
+The [INPUT checker](../scripts/research/check-edusystem30-input.py) matches
+all three words for these 66 values and for the 114 operands in the
+arithmetic capture.
+
+```sh
+python3 scripts/research/capture-edusystem30-input.py \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/edusystem30-input-reference.json
+diff -u <(python3 -m json.tool docs/edusystem30-input-reference.json) \
+  <(python3 -m json.tool /tmp/edusystem30-input-reference.json)
+python3 scripts/research/check-edusystem30-input.py /tmp/edusystem30-input-reference.json \
+  docs/edusystem30-arithmetic-reference.json
+```
+
+### Numeric PRINT evidence
+
+The [PRINT capture and checker](edusystem30-print.md) match 263 archived
+numeric fields, including receipt expressions and signs. The capture traces
+the archived pre-display multiplication and fixed/scientific boundary. Public
+CHANGE still requires applying the bounded numeric rules in the selected
+profile and comparing complete receipts across the supported entry points.
 
 ```sh
 python3 scripts/research/capture-edusystem30-change.py \

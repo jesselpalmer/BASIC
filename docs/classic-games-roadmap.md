@@ -59,17 +59,27 @@ as clues to a hidden number. Choose **STARS · EDUSYSTEM-30 selected profile**
 and guess a number from 1 to 100. The archive replay covers all seven clue
 lengths, a loss, a replay win and a fresh run.
 
+The [reviewed HURKLE listing](hurkle-edusystem30.md) uses compass clues to
+locate a creature hiding on a 10-by-10 grid. Choose **HURKLE · EDUSYSTEM-30
+selected profile** and enter pairs such as `5,5`. The archived replay covers
+the printed opening win, compass clues, a five-guess loss,
+automatic replay and a fresh run.
+
 The [CHANGE source and archive review](change-edusystem30-review.md) records
 the printed sales and exposes the numeric rules still needed for public play.
 Its archive can print the same change total for two sales and return different
 denominations. A word-level model now matches all four arithmetic operations
-across 57 archived operand pairs. Decimal input conversion and numeric output
-remain the blockers for public execution.
+across 57 archived operand pairs. Decimal input conversion matches all 180
+captured values, and the [numeric PRINT checker](edusystem30-print.md) matches
+263 archived fields. Next, apply the bounded numeric rules in the selected
+profile and verify the archived sales across all three entry points.
 
 The [DIAMND review](diamnd-edusystem30-review.md) verifies the source correction
 and records a mismatch on archived EDU30.SV. The loops execute, but the
 reviewed listing returns to `READY` without the printed diamond at each tested
-size. Matching the book's output remains the compatibility check for this game.
+size. A single diagnostic print makes all 60 expected rows appear at size 15.
+Matching the book's output with the reviewed listing remains the compatibility
+check for this game.
 
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
@@ -82,12 +92,12 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                |
 | Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation. |
-| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER and STARS run across the library, CLI and browser. Archived traces cover wins, losses, replay, quiz endings, dice retries, jackpot scoring and star clues.                                                                                                                                               | Bounded game forms and numeric `RND(expression)`. See the [profile scope](edusystem30-profile.md).                                          |
+| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS and HURKLE run across the library, CLI and browser. Archived traces cover wins, losses, replay, quiz endings, dice retries, jackpot scoring, star clues and compass directions.                                                                                                                   | Bounded game forms and numeric `RND(expression)`. See the [profile scope](edusystem30-profile.md).                                          |
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                         |
 | Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                 |
 
-The [corpus ledger](classic-games-ledger.json) records **11 reviewed
-source differences / 97 unresolved**, **6 printed-system identifications / 102
+The [corpus ledger](classic-games-ledger.json) records **12 reviewed
+source differences / 96 unresolved**, **7 printed-system identifications / 101
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 
@@ -130,6 +140,7 @@ LITQZ adds normal program termination via `STOP` before the required final `END`
 MATHD verifies default-zero and numbered numeric scalars. NUMBER verifies the
 literal `.5` on its score-halving branch.
 STARS verifies `ABS` on both sides of its secret number.
+HURKLE verifies the archived `RANDOM` spelling and paired coordinate input.
 The [archived random stream](edusystem30-rng.md) verifies evaluated numeric
 arguments to `RND` and a fresh seed on each run. General arithmetic and
 diagnostic continuation remain under #116 and #123.
