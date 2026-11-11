@@ -218,7 +218,8 @@ export async function runEduSystem30Acceptance(api: Api): Promise<void> {
   assert.throws(() => new api.Basic().reset(program), TypeError);
   for (const statement of [
     'LET A=RND()',
-    'LET A=RND(1)',
+    'LET A=RND(1,2)',
+    'LET A=RND("X")',
     'LET AB=1',
     'LET A="X"',
     'LET A=1.5',

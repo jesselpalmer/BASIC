@@ -56,6 +56,41 @@ these differences.
 The probe also stores decimal input `0.51` as `0.510000109672546387`.
 A numeric display change alone leaves the denomination differences.
 
+### Verified arithmetic words
+
+The [arithmetic capture](edusystem30-arithmetic-reference.json) records the
+signed operands and the results of addition, subtraction, multiplication,
+and division for 57 pairs. The pairs exercise decimal inputs, mixed signs,
+zero results, cancellation, and unequal exponents. Each result records
+three octal words read from the original interpreter.
+
+The [arithmetic checker](../scripts/research/check-edusystem30-arithmetic.py)
+decodes each operand as an exact binary fraction. For addition, subtraction,
+and multiplication, it computes the exact result, normalizes it, and truncates
+the significand to 23 bits toward zero. Applying the same procedure to the
+quotient differs in 41 of 57 cases.
+
+In the archived division trace, the loop at octal `02250–02307` produces 23
+quotient bits from the operand magnitudes. At `02312–02314` the routine
+rotates the high remainder word twice through the PDP-8 Link register. The
+addition at `02122` combines it with the high word of the negated divisor.
+The resulting Link bit is added to the signed quotient before normalization.
+With this correction, all three result words agree for all four operations
+on every captured pair.
+
+The model starts from stored operands and tests nonzero divisors. Decimal
+INPUT conversion and numeric PRINT still need verified rules for public
+CHANGE execution.
+
+```sh
+python3 scripts/research/capture-edusystem30-change.py --arithmetic \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/edusystem30-arithmetic-reference.json
+diff -u <(python3 -m json.tool docs/edusystem30-arithmetic-reference.json) \
+  <(python3 -m json.tool /tmp/edusystem30-arithmetic-reference.json)
+python3 scripts/research/check-edusystem30-arithmetic.py /tmp/edusystem30-arithmetic-reference.json
+```
+
 ```sh
 python3 scripts/research/capture-edusystem30-change.py \
   --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \

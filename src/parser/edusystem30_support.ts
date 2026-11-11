@@ -38,16 +38,9 @@ function validateNumber(expression: Expression): void {
         pending.push(node.right, node.left);
         break;
       case 'CallExpression':
-        if (node.name === 'INT' && node.arguments.length === 1) {
-          pending.push(node.arguments[0]);
-        } else if (
-          node.name !== 'RND' ||
-          node.arguments.length !== 1 ||
-          node.arguments[0].type !== 'NumberLiteral' ||
-          node.arguments[0].raw !== '0'
-        ) {
-          unsupported(node, 'INT(expression) and RND(0)');
-        }
+        if (!['ABS', 'INT', 'RND'].includes(node.name) || node.arguments.length !== 1)
+          unsupported(node, 'ABS(expression), INT(expression) and RND(expression)');
+        pending.push(node.arguments[0]);
         break;
       default:
         unsupported(node, 'bounded numeric expressions');

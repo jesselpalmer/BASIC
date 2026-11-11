@@ -5,6 +5,7 @@ import {letterOptions, letterPrompt, letterSource} from '../letter-acceptance.ts
 import {assertLitqzOutput, litqzRounds, litqzSource} from '../litqz-acceptance.ts';
 import {mathdOptions, mathdPrompt, mathdSource} from '../mathd-acceptance.ts';
 import {assertNumberOutput, numberGames, numberSource} from '../number-acceptance.ts';
+import {starsOptions, starsPrompt, starsSource} from '../stars-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -101,6 +102,29 @@ export function checkMathdCli(executable: string, directory: string): void {
   assert.ok(result.stdout.includes('NO, COUNT THE SPOTS AND GIVE ANOTHER ANSWER.'));
   assert.ok(result.stdout.endsWith(mathdPrompt));
   assert.match(result.stderr, /^Line 520, column \d+: Input ended before a value was received\n$/);
+}
+
+export function checkStarsCli(executable: string, directory: string): void {
+  const file = join(directory, 'stars-edusystem30.basic.json');
+  writeFileSync(
+    file,
+    JSON.stringify({format: 'basic-program', version: 1, ...starsOptions, source: starsSource}),
+  );
+  const result = runProcess({
+    cwd: directory,
+    args: [executable, file],
+    input: '0\n'.repeat(8),
+    expectedStatus: 1,
+  });
+  const secret = Number(/NUMBER WAS +(\d+)/.exec(result.stdout)?.[1]);
+  assert.ok(secret >= 1 && secret <= 100);
+  const hints = [...result.stdout.matchAll(/YOUR GUESS\?(\*{1,7})\n/g)];
+  assert.deepEqual(
+    hints.map((hint) => hint[1].length),
+    Array<number>(7).fill(7 - Math.floor(Math.log2(secret))),
+  );
+  assert.ok(result.stdout.endsWith(starsPrompt));
+  assert.match(result.stderr, /^Line 360, column \d+: Input ended before a value was received\n$/);
 }
 
 export function checkCompletedEduSystem30Cli(executable: string, directory: string): void {

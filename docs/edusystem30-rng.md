@@ -38,10 +38,16 @@ In the reviewed 23MTCH trace, the sixth draw after replay yields a computer
 move of two, while a fresh stream's first draw yields one.
 
 The [selected EDUSYSTEM-30 profile](edusystem30-profile.md) uses this stream for
-`RND(0)`. In `EDU30.SV`, the `RANDOMIZE` routine at octal 02755–02757 adds
+`RND(X)`. The profile evaluates one admitted numeric expression and then draws
+from the stream regardless of the argument's value. The regression checks the
+first twelve archived states for `RND(I-3)` in two fresh runs. The archive
+also consumes two draws for `RND(RND(0))`, starting with the inner call.
+The `RANDOMIZE` routine at octal 02755–02757 adds
 the 12-bit clock word at 07471 to the high state word at 00150 modulo 4096
 and leaves 00151 unchanged. The [LETTER capture](letter-edusystem30-reference.json)
 sets that clock word to octal 2304 and observes the high word change from
 1461 to 3765. The portable profile uses `floor(host.random() * 4096)` as
-the clock word, preserving an injectable entropy source. General argument
-evaluation, continuation diagnostics and wider arithmetic remain separate.
+the clock word, preserving an injectable entropy source. The archived
+interpreter emits a diagnostic and still draws when `X` divides by zero. The
+selected profile currently reports a runtime error in that case. Diagnostic
+continuation and wider arithmetic remain open.

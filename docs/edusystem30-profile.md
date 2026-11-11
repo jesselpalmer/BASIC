@@ -3,8 +3,9 @@
 The bounded `edusystem-30` profile runs the reviewed March 1975
 [23MTCH](classic-source-review.md#march-1975-listing-and-edusystem-30-reference-run),
 [LETTER](classic-source-review.md#letter), [TRAP](classic-source-review.md#trap),
-[LITQZ](classic-source-review.md#litqz), [MATHD](classic-source-review.md#mathd)
-and [NUMBER](number-edusystem30.md) listings. The book and archived `EDU30.SV`
+[LITQZ](classic-source-review.md#litqz), [MATHD](classic-source-review.md#mathd),
+[NUMBER](number-edusystem30.md), and [STARS](stars-edusystem30.md) listings.
+The book and archived `EDU30.SV`
 runs supply the references.
 
 - In the [playground](https://basic-playground-rho.vercel.app/), choose
@@ -19,6 +20,8 @@ runs supply the references.
   For **MATHD · EDUSYSTEM-30 selected profile**, enter the sum of the two dice.
   For **NUMBER · EDUSYSTEM-30 selected profile**, guess a number from 1 to 5
   until the score reaches 500.
+  For **STARS · EDUSYSTEM-30 selected profile**, guess a number from 1 to 100.
+  More stars mean your guess is closer.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -36,16 +39,16 @@ runs supply the references.
 | Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                          |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Statements             | Backslash-separated statements. REM, scalar LET, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with implicit step one, PRINT, RANDOMIZE, STOP and END. Complete nonempty source ends in END at the highest label.                                                                                              |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, `+`, `-`, `*`, `/`, `INT(expression)` and `RND(0)`. Arithmetic uses the shared finite numeric evaluator.                                                                                                                  |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits small unsigned integers and `.5`, grouping, `+`, `-`, `*`, `/`, `ABS(expression)`, `INT(expression)` and `RND(expression)`. Arithmetic uses the shared finite numeric evaluator.                                                                                      |
 | INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses. |
 | PRINT                  | Literal text, numeric scalar items and literal `CHR$(7)`. String-involved adjacency and semicolons join items. A trailing semicolon continues the line. Numeric fields have sign and trailing padding.                                                                                                                                                   |
-| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                                        |
+| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                    |
 
 All lines are checked before execution, including unreachable lines. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
 dialect through import, save and reload. Immediate library statements are
-native-only. Historical numeric precision, diagnostic continuation, general
-`RND(X)`, and additional language forms require separate evidence.
+native-only. Historical numeric precision, diagnostic continuation, and
+additional language forms require separate evidence.
 A false line-target IF continues with the next backslash statement.
 STOP finishes the run like END and skips later statements on the same line.
 A subsequent RUN starts over. The program must still end in END.
@@ -87,5 +90,7 @@ statements, and the archive rejects CONT.
 The [MATHD capture](mathd-edusystem30-reference.json) checks all six faces,
 both retry outcomes and the next round. The [NUMBER capture](number-edusystem30-reference.json)
 checks the printed scores, halving and jackpots through both wins. The
-[CHANGE review](change-edusystem30-review.md) records the remaining decimal
-input, arithmetic and PRINT behavior required by that listing.
+[STARS capture](stars-edusystem30-reference.json) checks all seven clue lengths,
+a loss, a replay win and a fresh run. The [CHANGE review](change-edusystem30-review.md)
+records word-level arithmetic evidence and the remaining decimal INPUT and
+numeric PRINT requirements.

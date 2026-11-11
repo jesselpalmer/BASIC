@@ -9,6 +9,7 @@ import {
   checkLetterCli,
   checkMathdCli,
   checkMatchesCli,
+  checkStarsCli,
   checkTrapCli,
 } from './check-matches.ts';
 
@@ -41,6 +42,7 @@ export async function checkPersistenceSessions(executable: string): Promise<void
     await checkTrapCli(executable, directory);
     checkCompletedEduSystem30Cli(executable, directory);
     checkMathdCli(executable, directory);
+    checkStarsCli(executable, directory);
     const lineSource = '10 INPUT LINE S$:PRINT "[";S$;"]":END';
     const linePath = join(directory, 'line-input.basic.json');
     const raw = '  a,b,"quoted"  ';
