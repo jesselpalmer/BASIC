@@ -740,10 +740,11 @@ function evaluateTree(
         pending.push({node: node.expression, ready: false});
         break;
       case 'UnaryExpression':
-        if (context.kind === 'edu30')
-          throw new Error('EDUSYSTEM-30 unary operator escaped admission');
         if (!ready) {
           pending.push({node, ready: true}, {node: node.argument, ready: false});
+        } else if (context.kind === 'edu30') {
+          const input = values.pop()! as EduSystem30FloatingValue;
+          values.push(node.operator === '-' ? {...input, significand: -input.significand} : input);
         } else if (context.kind === 'ma2-conformance') {
           const input = values.pop()! as Ma2Value;
           ma2Operation = {

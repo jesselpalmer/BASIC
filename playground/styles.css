@@ -306,6 +306,10 @@ select {
   font: 13px/1.9 var(--mono);
   tab-size: 2;
 }
+#console-output.terminal-columns {
+  white-space: pre;
+  overflow-wrap: normal;
+}
 .console-truncated {
   color: #e7d6a1;
   font: 10px/1.7 var(--mono);

@@ -1,0 +1,23 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "15ec624beae75585d8881fdb08607aa52bf6ac27ee671c8f093f0959d412ba5a",
+  "reference": "debugger-repaired-compiled-constants",
+  "runs": [
+    {
+      "answers": ["5"],
+      "rowCount": 60,
+      "outputSha256": "094964ab2716cd76defa5853f9343e384350401d6bdb72a06fb12572aef682ff"
+    },
+    {
+      "answers": ["15"],
+      "rowCount": 60,
+      "outputSha256": "ae4fd062abe3f18af07e280a112ddf9284415191ed1f2330bc9b87b21d395e0c"
+    },
+    {
+      "answers": ["31"],
+      "rowCount": 31,
+      "outputSha256": "23f96b86b8318561c6524b9426edd22913cd7d1418dda055369aaf550addc20c"
+    }
+  ]
+}

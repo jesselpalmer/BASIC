@@ -9,6 +9,8 @@ import {starsOptions, starsPrompt, starsSource} from '../stars-acceptance.ts';
 import {hurkleOptions, hurklePrompt, hurkleSource} from '../hurkle-acceptance.ts';
 import {changeOptions, changeRuns, changeSource} from '../change-acceptance.ts';
 import {assertChemstOutput, chemstGame, chemstSource} from '../chemst-acceptance.ts';
+import {assertDiamndOutput, diamndRuns, diamndSource} from '../diamnd-acceptance.ts';
+import {assertBatnumOutput, batnumOptions, batnumRuns, batnumSource} from '../batnum-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -213,6 +215,53 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     [chemstGame, chemstGame],
     assertChemstOutput,
   );
+  checkCompletedGame(executable, directory, 'diamnd', diamndSource, diamndRuns, assertDiamndOutput);
+}
+
+export async function checkBatnumCli(executable: string, directory: string): Promise<void> {
+  const file = join(directory, 'batnum-edusystem30.basic.json');
+  const saved = join(directory, 'batnum-edusystem30-copy.basic.json');
+  const document = {format: 'basic-program', version: 1, ...batnumOptions, source: batnumSource};
+  writeFileSync(file, JSON.stringify(document));
+  const input = (run: (typeof batnumRuns)[number]) => run.answers.join('\n') + '\n';
+  const transcripts = batnumRuns.map((run) => {
+    const result = runProcess({
+      cwd: directory,
+      args: [executable, file],
+      input: input(run),
+      expectedStatus: 1,
+    });
+    assert.match(
+      result.stderr,
+      /^Line 340, column \d+: Input ended before a value was received\n$/,
+    );
+    assertBatnumOutput(result.stdout, run);
+    return result.stdout;
+  });
+  if (process.platform === 'win32') return;
+  let phase: 'start' | 'play' | 'stopped' | 'exit' = 'start';
+  const editor = await runWithOpenInput({
+    cwd: directory,
+    args: [executable],
+    onOutput(stdout, child) {
+      if (phase === 'start' && stdout.endsWith('>>> ')) {
+        phase = 'play';
+        child.stdin.write(
+          `LOAD "${file}"\nSAVE "${saved}"\nLOAD "${saved}"\nRUN\n${input(batnumRuns.at(-1)!)}`,
+        );
+      } else if (phase === 'play' && stdout.endsWith(transcripts.at(-1)!)) {
+        phase = 'stopped';
+        child.kill('SIGINT');
+      } else if (phase === 'stopped' && stdout.endsWith('\n>>> ')) {
+        phase = 'exit';
+        child.stdin.write('EXIT\n');
+      }
+    },
+  });
+  assert.equal(phase, 'exit', editor.stdout);
+  assert.equal(editor.status, 0);
+  assert.equal(editor.stderr, '');
+  assert.deepEqual(JSON.parse(readFileSync(saved, 'utf8')), document);
 }
 
 function checkCompletedGame<Round extends {readonly answers: readonly string[]}>(

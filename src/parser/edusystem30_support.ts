@@ -33,6 +33,10 @@ function validateNumber(expression: Expression): void {
       case 'GroupExpression':
         pending.push(node.expression);
         break;
+      case 'UnaryExpression':
+        if (!['+', '-'].includes(node.operator)) unsupported(node, 'unary + and -');
+        pending.push(node.argument);
+        break;
       case 'BinaryExpression':
         if (!['+', '-', '*', '/'].includes(node.operator)) unsupported(node, '+, -, * and /');
         pending.push(node.right, node.left);
@@ -50,6 +54,10 @@ function validateNumber(expression: Expression): void {
 
 function validatePrint(statement: NodeOf<'PrintStatement'>): void {
   for (const item of statement.items) {
+    if (item.type === 'CallExpression' && item.name === 'TAB' && item.arguments.length === 1) {
+      validateNumber(item.arguments[0]);
+      continue;
+    }
     if (
       item.type === 'CallExpression' &&
       item.name === 'CHR$' &&
@@ -99,7 +107,7 @@ function validateStatement(statement: SimpleStatement): void {
       validateScalar(statement.variable);
       validateNumber(statement.start);
       validateNumber(statement.end);
-      if (statement.step) unsupported(statement.step, 'FOR with an implicit step of one');
+      if (statement.step) validateNumber(statement.step);
       return;
     case 'NextStatement':
       validateScalar(statement.variable);

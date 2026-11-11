@@ -2,7 +2,7 @@ import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {createAltairEvaluator, createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
-import {EduSystem30Input, formatEduSystem30PrintItem} from './edusystem30_terminal.ts';
+import {EduSystem30Terminal} from './edusystem30_terminal.ts';
 import {AltairTerminal} from './altair_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
@@ -67,7 +67,7 @@ export default class Basic {
   readonly #graphics = new GraphicsState();
   readonly #altair: AltairTerminal | null;
   readonly #eduSystem30:
-    (ReturnType<typeof createEduSystem30Evaluator> & {input: EduSystem30Input}) | null;
+    (ReturnType<typeof createEduSystem30Evaluator> & {terminal: EduSystem30Terminal}) | null;
   #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
@@ -101,9 +101,11 @@ export default class Basic {
     this.#emptyProgram = prepareProgram('', this.#internalSelected ? 'native' : this.#dialect);
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    const eduSystem30 =
-      this.#dialect === 'edusystem-30' ? createEduSystem30Evaluator(this.#host) : null;
-    this.#eduSystem30 = eduSystem30 ? {...eduSystem30, input: new EduSystem30Input()} : null;
+    this.#eduSystem30 =
+      this.#dialect === 'edusystem-30'
+        ? {...createEduSystem30Evaluator(this.#host), terminal: new EduSystem30Terminal()}
+        : null;
+    const eduSystem30 = this.#eduSystem30;
     this.#evaluator =
       eduSystem30?.evaluator ??
       (this.#altair ? createAltairEvaluator(this.#host) : new Evaluator(this.#host));
@@ -113,9 +115,9 @@ export default class Basic {
       evaluator: this.#evaluator,
       data: () => this.#data,
       graphics: this.#graphics,
-      formatPrintItem: eduSystem30
-        ? (item) =>
-            formatEduSystem30PrintItem(item, (expression) =>
+      formatPrint: eduSystem30
+        ? (statement) =>
+            eduSystem30.terminal.print(statement, (expression) =>
               eduSystem30.evaluator.evaluateNumber(expression),
             )
         : undefined,
@@ -182,7 +184,7 @@ export default class Basic {
     this.#evaluator.reset();
     this.#graphics.reset();
     this.#altair?.reset();
-    this.#eduSystem30?.input.reset();
+    this.#eduSystem30?.terminal.reset();
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
@@ -657,8 +659,8 @@ export default class Basic {
             commit(() => this.#evaluator.assign(target, value)),
           );
         } else if (this.#eduSystem30) {
-          const {input, evaluator} = this.#eduSystem30;
-          const values = await input.read(host, statement, controller.signal);
+          const {terminal, evaluator} = this.#eduSystem30;
+          const values = await terminal.read(host, statement, controller.signal);
           commit(() =>
             inputTargets(statement).forEach((target, index) =>
               evaluator.assignNumber(target, values[index]),

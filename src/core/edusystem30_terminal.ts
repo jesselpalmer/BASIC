@@ -9,10 +9,10 @@ import {
 import {formatEduSystem30Number} from './edusystem30_format.ts';
 import {inputTargets, maxInputResponseLength, readInput, readInputResponse} from './input.ts';
 import type {InputStatement} from './input.ts';
-import type {Expression, Host} from './types.ts';
+import type {Expression, Host, NodeOf} from './types.ts';
 
 /** Sign and trailing padding observed in the EDUSYSTEM-30 numeric field. */
-export function formatEduSystem30PrintItem(
+function formatPrintItem(
   item: Expression,
   evaluate: (expression: Expression) => EduSystem30FloatingValue,
 ): string {
@@ -33,12 +33,51 @@ export function formatEduSystem30PrintItem(
   }
 }
 
-/** The numeric terminal retains unread fields across INPUT statements in one RUN. */
-export class EduSystem30Input {
+function tabColumn({significand, exponent}: EduSystem30FloatingValue): number {
+  // Wrap before rounding. Using the stored dyadic value preserves the column
+  // on either side of zero and avoids rounding at the host-number boundary.
+  const places = 23 - exponent;
+  const scale = 1n << BigInt(Math.max(places, 0));
+  const units = significand << BigInt(Math.max(-places, 0));
+  const width = 70n * scale;
+  const wrapped = ((units % width) + width) % width;
+  return Number((wrapped + scale - 1n) / scale);
+}
+
+/** Column and unread input fields belong to one RUN. */
+export class EduSystem30Terminal {
+  #column = 0;
   #fields: RegExpStringIterator<RegExpMatchArray> | undefined;
 
   reset(): void {
+    this.#column = 0;
     this.#fields = undefined;
+  }
+
+  print(
+    statement: NodeOf<'PrintStatement'>,
+    evaluate: (expression: Expression) => EduSystem30FloatingValue,
+  ): string {
+    let column = this.#column;
+    let output = '';
+    for (const item of statement.items) {
+      if (item.type === 'CallExpression' && item.name === 'TAB') {
+        const target = tabColumn(evaluate(item.arguments[0]));
+        if (target < column) {
+          output += '\r\0';
+          column = 0;
+        }
+        output += ' '.repeat(target - column);
+        column = target;
+      } else {
+        const part = formatPrintItem(item, evaluate);
+        output += part;
+        for (const character of part)
+          column = character === '\r' || character === '\n' ? 0 : column + 1;
+      }
+    }
+    this.#column = statement.trailingSemicolon ? column : 0;
+    return output + (statement.trailingSemicolon ? '' : '\n');
   }
 
   async read(
@@ -46,10 +85,24 @@ export class EduSystem30Input {
     statement: InputStatement,
     signal: AbortSignal,
   ): Promise<readonly EduSystem30FloatingValue[]> {
-    if (statement.type === 'InputStatement' && statement.character)
-      return (await readInput(host, statement, signal)).map((value) =>
-        eduSystem30FromNumber(Number(value)),
+    if (statement.type === 'InputStatement' && statement.character) {
+      const [code] = await readInput(
+        {
+          ...host,
+          write: (text) => {
+            if (signal.aborted) throw abortError();
+            this.#column = 0;
+            host.write(text);
+          },
+        },
+        statement,
+        signal,
       );
+      if (signal.aborted) throw abortError();
+      // The archive echoes a character into the column counter, even Return.
+      this.#column++;
+      return [eduSystem30FromNumber(Number(code))];
+    }
 
     const count = inputTargets(statement).length;
     const values: EduSystem30FloatingValue[] = [];
@@ -58,6 +111,7 @@ export class EduSystem30Input {
       if (field === undefined) {
         const text = await readInputResponse(host, '?', statement.location, signal);
         if (signal.aborted) throw abortError();
+        this.#column = 0;
         if (text.length > maxInputResponseLength)
           throw new BasicRuntimeError(
             'INPUT_LIMIT',
@@ -77,7 +131,8 @@ export class EduSystem30Input {
       } catch (error) {
         if (!(error instanceof SyntaxError || error instanceof RangeError)) throw error;
       }
-      this.reset();
+      this.#fields = undefined;
+      this.#column = 0;
       host.write('BAD DATA-RETYPE FROM ERROR.\n');
     }
     return values;
