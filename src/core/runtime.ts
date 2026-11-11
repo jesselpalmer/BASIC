@@ -66,7 +66,8 @@ export default class Basic {
   readonly #evaluator: Evaluator;
   readonly #graphics = new GraphicsState();
   readonly #altair: AltairTerminal | null;
-  readonly #eduSystem30Input: EduSystem30Input | null;
+  readonly #eduSystem30:
+    (ReturnType<typeof createEduSystem30Evaluator> & {input: EduSystem30Input}) | null;
   #statementPolicy: StatementExecutionPolicy;
   #prepared: PreparedProgram | PreparedMa2Candidate;
   #selectedDriver: ReturnType<typeof prepareSelectedMa2Driver> | null = null;
@@ -102,18 +103,28 @@ export default class Basic {
     this.#host = Object.freeze(createHost(host));
     const eduSystem30 =
       this.#dialect === 'edusystem-30' ? createEduSystem30Evaluator(this.#host) : null;
-    this.#eduSystem30Input = eduSystem30 ? new EduSystem30Input() : null;
+    this.#eduSystem30 = eduSystem30 ? {...eduSystem30, input: new EduSystem30Input()} : null;
     this.#evaluator =
       eduSystem30?.evaluator ??
       (this.#altair ? createAltairEvaluator(this.#host) : new Evaluator(this.#host));
-    this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
+    this.#controlFlow = this.#createControlFlow(this.#prepared);
     this.#data = new DataReader(this.#prepared.dataItems);
     this.#statementPolicy = createNativeStatementPolicy({
       evaluator: this.#evaluator,
       data: () => this.#data,
       graphics: this.#graphics,
       formatPrintItem: eduSystem30
-        ? (item) => formatEduSystem30PrintItem(item, this.#evaluator)
+        ? (item) =>
+            formatEduSystem30PrintItem(item, (expression) =>
+              eduSystem30.evaluator.evaluateNumber(expression),
+            )
+        : undefined,
+      assignExpression: eduSystem30
+        ? (target, expression) =>
+            eduSystem30.evaluator.assignNumber(
+              target,
+              eduSystem30.evaluator.evaluateNumber(expression),
+            )
         : undefined,
       randomize: eduSystem30?.randomize,
       fallThroughIfFalse: eduSystem30 !== null,
@@ -171,7 +182,7 @@ export default class Basic {
     this.#evaluator.reset();
     this.#graphics.reset();
     this.#altair?.reset();
-    this.#eduSystem30Input?.reset();
+    this.#eduSystem30?.input.reset();
     this.#status = 'ready';
     this.#current = null;
     this.#diagnostic = null;
@@ -194,8 +205,16 @@ export default class Basic {
   #startSharedRun(candidate: PreparedProgram): void {
     this.#evaluator.reset(candidate.arrayDeclarations);
     this.#prepared = candidate;
-    this.#controlFlow = new ControlFlow(candidate, this.#evaluator);
+    this.#controlFlow = this.#createControlFlow(candidate);
     this.#data = new DataReader(candidate.dataItems);
+  }
+
+  #createControlFlow(prepared: PreparedProgram): ControlFlow {
+    return new ControlFlow(
+      prepared,
+      this.#evaluator,
+      this.#eduSystem30 ? 'selected-edu30' : 'native',
+    );
   }
 
   /** Internal source-bound Program replacement through the same Basic driver. */
@@ -493,7 +512,7 @@ export default class Basic {
         );
       this.#usedLabels.add(line.label);
       this.#prepared = this.#emptyProgram;
-      this.#controlFlow = new ControlFlow(this.#prepared, this.#evaluator);
+      this.#controlFlow = this.#createControlFlow(this.#prepared);
       this.#immediate = true;
       return programInstructions([line])[0];
     } catch (error) {
@@ -637,10 +656,16 @@ export default class Basic {
           await this.#altair.input(host, statement, controller.signal, (target, value) =>
             commit(() => this.#evaluator.assign(target, value)),
           );
+        } else if (this.#eduSystem30) {
+          const {input, evaluator} = this.#eduSystem30;
+          const values = await input.read(host, statement, controller.signal);
+          commit(() =>
+            inputTargets(statement).forEach((target, index) =>
+              evaluator.assignNumber(target, values[index]),
+            ),
+          );
         } else {
-          const values = this.#eduSystem30Input
-            ? await this.#eduSystem30Input.read(host, statement, controller.signal)
-            : await readInput(host, statement, controller.signal);
+          const values = await readInput(host, statement, controller.signal);
           commit(() =>
             inputTargets(statement).forEach((target, index) =>
               this.#evaluator.assign(target, values[index]),

@@ -12,27 +12,62 @@ ARITHMETIC = runpy.run_path(str(Path(__file__).with_name('check-edusystem30-arit
 DOCS = Path(__file__).resolve().parents[2] / 'docs'
 
 
+def truncate(value):
+    return ARITHMETIC['decode'](ARITHMETIC['truncate_to_words'](value))
+
+
+def binary_exponent(value):
+    return ARITHMETIC['components'](ARITHMETIC['truncate_to_words'](value))[1]
+
+
+def divide(left, right):
+    words = ARITHMETIC['divide_words'](
+        ARITHMETIC['truncate_to_words'](left), ARITHMETIC['truncate_to_words'](right),
+    )
+    return ARITHMETIC['decode'](words)
+
+
+def scale(value, places):
+    operation = divide if places < 0 else lambda left, right: truncate(left * right)
+    groups, remaining = divmod(abs(places), 8)
+    for _ in range(groups):
+        value = operation(value, 10**8)
+    for _ in range(remaining):
+        value = operation(value, 10)
+    return value
+
+
+def scientific(value):
+    exponent = binary_exponent(value)
+    # Octal 03430–03457 uses the 12-bit approximation of log10(2).
+    places = ((1 - exponent) * 0o2321 // 4096 if exponent < 0
+              else -(exponent * 0o2321 // 4096) - 1)
+    value = scale(value, places)
+    while value < 1:
+        value = truncate(value * 10)
+        places += 1
+    return value, -places
+
+
 def format_field(value):
     if value == 0:
         return ' 0 '
     # PRINT multiplies by the literal at octal 03123 (0001,2000,0004).
-    words = ARITHMETIC['truncate_to_words'](abs(value) * (1 + Fraction(1, 2**20)))
-    fixed = -2 <= ARITHMETIC['components'](words)[1] <= 20
-    decimal = ARITHMETIC['decode'](words)
-    exponent = 0
-    while decimal >= 10:
-        decimal /= 10
-        exponent += 1
-    while decimal < 1:
-        decimal *= 10
-        exponent -= 1
-    places = max(5, exponent) if fixed else 5
-    digits = str(int(decimal * 10**places))
-    point = exponent + 1 if fixed else 1
-    whole = digits[:point] if point > 0 else ''
-    fraction = digits[max(0, point):].rstrip('0')
-    body = whole + ('.' + '0' * max(0, -point) + fraction if fraction else '')
-    suffix = '' if fixed else f'E{exponent}'
+    adjusted = truncate(abs(value) * (1 + Fraction(1, 2**20)))
+    suffix = ''
+    if not -2 <= binary_exponent(adjusted) <= 20:
+        adjusted, exponent = scientific(adjusted)
+        suffix = f'E{exponent}'
+    whole = str(int(adjusted)) if adjusted >= 1 else ''
+    remainder = truncate(adjusted - int(adjusted))
+    fraction = ''
+    # At octal 03562–03573, stop when E + 18 - 3 * printed digits <= 0.
+    while remainder and binary_exponent(remainder) > 3 * (len(whole) + len(fraction)) - 18:
+        remainder = truncate(remainder * 10)
+        digit = int(remainder)
+        fraction += str(digit)
+        remainder = truncate(remainder - digit)
+    body = whole + ('.' + fraction if fraction else '')
     sign = '-' if value < 0 else ' '
     return f'{sign}{body}{suffix} '
 
@@ -43,11 +78,14 @@ def main():
                         default=DOCS / 'edusystem30-print-reference.json')
     parser.add_argument('arithmetic_capture', type=Path, nargs='?',
                         default=DOCS / 'edusystem30-arithmetic-reference.json')
+    parser.add_argument('remainder_capture', type=Path, nargs='?',
+                        default=DOCS / 'edusystem30-print-remainder-reference.json')
     args = parser.parse_args()
     capture = json.loads(args.print_capture.read_text(encoding='ascii'))
     arithmetic = json.loads(args.arithmetic_capture.read_text(encoding='ascii'))
+    remainder = json.loads(args.remainder_capture.read_text(encoding='ascii'))
     for identity in ('simulatorCommit', 'tapeSha256'):
-        assert capture[identity] == arithmetic[identity]
+        assert capture[identity] == arithmetic[identity] == remainder[identity]
     fields = capture['scalarProbe']['observations']
     for row in fields:
         value = ARITHMETIC['decode'](row['scalarWordsOctal'])
@@ -63,7 +101,13 @@ def main():
     output.append('?')
     digest = hashlib.sha256(''.join(output).encode('ascii')).hexdigest()
     assert digest == capture['arithmeticProbe']['outputSha256'], digest
-    print(f'{2 * len(fields)} scalar fields and {3 * len(cases)} arithmetic fields match.')
+    remainders = remainder['remainderProbe']['observations']
+    for row in remainders:
+        a, p, c = (ARITHMETIC['decode'](row['scalarWordsOctal'][name]) for name in 'APC')
+        assert c == truncate(p - a), row
+        assert format_field(c) == row['field'], row
+    print(f'{2 * len(fields)} scalar, {3 * len(cases)} arithmetic and '
+          f'{len(remainders)} remainder fields match.')
 
 
 if __name__ == '__main__':

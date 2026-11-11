@@ -147,3 +147,9 @@ records the output mismatch on EDU30.SV.
 fixture restores printed string spacing and removes two transcription
 annotations. The [HURKLE review](../../../../docs/hurkle-edusystem30.md)
 records the archive playthroughs.
+
+## CHEMST
+
+`chemst.bas` preserves the pinned transcription and the printed LIST's `ACIE`
+on line 20. The [CHEMST review](../../../../docs/chemst-edusystem30.md) records
+the printed sample's different spelling and the archived complete playthrough.

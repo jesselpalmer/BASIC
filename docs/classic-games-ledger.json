@@ -1207,11 +1207,13 @@
         "title": "CHEMST",
         "referencePage": 76,
         "dialectHint": "generic",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 76
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "chemst-edusystem30.md#chemst-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [180, 250]

@@ -5,6 +5,8 @@ import {runMathdAcceptance} from './mathd-acceptance.ts';
 import {runNumberAcceptance} from './number-acceptance.ts';
 import {runStarsAcceptance} from './stars-acceptance.ts';
 import {runHurkleAcceptance} from './hurkle-acceptance.ts';
+import {runChangeAcceptance} from './change-acceptance.ts';
+import {runChemstAcceptance} from './chemst-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -46,6 +48,8 @@ export const libraryAcceptanceCases = [
   'reviewed NUMBER matches archived scores, jackpots and both wins',
   'reviewed STARS matches archived clues, loss, replay and fresh RUN',
   'reviewed HURKLE matches archived directions, win, loss, replay and fresh RUN',
+  'reviewed EDUSYSTEM-30 CHANGE matches archived receipts and fresh RUN',
+  'reviewed CHEMST matches archived dilution outcomes, retry, ending and fresh RUN',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -320,6 +324,13 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed HURKLE matches archived directions, win, loss, replay and fresh RUN', () =>
     runHurkleAcceptance(api),
+  );
+  await check('reviewed EDUSYSTEM-30 CHANGE matches archived receipts and fresh RUN', () =>
+    runChangeAcceptance(api),
+  );
+  await check(
+    'reviewed CHEMST matches archived dilution outcomes, retry, ending and fresh RUN',
+    () => runChemstAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

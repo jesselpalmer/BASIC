@@ -279,6 +279,24 @@
         "scalarWordsOctal": ["7574", "2133", "0233"],
         "field": " 1E-40 ",
         "negatedField": "-1E-40 "
+      },
+      {
+        "input": "0.9999984E-4",
+        "scalarWordsOctal": ["7763", "3215", "5606"],
+        "field": " 9.99999E-5 ",
+        "negatedField": "-9.99999E-5 "
+      },
+      {
+        "input": "0.999999E9",
+        "scalarWordsOctal": ["0036", "3563", "2614"],
+        "field": " 9.99999E8 ",
+        "negatedField": "-9.99999E8 "
+      },
+      {
+        "input": "0.9999992E19",
+        "scalarWordsOctal": ["0100", "2126", "1615"],
+        "field": " 1E19 ",
+        "negatedField": "-1E19 "
       }
     ]
   },

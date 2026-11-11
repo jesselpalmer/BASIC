@@ -8,6 +8,7 @@ import type {Instruction} from './instructions.ts';
 interface LoopFrame extends LoopPair {
   readonly limit: number;
   readonly step: number;
+  remainingEduSystem30Steps: number | null;
 }
 
 interface CallFrame {
@@ -26,7 +27,7 @@ export interface LoopValues {
 }
 
 /** Selected MA2 loop observations retain the value present at terminating NEXT. */
-export type LoopPolicy = 'native' | 'selected-ma2';
+export type LoopPolicy = 'native' | 'selected-ma2' | 'selected-edu30';
 
 type FlowProgram = Pick<
   PreparedProgram,
@@ -169,7 +170,14 @@ export class ControlFlow {
     if (step > 0 ? start > limit : start < limit)
       this.#moveTo(pair.nextIndex + 1, statement.location);
     else {
-      this.#loopFrames.set(pair.forIndex, {...pair, limit, step});
+      this.#loopFrames.set(pair.forIndex, {
+        ...pair,
+        limit,
+        step,
+        // This profile admits only step one. The visible scalar can round away
+        // an increment while the archived loop still advances to its limit.
+        remainingEduSystem30Steps: this.loopPolicy === 'selected-edu30' ? limit - start : null,
+      });
       this.#activeLoopVariables.add(statement.variable.name);
     }
   }
@@ -196,7 +204,15 @@ export class ControlFlow {
       );
     }
     this.evaluator.validateIncrement?.(value, statement.variable.location);
-    if (frame.step > 0 ? value <= frame.limit : value >= frame.limit) {
+    const remaining = frame.remainingEduSystem30Steps;
+    if (
+      remaining === null
+        ? frame.step > 0
+          ? value <= frame.limit
+          : value >= frame.limit
+        : remaining >= 1
+    ) {
+      if (remaining !== null) frame.remainingEduSystem30Steps = remaining - 1;
       this.evaluator.assign(statement.variable, value);
       this.#moveTo(frame.forIndex + 1, statement.location);
     } else {
@@ -210,7 +226,7 @@ export class ControlFlow {
     this.#checkDestination(index, location, this.#loopFrames);
     // The selected reference allows a transfer out of an unfinished loop and
     // back to its NEXT; native drops the exited frame immediately.
-    if (this.loopPolicy === 'native') {
+    if (this.loopPolicy !== 'selected-ma2') {
       for (const [key, frame] of this.#loopFrames) {
         if (!containsLoopBody(frame, index)) {
           this.#loopFrames.delete(key);

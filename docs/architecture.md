@@ -100,7 +100,8 @@ The Program, its Lines, prepared indexes and runtime share an explicit immutable
 dialect. Public host-first constructors accept language options as a separate
 second argument and default to native. `Basic` accepts the bounded
 `basic-plus-v4a12-ma2`, `edusystem-30` and `altair-8k-4.0` profiles for complete
-source. EDUSYSTEM-30 supplies its own RNG and terminal presentation. The
+source. EDUSYSTEM-30 supplies its own RNG, stored scalar arithmetic, and
+terminal conversion and presentation in the shared execution driver. The
 Altair profile uses the shared driver with a run-owned terminal column and a
 numbered RUN that restarts the prepared snapshot within the current driver.
 The standalone `Evaluator` uses native semantics. Legacy trees without metadata remain native, and

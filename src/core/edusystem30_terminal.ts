@@ -1,18 +1,36 @@
 import {abortError} from './cancellation.ts';
 import {BasicRuntimeError} from './diagnostic.ts';
-import type {Evaluator} from './evaluator.ts';
+import {
+  eduSystem30FromNumber,
+  observeEduSystem30,
+  parseEduSystem30Input,
+  type EduSystem30FloatingValue,
+} from './edusystem30_floating.ts';
+import {formatEduSystem30Number} from './edusystem30_format.ts';
 import {inputTargets, maxInputResponseLength, readInput, readInputResponse} from './input.ts';
 import type {InputStatement} from './input.ts';
-import {signedNumericLiteral} from './numeric_literal.ts';
-import type {BasicValue, Expression, Host} from './types.ts';
+import type {Expression, Host} from './types.ts';
 
 /** Sign and trailing padding observed in the EDUSYSTEM-30 numeric field. */
-export function formatEduSystem30PrintItem(item: Expression, evaluator: Evaluator): string {
+export function formatEduSystem30PrintItem(
+  item: Expression,
+  evaluate: (expression: Expression) => EduSystem30FloatingValue,
+): string {
+  if (item.type === 'StringLiteral') return item.value;
   // Source admission permits only the literal CHR$(7) terminal control.
   if (item.type === 'CallExpression' && item.name === 'CHR$') return '\x07';
-  const value = evaluator.evaluate(item);
-  if (typeof value === 'string') return value;
-  return `${value < 0 ? '' : ' '}${value} `;
+  const value = evaluate(item);
+  try {
+    return formatEduSystem30Number(value);
+  } catch (cause) {
+    throw new BasicRuntimeError(
+      'NON_FINITE_NUMBER',
+      'EDUSYSTEM-30 numeric PRINT is outside its supported range',
+      item.location.start,
+      item.location.label,
+      {cause},
+    );
+  }
 }
 
 /** The numeric terminal retains unread fields across INPUT statements in one RUN. */
@@ -27,12 +45,14 @@ export class EduSystem30Input {
     host: Pick<Host, 'readLine' | 'write'>,
     statement: InputStatement,
     signal: AbortSignal,
-  ): Promise<readonly BasicValue[]> {
+  ): Promise<readonly EduSystem30FloatingValue[]> {
     if (statement.type === 'InputStatement' && statement.character)
-      return readInput(host, statement, signal);
+      return (await readInput(host, statement, signal)).map((value) =>
+        eduSystem30FromNumber(Number(value)),
+      );
 
     const count = inputTargets(statement).length;
-    const values: number[] = [];
+    const values: EduSystem30FloatingValue[] = [];
     while (values.length < count) {
       const field = this.#fields?.next().value?.[0];
       if (field === undefined) {
@@ -48,12 +68,17 @@ export class EduSystem30Input {
         this.#fields = text.replace(/[ \t]/g, '').matchAll(/[^,]+/g);
         continue;
       }
-      const value = Number(field);
-      if (signedNumericLiteral.test(field) && Number.isFinite(value)) values.push(value);
-      else {
-        this.reset();
-        host.write('BAD DATA-RETYPE FROM ERROR.\n');
+      try {
+        const value = parseEduSystem30Input(field);
+        if (Number.isFinite(observeEduSystem30(value))) {
+          values.push(value);
+          continue;
+        }
+      } catch (error) {
+        if (!(error instanceof SyntaxError || error instanceof RangeError)) throw error;
       }
+      this.reset();
+      host.write('BAD DATA-RETYPE FROM ERROR.\n');
     }
     return values;
   }

@@ -36,11 +36,13 @@ test('EDUSYSTEM-30 RND evaluates its argument and consumes the archived stream',
   for (let run = 0; run < 2; run++) {
     output = '';
     basic.run(source);
-    expect(output.trim().split(/\s+/).map(Number)).toEqual(expected);
+    expect(output.trim().split(/\s+/)).toEqual(reference.rng.printedRnd0);
+    expect(basic.variables.find(({name}) => name === 'A')?.value).toBe(expected.at(-1));
   }
   output = '';
   basic.run('10 A=RND(RND(0))\n20 PRINT A\n30 END');
-  expect(Number(output)).toBe(expected[1]);
+  expect(output.trim()).toBe(reference.rng.printedRnd0[1]);
+  expect(basic.variables.find(({name}) => name === 'A')?.value).toBe(expected[1]);
   expect(() => basic.run('10 A=RND(1/0)\n20 END')).toThrow('Cannot divide by zero');
 });
 

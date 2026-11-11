@@ -6,7 +6,7 @@ import type {DataReader} from './data.ts';
 import type {Evaluator} from './evaluator.ts';
 import type {GraphicsState} from './graphics.ts';
 import type {Instruction} from './instructions.ts';
-import type {Expression, Host, Location} from './types.ts';
+import type {AssignmentTarget, Expression, Host, Location} from './types.ts';
 
 export interface StatementExecutionContext {
   readonly controlFlow: ControlFlow;
@@ -26,11 +26,16 @@ export function createNativeStatementPolicy(services: {
   readonly data: () => DataReader;
   readonly graphics: GraphicsState;
   readonly formatPrintItem?: (item: Expression) => string;
+  readonly assignExpression?: (target: AssignmentTarget, expression: Expression) => void;
   readonly randomize?: (location: Location) => void;
   readonly fallThroughIfFalse?: boolean;
 }): StatementExecutionPolicy {
   const formatPrintItem =
     services.formatPrintItem ?? ((item) => String(services.evaluator.evaluate(item)));
+  const assignExpression =
+    services.assignExpression ??
+    ((target, expression) =>
+      services.evaluator.assign(target, services.evaluator.evaluate(expression)));
   return Object.freeze({
     execute(line: Instruction, context: StatementExecutionContext) {
       const statement = line.statement;
@@ -94,10 +99,7 @@ export function createNativeStatementPolicy(services: {
             line.label,
           );
         case 'LetStatement':
-          services.evaluator.assign(
-            statement.target,
-            services.evaluator.evaluate(statement.expression),
-          );
+          assignExpression(statement.target, statement.expression);
           break;
         case 'PrintUsingStatement': {
           const format = services.evaluator.evaluate(statement.format);
