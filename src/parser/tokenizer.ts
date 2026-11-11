@@ -444,7 +444,21 @@ class Scanner {
       while (letter(this.source[this.index]) || digit(this.source[this.index])) this.index++;
       if (this.source[this.index] === '$') this.index++;
     }
-    const value = this.source.slice(beginning, this.index).toUpperCase();
+    let value = this.source.slice(beginning, this.index).toUpperCase();
+    const previous = this.tokens.at(-1);
+    if (
+      this.policy.eduSystem30 &&
+      (previous?.type === 'LABEL' ||
+        (previous?.type === 'PUNCTUATION' && previous.value === '\\')) &&
+      /^LET[A-Z][0-9]?$/.test(value)
+    ) {
+      let next = this.index;
+      while (this.source[next] === ' ' || this.source[next] === '\t') next++;
+      if (this.source[next] === '=') {
+        this.index = beginning + 3;
+        value = 'LET';
+      }
+    }
     // Altair uses the shared contextual grammar for these compact tokens.
     const altairContextual =
       this.policy.compact &&
@@ -454,7 +468,7 @@ class Scanner {
       this.policy.compact
         ? historicalKeyword && value !== 'USING' && !altairContextual
         : reservedWords.has(value) ||
-          (this.policy.eduSystem30 && ['RANDOMIZE', 'CHR$', 'TAB'].includes(value))
+          (this.policy.eduSystem30 && ['RANDOMIZE', 'CHR$', 'TAB', 'SQR'].includes(value))
     )
       ? 'KEYWORD'
       : 'IDENTIFIER';

@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import assert from 'node:assert/strict';
 
 import arithmeticReference from '../../docs/edusystem30-arithmetic-reference.json';
+import sourceReference from '../../docs/edusystem30-literal-reference.json';
 import inputReference from '../../docs/edusystem30-input-reference.json';
 import {Basic, BasicRuntimeError, createHost, parseLine} from '../index.ts';
 import {createEduSystem30Evaluator} from './evaluator.ts';
@@ -13,6 +14,7 @@ import {
   evaluateEduSystem30Arithmetic,
   observeEduSystem30,
   parseEduSystem30Input,
+  parseEduSystem30SourceLiteral,
   type EduSystem30FloatingValue,
 } from './edusystem30_floating.ts';
 
@@ -29,10 +31,17 @@ test('EDUSYSTEM-30 decimal INPUT matches the archived stored words', () => {
     expect(words(parseEduSystem30Input(observation.input))).toEqual(observation.wordsOctal);
 });
 
+test('EDUSYSTEM-30 source literals match the archived compiled words', () => {
+  expect(sourceReference.accepted).toHaveLength(30);
+  for (const {source, wordsOctal} of sourceReference.accepted)
+    expect(words(parseEduSystem30SourceLiteral(source))).toEqual(wordsOctal);
+});
+
 test('EDUSYSTEM-30 converts inputs and computes exact archived scalar operations', () => {
-  const observations = arithmeticReference.arithmeticProbe.observations;
+  const {observations, alignmentObservations} = arithmeticReference.arithmeticProbe;
   expect(observations).toHaveLength(57);
-  for (const {inputs, scalarWordsOctal: stored} of observations) {
+  expect(alignmentObservations).toHaveLength(5);
+  for (const {inputs, scalarWordsOctal: stored} of [...observations, ...alignmentObservations]) {
     const [a, p] = inputs.map(parseEduSystem30Input);
     expect(words(a)).toEqual(stored.A);
     expect(words(p)).toEqual(stored.P);
@@ -101,16 +110,20 @@ test('EDUSYSTEM-30 runtime reports overflowing arithmetic before writing a PRINT
 
 test('EDUSYSTEM-30 evaluator guards syntax reserved for native expressions', () => {
   const {evaluator} = createEduSystem30Evaluator(createHost({}));
-  for (const [expression, message] of [
-    ['A(1)', 'array'],
-    ['2^3', 'binary operator'],
-  ]) {
+  for (const [expression, message] of [['2^6', 'binary operator']]) {
     const statement = parseLine(`10 LET X=${expression}`)?.statement;
     if (statement?.type !== 'LetStatement') throw new Error('Expected an assignment');
     expect(() => evaluator.evaluateNumber(statement.expression)).toThrow(
       `EDUSYSTEM-30 ${message} escaped admission`,
     );
   }
+  const assignment = parseLine('10 LET X=2+3')?.statement;
+  if (assignment?.type !== 'LetStatement' || assignment.expression.type !== 'BinaryExpression')
+    throw new Error('Expected a binary assignment');
+  const expression = {...assignment.expression, operator: '%'};
+  expect(() => evaluator.evaluateNumber(expression)).toThrow(
+    'EDUSYSTEM-30 binary operator escaped admission',
+  );
 });
 
 test('EDUSYSTEM-30 locates overflow in numeric PRINT before writing', async () => {

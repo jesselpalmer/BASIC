@@ -1,4 +1,5 @@
 import {BasicSyntaxError} from '../core/diagnostic.ts';
+import {parseEduSystem30SourceLiteral} from '../core/edusystem30_floating.ts';
 import {lineStatements} from '../core/instructions.ts';
 import type {Expression, NodeOf, ParsedLine, SimpleStatement} from '../core/types.ts';
 
@@ -11,8 +12,10 @@ function unsupported(node: {location: ParsedLine['location']}, detail: string): 
   );
 }
 
+const numericName = /^[A-Z][0-9]?$/;
+
 function validateScalar(node: Expression): void {
-  if (node.type !== 'Variable' || !/^[A-Z][0-9]?$/.test(node.name))
+  if (node.type !== 'Variable' || !numericName.test(node.name))
     unsupported(node, 'numeric scalars named with a letter and optional digit');
 }
 
@@ -26,9 +29,21 @@ function validateNumber(expression: Expression): void {
       case 'Variable':
         validateScalar(node);
         break;
+      case 'ArrayReference':
+        if (!numericName.test(node.name) || node.indices.length !== 1)
+          unsupported(
+            node,
+            'one-dimensional numeric arrays named with a letter and optional digit',
+          );
+        pending.push(node.indices[0]);
+        break;
       case 'NumberLiteral':
-        if (!/^\d{1,4}$/.test(node.raw) && node.raw !== '.5')
-          unsupported(node, 'small unsigned integers and the literal .5');
+        try {
+          parseEduSystem30SourceLiteral(node.raw);
+        } catch (error) {
+          if (!(error instanceof RangeError)) throw error;
+          unsupported(node, 'numeric literals within the compiled decimal range');
+        }
         break;
       case 'GroupExpression':
         pending.push(node.expression);
@@ -38,12 +53,15 @@ function validateNumber(expression: Expression): void {
         pending.push(node.argument);
         break;
       case 'BinaryExpression':
-        if (!['+', '-', '*', '/'].includes(node.operator)) unsupported(node, '+, -, * and /');
+        if (node.operator === '^') {
+          if (node.right.type !== 'NumberLiteral' || !/^[2-5]$/.test(node.right.raw))
+            unsupported(node.right, 'literal exponents 2 through 5');
+        }
         pending.push(node.right, node.left);
         break;
       case 'CallExpression':
-        if (!['ABS', 'INT', 'RND'].includes(node.name) || node.arguments.length !== 1)
-          unsupported(node, 'ABS(expression), INT(expression) and RND(expression)');
+        if (!['ABS', 'INT', 'RND', 'SQR'].includes(node.name) || node.arguments.length !== 1)
+          unsupported(node, 'one numeric argument to ABS, INT, RND and SQR');
         pending.push(node.arguments[0]);
         break;
       default:
@@ -86,8 +104,16 @@ function validateStatement(statement: SimpleStatement): void {
     case 'ReturnStatement':
     case 'RandomizeStatement':
       return;
+    case 'DimStatement':
+      for (const declaration of statement.declarations) {
+        if (!numericName.test(declaration.name) || declaration.bounds.length !== 1)
+          unsupported(declaration, 'one-dimensional numeric DIM declarations');
+        const [bound] = declaration.bounds;
+        if (bound.value === 0) unsupported(bound, 'positive integer DIM bounds');
+      }
+      return;
     case 'LetStatement':
-      validateScalar(statement.target);
+      validateNumber(statement.target);
       validateNumber(statement.expression);
       return;
     case 'IfStatement':
@@ -118,7 +144,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
+        'REM, LET, DIM, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
       );
   }
 }

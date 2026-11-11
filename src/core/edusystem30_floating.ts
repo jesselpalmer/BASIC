@@ -1,4 +1,4 @@
-import {signedNumericLiteral} from './numeric_literal.ts';
+import {numericLiteral, signedNumericLiteral} from './numeric_literal.ts';
 
 /** Stored EDU30 value: significand * 2^(exponent - 23). */
 export type EduSystem30FloatingValue = Readonly<{significand: bigint; exponent: number}>;
@@ -24,6 +24,60 @@ function normalize(bits: bigint, binaryExponent: number): EduSystem30FloatingVal
   // A negative BigInt shift count shifts the magnitude left.
   const shifted = magnitude >> BigInt(width - significandBits);
   return {significand: negative ? -shifted : shifted, exponent};
+}
+
+// The compiler's scale factors use a signed exponent and two unsigned octal words.
+const positiveSourceScales = [
+  [0o0004, 0o5000, 0o0000],
+  [0o0007, 0o6200, 0o0000],
+  [0o0016, 0o4704, 0o0000],
+  [0o0033, 0o5753, 0o6040],
+  [0o0066, 0o4341, 0o5710],
+  [0o0153, 0o4734, 0o2654],
+  [0o0325, 0o6047, 0o4036],
+  [0o0652, 0o4473, 0o5104],
+  [0o1523, 0o5247, 0o7342],
+  [0o3245, 0o7061, 0o4606],
+];
+const negativeSourceScales = [
+  [0o7775, 0o6314, 0o6315],
+  [0o7772, 0o5075, 0o3413],
+  [0o7763, 0o6433, 0o3430],
+  [0o7746, 0o5274, 0o6170],
+  [0o7713, 0o7151, 0o2624],
+  [0o7626, 0o6373, 0o0436],
+  [0o7454, 0o5207, 0o7752],
+  [0o7127, 0o6735, 0o0106],
+  [0o6256, 0o6003, 0o0502],
+  [0o4534, 0o4404, 0o4754],
+];
+
+/** Convert a source token in the archived compiler's order. */
+export function parseEduSystem30SourceLiteral(text: string): EduSystem30FloatingValue {
+  if (numericLiteral.exec(text)?.[0] !== text)
+    throw new SyntaxError('Expected a complete unsigned decimal literal');
+  const [mantissa, exponent = '0'] = text.split(/[Ee]/);
+  const [whole, fractional = ''] = mantissa.split('.');
+  const digits = (whole + fractional).replace(/^0+/, '');
+  const scale = Number(exponent) - fractional.length;
+  const factors = scale < 0 ? negativeSourceScales : positiveSourceScales;
+  if (digits.length > 11 || !(Math.abs(scale) < 2 ** factors.length))
+    throw new RangeError('EDUSYSTEM-30 source literal is outside its compiled decimal range');
+  const bits = BigInt(digits);
+  if (bits >= 1n << 35n)
+    throw new RangeError('EDUSYSTEM-30 source literal exceeds its 35-bit digit accumulator');
+
+  let value = normalize(bits, 0);
+  for (let bit = 0, magnitude = Math.abs(scale); magnitude; bit++, magnitude >>>= 1) {
+    if (!(magnitude & 1)) continue;
+    const [word, high, low] = factors[bit];
+    const exponent = word >= 0o4000 ? word - 0o10000 : word;
+    const factor = (BigInt(high) << wordBits) | BigInt(low);
+    // The compiler discards the low product word before normalizing.
+    const product = (value.significand * factor) >> (2n * wordBits);
+    value = normalize(product, value.exponent + exponent - significandBits);
+  }
+  return value;
 }
 
 /** Capture the exact binary value supplied by a shared runtime boundary. */
@@ -108,8 +162,19 @@ export function evaluateEduSystem30Arithmetic(
       left.significand * right.significand,
       left.exponent + right.exponent - 2 * significandBits,
     );
-  const [a, b, exponent] = align(left, right);
-  return normalize(operator === '+' ? a + b : a - b, exponent - significandBits);
+  // EDU30.SV discards the smaller operand when the exponent gap exceeds 24 (01625–01642).
+  const b = operator === '+' ? right.significand : -right.significand;
+  if (b === 0n) return left;
+  const gap = left.exponent - right.exponent;
+  if (left.significand === 0n || gap < -2 * Number(wordBits))
+    return {significand: b, exponent: right.exponent};
+  if (gap > 2 * Number(wordBits)) return left;
+
+  // The alignment routines at 01662 and 02000 shift through one extra word.
+  const exponent = Math.max(left.exponent, right.exponent);
+  const a = (left.significand << wordBits) >> BigInt(exponent - left.exponent);
+  const alignedB = (b << wordBits) >> BigInt(exponent - right.exponent);
+  return normalize(a + alignedB, exponent - significandBits - Number(wordBits));
 }
 
 const ten = normalize(10n, 0);

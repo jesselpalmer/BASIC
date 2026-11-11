@@ -1,12 +1,20 @@
 import {BasicRuntimeError} from './diagnostic.ts';
 import {arrayShapes} from './array_declarations.ts';
 import {maxChangeLength} from './change.ts';
+import {
+  eduSystem30FromNumber,
+  observeEduSystem30,
+  type EduSystem30FloatingValue,
+} from './edusystem30_floating.ts';
 import {bindMa2Words, injectMa2Value, observeMa2Value, type Ma2Value} from './ma2_value.ts';
 import type {ArrayShape} from './array_declarations.ts';
 import type {ArrayDeclaration, ArraySnapshot, BasicValue, Location, NodeOf} from './types.ts';
 
+type CellValue = BasicValue | Ma2Value | EduSystem30FloatingValue;
+type ArrayMode = 'native' | 'ma2-conformance' | 'altair' | 'edusystem-30';
+
 interface ArrayStorage extends ArrayShape {
-  readonly values: (BasicValue | Ma2Value)[];
+  readonly values: CellValue[];
 }
 
 function fail(code: string, message: string, location: Location): never {
@@ -29,28 +37,32 @@ export function createBasicPlusMa2ArrayStore(declarations: readonly ArrayDeclara
 /** Mutable cells belong to one execution; declarations and observations never do. */
 export class ArrayStore {
   readonly #arrays: ReadonlyMap<string, ArrayStorage>;
-  readonly #mode: 'native' | 'ma2-conformance' | 'altair';
+  readonly #mode: ArrayMode;
 
-  constructor(
-    declarations: readonly ArrayDeclaration[] = [],
-    mode: 'native' | 'ma2-conformance' | 'altair' = 'native',
-  ) {
-    if (mode !== 'native' && mode !== 'ma2-conformance' && mode !== 'altair')
+  constructor(declarations: readonly ArrayDeclaration[] = [], mode: ArrayMode = 'native') {
+    if (
+      mode !== 'native' &&
+      mode !== 'ma2-conformance' &&
+      mode !== 'altair' &&
+      mode !== 'edusystem-30'
+    )
       throw new TypeError('Unsupported array storage context');
     this.#mode = mode;
     const shapes = arrayShapes(declarations);
     if (mode === 'ma2-conformance' && shapes.some((shape) => !/^[A-Z][0-9]?$/.test(shape.name)))
       throw new TypeError('MA2 array conformance requires short numeric names');
     const zero =
-      mode !== 'ma2-conformance'
-        ? 0
-        : Object.freeze({kind: 'ma2' as const, words: Object.freeze([0, 0] as const)});
+      mode === 'ma2-conformance'
+        ? Object.freeze({kind: 'ma2' as const, words: Object.freeze([0, 0] as const)})
+        : mode === 'edusystem-30'
+          ? eduSystem30FromNumber(0)
+          : 0;
     this.#arrays = new Map(
       shapes.map((shape) => [
         shape.name,
         {
           ...shape,
-          values: new Array<BasicValue | Ma2Value>(shape.elementCount).fill(
+          values: new Array<CellValue>(shape.elementCount).fill(
             shape.name.endsWith('$') ? '' : zero,
           ),
         },
@@ -95,6 +107,8 @@ export class ArrayStore {
   private requireNative(): void {
     if (this.#mode === 'ma2-conformance')
       throw new TypeError('Native access is unavailable in MA2 array conformance');
+    if (this.#mode === 'edusystem-30')
+      throw new TypeError('Native access is unavailable in EDUSYSTEM-30 arrays');
   }
 
   private requireMa2(): void {
@@ -106,6 +120,30 @@ export class ArrayStore {
     this.requireMa2();
     const array = this.lookup(reference);
     return array.values[this.offset(array, reference, indices)] as Ma2Value;
+  }
+
+  readEduSystem30(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly EduSystem30FloatingValue[],
+  ): EduSystem30FloatingValue {
+    this.requireEduSystem30();
+    const array = this.lookup(reference);
+    return array.values[this.offset(array, reference, indices)] as EduSystem30FloatingValue;
+  }
+
+  writeEduSystem30(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly EduSystem30FloatingValue[],
+    value: EduSystem30FloatingValue,
+  ): void {
+    this.requireEduSystem30();
+    const array = this.lookup(reference);
+    array.values[this.offset(array, reference, indices)] = value;
+  }
+
+  private requireEduSystem30(): void {
+    if (this.#mode !== 'edusystem-30')
+      throw new TypeError('EDUSYSTEM-30 access requires its selected array context');
   }
 
   writeMa2(
@@ -219,12 +257,16 @@ export class ArrayStore {
   private offset(
     array: ArrayStorage,
     reference: NodeOf<'ArrayReference'>,
-    indices: readonly BasicValue[],
+    indices: readonly (BasicValue | EduSystem30FloatingValue)[],
   ): number {
     let offset = 0;
     for (let i = 0; i < array.bounds.length; i++) {
       let index = indices[i];
       const location = reference.indices[i].location;
+      if (this.#mode === 'edusystem-30' && typeof index === 'object') {
+        if (index.significand < 0n) fail('ARRAY_BOUNDS', 'Negative array subscript', location);
+        index = Math.trunc(observeEduSystem30(index));
+      }
       if (typeof index !== 'number')
         fail('TYPE_MISMATCH', 'Array indices must be numeric', location);
       if (this.#mode === 'altair') {
@@ -250,16 +292,18 @@ export class ArrayStore {
       Array.from(this.#arrays.values(), (array) => {
         const prefix = array.values.slice(0, Math.min(64, remaining));
         const values = Object.freeze(
-          this.#mode !== 'ma2-conformance'
-            ? (prefix as BasicValue[])
-            : prefix.map((value) => {
-                // This context can store only factory-validated canonical descriptors.
-                const observation = observeMa2Value(value as Ma2Value) as Extract<
-                  ReturnType<typeof observeMa2Value>,
-                  {kind: 'value'}
-                >;
-                return observation.value;
-              }),
+          this.#mode === 'edusystem-30'
+            ? prefix.map((value) => observeEduSystem30(value as EduSystem30FloatingValue))
+            : this.#mode === 'ma2-conformance'
+              ? prefix.map((value) => {
+                  // This context can store only factory-validated canonical descriptors.
+                  const observation = observeMa2Value(value as Ma2Value) as Extract<
+                    ReturnType<typeof observeMa2Value>,
+                    {kind: 'value'}
+                  >;
+                  return observation.value;
+                })
+              : (prefix as BasicValue[]),
         );
         remaining -= values.length;
         return Object.freeze({

@@ -4,7 +4,6 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
 import {
-  checkBatnumCli,
   checkChangeCli,
   checkCompletedEduSystem30Cli,
   checkEduSystem30Cli,
@@ -14,6 +13,7 @@ import {
   checkMatchesCli,
   checkStarsCli,
   checkTrapCli,
+  checkWaitingEduSystem30Cli,
 } from './check-matches.ts';
 
 const quote = (path: string): string => `"${path.replaceAll('"', '""')}"`;
@@ -48,7 +48,7 @@ export async function checkPersistenceSessions(executable: string): Promise<void
     checkStarsCli(executable, directory);
     checkHurkleCli(executable, directory);
     await checkChangeCli(executable, directory);
-    await checkBatnumCli(executable, directory);
+    await checkWaitingEduSystem30Cli(executable, directory);
     const lineSource = '10 INPUT LINE S$:PRINT "[";S$;"]":END';
     const linePath = join(directory, 'line-input.basic.json');
     const raw = '  a,b,"quoted"  ';

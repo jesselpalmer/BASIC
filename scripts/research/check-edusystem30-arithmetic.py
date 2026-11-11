@@ -28,6 +28,21 @@ def decode(words):
     return significand * Fraction(2) ** (exponent - SIGNIFICAND_BITS)
 
 
+def add_words(left_words, right_words, sign):
+    left, left_exponent = components(left_words)
+    right, right_exponent = components(right_words)
+    right *= sign
+    gap = left_exponent - right_exponent
+    if right == 0 or gap > 2 * WORD_BITS and left != 0:
+        return left_words
+    if left == 0 or gap < -2 * WORD_BITS:
+        return truncate_to_words(right * Fraction(2) ** (right_exponent - SIGNIFICAND_BITS))
+    exponent = max(left_exponent, right_exponent)
+    a = (left << WORD_BITS) >> (exponent - left_exponent)
+    b = (right << WORD_BITS) >> (exponent - right_exponent)
+    return truncate_to_words((a + b) * Fraction(2) ** (exponent - SIGNIFICAND_BITS - WORD_BITS))
+
+
 def divide_words(dividend_words, divisor_words):
     dividend, dividend_exponent = components(dividend_words)
     divisor, divisor_exponent = components(divisor_words)
@@ -67,14 +82,19 @@ def main():
     parser.add_argument('capture', type=Path)
     args = parser.parse_args()
     capture = json.loads(args.capture.read_text(encoding='ascii'))
-    observations = capture['arithmeticProbe']['observations']
+    probe = capture['arithmeticProbe']
+    observations = probe['observations'] + probe.get('alignmentObservations', [])
     assert observations, 'Expected at least one archived arithmetic observation'
     division_differences = 0
     for observation in observations:
         words = observation['scalarWordsOctal']
         a, p = decode(words['A']), decode(words['P'])
-        for name, value in {'C': p - a, 'F': p + a, 'N': p * a}.items():
-            expected = truncate_to_words(value)
+        expected_words = {
+            'C': add_words(words['P'], words['A'], -1),
+            'F': add_words(words['P'], words['A'], 1),
+            'N': truncate_to_words(p * a),
+        }
+        for name, expected in expected_words.items():
             assert expected == words[name], (observation['inputs'], name, expected, words[name])
         if truncate_to_words(p / a) != words['G']:
             division_differences += 1

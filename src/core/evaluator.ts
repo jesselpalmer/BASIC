@@ -8,6 +8,7 @@ import {firstMa2Literal} from './foreign_literal.ts';
 import {truncateMa2ToWord} from './ma2_word_conversion.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {EduSystem30Random} from './edusystem30_rng.ts';
+import {eduSystem30Power, eduSystem30SquareRoot} from './edusystem30_advanced.ts';
 import {
   compareEduSystem30,
   eduSystem30Absolute,
@@ -15,6 +16,7 @@ import {
   eduSystem30Integer,
   evaluateEduSystem30Arithmetic,
   observeEduSystem30,
+  parseEduSystem30SourceLiteral,
   type EduSystem30FloatingValue,
 } from './edusystem30_floating.ts';
 import {readKey, keyDown} from './keyboard.ts';
@@ -209,14 +211,20 @@ const eduSystem30Zero = eduSystem30FromNumber(0);
 
 class EduSystem30Evaluator extends Evaluator {
   readonly #scalars = new Map<string, EduSystem30FloatingValue>();
+  #arrays = new ArrayStore([], 'edusystem-30');
 
   constructor(private readonly random: EduSystem30Random) {
     super();
   }
 
-  override reset(): void {
+  override reset(declarations: readonly ArrayDeclaration[] = []): void {
+    this.#arrays = new ArrayStore(declarations, 'edusystem-30');
     this.#scalars.clear();
     this.random.reset();
+  }
+
+  override snapshotArrays(): readonly ArraySnapshot[] {
+    return this.#arrays.snapshot();
   }
 
   override snapshotVariables(): readonly VariableSnapshot[] {
@@ -244,11 +252,22 @@ class EduSystem30Evaluator extends Evaluator {
   assignNumber(target: AssignmentTarget, value: EduSystem30FloatingValue): void {
     // Public variable snapshots and the shared FOR cursor expose finite numbers.
     number(observeEduSystem30(value), target.location);
-    this.#scalars.set(target.name.toUpperCase(), value);
+    if (target.type === 'ArrayReference') {
+      this.#arrays.checkReference(target);
+      const indices = target.indices.map((index) => this.evaluateNumber(index));
+      this.#arrays.writeEduSystem30(target, indices, value);
+    } else {
+      this.#scalars.set(target.name.toUpperCase(), value);
+    }
   }
 
   evaluateNumber(expression: Expression): EduSystem30FloatingValue {
-    return evaluateTree(expression, {kind: 'edu30', scalars: this.#scalars, random: this.random});
+    return evaluateTree(expression, {
+      kind: 'edu30',
+      scalars: this.#scalars,
+      arrays: this.#arrays,
+      random: this.random,
+    });
   }
 }
 
@@ -282,6 +301,7 @@ interface NativeContext {
 interface EduSystem30Context {
   readonly kind: 'edu30';
   readonly scalars: ReadonlyMap<string, EduSystem30FloatingValue>;
+  readonly arrays: ArrayStore;
   readonly random: EduSystem30Random;
 }
 interface Ma2Context {
@@ -680,7 +700,7 @@ function evaluateTree(
       case 'NumberLiteral':
         values.push(
           context.kind === 'edu30'
-            ? eduSystem30FromNumber(node.value)
+            ? parseEduSystem30SourceLiteral(node.raw)
             : number(node.value, node.location),
         );
         break;
@@ -719,10 +739,10 @@ function evaluateTree(
         values.push(value);
         break;
       }
-      case 'ArrayReference':
-        if (context.kind === 'edu30') throw new Error('EDUSYSTEM-30 array escaped admission');
+      case 'ArrayReference': {
+        const arrays = context.kind === 'native' ? context.arrays() : context.arrays!;
         if (!ready) {
-          (context.kind === 'native' ? context.arrays() : context.arrays!).checkReference(node);
+          arrays.checkReference(node);
           pending.push({node, ready: true});
           for (let i = node.indices.length - 1; i >= 0; i--) {
             pending.push({node: node.indices[i], ready: false});
@@ -731,11 +751,14 @@ function evaluateTree(
           const indices = values.splice(values.length - node.indices.length);
           values.push(
             context.kind === 'native'
-              ? context.arrays().read(node, indices as BasicValue[])
-              : context.arrays!.readMa2(node, ma2IntegerIndices(node, indices as Ma2Value[])),
+              ? arrays.read(node, indices as BasicValue[])
+              : context.kind === 'edu30'
+                ? arrays.readEduSystem30(node, indices as EduSystem30FloatingValue[])
+                : arrays.readMa2(node, ma2IntegerIndices(node, indices as Ma2Value[])),
           );
         }
         break;
+      }
       case 'GroupExpression':
         pending.push({node: node.expression, ready: false});
         break;
@@ -791,12 +814,25 @@ function evaluateTree(
             const a = left as EduSystem30FloatingValue;
             const b = right as EduSystem30FloatingValue;
             const operator = node.operator;
-            if (operator !== '+' && operator !== '-' && operator !== '*' && operator !== '/')
+            if (
+              operator !== '+' &&
+              operator !== '-' &&
+              operator !== '*' &&
+              operator !== '/' &&
+              operator !== '^'
+            )
+              throw new Error('EDUSYSTEM-30 binary operator escaped admission');
+            const exponent = operator === '^' ? observeEduSystem30(b) : 0;
+            if (operator === '^' && (!Number.isInteger(exponent) || exponent < 2 || exponent > 5))
               throw new Error('EDUSYSTEM-30 binary operator escaped admission');
             if (operator === '/' && b.significand === 0n)
               fail('DIVISION_BY_ZERO', 'Cannot divide by zero', node.operatorLocation);
             try {
-              values.push(evaluateEduSystem30Arithmetic(operator, a, b));
+              values.push(
+                operator === '^'
+                  ? eduSystem30Power(a, exponent)
+                  : evaluateEduSystem30Arithmetic(operator, a, b),
+              );
             } catch (cause) {
               throw new BasicRuntimeError(
                 'NON_FINITE_NUMBER',
@@ -840,7 +876,11 @@ function evaluateTree(
           const argument = values.pop()! as EduSystem30FloatingValue;
           if (node.name === 'RND') values.push(eduSystem30FromNumber(context.random.next()));
           else if (node.name === 'ABS') values.push(eduSystem30Absolute(argument));
-          else values.push(eduSystem30Integer(argument));
+          else if (node.name === 'SQR') {
+            if (argument.significand < 0n)
+              fail('NUMERIC_DOMAIN', 'SQR requires a nonnegative argument', node.nameLocation);
+            values.push(eduSystem30SquareRoot(argument));
+          } else values.push(eduSystem30Integer(argument));
         } else if (node.name === 'INKEY$') {
           values.push(readKey(context.host, node.nameLocation));
         } else if (node.name === 'KEYDOWN') {

@@ -59,15 +59,22 @@ A numeric display change alone leaves the denomination differences.
 
 The [arithmetic capture](edusystem30-arithmetic-reference.json) records the
 signed operands and the results of addition, subtraction, multiplication,
-and division for 57 pairs. The pairs exercise decimal inputs, mixed signs,
-zero results, cancellation, and unequal exponents. Each result records
-three octal words read from the original interpreter.
+and division for 62 pairs. Each result records three octal words read from
+EDU30.SV. The original 57 pairs exercise decimal inputs, mixed signs, zero
+results, cancellation, and unequal exponents. Five additional pairs check
+the alignment boundary and the guard word identified during ROCKET replay.
+
+At octal `01625–01642`, EDU30.SV discards the smaller operand if the
+exponent gap exceeds 24. At a gap of exactly 24, `1.5-6E-8` stores
+`0001 2777 7777`, while `1.5-3E-8` at a gap of 25 stores the unchanged
+`0001 3000 0000`. When it aligns an operand, it shifts the signed
+significand through one extra 12-bit word at `01662` or `02000`.
+For `-1.5+2.3841861E-7`, those guard bits produce `0001 5000 0001`.
 
 The [arithmetic checker](../scripts/research/check-edusystem30-arithmetic.py)
-decodes each operand as an exact binary fraction. For addition, subtraction,
-and multiplication, it computes the exact result, normalizes it, and truncates
-the significand to 23 bits toward zero. Applying the same procedure to the
-quotient differs in 41 of 57 cases.
+implements that alignment and truncates the normalized product to 23 bits
+toward zero. Truncating the exact quotient differed in 41 of the original
+57 cases.
 
 In the archived division trace, the loop at octal `02250–02307` produces 23
 quotient bits from the operand magnitudes. At `02312–02314` the routine

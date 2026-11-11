@@ -29,6 +29,8 @@ import changeEdu30 from '../scripts/package/fixtures/classic/change-mar75-text.b
 import chemst from '../scripts/package/fixtures/classic/chemst.bas' with {type: 'text'};
 import diamnd from '../scripts/package/fixtures/classic/diamnd-mar75-text.bas' with {type: 'text'};
 import batnum from '../scripts/package/fixtures/classic/batnum-mar75-text.bas' with {type: 'text'};
+import even from '../scripts/package/fixtures/classic/even-mar75-text.bas' with {type: 'text'};
+import rocket from '../scripts/package/fixtures/classic/rocket-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -90,6 +92,8 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   chemst: {source: chemst, dialect: 'edusystem-30'},
   diamnd: {source: diamnd, dialect: 'edusystem-30'},
   batnum: {source: batnum, dialect: 'edusystem-30'},
+  even: {source: even, dialect: 'edusystem-30'},
+  rocket: {source: rocket, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');

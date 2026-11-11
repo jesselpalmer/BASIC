@@ -1,0 +1,53 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "probes": [
+    {
+      "name": "zone stops",
+      "source": [
+        "10 PRINT 1,2,3,4,5,6,7",
+        "20 PRINT \"ABC\",4",
+        "30 PRINT \"ABCDEFGHIJKLMNO\",5",
+        "40 PRINT TAB(55),\"A\"",
+        "50 PRINT TAB(56),\"B\"",
+        "60 PRINT TAB(68);\"ABC\";",
+        "70 PRINT ,\"C\"",
+        "80 PRINT TAB(56),,\"D\"",
+        "90 END"
+      ],
+      "answers": [],
+      "output": " 1             2             3             4             5  \r\n 6             7 \r\nABC            4 \r\nABCDEFGHIJKLMNO              5 \r\n                                                        A\r\n                                                         \r\nB\r\n                                                                    ABC \r\nC\r\n                                                         \r\n              D\r\n\u0000\r\n"
+    },
+    {
+      "name": "continued output",
+      "source": [
+        "10 PRINT ,\"A\"",
+        "20 PRINT \"A\",,\"B\"",
+        "30 PRINT ,,\"C\"",
+        "40 PRINT \"A\",,",
+        "50 PRINT \"B\"",
+        "60 PRINT ,",
+        "70 PRINT \"D\"",
+        "80 PRINT \"X\",",
+        "90 PRINT \"Y\"",
+        "100 PRINT \"Z\";",
+        "110 PRINT ,5",
+        "120 PRINT \"E\",",
+        "130 END"
+      ],
+      "answers": [],
+      "output": "              A\r\nA                           B\r\n                            C\r\nA                           B\r\n              D\r\nX             Y\r\nZ              5 \r\nE             \u0000\r\n"
+    },
+    {
+      "name": "input prompts",
+      "source": [
+        "10 PRINT \"A\",\\INPUT I\\PRINT I",
+        "20 PRINT TAB(56),\\INPUT J",
+        "30 PRINT \"ABC\",\\INPUT K\\PRINT \"Z\"",
+        "40 END"
+      ],
+      "answers": ["8", "9,10"],
+      "output": "A             ? 8 \r\n                                                         \r\n?ABC           Z\r\n\u0000\r\n"
+    }
+  ]
+}

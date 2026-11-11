@@ -161,3 +161,10 @@ the printed sample's different spelling and the archived complete playthrough.
 restores source from the March 1975 printed listing. The
 [BATNUM review](../../../../docs/batnum-edusystem30.md) records the differences
 and the archived games.
+
+## EVEN and ROCKET
+
+The [EVEN review](../../../../docs/even-edusystem30.md) and
+[ROCKET review](../../../../docs/rocket-edusystem30.md) record the pinned
+transcriptions, the reviewed March 1975 listings and the archived transcripts
+used in installed package and browser acceptance.

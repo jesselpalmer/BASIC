@@ -11,6 +11,9 @@ import {inputTargets, maxInputResponseLength, readInput, readInputResponse} from
 import type {InputStatement} from './input.ts';
 import type {Expression, Host, NodeOf} from './types.ts';
 
+const terminalWidth = 70;
+const printZoneWidth = 14;
+
 /** Sign and trailing padding observed in the EDUSYSTEM-30 numeric field. */
 function formatPrintItem(
   item: Expression,
@@ -39,7 +42,7 @@ function tabColumn({significand, exponent}: EduSystem30FloatingValue): number {
   const places = 23 - exponent;
   const scale = 1n << BigInt(Math.max(places, 0));
   const units = significand << BigInt(Math.max(-places, 0));
-  const width = 70n * scale;
+  const width = BigInt(terminalWidth) * scale;
   const wrapped = ((units % width) + width) % width;
   return Number((wrapped + scale - 1n) / scale);
 }
@@ -60,7 +63,21 @@ export class EduSystem30Terminal {
   ): string {
     let column = this.#column;
     let output = '';
-    for (const item of statement.items) {
+    const advanceZones = (count: number) => {
+      for (let remaining = count; remaining > 0; remaining--) {
+        const target = (Math.floor(column / printZoneWidth) + 1) * printZoneWidth;
+        if (target < terminalWidth) {
+          output += ' '.repeat(target - column);
+          column = target;
+        } else {
+          output += ' \n';
+          column = 0;
+        }
+      }
+    };
+    const commas = statement.eduSystem30Commas;
+    advanceZones(commas?.[0] ?? 0);
+    for (const [index, item] of statement.items.entries()) {
       if (item.type === 'CallExpression' && item.name === 'TAB') {
         const target = tabColumn(evaluate(item.arguments[0]));
         if (target < column) {
@@ -75,9 +92,11 @@ export class EduSystem30Terminal {
         for (const character of part)
           column = character === '\r' || character === '\n' ? 0 : column + 1;
       }
+      advanceZones(commas?.[index + 1] ?? 0);
     }
-    this.#column = statement.trailingSemicolon ? column : 0;
-    return output + (statement.trailingSemicolon ? '' : '\n');
+    const continues = statement.trailingSemicolon || (commas?.at(-1) ?? 0) > 0;
+    this.#column = continues ? column : 0;
+    return output + (continues ? '' : '\n');
   }
 
   async read(
