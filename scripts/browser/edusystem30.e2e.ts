@@ -18,7 +18,9 @@ test('23MTCH follows the archived loss, retry, replay, win and RNG sequence', as
   await page.locator('#run').click();
   for (const answer of reviewedAnswers) await submit(answer);
   await expect(status).toHaveText('Waiting for input');
-  await expect(consoleOutput).toContainText('I TOOK 2 ...THERE ARE NOW 19 MATCHES.');
+  await expect(consoleOutput).toHaveText(
+    /I TOOK 2 \.\.\.THERE ARE NOW 19 MATCHES\.\n\nHOW MANY DO YOU TAKE\?$/,
+  );
   assertReviewedTranscript((await consoleOutput.textContent())!);
 
   const source = page.locator('#source');
