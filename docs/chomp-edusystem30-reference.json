@@ -1,0 +1,40 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "03500272496fb39a1aacc0137c44000f08804698d43a0387cb16265b6ac27a55",
+  "fixtureSha256": "6749ee5fe345ce8a54c87b8618e65b1d6533d58da75b106cd3244a54c8a33330",
+  "runs": [
+    {
+      "name": "printed game and replay",
+      "answers": [
+        "1",
+        "2",
+        "4",
+        "7",
+        "4,6",
+        "3,3",
+        "1,4",
+        "3,1",
+        "2,3",
+        "1,3",
+        "2,2",
+        "1,2",
+        "2,1",
+        "3,1",
+        "1,1",
+        "1",
+        "2",
+        "1",
+        "1",
+        "1,1",
+        "0"
+      ],
+      "outputSha256": "673948274ed12d5e47bb7ac0737c23427d910d153b0086cacbfbb04a88bbd9a8"
+    },
+    {
+      "name": "fresh three-player game with dimension and move retries",
+      "answers": ["0", "3", "10", "2", "10", "2", "3,2", "2,2", "1,2", "2,1", "1,1", "0"],
+      "outputSha256": "b78a5a274153031ae6c56e4cdf0f68d8de8e4ebf889f5e83ea6372048c83659a"
+    }
+  ]
+}

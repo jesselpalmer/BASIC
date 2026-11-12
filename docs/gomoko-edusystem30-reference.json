@@ -1,0 +1,43 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "d935a714e8df553a8faf9c2ee54467759cfb15cc5dac9aff3bba5610cc10c072",
+  "reviewedFixtureSha256": "c66f509ec64a29284eb1d3f7f1f4c69cad306d006dbb568485928e0ea38a0bc4",
+  "fixtureSha256": "fa77bc7fdd10263929865e054b1313782315997052e4917180d62ee43046bdeb",
+  "rawCompilerOutput": "S2 210\nS2 410\nS2 440\nS2 580\nS2 650\nS2 680\nS2 810\n",
+  "reviewedCompilerOutput": "S2 210\nS2 410\nS2 440\nS2 580\nS2 650\nS2 660\nS2 810\n",
+  "runs": [
+    {
+      "name": "printed move sequence",
+      "answers": [
+        "8",
+        "4,4",
+        "5,5",
+        "3,3",
+        "3,5",
+        "5,3",
+        "4,5",
+        "4,3",
+        "4,2",
+        "4,5",
+        "4,6",
+        "-1,-1",
+        "0"
+      ],
+      "boardSizes": [8, 8, 8, 8, 8, 8, 8, 8, 8],
+      "outputSha256": "e27b985a997b06e4c167c1e601adfd81ecfd3f7b2d87775d50bcb3bb5c4f0bf4"
+    },
+    {
+      "name": "invalid sizes, illegal and occupied moves, retained replay board",
+      "answers": ["6", "20", "7", "0,3", "4,4", "4,4", "-1,-1", "1", "7", "4,4", "-1,-1", "0"],
+      "boardSizes": [7],
+      "outputSha256": "86ca0c2a3347a591918278bdf28dd4092b626a50562598c3414056fd549c8d68"
+    },
+    {
+      "name": "maximum board and corner",
+      "answers": ["19", "19,19", "-1,-1", "0"],
+      "boardSizes": [19],
+      "outputSha256": "d54326cac3801ad044bd9ed8b3108e67608e0b0e73ea28c522cf38b9b12279d9"
+    }
+  ]
+}

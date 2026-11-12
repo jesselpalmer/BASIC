@@ -15,6 +15,10 @@ import {runKinemaAcceptance} from './kinema-acceptance.ts';
 import {runBounceAcceptance} from './bounce-acceptance.ts';
 import {runBlkjakAcceptance} from './blkjak-acceptance.ts';
 import {runGolfAcceptance} from './golf-acceptance.ts';
+import {runChompAcceptance} from './chomp-acceptance.ts';
+import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
+import {runGomokoAcceptance} from './gomoko-acceptance.ts';
+import {runAmazinAcceptance} from './amazin-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -66,6 +70,10 @@ export const libraryAcceptanceCases = [
   'reviewed BOUNCE matches archived plots, replay and fresh RUN',
   'reviewed BLKJAK matches archived wagers, replay and bankroll summaries',
   'reviewed GOLF matches archived scores, traps, water and fresh RUN',
+  'reviewed CHOMP matches archived board states, retries and replay',
+  'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
+  'adapted GOMOKO matches archived boards, move retries and replay',
+  'adapted AMAZIN matches archived seeded mazes and dimension retry',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -371,6 +379,18 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed GOLF matches archived scores, traps, water and fresh RUN', () =>
     runGolfAcceptance(api),
+  );
+  await check('reviewed CHOMP matches archived board states, retries and replay', () =>
+    runChompAcceptance(api),
+  );
+  await check('reviewed MUGWUMP matches archived wins, losses and fresh RUN', () =>
+    runMugwumpAcceptance(api),
+  );
+  await check('adapted GOMOKO matches archived boards, move retries and replay', () =>
+    runGomokoAcceptance(api),
+  );
+  await check('adapted AMAZIN matches archived seeded mazes and dimension retry', () =>
+    runAmazinAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

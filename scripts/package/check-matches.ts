@@ -24,6 +24,15 @@ import {
 } from '../blkjak-acceptance.ts';
 import type {Dialect} from '../../src/index.ts';
 import {assertGolfOutput, golfOptions, golfRuns, golfSource} from '../golf-acceptance.ts';
+import {assertChompOutput, chompRuns, chompSource} from '../chomp-acceptance.ts';
+import {
+  assertMugwumpOutput,
+  mugwumpRuns,
+  mugwumpSource,
+  mugwumpEntropy,
+} from '../mugwump-acceptance.ts';
+import {assertGomokoOutput, gomokoRuns, gomokoSource} from '../gomoko-acceptance.ts';
+import {assertAmazinOutput, amazinRuns, amazinSource, amazinOptions} from '../amazin-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -243,6 +252,20 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     dialect: golfOptions.dialect,
     entropy: ({clockWord}) => clockWord / 4096,
   });
+  checkCompletedGame(executable, directory, 'chomp', chompSource, chompRuns, assertChompOutput);
+  checkCompletedGame(executable, directory, 'gomoko', gomokoSource, gomokoRuns, assertGomokoOutput);
+  checkCompletedGame(
+    executable,
+    directory,
+    'amazin',
+    amazinSource,
+    amazinRuns,
+    assertAmazinOutput,
+    {
+      dialect: amazinOptions.dialect,
+      entropy: ({clockWord}) => clockWord / 4096,
+    },
+  );
 }
 
 export async function checkWaitingEduSystem30Cli(
@@ -285,6 +308,36 @@ export async function checkWaitingEduSystem30Cli(
     136,
     assertBounceOutput,
   );
+  await checkWaitingGame(
+    executable,
+    directory,
+    'mugwump',
+    mugwumpSource,
+    mugwumpRuns,
+    300,
+    assertMugwumpOutput,
+    () => mugwumpEntropy,
+  );
+}
+
+function capturedCliArgs<Round>(
+  executable: string,
+  directory: string,
+  name: string,
+  rounds: readonly Round[],
+  entropy?: (round: Round) => number,
+): string[] {
+  if (!entropy) return [executable];
+  // Inject archived clock words into the actual CLI host during deterministic replay.
+  const preload = join(directory, `${name}-clock.ts`);
+  writeFileSync(
+    preload,
+    [
+      `const draws = ${JSON.stringify(rounds.map(entropy))};`,
+      'Math.random = () => { if (!draws.length) throw new Error("Unexpected entropy draw"); return draws.shift(); };',
+    ].join('\n'),
+  );
+  return ['--preload', preload, executable];
 }
 
 async function checkWaitingGame<Round extends {readonly answers: readonly string[]}>(
@@ -295,6 +348,7 @@ async function checkWaitingGame<Round extends {readonly answers: readonly string
   runs: readonly Round[],
   inputLabel: number,
   assertOutput: (output: string, run: Round) => void,
+  entropy?: (round: Round) => number,
 ): Promise<void> {
   const file = join(directory, `${name}-edusystem30.basic.json`);
   const saved = join(directory, `${name}-edusystem30-copy.basic.json`);
@@ -304,7 +358,7 @@ async function checkWaitingGame<Round extends {readonly answers: readonly string
   const transcripts = runs.map((run) => {
     const result = runProcess({
       cwd: directory,
-      args: [executable, file],
+      args: [...capturedCliArgs(executable, directory, name, [run], entropy), file],
       input: input(run),
       expectedStatus: 1,
     });
@@ -319,7 +373,7 @@ async function checkWaitingGame<Round extends {readonly answers: readonly string
   let phase: 'start' | 'play' | 'stopped' | 'exit' = 'start';
   const editor = await runWithOpenInput({
     cwd: directory,
-    args: [executable],
+    args: capturedCliArgs(executable, directory, name, runs.slice(-1), entropy),
     onOutput(stdout, child) {
       if (phase === 'start' && stdout.endsWith('>>> ')) {
         phase = 'play';
@@ -354,23 +408,10 @@ function checkCompletedGame<Round extends {readonly answers: readonly string[]}>
   const saved = join(directory, `${name}-edusystem30-copy.basic.json`);
   const document = {format: 'basic-program', version: 1, dialect: options.dialect, source};
   writeFileSync(file, JSON.stringify(document));
-  const cliArgs = (selected: readonly Round[]) => {
-    if (!options.entropy) return [executable];
-    // Inject the captured clock words into the actual CLI host for deterministic replay.
-    const preload = join(directory, `${name}-clock.ts`);
-    writeFileSync(
-      preload,
-      [
-        `const draws = ${JSON.stringify(selected.map(options.entropy))};`,
-        'Math.random = () => { if (!draws.length) throw new Error("Unexpected entropy draw"); return draws.shift(); };',
-      ].join('\n'),
-    );
-    return ['--preload', preload, executable];
-  };
   const transcripts = rounds.map((round) => {
     const result = runProcess({
       cwd: directory,
-      args: [...cliArgs([round]), file],
+      args: [...capturedCliArgs(executable, directory, name, [round], options.entropy), file],
       input: round.answers.join('\n') + '\n',
     });
     assert.equal(result.stderr, '');
@@ -379,7 +420,7 @@ function checkCompletedGame<Round extends {readonly answers: readonly string[]}>
   });
   const editor = runProcess({
     cwd: directory,
-    args: cliArgs(rounds),
+    args: capturedCliArgs(executable, directory, name, rounds, options.entropy),
     input: [
       `LOAD "${file}"`,
       `SAVE "${saved}"`,
