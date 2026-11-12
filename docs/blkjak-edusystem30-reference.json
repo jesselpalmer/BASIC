@@ -1,0 +1,34 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "7f1a2e9c60e540534ab1aebacb8784e380a8b83a8e542649981d685278eecbac",
+  "rawDiagnostic": "UL 730",
+  "fixtureSha256": "11528649c4ec186854d46879a210f85fbef8960cfd9dd0a4fee40eb271d7d607",
+  "clockWord": 0,
+  "runs": [
+    {
+      "name": "invalid wagers, win, replay and bust",
+      "answers": ["200", "500", "5", "20", "N", "Y", "30", "Y", "N"],
+      "outputSha256": "0589f564b8f759eb0ceb12f8a430d1f34733aacfaf1bc3924dbe89ec7803de3a"
+    },
+    {
+      "name": "fresh run and winning finish",
+      "answers": ["200", "20", "N", "N"],
+      "outputSha256": "471f48461d83a8e567669c075f4613110bbf4ee21f30568ca4f6a4d669448c52"
+    }
+  ],
+  "characterProbe": {
+    "source": [
+      "10 A=65\\PRINT \"0\";CHR$(A);\"X\"",
+      "20 PRINT \"1\";CHR$(65.5);\"X\"",
+      "30 PRINT \"2\";CHR$(65.9);\"X\"",
+      "40 PRINT \"3\";CHR$(66.1);\"X\"",
+      "50 PRINT \"4\";CHR$(193);\"X\"",
+      "60 PRINT \"5\";CHR$(321);\"X\"",
+      "70 PRINT \"6\";CHR$(-63);\"X\"",
+      "80 PRINT \"7\";CHR$(7);\"X\"",
+      "90 END"
+    ],
+    "output": "0AX\n1AX\n2AX\n3BX\n4AX\n5AX\n6AX\n7\u0007X\n"
+  }
+}

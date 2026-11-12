@@ -168,3 +168,13 @@ The [EVEN review](../../../../docs/even-edusystem30.md) and
 [ROCKET review](../../../../docs/rocket-edusystem30.md) record the pinned
 transcriptions, the reviewed March 1975 listings and the archived transcripts
 used in installed package and browser acceptance.
+
+## BOUNCE, KINEMA, GOLF and BLKJAK
+
+The [BOUNCE review](../../../../docs/bounce-edusystem30.md) and
+[KINEMA review](../../../../docs/kinema-edusystem30.md) distinguish the
+pinned and printed listings. KINEMA also retains a separate EDUSYSTEM-30
+adaptation for the archive's full PRINT spelling. The
+[GOLF](../../../../docs/golf-edusystem30.md) and
+[BLKJAK](../../../../docs/blkjak-edusystem30-review.md) fixtures support
+archived replay and prerequisite probes.

@@ -7,8 +7,9 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [NUMBER](number-edusystem30.md), [STARS](stars-edusystem30.md),
 [HURKLE](hurkle-edusystem30.md), [CHANGE](change-edusystem30-review.md),
 [CHEMST](chemst-edusystem30.md), [DIAMND](diamnd-edusystem30-review.md),
-[BATNUM](batnum-edusystem30.md), [EVEN](even-edusystem30.md), and
-[ROCKET](rocket-edusystem30.md) listings.
+[BATNUM](batnum-edusystem30.md), [EVEN](even-edusystem30.md),
+[ROCKET](rocket-edusystem30.md), and [BOUNCE](bounce-edusystem30.md) listings.
+It also runs the separately labeled [KINEMA adaptation](kinema-edusystem30.md).
 The book and archived `EDU30.SV`
 runs supply the references.
 
@@ -39,6 +40,11 @@ runs supply the references.
   one to four marbles per turn. Aim for an even total.
   For **ROCKET · EDUSYSTEM-30 selected profile**, enter a burn rate from 0 to
   200 at each prompt and try to land softly.
+  For **BOUNCE · EDUSYSTEM-30 selected profile**, enter the time increment,
+  velocity and coefficient of elasticity. The printed plot uses `.1`, `30`
+  and `.9`.
+  For **KINEMA · EDUSYSTEM-30 adaptation**, answer three questions about the
+  ball's flight. A new problem follows each score.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -53,14 +59,14 @@ runs supply the references.
 
 ## Admitted forms
 
-| Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                      |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN, INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label.                               |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with literal exponents 2 through 5, and single-argument ABS, INT, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude. |
-| Arrays                 | One-dimensional numeric arrays use explicit DIM and zero-based indices through the inclusive bound. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                   |
-| INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses.             |
-| PRINT                  | Literal text, bounded numeric expressions, literal `CHR$(7)` and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.         |
-| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                |
+| Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN (including compact literal transfer targets), INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label. |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, INT, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.        |
+| Arrays                 | One-dimensional numeric arrays use explicit DIM and zero-based indices through the inclusive bound. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                                  |
+| INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and writes its numeric code, with no extra prompt. The line-oriented host maps an empty character response to Return (13) and retries longer or non-ASCII responses.                            |
+| PRINT                  | Literal text, bounded numeric expressions, literal `CHR$(7)` and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                        |
+| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                               |
 
 All lines are checked before execution, including unreachable lines. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
@@ -150,3 +156,9 @@ The [ROCKET capture](rocket-edusystem30-reference.json) checks every printed
 flight row, the landing, a zero-burn crash and automatic restarts. The
 [roots and powers probes](edusystem30-roots-evidence.md) verify stored
 results independently of the game.
+
+The [BOUNCE capture](bounce-edusystem30-reference.json) verifies the printed
+plot, a replay with new parameters and fresh RUN. The [KINEMA
+capture](kinema-edusystem30-reference.json) verifies all answer bands, the
+score reset and fresh RUN for the spelling adaptation. The source review
+records the original archive rejection.

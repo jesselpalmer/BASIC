@@ -31,6 +31,8 @@ import diamnd from '../scripts/package/fixtures/classic/diamnd-mar75-text.bas' w
 import batnum from '../scripts/package/fixtures/classic/batnum-mar75-text.bas' with {type: 'text'};
 import even from '../scripts/package/fixtures/classic/even-mar75-text.bas' with {type: 'text'};
 import rocket from '../scripts/package/fixtures/classic/rocket-mar75-text.bas' with {type: 'text'};
+import kinema from '../scripts/package/fixtures/classic/kinema-edu30-adapted.bas' with {type: 'text'};
+import bounceEdu30 from '../scripts/package/fixtures/classic/bounce-mar75-text.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -94,6 +96,8 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   batnum: {source: batnum, dialect: 'edusystem-30'},
   even: {source: even, dialect: 'edusystem-30'},
   rocket: {source: rocket, dialect: 'edusystem-30'},
+  kinema: {source: kinema, dialect: 'edusystem-30'},
+  'bounce-edu30': {source: bounceEdu30, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
@@ -186,7 +190,8 @@ function finishReplacement(result: DocumentReplacementResult, success: string): 
 function renderTranscript(): void {
   pendingFrame = null;
   const followsOutput = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 40;
-  output.textContent = transcript.text;
+  output.textContent =
+    inspectionState?.dialect === 'edusystem-30' ? transcript.paperText : transcript.text;
   graphics?.flush();
   truncated.hidden = !transcript.truncated;
   empty.hidden = transcript.text.length > 0 || transcript.truncated;

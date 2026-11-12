@@ -1,0 +1,100 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "e6eb8ea402a4fab51cdd62de4d42ca33ced97c74fd0efcc9fd886ffe66f15fce",
+  "fixtureSha256": "b6a6f7810e7f648aaae559e150ece86360532d8d33d08478e2fbca49f4f10d50",
+  "runs": [
+    {
+      "name": "two players with count retry and rough",
+      "clockWord": 0,
+      "answers": [
+        "N",
+        "5",
+        "2",
+        "2",
+        "1",
+        "3",
+        "9",
+        "1",
+        "5",
+        "9",
+        "1",
+        "1",
+        "6",
+        "9",
+        "1",
+        "1",
+        "7",
+        "8",
+        "9"
+      ],
+      "strokes": [9, 11],
+      "par": 9,
+      "outputSha256": "e7d337bb7e6a8776db169164633d59d2b32de5c88b1a21fedc51d40b5b2cbbda"
+    },
+    {
+      "name": "directions, trap and water",
+      "clockWord": 660,
+      "answers": ["Y", "1", "2", "1", "5", "8", "9", "1", "8", "8", "8", "1", "3", "7", "8"],
+      "strokes": [11],
+      "par": 9,
+      "outputSha256": "13c60faaa07e402ee5b79cd2d015ed7ba5d4f3e5fca381029b1676acb3a8eb76"
+    }
+  ],
+  "probes": [
+    {
+      "name": "marked character literals",
+      "source": "10 PRINT #A;#J;#K;#N;#Q;#T;#Y;#Z\n20 PRINT #9;##;#!\n30 END",
+      "output": " 193  202  203  206  209  212  217  218 \n 185  163  161 \n"
+    },
+    {
+      "name": "numeric DATA and indexed READ",
+      "source": "10 DATA 1.8,0,-2,3E-2\n20 DIM A(4)\n30 READ A(1)\\READ B\n40 READ A(2),A(3)\n50 PRINT A(1);B;A(2);A(3)\n60 END",
+      "output": " 1.8  0 -2  3E-2 \n"
+    },
+    {
+      "name": "DATA uses the compiled source conversion",
+      "source": "10 DATA 1.8,- 1.8,0.03,.51\n20 READ A,B,C,D\n30 PRINT A-1.8;B+1.8;C-.03;D-.51\n40 END",
+      "output": " 0  0  0  0 \n"
+    },
+    {
+      "name": "DATA rejects an explicit leading plus",
+      "source": "10 DATA +1.8\n20 READ A\n30 END",
+      "output": "S1 10\n"
+    },
+    {
+      "name": "a skipped DATA statement is available",
+      "source": "10 GOTO 30\n20 DATA 3,1\n30 READ A\n40 READ B\n50 PRINT A;B\n60 END",
+      "output": " 3  1 \n"
+    },
+    {
+      "name": "READ exhaustion halts execution",
+      "source": "10 DATA 1\n20 READ A\n30 READ A\n40 PRINT \"STILL\";A\n50 END",
+      "output": "\nERROR DA AT LINE 0030\n"
+    },
+    {
+      "name": "two-dimensional arrays",
+      "source": "10 DIM M(4,18)\n20 LET M(4,18)=3\n30 LET M(0,0)=7\n40 LET M(1,2)=9\n50 PRINT M(4,18);M(0,0);M(1,2);M(2,1);M(0,18)\n60 END",
+      "output": " 3  7  9  0  0 \n"
+    },
+    {
+      "name": "two-dimensional index bounds",
+      "source": "10 DIM M(4,18)\n20 PRINT M(4.5,18.5)\n30 PRINT M(0,-.5)\n40 END",
+      "output": " 0 \n\nERROR SS AT LINE 0030\n"
+    }
+  ],
+  "characterInputParity": {
+    "source": "10 PRINT \"LETTER\"\n20 INPUT $A\n30 PRINT A;#Y;#N\n40 IF A=#N THEN 60\n50 PRINT \"DIRECTIONS\"\n60 END",
+    "answer": "N",
+    "runs": [
+      {
+        "parity": "mark",
+        "output": " 206  217  206 \n"
+      },
+      {
+        "parity": "space",
+        "output": " 78  217  206 \nDIRECTIONS\n"
+      }
+    ]
+  }
+}

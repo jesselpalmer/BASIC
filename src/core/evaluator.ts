@@ -823,8 +823,24 @@ function evaluateTree(
             )
               throw new Error('EDUSYSTEM-30 binary operator escaped admission');
             const exponent = operator === '^' ? observeEduSystem30(b) : 0;
-            if (operator === '^' && (!Number.isInteger(exponent) || exponent < 2 || exponent > 5))
-              throw new Error('EDUSYSTEM-30 binary operator escaped admission');
+            if (operator === '^') {
+              if (
+                exponent < 0 ||
+                exponent > 20 ||
+                compareEduSystem30(b, eduSystem30Integer(b)) !== 0
+              )
+                fail(
+                  'NUMERIC_DOMAIN',
+                  'EDUSYSTEM-30 powers require an integer exponent from 0 through 20',
+                  node.operatorLocation,
+                );
+              if (a.significand === 0n && exponent === 0)
+                fail(
+                  'NUMERIC_DOMAIN',
+                  'EDUSYSTEM-30 cannot raise zero to the zeroth power',
+                  node.operatorLocation,
+                );
+            }
             if (operator === '/' && b.significand === 0n)
               fail('DIVISION_BY_ZERO', 'Cannot divide by zero', node.operatorLocation);
             try {

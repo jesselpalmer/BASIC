@@ -36,8 +36,7 @@ test('EDUSYSTEM-30 SQR matches the archive at stored word precision', async () =
 
 test('EDUSYSTEM-30 bounded ^ matches the archive at stored word precision', async () => {
   for (const sample of reference.power.observations) {
-    const [input, exponent] = sample.input.split(',');
-    expect(await run(`10 INPUT A\n20 C=A^${exponent}\n30 PRINT C\n40 END`, input, 'C')).toEqual({
+    expect(await run('10 INPUT A,P\n20 C=A^P\n30 PRINT C\n40 END', sample.input, 'C')).toEqual({
       output: sample.output,
       result: sample.words.C,
     });
@@ -57,8 +56,24 @@ test('EDUSYSTEM-30 SQR reports a source-located domain error before printing', (
   expect(writes).toEqual([]);
 });
 
-test('EDUSYSTEM-30 rejects unadmitted powers and SQR arities at preparation', () => {
-  for (const expression of ['2^A', '2^.5', '2^6', 'SQR()', 'SQR(1,2)']) {
+test.each(['2^(-1)', '2^.5', '2^(1E-400)', '2^21', '0^0'])(
+  'EDUSYSTEM-30 rejects unsupported evaluated power %s before printing',
+  (expression) => {
+    const writes: string[] = [];
+    const basic = new Basic({write: (text) => writes.push(text)}, options);
+    assert.throws(
+      () => basic.run(`10 PRINT "VALUE";${expression}\n20 END`),
+      (error) =>
+        error instanceof BasicRuntimeError &&
+        error.diagnostic.code === 'NUMERIC_DOMAIN' &&
+        error.diagnostic.label === 10,
+    );
+    expect(writes).toEqual([]);
+  },
+);
+
+test('EDUSYSTEM-30 rejects unadmitted SQR arities at preparation', () => {
+  for (const expression of ['SQR()', 'SQR(1,2)']) {
     expect(() => parseProgram(`10 END\n20 PRINT ${expression}\n30 END`, options)).toThrow(
       BasicSyntaxError,
     );

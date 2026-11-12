@@ -110,13 +110,6 @@ test('EDUSYSTEM-30 runtime reports overflowing arithmetic before writing a PRINT
 
 test('EDUSYSTEM-30 evaluator guards syntax reserved for native expressions', () => {
   const {evaluator} = createEduSystem30Evaluator(createHost({}));
-  for (const [expression, message] of [['2^6', 'binary operator']]) {
-    const statement = parseLine(`10 LET X=${expression}`)?.statement;
-    if (statement?.type !== 'LetStatement') throw new Error('Expected an assignment');
-    expect(() => evaluator.evaluateNumber(statement.expression)).toThrow(
-      `EDUSYSTEM-30 ${message} escaped admission`,
-    );
-  }
   const assignment = parseLine('10 LET X=2+3')?.statement;
   if (assignment?.type !== 'LetStatement' || assignment.expression.type !== 'BinaryExpression')
     throw new Error('Expected a binary assignment');

@@ -1,18 +1,23 @@
 import {
+  eduSystem30FromNumber,
   evaluateEduSystem30Arithmetic,
   type EduSystem30FloatingValue,
 } from './edusystem30_floating.ts';
 
-/** The admitted positive powers use the archive's order of stored products. */
+const one = eduSystem30FromNumber(1);
+
+/** Apply the archived least-significant-bit-first order of stored products. */
 export function eduSystem30Power(
   base: EduSystem30FloatingValue,
   exponent: number,
 ): EduSystem30FloatingValue {
-  const square = evaluateEduSystem30Arithmetic('*', base, base);
-  if (exponent === 2) return square;
-  if (exponent === 3) return evaluateEduSystem30Arithmetic('*', square, base);
-  const fourth = evaluateEduSystem30Arithmetic('*', square, square);
-  return exponent === 4 ? fourth : evaluateEduSystem30Arithmetic('*', fourth, base);
+  let result = one;
+  let factor = base;
+  for (let remaining = exponent; remaining > 0; remaining >>= 1) {
+    if (remaining & 1) result = evaluateEduSystem30Arithmetic('*', result, factor);
+    if (remaining > 1) factor = evaluateEduSystem30Arithmetic('*', factor, factor);
+  }
+  return result;
 }
 
 /** Reproduce the archived positive SQR iteration at octal 2451–2535. */

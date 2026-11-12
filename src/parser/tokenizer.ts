@@ -445,18 +445,24 @@ class Scanner {
       if (this.source[this.index] === '$') this.index++;
     }
     let value = this.source.slice(beginning, this.index).toUpperCase();
-    const previous = this.tokens.at(-1);
-    if (
-      this.policy.eduSystem30 &&
-      (previous?.type === 'LABEL' ||
-        (previous?.type === 'PUNCTUATION' && previous.value === '\\')) &&
-      /^LET[A-Z][0-9]?$/.test(value)
-    ) {
-      let next = this.index;
-      while (this.source[next] === ' ' || this.source[next] === '\t') next++;
-      if (this.source[next] === '=') {
-        this.index = beginning + 3;
-        value = 'LET';
+    if (this.policy.eduSystem30) {
+      const previous = this.tokens.at(-1);
+      const atStatementStart =
+        previous?.type === 'LABEL' || (previous?.type === 'PUNCTUATION' && previous.value === '\\');
+      if (atStatementStart && /^LET[A-Z][0-9]?$/.test(value)) {
+        let next = this.index;
+        while (this.source[next] === ' ' || this.source[next] === '\t') next++;
+        if (this.source[next] === '=') {
+          this.index = beginning + 3;
+          value = 'LET';
+        }
+      }
+      const branch = atStatementStart && /^(GOTO|GOSUB)\d+$/.exec(value);
+      const spacedBranch =
+        previous?.type === 'IDENTIFIER' && previous.value === 'GO' && /^TO\d+$/.test(value);
+      if (branch || spacedBranch) {
+        value = branch ? branch[1] : 'TO';
+        this.index = beginning + value.length;
       }
     }
     // Altair uses the shared contextual grammar for these compact tokens.

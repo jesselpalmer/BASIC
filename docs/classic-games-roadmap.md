@@ -1,7 +1,8 @@
 # Classic-game compatibility roadmap
 
 Native BASIC and three bounded public profiles run today. The selected
-profiles run 16 reviewed listings through the library, CLI/editor and browser.
+profiles run 18 listings through the library, CLI/editor and browser, including
+the documented KINEMA adaptation.
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
 [browser playground](https://basic-playground-rho.vercel.app/). Choose
@@ -102,6 +103,21 @@ lunar landing and a fresh zero-burn crash, with automatic restart after both.
 Choose **ROCKET · EDUSYSTEM-30 selected profile** and enter a burn rate from
 0 to 200 at each prompt.
 
+The [reviewed BOUNCE listing](bounce-edusystem30.md) reproduces the printed
+bouncing-ball plot and a replay with different parameters. Choose
+**BOUNCE · EDUSYSTEM-30 selected profile** and enter `.1`, `30`, and `.9`
+for the printed plot.
+
+The [KINEMA adaptation](kinema-edusystem30.md) reproduces the archived
+answer scoring and repeated problems. Choose **KINEMA · EDUSYSTEM-30
+adaptation**. The archive rejects the printed line 508. The runnable source
+expands that line to a quoted PRINT and preserves the printed fixture separately.
+
+The [GOLF](golf-edusystem30.md) and [BLKJAK](blkjak-edusystem30-review.md)
+reviews capture complete archived games. Both need an explicit terminal parity
+contract. GOLF also needs two-dimensional arrays and indexed numeric DATA/READ.
+BLKJAK needs numeric CHR$ output and high-bit character constants.
+
 The [DICE and TRAIN reviews](dice-train-source-review.md) preserve the printed
 listings and record archive rejections of bare `RND`. TRAIN also needs string
 input and comparison forms rejected by the archived interpreter. Original
@@ -118,12 +134,12 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                                         |
 | Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation.                          |
-| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS, HURKLE, CHANGE, CHEMST, DIAMND, BATNUM, EVEN and ROCKET run across the library, CLI and browser. Archive checks cover game outcomes, retries, receipts, terminal patterns and lunar flight rows.                                                                                                 | Bounded arrays, stored arithmetic, numeric `RND(expression)`, signed `FOR STEP`, and PRINT with TAB or comma zones. See the [profile scope](edusystem30-profile.md). |
+| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS, HURKLE, CHANGE, CHEMST, DIAMND, BATNUM, EVEN, ROCKET and BOUNCE run across the library, CLI and browser, alongside the KINEMA adaptation. Archive checks cover game outcomes, drills, receipts, terminal patterns and lunar flight rows.                                                         | Bounded arrays, stored arithmetic, numeric `RND(expression)`, signed `FOR STEP`, and PRINT with TAB or comma zones. See the [profile scope](edusystem30-profile.md). |
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profiles; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                               | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **18 reviewed
-source differences / 90 unresolved**, **8 printed-system identifications / 100
+The [corpus ledger](classic-games-ledger.json) records **22 reviewed
+source differences / 86 unresolved**, **11 printed-system identifications / 97
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 
