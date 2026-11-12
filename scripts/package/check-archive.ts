@@ -112,6 +112,10 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'bounce-acceptance.ts',
       'blkjak-acceptance.ts',
       'golf-acceptance.ts',
+      'chomp-acceptance.ts',
+      'mugwump-acceptance.ts',
+      'gomoko-acceptance.ts',
+      'amazin-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -135,6 +139,10 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'bounce-edusystem30-reference.json',
       'blkjak-edusystem30-reference.json',
       'golf-edusystem30-reference.json',
+      'chomp-edusystem30-reference.json',
+      'mugwump-edusystem30-reference.json',
+      'gomoko-edusystem30-reference.json',
+      'amazin-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

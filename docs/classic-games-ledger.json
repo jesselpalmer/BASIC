@@ -204,8 +204,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "amazin-edusystem30.md#amazin-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [100],
@@ -1283,8 +1285,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "chomp-edusystem30.md#chomp-on-archived-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "gosub": [220],
@@ -1496,8 +1499,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "digits-source-review.md#digits-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "data": [360, 370],
@@ -1833,8 +1837,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "gomoko-edusystem30-review.md#gomoko-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "gosub": [330, 540, 610, 680, 710]
@@ -2653,8 +2658,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "mugwump-edusystem30.md#mugwump-on-archived-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [5],

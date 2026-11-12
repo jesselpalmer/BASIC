@@ -1,0 +1,53 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "bb31020296c2d58888623373ad5da26d2095c6fa60aa4d959a4b733df3bd73ad",
+  "reviewedFixtureSha256": "dee1415a5c6da4822194e6f39e850072ed990055d3fd1e2839c6ea3dd04c50a5",
+  "fixtureSha256": "f0c077229cccc93cc12bd085269ef1ee0f492b2cd469d8d0028225982be69daf",
+  "rawDiagnostic": "M1 1073",
+  "reviewedDiagnostic": "M1 1073",
+  "runs": [
+    {
+      "clockWord": 2,
+      "answers": ["1,1", "9,7"],
+      "width": 9,
+      "length": 7,
+      "rows": [
+        ":  :--:--:--:--:--:--:--:--:",
+        "I     I        I           I",
+        ":--:  :  :--:  :  :--:--:  :",
+        "I  I     I  I           I  I",
+        ":  :--:--:  :--:--:--:--:  :",
+        "I           I     I        I",
+        ":  :--:--:  :  :  :  :  :--:",
+        "I     I  I  I  I     I     I",
+        ":--:  :  :  :  :  :--:--:  :",
+        "I  I     I     I        I  I",
+        ":  :--:  :--:--:--:  :  :--:",
+        "I     I  I        I  I     I",
+        ":  :  :  :  :--:  :--:--:  :",
+        "I  I           I        I  I",
+        ":--:--:--:--:--:--:--:--:  :"
+      ],
+      "outputSha256": "a12059a8878e609726d0796fc6fc33e05464489e94751ef548721764a5c401cb"
+    },
+    {
+      "clockWord": 113,
+      "answers": ["5,4"],
+      "width": 5,
+      "length": 4,
+      "rows": [
+        ":--:  :--:--:--:",
+        "I              I",
+        ":--:--:  :--:  :",
+        "I        I     I",
+        ":  :--:--:--:  :",
+        "I           I  I",
+        ":  :--:--:  :  :",
+        "I        I  I  I",
+        ":--:--:--:  :--:"
+      ],
+      "outputSha256": "479040a3e527fcdcfa9999669433ecf38ecfd26d43ebc8430ad15080f33b8f5a"
+    }
+  ]
+}

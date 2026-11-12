@@ -1,0 +1,34 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "55d681394e56370b0dc89dd00d806fad3dc6fd22247ac17b71ccdb891aac47d3",
+  "fixtureSha256": "d4eb08bee26393dc1db3988bf71520d6410efaaf3da1ce0a9575f58aeaa75c66",
+  "clockWord": 0,
+  "runs": [
+    {
+      "answers": [
+        "0,0",
+        "2,7",
+        "2,7",
+        "2,5",
+        "3,6",
+        "7,7",
+        "1,4",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0",
+        "0,0"
+      ],
+      "outputSha256": "0dcd86b88eddb6e0b10a532745a692f958c13025b06e384b3c37a711dc351b09"
+    },
+    {
+      "answers": ["0,0", "2,7", "2,7", "2,5", "3,6", "7,7"],
+      "outputSha256": "0239952428d79f440775aa0cab8f5abd8741f0ffadcf915a3d87b6d42f68259d"
+    }
+  ]
+}

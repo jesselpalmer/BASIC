@@ -178,3 +178,14 @@ adaptation for the archive's full PRINT spelling. The
 [GOLF](../../../../docs/golf-edusystem30.md) and
 [BLKJAK](../../../../docs/blkjak-edusystem30-review.md) fixtures support
 archived replay and prerequisite probes.
+
+## CHOMP, MUGWUMP, GOMOKO, AMAZIN and DIGITS
+
+[CHOMP](../../../../docs/chomp-edusystem30.md) and
+[MUGWUMP](../../../../docs/mugwump-edusystem30.md) run their reviewed
+transcriptions under EDUSYSTEM-30. The
+[GOMOKO](../../../../docs/gomoko-edusystem30-review.md) and
+[AMAZIN](../../../../docs/amazin-edusystem30.md) archives use separate
+adaptation fixtures for their array declarations. The
+[DIGITS review](../../../../docs/digits-source-review.md) preserves the
+printed matrix and RNG forms and records the archived diagnostics.

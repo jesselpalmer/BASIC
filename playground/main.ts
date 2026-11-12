@@ -36,6 +36,10 @@ import kinema from '../scripts/package/fixtures/classic/kinema-edu30-adapted.bas
 import bounceEdu30 from '../scripts/package/fixtures/classic/bounce-mar75-text.bas' with {type: 'text'};
 import blkjak from '../scripts/package/fixtures/classic/blkjak-mar75-text.bas' with {type: 'text'};
 import golf from '../scripts/package/fixtures/classic/golf-mar75-text.bas' with {type: 'text'};
+import chomp from '../scripts/package/fixtures/classic/chomp-mar75-text.bas' with {type: 'text'};
+import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
+import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
+import amazin from '../scripts/package/fixtures/classic/amazin-edu30-adapted.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
 
@@ -103,6 +107,10 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   'bounce-edu30': {source: bounceEdu30, dialect: 'edusystem-30'},
   blkjak: {source: blkjak, dialect: 'edusystem-30-mark'},
   golf: {source: golf, dialect: 'edusystem-30-mark'},
+  chomp: {source: chomp, dialect: 'edusystem-30'},
+  mugwump: {source: mugwump, dialect: 'edusystem-30'},
+  gomoko: {source: gomoko, dialect: 'edusystem-30'},
+  amazin: {source: amazin, dialect: 'edusystem-30'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');

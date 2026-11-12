@@ -8,8 +8,11 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [HURKLE](hurkle-edusystem30.md), [CHANGE](change-edusystem30-review.md),
 [CHEMST](chemst-edusystem30.md), [DIAMND](diamnd-edusystem30-review.md),
 [BATNUM](batnum-edusystem30.md), [EVEN](even-edusystem30.md),
-[ROCKET](rocket-edusystem30.md), and [BOUNCE](bounce-edusystem30.md) listings.
-It also runs the separately labeled [KINEMA adaptation](kinema-edusystem30.md).
+[ROCKET](rocket-edusystem30.md), [BOUNCE](bounce-edusystem30.md),
+[CHOMP](chomp-edusystem30.md), and [MUGWUMP](mugwump-edusystem30.md) listings.
+It also runs the separately labeled adaptations
+[KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
+[AMAZIN](amazin-edusystem30.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
 [BLKJAK](blkjak-edusystem30-review.md) listings. Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK
@@ -49,6 +52,12 @@ runs supply the references.
   and `.9`.
   For **KINEMA · EDUSYSTEM-30 adaptation**, answer three questions about the
   ball's flight. A new problem follows each score.
+  For **CHOMP**, choose player count and board dimensions, then enter row and
+  column pairs. For **MUGWUMP**, enter coordinate pairs and find four hidden
+  creatures within ten guesses.
+  The **GOMOKO** adaptation declares the board at the size described in the
+  book. The **AMAZIN** adaptation uses smaller DIM bounds to fit the archived
+  system. Try `9,7` for its sample dimensions.
   **GOLF** and **BLKJAK** select MARK input automatically. Enter a single
   letter at a character prompt and submit numbers at the other prompts.
 - For the CLI, export the selected source from the playground as a
