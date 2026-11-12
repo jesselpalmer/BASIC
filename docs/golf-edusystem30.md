@@ -47,15 +47,20 @@ work.
   targets. DATA remains available when execution jumps past its line.
   Subtracting source literals from values READ from DATA gives zero,
   including `1.8`, `- 1.8`, `0.03`, and `.51`. The compiler rejects
-  explicit leading plus in DATA with `S1`. Exhaustion prints
+  explicit leading plus in DATA with `S1`. Marked character literals such
+  as `#N` and `-#Y` retain their compiled numeric values. DATA can share a
+  line with other backslash-separated statements, and bare RESTORE rewinds
+  the pool. Exhaustion prints
   `ERROR DA AT LINE 0030` and stops before the following PRINT.
 - **Rank-two numeric arrays.** `DIM M(4,18)` admits zero and the declared
   inclusive bounds on each axis, retains separate cells, and supplies
   zero for unread cells. `M(4.5,18.5)` is accepted. `M(0,-.5)` reports
   `ERROR SS AT LINE 0030`.
 
-The public selected profile still needs numeric DATA/READ, rank-two arrays,
-and marked character support to run the reviewed listing.
+The reviewed listing runs through the library, portable CLI/editor and
+[browser playground](https://basic-playground-rho.vercel.app/) under
+`edusystem-30-mark`. Choose **GOLF** and answer N to skip directions, or Y
+to display them. The verified playthroughs cover two-hole games.
 
 ```sh
 python3 scripts/research/capture-edusystem30-golf.py \

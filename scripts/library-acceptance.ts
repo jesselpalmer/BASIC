@@ -13,6 +13,8 @@ import {runEvenAcceptance} from './even-acceptance.ts';
 import {runRocketAcceptance} from './rocket-acceptance.ts';
 import {runKinemaAcceptance} from './kinema-acceptance.ts';
 import {runBounceAcceptance} from './bounce-acceptance.ts';
+import {runBlkjakAcceptance} from './blkjak-acceptance.ts';
+import {runGolfAcceptance} from './golf-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -62,6 +64,8 @@ export const libraryAcceptanceCases = [
   'reviewed ROCKET matches archived landing, crash and fresh RUN',
   'adapted KINEMA matches archived scoring, replay and fresh RUN',
   'reviewed BOUNCE matches archived plots, replay and fresh RUN',
+  'reviewed BLKJAK matches archived wagers, replay and bankroll summaries',
+  'reviewed GOLF matches archived scores, traps, water and fresh RUN',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -361,6 +365,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed BOUNCE matches archived plots, replay and fresh RUN', () =>
     runBounceAcceptance(api),
+  );
+  await check('reviewed BLKJAK matches archived wagers, replay and bankroll summaries', () =>
+    runBlkjakAcceptance(api),
+  );
+  await check('reviewed GOLF matches archived scores, traps, water and fresh RUN', () =>
+    runGolfAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

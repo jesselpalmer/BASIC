@@ -52,8 +52,15 @@ const negativeSourceScales = [
   [0o4534, 0o4404, 0o4754],
 ];
 
+/** The verified character-literal spellings compile to marked ASCII. */
+export function eduSystem30CharacterLiteral(text: string): number | null {
+  return /^#[A-Z0-9#!]$/.test(text) ? text.charCodeAt(1) | 0x80 : null;
+}
+
 /** Convert a source token in the archived compiler's order. */
 export function parseEduSystem30SourceLiteral(text: string): EduSystem30FloatingValue {
+  const character = eduSystem30CharacterLiteral(text);
+  if (character !== null) return normalize(BigInt(character), 0);
   if (numericLiteral.exec(text)?.[0] !== text)
     throw new SyntaxError('Expected a complete unsigned decimal literal');
   const [mantissa, exponent = '0'] = text.split(/[Ee]/);
@@ -78,6 +85,13 @@ export function parseEduSystem30SourceLiteral(text: string): EduSystem30Floating
     value = normalize(product, value.exponent + exponent - significandBits);
   }
   return value;
+}
+
+/** DATA stores the same compiled numeric literal with its optional leading minus. */
+export function parseEduSystem30DataLiteral(text: string): EduSystem30FloatingValue {
+  const negative = text.startsWith('-');
+  const value = parseEduSystem30SourceLiteral(negative ? text.slice(1).trimStart() : text);
+  return negative ? {...value, significand: -value.significand} : value;
 }
 
 /** Capture the exact binary value supplied by a shared runtime boundary. */
@@ -109,6 +123,17 @@ export function eduSystem30Absolute(value: EduSystem30FloatingValue): EduSystem3
 export function eduSystem30Integer(value: EduSystem30FloatingValue): EduSystem30FloatingValue {
   const places = significandBits - value.exponent;
   return places <= 0 ? value : normalize(value.significand >> BigInt(places), 0);
+}
+
+/** Round down before observing the seven-bit output character. */
+export function eduSystem30OutputCode({significand, exponent}: EduSystem30FloatingValue): number {
+  const places = significandBits - exponent;
+  const integer = places > 0 ? significand >> BigInt(places) : significand << BigInt(-places);
+  return Number(integer & 0x7fn);
+}
+
+export function isEduSystem30PrintableCode(code: number): boolean {
+  return code === 7 || (code >= 32 && code <= 126);
 }
 
 function align(

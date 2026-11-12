@@ -3,11 +3,12 @@ import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {ControlFlow} from './control_flow.ts';
 import {createAltairEvaluator, createEduSystem30Evaluator, Evaluator} from './evaluator.ts';
 import {EduSystem30Terminal} from './edusystem30_terminal.ts';
+import {parseEduSystem30DataLiteral} from './edusystem30_floating.ts';
 import {AltairTerminal} from './altair_terminal.ts';
 import {DataReader} from './data.ts';
 import {GraphicsState} from './graphics.ts';
 import {createHost} from './host.ts';
-import {validateDialect} from './dialect.ts';
+import {isEduSystem30Dialect, validateDialect} from './dialect.ts';
 import {readInput, inputTargets, isInputStatement} from './input.ts';
 import type {InputStatement} from './input.ts';
 import {waitFor} from './wait.ts';
@@ -101,10 +102,12 @@ export default class Basic {
     this.#emptyProgram = prepareProgram('', this.#internalSelected ? 'native' : this.#dialect);
     this.#prepared = this.#emptyProgram;
     this.#host = Object.freeze(createHost(host));
-    this.#eduSystem30 =
-      this.#dialect === 'edusystem-30'
-        ? {...createEduSystem30Evaluator(this.#host), terminal: new EduSystem30Terminal()}
-        : null;
+    this.#eduSystem30 = isEduSystem30Dialect(this.#dialect)
+      ? {
+          ...createEduSystem30Evaluator(this.#host),
+          terminal: new EduSystem30Terminal(this.#dialect === 'edusystem-30-mark'),
+        }
+      : null;
     const eduSystem30 = this.#eduSystem30;
     this.#evaluator =
       eduSystem30?.evaluator ??
@@ -127,6 +130,10 @@ export default class Basic {
               target,
               eduSystem30.evaluator.evaluateNumber(expression),
             )
+        : undefined,
+      assignData: eduSystem30
+        ? (target, item) =>
+            eduSystem30.evaluator.assignNumber(target, parseEduSystem30DataLiteral(item.raw))
         : undefined,
       randomize: eduSystem30?.randomize,
       fallThroughIfFalse: eduSystem30 !== null,

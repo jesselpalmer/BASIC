@@ -34,6 +34,7 @@ CHR_SOURCE = [
     '60 PRINT "5";CHR$(321);"X"',
     '70 PRINT "6";CHR$(-63);"X"',
     '80 PRINT "7";CHR$(7);"X"',
+    '85 PRINT CHR$(-63.75);CHR$(-64.5);CHR$(321.9)',
     '90 END',
 ]
 
@@ -97,7 +98,7 @@ def capture_chr(console, shared):
     console.expect_exact(BANNER)
     console.expect_exact('READY')
     output = shared['normalize'](console.before)
-    assert output == '0AX\n1AX\n2AX\n3BX\n4AX\n5AX\n6AX\n7\x07X\n\n', repr(output)
+    assert output == '0AX\n1AX\n2AX\n3BX\n4AX\n5AX\n6AX\n7\x07X\n@?A\n\n', repr(output)
     return {'source': CHR_SOURCE, 'output': output[:-1]}
 
 

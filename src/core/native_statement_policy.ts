@@ -2,7 +2,7 @@ import {BasicRuntimeError} from './diagnostic.ts';
 import {dispatchTarget} from './dispatch.ts';
 import {formatPrintUsing} from './print_using.ts';
 import type {ControlFlow} from './control_flow.ts';
-import type {DataReader} from './data.ts';
+import type {DataAssignment, DataReader} from './data.ts';
 import type {Evaluator} from './evaluator.ts';
 import type {GraphicsState} from './graphics.ts';
 import type {Instruction} from './instructions.ts';
@@ -27,6 +27,7 @@ export function createNativeStatementPolicy(services: {
   readonly graphics: GraphicsState;
   readonly formatPrint?: (statement: NodeOf<'PrintStatement'>) => string;
   readonly assignExpression?: (target: AssignmentTarget, expression: Expression) => void;
+  readonly assignData?: DataAssignment;
   readonly randomize?: (location: Location) => void;
   readonly fallThroughIfFalse?: boolean;
 }): StatementExecutionPolicy {
@@ -39,6 +40,8 @@ export function createNativeStatementPolicy(services: {
     services.assignExpression ??
     ((target, expression) =>
       services.evaluator.assign(target, services.evaluator.evaluate(expression)));
+  const assignData =
+    services.assignData ?? ((target, item) => services.evaluator.assign(target, item.value));
   return Object.freeze({
     execute(line: Instruction, context: StatementExecutionContext) {
       const statement = line.statement;
@@ -47,7 +50,7 @@ export function createNativeStatementPolicy(services: {
           services.evaluator.change(statement);
           break;
         case 'ReadStatement':
-          services.data().read(statement, services.evaluator);
+          services.data().read(statement, assignData);
           break;
         case 'RestoreStatement':
           services.data().restore();

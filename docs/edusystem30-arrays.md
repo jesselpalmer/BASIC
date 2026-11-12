@@ -1,7 +1,7 @@
 # EDUSYSTEM-30 explicit numeric arrays
 
-The selected profile supports positive literal bounds in one-dimensional
-numeric DIM declarations. A line can declare several arrays. The archived
+The selected profile supports positive literal bounds in one- and
+two-dimensional numeric DIM declarations. A line can declare several arrays. The archived
 interpreter accepts a DIM declaration after the first indexed access and
 keeps a scalar distinct from an array with the same name.
 
@@ -13,9 +13,14 @@ profile reports `ARRAY_BOUNDS` at the index expression. It preserves stored
 values in indexed reads and assignments and observes them as JavaScript
 numbers in array snapshots.
 
+The [GOLF archive probes](golf-edusystem30-reference.json) verify both axes of
+`DIM M(4,18)`. Cells `(0,0)` and `(4,18)` are distinct, unread cells are zero,
+and `M(4.5,18.5)` accesses `(4,18)`. A negative second index produces the
+same bounds diagnostic as a negative first index.
+
 The selected profile uses the shared interpreter's array allocation limits.
 Archived programs can exhaust PDP-8 memory at smaller bounds, depending on
-the compiled program. Implicit DIM, multiple dimensions, indexed INPUT,
+the compiled program. Implicit DIM, rank above two, indexed INPUT,
 and duplicate DIM semantics remain outside this selected slice.
 
 The probe checks two fresh RUNs for each case against the same pinned interpreter

@@ -2,6 +2,8 @@ import {abortError} from './cancellation.ts';
 import {BasicRuntimeError} from './diagnostic.ts';
 import {
   eduSystem30FromNumber,
+  eduSystem30OutputCode,
+  isEduSystem30PrintableCode,
   observeEduSystem30,
   parseEduSystem30Input,
   type EduSystem30FloatingValue,
@@ -20,8 +22,17 @@ function formatPrintItem(
   evaluate: (expression: Expression) => EduSystem30FloatingValue,
 ): string {
   if (item.type === 'StringLiteral') return item.value;
-  // Source admission permits only the literal CHR$(7) terminal control.
-  if (item.type === 'CallExpression' && item.name === 'CHR$') return '\x07';
+  if (item.type === 'CallExpression' && item.name === 'CHR$') {
+    const code = eduSystem30OutputCode(evaluate(item.arguments[0]));
+    if (!isEduSystem30PrintableCode(code))
+      throw new BasicRuntimeError(
+        'NUMERIC_DOMAIN',
+        'EDUSYSTEM-30 CHR$ requires a printable terminal character or BEL',
+        item.location.start,
+        item.location.label,
+      );
+    return String.fromCharCode(code);
+  }
   const value = evaluate(item);
   try {
     return formatEduSystem30Number(value);
@@ -51,6 +62,8 @@ function tabColumn({significand, exponent}: EduSystem30FloatingValue): number {
 export class EduSystem30Terminal {
   #column = 0;
   #fields: RegExpStringIterator<RegExpMatchArray> | undefined;
+
+  constructor(private readonly markInput = false) {}
 
   reset(): void {
     this.#column = 0;
@@ -120,7 +133,7 @@ export class EduSystem30Terminal {
       if (signal.aborted) throw abortError();
       // The archive echoes a character into the column counter, even Return.
       this.#column++;
-      return [eduSystem30FromNumber(Number(code))];
+      return [eduSystem30FromNumber(Number(code) | (this.markInput ? 0x80 : 0))];
     }
 
     const count = inputTargets(statement).length;

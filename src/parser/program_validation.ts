@@ -1,5 +1,5 @@
 import type {LanguageOptions, NodeOf, ParsedLine, Program, Statement} from '../core/types.ts';
-import {validateDialect} from '../core/dialect.ts';
+import {isEduSystem30Dialect, validateDialect} from '../core/dialect.ts';
 import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
@@ -66,7 +66,7 @@ export function validateSourceLines(
         statement.location.start,
         statement.location.label,
       );
-    if (statement.type === 'StopStatement' && dialect !== 'edusystem-30')
+    if (statement.type === 'StopStatement' && !isEduSystem30Dialect(dialect))
       throw new BasicSyntaxError(
         'UNSUPPORTED_STATEMENT',
         'STOP requires the EDUSYSTEM-30 profile',
@@ -74,7 +74,7 @@ export function validateSourceLines(
         statement.location.label,
       );
     if (
-      dialect !== 'edusystem-30' &&
+      !isEduSystem30Dialect(dialect) &&
       (statement.type === 'RandomizeStatement' ||
         (statement.type === 'InputStatement' && statement.character !== undefined))
     )

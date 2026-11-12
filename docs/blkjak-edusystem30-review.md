@@ -49,8 +49,11 @@ capture and compares input to low ASCII values.
 The BLKJAK capture also tests numeric arguments to `CHR$` on the seven-bit
 output terminal. A variable with value 65, positive fractional values 65.5
 and 65.9, and values 193, 321, and −63 all produce `A`. The probe produces
-`B` for 66.1 and BEL for 7. The selected public profile still requires a
-character parity contract and numeric `CHR$` support for this listing.
+`B` for 66.1, BEL for 7, and `@` for −63.75 after rounding down.
+
+The reviewed listing runs through the library, portable CLI/editor and
+[browser playground](https://basic-playground-rho.vercel.app/) under
+`edusystem-30-mark`. Choose **BLKJAK** and enter a starting bankroll.
 
 ```sh
 python3 scripts/research/capture-edusystem30-blkjak.py \
