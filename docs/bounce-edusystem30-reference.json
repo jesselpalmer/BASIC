@@ -1,0 +1,19 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "a5010e3085220dfef1cf9d19c6c4a520c382c5e53df5d2076b11b3ad92c1b672",
+  "rawDiagnostic": "UL 135",
+  "fixtureSha256": "1d7c5e33c49274161ad71fd56f5bae691a66da3b6bf3e324968b5d305b88ce49",
+  "runs": [
+    {
+      "answers": [".1", "30", ".9", ".2", "24", ".6"],
+      "outputSha256": "7466248457a25646eca7284378023721c7519eab293e15308a5672aa6314ef58",
+      "paperOutputSha256": "1fe618605e4cf0eb4bf92dd1512766fae3d8b70ffe529fb0e770d46657dbc533"
+    },
+    {
+      "answers": [".2", "24", ".6"],
+      "outputSha256": "ef4c27946519f71c28440dc1647b130449a21d9cc324e25cd3c068701948b8ba",
+      "paperOutputSha256": "da629edbae116c8635b8a7b46f9292617aeaf7b02b128b7c1a77a2c06315aadf"
+    }
+  ]
+}

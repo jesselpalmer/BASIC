@@ -223,7 +223,7 @@ export async function runEduSystem30Acceptance(api: Api): Promise<void> {
     'LET AB=1',
     'LET A="X"',
     'LET A=34359738368',
-    'LET A=2^6',
+    'LET A=2^SIN(0)',
     'WAIT 1',
     'PRINT A B$',
     'INPUT "N";A',

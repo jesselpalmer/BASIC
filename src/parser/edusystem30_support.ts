@@ -53,10 +53,6 @@ function validateNumber(expression: Expression): void {
         pending.push(node.argument);
         break;
       case 'BinaryExpression':
-        if (node.operator === '^') {
-          if (node.right.type !== 'NumberLiteral' || !/^[2-5]$/.test(node.right.raw))
-            unsupported(node.right, 'literal exponents 2 through 5');
-        }
         pending.push(node.right, node.left);
         break;
       case 'CallExpression':

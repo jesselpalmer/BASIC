@@ -47,3 +47,16 @@ test('EDUSYSTEM-30 rejects over-wide source literals before execution', () => {
   }
   expect(() => parseEduSystem30SourceLiteral('-1')).toThrow(SyntaxError);
 });
+
+test('EDUSYSTEM-30 separates compact literal transfer targets', () => {
+  const source =
+    '10 GOSUB50\\GO TO70\n20 PRINT "WRONG"\n50 PRINT "SUB"\\RETURN\n70 GOTO90\n80 PRINT "WRONG"\n90 END';
+  const output: string[] = [];
+  const program = parseProgram(source, options);
+  expect(program.source).toBe(source);
+  new Basic({write: (text) => output.push(text)}, options).run(program);
+  expect(output.join('')).toBe('SUB\n');
+  const native = new Basic();
+  native.run('10 GOTO90=2\n20 END');
+  expect(native.variables).toEqual([{name: 'GOTO90', value: 2}]);
+});

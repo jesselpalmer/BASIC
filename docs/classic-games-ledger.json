@@ -664,8 +664,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "blkjak-edusystem30-review.md#blkjak-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [9],
@@ -770,8 +772,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "bounce-edusystem30.md#bounce-source-review-and-edusystem-30-evidence",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [90],
@@ -1791,8 +1795,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 30",
+      "reviewRecord": "golf-edusystem30.md#golf-on-archived-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [100],
@@ -2297,8 +2303,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "kinema-edusystem30.md#kinema-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "gosub": [117, 124, 136]

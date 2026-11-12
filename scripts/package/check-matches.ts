@@ -13,6 +13,8 @@ import {assertDiamndOutput, diamndRuns, diamndSource} from '../diamnd-acceptance
 import {assertBatnumOutput, batnumRuns, batnumSource} from '../batnum-acceptance.ts';
 import {assertEvenOutput, evenRuns, evenSource} from '../even-acceptance.ts';
 import {assertRocketOutput, rocketRuns, rocketSource} from '../rocket-acceptance.ts';
+import {assertKinemaOutput, kinemaRuns, kinemaSource} from '../kinema-acceptance.ts';
+import {assertBounceOutput, bounceRuns, bounceSource} from '../bounce-acceptance.ts';
 import {
   assertTrapOutput,
   trapAnswers,
@@ -242,6 +244,24 @@ export async function checkWaitingEduSystem30Cli(
     rocketRuns,
     21,
     assertRocketOutput,
+  );
+  await checkWaitingGame(
+    executable,
+    directory,
+    'kinema',
+    kinemaSource,
+    kinemaRuns,
+    500,
+    assertKinemaOutput,
+  );
+  await checkWaitingGame(
+    executable,
+    directory,
+    'bounce',
+    bounceSource,
+    bounceRuns,
+    136,
+    assertBounceOutput,
   );
 }
 
