@@ -16,6 +16,15 @@ import {assertRocketOutput, rocketRuns, rocketSource} from '../rocket-acceptance
 import {assertKinemaOutput, kinemaRuns, kinemaSource} from '../kinema-acceptance.ts';
 import {assertBounceOutput, bounceRuns, bounceSource} from '../bounce-acceptance.ts';
 import {
+  assertBlkjakOutput,
+  blkjakEntropy,
+  blkjakOptions,
+  blkjakRuns,
+  blkjakSource,
+} from '../blkjak-acceptance.ts';
+import type {Dialect} from '../../src/index.ts';
+import {assertGolfOutput, golfOptions, golfRuns, golfSource} from '../golf-acceptance.ts';
+import {
   assertTrapOutput,
   trapAnswers,
   trapNextRound,
@@ -221,6 +230,19 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
   );
   checkCompletedGame(executable, directory, 'diamnd', diamndSource, diamndRuns, assertDiamndOutput);
   checkCompletedGame(executable, directory, 'even', evenSource, evenRuns, assertEvenOutput);
+  checkCompletedGame(
+    executable,
+    directory,
+    'blkjak',
+    blkjakSource,
+    blkjakRuns,
+    assertBlkjakOutput,
+    {dialect: blkjakOptions.dialect, entropy: () => blkjakEntropy},
+  );
+  checkCompletedGame(executable, directory, 'golf', golfSource, golfRuns, assertGolfOutput, {
+    dialect: golfOptions.dialect,
+    entropy: ({clockWord}) => clockWord / 4096,
+  });
 }
 
 export async function checkWaitingEduSystem30Cli(
@@ -326,15 +348,29 @@ function checkCompletedGame<Round extends {readonly answers: readonly string[]}>
   source: string,
   rounds: readonly Round[],
   assertOutput: (output: string, round: Round) => void,
+  options: {dialect: Dialect; entropy?: (round: Round) => number} = {dialect: eduSystem30Dialect},
 ): void {
   const file = join(directory, `${name}-edusystem30.basic.json`);
   const saved = join(directory, `${name}-edusystem30-copy.basic.json`);
-  const document = {format: 'basic-program', version: 1, dialect: eduSystem30Dialect, source};
+  const document = {format: 'basic-program', version: 1, dialect: options.dialect, source};
   writeFileSync(file, JSON.stringify(document));
+  const cliArgs = (selected: readonly Round[]) => {
+    if (!options.entropy) return [executable];
+    // Inject the captured clock words into the actual CLI host for deterministic replay.
+    const preload = join(directory, `${name}-clock.ts`);
+    writeFileSync(
+      preload,
+      [
+        `const draws = ${JSON.stringify(selected.map(options.entropy))};`,
+        'Math.random = () => { if (!draws.length) throw new Error("Unexpected entropy draw"); return draws.shift(); };',
+      ].join('\n'),
+    );
+    return ['--preload', preload, executable];
+  };
   const transcripts = rounds.map((round) => {
     const result = runProcess({
       cwd: directory,
-      args: [executable, file],
+      args: [...cliArgs([round]), file],
       input: round.answers.join('\n') + '\n',
     });
     assert.equal(result.stderr, '');
@@ -343,7 +379,7 @@ function checkCompletedGame<Round extends {readonly answers: readonly string[]}>
   });
   const editor = runProcess({
     cwd: directory,
-    args: [executable],
+    args: cliArgs(rounds),
     input: [
       `LOAD "${file}"`,
       `SAVE "${saved}"`,

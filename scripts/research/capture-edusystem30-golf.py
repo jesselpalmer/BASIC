@@ -62,6 +62,13 @@ PROBES = [
     ('READ exhaustion halts execution', [
         '10 DATA 1', '20 READ A', '30 READ A', '40 PRINT "STILL";A', '50 END',
     ], '\nERROR DA AT LINE 0030\n'),
+    ('DATA sequences and RESTORE', [
+        '10 DATA 1\\DATA 2\\PRINT "AFTER"', '20 READ A,B\\RESTORE\\READ C',
+        '30 PRINT A;B;C', '40 END',
+    ], 'AFTER\n 1  2  1 \n'),
+    ('marked DATA literals', [
+        '10 DATA #N,-#Y', '20 READ A,B', '30 PRINT A;B', '40 END',
+    ], ' 206 -217 \n'),
     ('two-dimensional arrays', [
         '10 DIM M(4,18)', '20 LET M(4,18)=3', '30 LET M(0,0)=7',
         '40 LET M(1,2)=9', '50 PRINT M(4,18);M(0,0);M(1,2);M(2,1);M(0,18)', '60 END',
@@ -69,6 +76,20 @@ PROBES = [
     ('two-dimensional index bounds', [
         '10 DIM M(4,18)', '20 PRINT M(4.5,18.5)', '30 PRINT M(0,-.5)', '40 END',
     ], ' 0 \n\nERROR SS AT LINE 0030\n'),
+    ('nested loops across transfers', [
+        '10 FOR J=1 TO 2', '20 FOR Q=1 TO 2', '30 IF Q=1 THEN 100', '40 GOTO 120',
+        '50 PRINT J;Q;X', '60 NEXT Q', '70 NEXT J', '80 GOTO 200',
+        '100 X=10', '110 GOTO 50', '120 X=20', '130 GOTO 50', '200 END',
+    ], ' 1  1  10 \n 1  2  20 \n 2  1  10 \n 2  2  20 \n'),
+    ('restart an initialized FOR header', [
+        '10 C=0', '20 FOR I=1 TO 2', '30 C=C+1', '40 IF C=1 THEN 20',
+        '50 PRINT I;C', '60 NEXT I', '70 END',
+    ], ' 1  2 \n 2  3 \n'),
+    ('independent FOR headers sharing a variable', [
+        '10 S=0', '20 FOR I=1 TO 2', '30 IF S=1 THEN 70', '40 S=1',
+        '50 GOTO 100', '70 PRINT I', '80 NEXT I', '90 GOTO 200',
+        '100 FOR I=7 TO 8', '110 PRINT I', '120 NEXT I', '130 GOTO 70', '200 END',
+    ], ' 7 \n 8 \n 8 \n 9 \n'),
 ]
 PARITY_SOURCE = [
     '10 PRINT "LETTER"', '20 INPUT $A', '30 PRINT A;#Y;#N',

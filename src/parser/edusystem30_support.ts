@@ -1,5 +1,10 @@
 import {BasicSyntaxError} from '../core/diagnostic.ts';
-import {parseEduSystem30SourceLiteral} from '../core/edusystem30_floating.ts';
+import {
+  eduSystem30OutputCode,
+  isEduSystem30PrintableCode,
+  parseEduSystem30DataLiteral,
+  parseEduSystem30SourceLiteral,
+} from '../core/edusystem30_floating.ts';
 import {lineStatements} from '../core/instructions.ts';
 import type {Expression, NodeOf, ParsedLine, SimpleStatement} from '../core/types.ts';
 
@@ -30,12 +35,9 @@ function validateNumber(expression: Expression): void {
         validateScalar(node);
         break;
       case 'ArrayReference':
-        if (!numericName.test(node.name) || node.indices.length !== 1)
-          unsupported(
-            node,
-            'one-dimensional numeric arrays named with a letter and optional digit',
-          );
-        pending.push(node.indices[0]);
+        if (!numericName.test(node.name))
+          unsupported(node, 'numeric arrays named with a letter and optional digit');
+        pending.push(...node.indices);
         break;
       case 'NumberLiteral':
         try {
@@ -72,14 +74,18 @@ function validatePrint(statement: NodeOf<'PrintStatement'>): void {
       validateNumber(item.arguments[0]);
       continue;
     }
-    if (
-      item.type === 'CallExpression' &&
-      item.name === 'CHR$' &&
-      item.arguments.length === 1 &&
-      item.arguments[0].type === 'NumberLiteral' &&
-      item.arguments[0].raw === '7'
-    )
+    if (item.type === 'CallExpression' && item.name === 'CHR$' && item.arguments.length === 1) {
+      const [argument] = item.arguments;
+      validateNumber(argument);
+      if (
+        argument.type === 'NumberLiteral' &&
+        !isEduSystem30PrintableCode(
+          eduSystem30OutputCode(parseEduSystem30SourceLiteral(argument.raw)),
+        )
+      )
+        unsupported(argument, 'a printable CHR$ argument or BEL');
       continue;
+    }
     if (item.type !== 'StringLiteral') validateNumber(item);
   }
 }
@@ -99,18 +105,38 @@ function validateStatement(statement: SimpleStatement): void {
     case 'GosubStatement':
     case 'ReturnStatement':
     case 'RandomizeStatement':
+    case 'RestoreStatement':
       return;
     case 'DimStatement':
       for (const declaration of statement.declarations) {
-        if (!numericName.test(declaration.name) || declaration.bounds.length !== 1)
-          unsupported(declaration, 'one-dimensional numeric DIM declarations');
-        const [bound] = declaration.bounds;
-        if (bound.value === 0) unsupported(bound, 'positive integer DIM bounds');
+        if (!numericName.test(declaration.name))
+          unsupported(
+            declaration,
+            'numeric DIM declarations named with a letter and optional digit',
+          );
+        for (const bound of declaration.bounds) {
+          if (bound.value === 0) unsupported(bound, 'positive integer DIM bounds');
+        }
       }
       return;
     case 'LetStatement':
       validateNumber(statement.target);
       validateNumber(statement.expression);
+      return;
+    case 'DataStatement':
+      for (const item of statement.items) {
+        if (item.type !== 'NumberLiteral' || item.raw.startsWith('+'))
+          unsupported(item, 'numeric DATA literals with an optional leading minus');
+        try {
+          parseEduSystem30DataLiteral(item.raw);
+        } catch (error) {
+          if (!(error instanceof RangeError)) throw error;
+          unsupported(item, 'numeric DATA literals within the compiled decimal range');
+        }
+      }
+      return;
+    case 'ReadStatement':
+      statement.targets.forEach(validateNumber);
       return;
     case 'IfStatement':
       validateNumber(statement.condition.left);
@@ -140,7 +166,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, DIM, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
+        'REM, LET, DIM, DATA/READ/RESTORE, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
       );
   }
 }

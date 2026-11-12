@@ -70,7 +70,8 @@ export interface Location {
   readonly end: Position;
 }
 /** Explicit language context for source, Programs and runs. */
-export type Dialect = 'native' | 'basic-plus-v4a12-ma2' | 'edusystem-30' | 'altair-8k-4.0';
+export type Dialect =
+  'native' | 'basic-plus-v4a12-ma2' | 'edusystem-30' | 'edusystem-30-mark' | 'altair-8k-4.0';
 export interface LanguageOptions {
   dialect?: Dialect;
 }

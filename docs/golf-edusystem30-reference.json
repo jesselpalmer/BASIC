@@ -73,6 +73,16 @@
       "output": "\nERROR DA AT LINE 0030\n"
     },
     {
+      "name": "DATA sequences and RESTORE",
+      "source": "10 DATA 1\\DATA 2\\PRINT \"AFTER\"\n20 READ A,B\\RESTORE\\READ C\n30 PRINT A;B;C\n40 END",
+      "output": "AFTER\n 1  2  1 \n"
+    },
+    {
+      "name": "marked DATA literals",
+      "source": "10 DATA #N,-#Y\n20 READ A,B\n30 PRINT A;B\n40 END",
+      "output": " 206 -217 \n"
+    },
+    {
       "name": "two-dimensional arrays",
       "source": "10 DIM M(4,18)\n20 LET M(4,18)=3\n30 LET M(0,0)=7\n40 LET M(1,2)=9\n50 PRINT M(4,18);M(0,0);M(1,2);M(2,1);M(0,18)\n60 END",
       "output": " 3  7  9  0  0 \n"
@@ -81,6 +91,21 @@
       "name": "two-dimensional index bounds",
       "source": "10 DIM M(4,18)\n20 PRINT M(4.5,18.5)\n30 PRINT M(0,-.5)\n40 END",
       "output": " 0 \n\nERROR SS AT LINE 0030\n"
+    },
+    {
+      "name": "nested loops across transfers",
+      "source": "10 FOR J=1 TO 2\n20 FOR Q=1 TO 2\n30 IF Q=1 THEN 100\n40 GOTO 120\n50 PRINT J;Q;X\n60 NEXT Q\n70 NEXT J\n80 GOTO 200\n100 X=10\n110 GOTO 50\n120 X=20\n130 GOTO 50\n200 END",
+      "output": " 1  1  10 \n 1  2  20 \n 2  1  10 \n 2  2  20 \n"
+    },
+    {
+      "name": "restart an initialized FOR header",
+      "source": "10 C=0\n20 FOR I=1 TO 2\n30 C=C+1\n40 IF C=1 THEN 20\n50 PRINT I;C\n60 NEXT I\n70 END",
+      "output": " 1  2 \n 2  3 \n"
+    },
+    {
+      "name": "independent FOR headers sharing a variable",
+      "source": "10 S=0\n20 FOR I=1 TO 2\n30 IF S=1 THEN 70\n40 S=1\n50 GOTO 100\n70 PRINT I\n80 NEXT I\n90 GOTO 200\n100 FOR I=7 TO 8\n110 PRINT I\n120 NEXT I\n130 GOTO 70\n200 END",
+      "output": " 7 \n 8 \n 8 \n 9 \n"
     }
   ],
   "characterInputParity": {

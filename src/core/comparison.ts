@@ -124,7 +124,9 @@ export function expressionType(expression: Expression): ValueType | null {
         values.push('number');
         break;
       case 'CallExpression':
-        values.push(nativeIntrinsic(node.name)?.resultType ?? 'number');
+        values.push(
+          node.name === 'CHR$' ? 'string' : (nativeIntrinsic(node.name)?.resultType ?? 'number'),
+        );
     }
   }
   return values[0];

@@ -1,12 +1,14 @@
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
+import {isEduSystem30Dialect} from './dialect.ts';
+import {eduSystem30CharacterLiteral} from './edusystem30_floating.ts';
 import {lineStatements} from './instructions.ts';
 import {signedNumericLiteral} from './numeric_literal.ts';
-import type {Evaluator} from './evaluator.ts';
-import type {Location, NodeOf, ParsedLine} from './types.ts';
+import type {AssignmentTarget, Location, NodeOf, ParsedLine} from './types.ts';
 
 export const maxDataListItems = 4096;
 const maxProgramDataItems = 262_144;
 type DataItem = NodeOf<'NumberLiteral'> | NodeOf<'StringLiteral'>;
+export type DataAssignment = (target: AssignmentTarget, item: DataItem) => void;
 
 function fail(code: string, message: string, location: Location): never {
   throw new BasicSyntaxError(code, message, location.start, location.label);
@@ -16,6 +18,7 @@ function fail(code: string, message: string, location: Location): never {
 export function dataItems(lines: readonly ParsedLine[]): readonly DataItem[] {
   const items: DataItem[] = [];
   for (const line of lines) {
+    const eduSystem30 = isEduSystem30Dialect(line.dialect);
     const statements = lineStatements(line);
     for (const [ordinal, statement] of statements.entries()) {
       if (statement.type !== 'DataStatement' && statement.type !== 'ReadStatement') continue;
@@ -35,7 +38,7 @@ export function dataItems(lines: readonly ParsedLine[]): readonly DataItem[] {
         }
         continue;
       }
-      if (ordinal !== statements.length - 1)
+      if (!eduSystem30 && ordinal !== statements.length - 1)
         fail('INVALID_DATA', 'DATA must be the last statement on its line', statement.location);
       if (items.length + statement.items.length > maxProgramDataItems)
         fail(
@@ -48,14 +51,20 @@ export function dataItems(lines: readonly ParsedLine[]): readonly DataItem[] {
           item?.type === 'NumberLiteral' && typeof item.raw === 'string'
             ? item.raw.replace(/^([+-])[ \t]+/, '$1')
             : '';
+        const negative = numericSpelling.startsWith('-');
+        const character = eduSystem30
+          ? eduSystem30CharacterLiteral(negative ? numericSpelling.slice(1) : numericSpelling)
+          : null;
         if (
           !item ||
           (item.type !== 'StringLiteral' && item.type !== 'NumberLiteral') ||
           (item.type === 'StringLiteral' && typeof item.value !== 'string') ||
           (item.type === 'NumberLiteral' &&
             (!Number.isFinite(item.value) ||
-              !signedNumericLiteral.test(numericSpelling) ||
-              Number(numericSpelling) !== item.value))
+              (character === null
+                ? !signedNumericLiteral.test(numericSpelling) ||
+                  Number(numericSpelling) !== item.value
+                : (negative ? -character : character) !== item.value)))
         )
           fail(
             'INVALID_DATA',
@@ -78,7 +87,7 @@ export class DataReader {
     this.#index = 0;
   }
 
-  read(statement: NodeOf<'ReadStatement'>, evaluator: Evaluator): void {
+  read(statement: NodeOf<'ReadStatement'>, assign: DataAssignment): void {
     for (const target of statement.targets) {
       const item = this.items[this.#index];
       if (!item)
@@ -88,7 +97,7 @@ export class DataReader {
           target.location.start,
           target.location.label,
         );
-      evaluator.assign(target, item.value);
+      assign(target, item);
       this.#index++;
     }
   }

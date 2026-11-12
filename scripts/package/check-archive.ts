@@ -110,6 +110,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'rocket-acceptance.ts',
       'kinema-acceptance.ts',
       'bounce-acceptance.ts',
+      'blkjak-acceptance.ts',
+      'golf-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -131,6 +133,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'rocket-edusystem30-reference.json',
       'kinema-edusystem30-reference.json',
       'bounce-edusystem30-reference.json',
+      'blkjak-edusystem30-reference.json',
+      'golf-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

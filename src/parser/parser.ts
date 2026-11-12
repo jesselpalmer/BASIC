@@ -21,7 +21,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {expressionType} from '../core/comparison.ts';
 import {nativeIntrinsic} from '../core/intrinsics.ts';
 import {prepareBasicPlusMa2Literal} from '../core/basic_plus_ma2_literal.ts';
-import {validateDialect} from '../core/dialect.ts';
+import {isEduSystem30Dialect, validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {changeOperands} from '../core/change.ts';
 import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
@@ -53,7 +53,7 @@ export function parseLine(source: string, options: SourceOptions = {}): ParsedLi
     );
   }
   if (lines.length === 0) return null;
-  if (dialect === 'edusystem-30') validateEduSystem30Line(lines[0]);
+  if (isEduSystem30Dialect(dialect)) validateEduSystem30Line(lines[0]);
   if (dialect === 'altair-8k-4.0') validateAltairLine(lines[0]);
   return freezeTree(lines[0]);
 }
@@ -65,14 +65,14 @@ export function parseProgram(source: string, options: LanguageOptions = {}): Pro
     return freezeTree({type: 'Program' as const, dialect, source, lines: candidate.lines});
   }
   const lines = new Parser(source, {dialect}).parse();
-  if (dialect === 'edusystem-30') lines.forEach(validateEduSystem30Line);
+  if (isEduSystem30Dialect(dialect)) lines.forEach(validateEduSystem30Line);
   if (dialect === 'altair-8k-4.0') lines.forEach(validateAltairLine);
   const program = validateSourceLines(lines, dialect);
   if (dialect === 'altair-8k-4.0') {
     validateAltairDimensions(program.lines);
     return freezeTree({...program, source});
   }
-  if (dialect !== 'edusystem-30') return program;
+  if (!isEduSystem30Dialect(dialect)) return program;
   const last = program.lines.at(-1);
   if (last && last.statement.type !== 'EndStatement')
     throw new BasicSyntaxError(
@@ -178,7 +178,7 @@ class Parser {
   }
 
   get eduSystem30(): boolean {
-    return this.dialect === 'edusystem-30';
+    return isEduSystem30Dialect(this.dialect);
   }
 
   peek() {
@@ -611,7 +611,7 @@ class Parser {
       if (!this.at('PUNCTUATION', ',')) break;
       this.take();
     }
-    if (!this.atEnd())
+    if (!this.atEnd() && !(this.eduSystem30 && this.at('PUNCTUATION', '\\')))
       this.fail(
         'INVALID_DATA',
         'DATA must be the last statement on its line and contain only literals',
@@ -812,7 +812,8 @@ class Parser {
             next.type !== 'IDENTIFIER' &&
             !(
               next.type === 'KEYWORD' &&
-              (nativeIntrinsic(next.value) !== null || (this.eduSystem30 && next.value === 'SQR'))
+              (nativeIntrinsic(next.value) !== null ||
+                (this.eduSystem30 && ['SQR', 'CHR$'].includes(next.value)))
             ) &&
             !this.at('PUNCTUATION', '(')
           )

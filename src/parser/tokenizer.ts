@@ -10,6 +10,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {reservedWords} from '../dictionaries/reserved_words.ts';
 import {numericLiteral} from '../core/numeric_literal.ts';
 import {scannerPolicy, type LexicalPolicy} from './lexical_policy.ts';
+import {eduSystem30CharacterLiteral} from '../core/edusystem30_floating.ts';
 import {historicalNumericSpelling} from './historical_numeric.ts';
 
 const digit = (character: string | undefined) => /[0-9]/.test(character ?? '');
@@ -127,6 +128,13 @@ class Scanner {
         this.readComment(true);
       } else if (digit(character) || character === '.') {
         this.readNumber();
+      } else if (this.policy.eduSystem30 && character === '#') {
+        const start = this.position();
+        const value = eduSystem30CharacterLiteral(this.source.slice(this.index, this.index + 2));
+        if (value === null)
+          this.fail('INVALID_NUMBER', 'Expected a supported EDUSYSTEM-30 character literal', start);
+        this.index += 2;
+        this.emit('NUMBER', start, value);
       } else if (letter(character)) {
         this.readName();
       } else if ('+-*/^=<>'.includes(character)) {

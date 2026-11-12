@@ -65,7 +65,7 @@ export class ControlFlow {
   #explicitTransfer = false;
   #loopFrames = new Map<number, LoopFrame>();
   #calls: CallFrame[] = [];
-  // Unique across current and suspended contexts, like the shared BASIC values.
+  // Native and MA2 require unique active variables across suspended contexts.
   #activeLoopVariables = new Set<string>();
 
   constructor(
@@ -169,7 +169,9 @@ export class ControlFlow {
   }
 
   beginLoop(statement: NodeOf<'ForStatement'>): void {
-    if (this.#activeLoopVariables.has(statement.variable.name)) {
+    const name = statement.variable.name;
+    const uniqueVariables = this.loopPolicy !== 'selected-edu30';
+    if (uniqueVariables && this.#activeLoopVariables.has(name)) {
       throw new BasicRuntimeError(
         'LOOP_VARIABLE_ACTIVE',
         `Loop variable ${statement.variable.name} is already active`,
@@ -205,15 +207,18 @@ export class ControlFlow {
     this.evaluator.assign(statement.variable, start);
     // The actual header position is independent of its prepared successor.
     const pair = this.prepared.pairsByFor.get(this.#currentIndex)!;
-    if (skip) this.#moveTo(pair.nextIndex + 1, statement.location);
-    else {
+    if (skip) {
+      // EDU30 can restart an initialized header with bounds that now skip it.
+      this.#loopFrames.delete(pair.forIndex);
+      this.#moveTo(pair.nextIndex + 1, statement.location);
+    } else {
       this.#loopFrames.set(pair.forIndex, {
         ...pair,
         limit,
         step,
         remainingEduSystem30Steps,
       });
-      this.#activeLoopVariables.add(statement.variable.name);
+      if (uniqueVariables) this.#activeLoopVariables.add(name);
     }
   }
 
@@ -266,9 +271,9 @@ export class ControlFlow {
 
   #moveTo(index: number, location: Location): void {
     this.#checkDestination(index, location, this.#loopFrames);
-    // The selected reference allows a transfer out of an unfinished loop and
-    // back to its NEXT; native drops the exited frame immediately.
-    if (this.loopPolicy !== 'selected-ma2') {
+    // The selected references retain initialized loops across transfers.
+    // Native drops an exited frame immediately.
+    if (this.loopPolicy === 'native') {
       for (const [key, frame] of this.#loopFrames) {
         if (!containsLoopBody(frame, index)) {
           this.#loopFrames.delete(key);

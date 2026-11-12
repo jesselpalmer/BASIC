@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import golfReference from '../../docs/golf-edusystem30-reference.json';
 import {Basic, parseProgram} from '../index.ts';
 import {ArrayStore} from './arrays.ts';
 import {eduSystem30FromNumber} from './edusystem30_floating.ts';
@@ -60,11 +61,34 @@ test('EDUSYSTEM-30 stores exact array values below the host observation range', 
   expect(basic.arrays[0].values[0]).toBe(0);
 });
 
+test('EDUSYSTEM-30 reproduces the archived GOLF rank-two array probe', () => {
+  const probe = golfReference.probes.find(({name}) => name === 'two-dimensional arrays')!;
+  let output = '';
+  const basic = new Basic({write: (text) => (output += text)}, options);
+  basic.run(probe.source);
+  expect(output).toBe(probe.output);
+  expect(basic.arrays[0]).toMatchObject({name: 'M', bounds: [4, 18], elementCount: 95});
+});
+
+test('EDUSYSTEM-30 truncates both axes and diagnoses the offending subscript', () => {
+  const probe = golfReference.probes.find(({name}) => name === 'two-dimensional index bounds')!;
+  let output = '';
+  const basic = new Basic({write: (text) => (output += text)}, options);
+  expect(() => basic.run(probe.source)).toThrow('Negative array subscript');
+  expect(output).toBe(probe.output.split('\n\nERROR SS')[0] + '\n');
+  expect(basic.state.diagnostic).toMatchObject({code: 'ARRAY_BOUNDS', label: 30, column: 14});
+  expect(() => basic.run('10 DIM M(4,18)\n20 M(5,0)=3\n30 END')).toThrow('0 through 4');
+  expect(basic.state.diagnostic).toMatchObject({code: 'ARRAY_BOUNDS', label: 20, column: 6});
+});
+
 test('EDUSYSTEM-30 preflights array declarations and references even after END', () => {
-  for (const line of ['DIM A(0)', 'DIM A(1,2)', 'DIM A$(1)', 'PRINT A$(1)', 'PRINT A(1,2)']) {
+  for (const line of ['DIM A(0)', 'DIM A(1,0)', 'DIM A$(1)', 'PRINT A$(1)', 'PRINT A(1,A$)']) {
     expect(() => parseProgram(`10 END\n20 ${line}\n30 END`, options)).toThrow('EDUSYSTEM-30');
   }
   expect(() => parseProgram('10 PRINT A(1)\n20 END', options)).toThrow('requires DIM');
+  expect(() => parseProgram('10 DIM A(1,2)\n20 END\n30 PRINT A(1)\n40 END', options)).toThrow(
+    'requires 2 index(es)',
+  );
   expect(() => parseProgram('10 DIM A(2)\n20 INPUT A(1)\n30 END', options)).toThrow(
     'numeric scalars',
   );

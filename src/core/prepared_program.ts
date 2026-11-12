@@ -1,6 +1,6 @@
 import {parseProgram, validateProgram} from '../parser/parser.ts';
 import {pairLoops} from './loops.ts';
-import {validateDialect} from './dialect.ts';
+import {isEduSystem30Dialect, validateDialect} from './dialect.ts';
 import {arrayDeclarations} from './array_declarations.ts';
 import {programInstructions} from './instructions.ts';
 import {dataItems} from './data.ts';
@@ -103,12 +103,12 @@ export function prepareProgram(source: string | Program, dialect: Dialect): Prep
     if (dialect !== 'native') {
       if (source.type !== 'Program' || typeof source.source !== 'string')
         throw new TypeError(
-          `${dialect === 'edusystem-30' ? 'EDUSYSTEM-30' : 'Altair'} Program requires exact source`,
+          `${isEduSystem30Dialect(dialect) ? 'EDUSYSTEM-30' : 'Altair'} Program requires exact source`,
         );
       program = parseProgram(source.source, {dialect});
       if (!sameTree(program.lines, source.lines))
         throw new TypeError(
-          `Supplied ${dialect === 'edusystem-30' ? 'EDUSYSTEM-30' : 'Altair'} Program disagrees with its source`,
+          `Supplied ${isEduSystem30Dialect(dialect) ? 'EDUSYSTEM-30' : 'Altair'} Program disagrees with its source`,
         );
     } else program = validateProgram(source.lines, {dialect});
   }

@@ -27,8 +27,9 @@
       "60 PRINT \"5\";CHR$(321);\"X\"",
       "70 PRINT \"6\";CHR$(-63);\"X\"",
       "80 PRINT \"7\";CHR$(7);\"X\"",
+      "85 PRINT CHR$(-63.75);CHR$(-64.5);CHR$(321.9)",
       "90 END"
     ],
-    "output": "0AX\n1AX\n2AX\n3BX\n4AX\n5AX\n6AX\n7\u0007X\n"
+    "output": "0AX\n1AX\n2AX\n3BX\n4AX\n5AX\n6AX\n7\u0007X\n@?A\n"
   }
 }
