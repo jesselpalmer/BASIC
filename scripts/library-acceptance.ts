@@ -18,6 +18,10 @@ import {runGolfAcceptance} from './golf-acceptance.ts';
 import {runChompAcceptance} from './chomp-acceptance.ts';
 import {runBuzzwdAcceptance} from './buzzwd-acceptance.ts';
 import {runTowerAcceptance} from './tower-acceptance.ts';
+import {runSlotsAcceptance} from './slots-acceptance.ts';
+import {runReverseAcceptance} from './reverse-acceptance.ts';
+import {runEven1Acceptance} from './even1-acceptance.ts';
+import {runGuessAcceptance} from './guess-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
@@ -76,6 +80,10 @@ export const libraryAcceptanceCases = [
   'reviewed CHOMP matches archived board states, retries and replay',
   'adapted BUZZWD matches archived phrases, numeric input retries and fresh RUN',
   'adapted TOWER matches archived boards, retries, replay and fresh RUN',
+  'reviewed SLOTS matches archived reels, payouts, replay and fresh RUN',
+  'adapted REVERSE matches archived moves, win, replay and fresh RUN',
+  'adapted EVEN1 matches archived learning, wins, losses and fresh RUN',
+  'adapted GUESS matches archived clues, assessments, limit changes and fresh RUN',
   'pinned 3DPLOT matches all archived plot rows and fresh RUN',
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
@@ -394,6 +402,19 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted TOWER matches archived boards, retries, replay and fresh RUN', () =>
     runTowerAcceptance(api),
+  );
+  await check('reviewed SLOTS matches archived reels, payouts, replay and fresh RUN', () =>
+    runSlotsAcceptance(api),
+  );
+  await check('adapted REVERSE matches archived moves, win, replay and fresh RUN', () =>
+    runReverseAcceptance(api),
+  );
+  await check('adapted EVEN1 matches archived learning, wins, losses and fresh RUN', () =>
+    runEven1Acceptance(api),
+  );
+  await check(
+    'adapted GUESS matches archived clues, assessments, limit changes and fresh RUN',
+    () => runGuessAcceptance(api),
   );
   await check('pinned 3DPLOT matches all archived plot rows and fresh RUN', () =>
     runPlotAcceptance(api),

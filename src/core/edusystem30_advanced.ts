@@ -82,3 +82,37 @@ export function eduSystem30Exponential(value: EduSystem30FloatingValue): EduSyst
   const result = {...fractionPower, exponent: fractionPower.exponent + integerPart};
   return value.significand < 0n ? evaluateEduSystem30Arithmetic('/', one, result) : result;
 }
+
+// EDU30.SV octal 03333–03365. The Horner coefficients run from highest to lowest.
+const logCoefficients: readonly EduSystem30FloatingValue[] = [
+  {exponent: -7, significand: -0o32336043n},
+  {exponent: -4, significand: 0o22364304n},
+  {exponent: -3, significand: -0o30317007n},
+  {exponent: -2, significand: 0o25353301n},
+  {exponent: -2, significand: -0o36640567n},
+  {exponent: -1, significand: 0o25170307n},
+  {exponent: -1, significand: -0o37773700n},
+  {exponent: 0, significand: 0o37777742n},
+];
+const logTwo = {exponent: 0, significand: 0o26134414n};
+
+/** Reproduce the archived magnitude reduction and polynomial at octal 03243–03331. */
+export function eduSystem30Logarithm(value: EduSystem30FloatingValue): EduSystem30FloatingValue {
+  if (value.significand === 0n)
+    throw new RangeError('EDUSYSTEM-30 LOG requires a nonzero argument');
+
+  const magnitude = eduSystem30Absolute(value);
+  const reciprocal = compareEduSystem30(magnitude, one) < 0;
+  const reduced = reciprocal ? evaluateEduSystem30Arithmetic('/', one, magnitude) : magnitude;
+  const fraction = evaluateEduSystem30Arithmetic('-', {...reduced, exponent: 1}, one);
+  let polynomial = logCoefficients[0];
+  for (const coefficient of logCoefficients.slice(1)) {
+    const product = evaluateEduSystem30Arithmetic('*', polynomial, fraction);
+    polynomial = evaluateEduSystem30Arithmetic('+', product, coefficient);
+  }
+  const fractionLog = evaluateEduSystem30Arithmetic('*', polynomial, fraction);
+  const integer = eduSystem30FromNumber(reduced.exponent - 1);
+  const scaleLog = evaluateEduSystem30Arithmetic('*', integer, logTwo);
+  const result = evaluateEduSystem30Arithmetic('+', fractionLog, scaleLog);
+  return reciprocal ? {...result, significand: -result.significand} : result;
+}

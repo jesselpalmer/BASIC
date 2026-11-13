@@ -111,3 +111,28 @@ test('selected admission shows a located error and preserves a waiting game', as
   await expect(page.locator('#status')).toHaveText('Waiting for input');
   await expect(page.locator('#diagnostic')).toBeHidden();
 });
+
+test('EDUSYSTEM-30 indexed character input consumes one submitted line', async ({page}) => {
+  await page.goto('/');
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.locator('#example').selectOption('tower');
+  await page
+    .locator('#source')
+    .fill(
+      [
+        '10 DIM A(2)',
+        '20 INPUT$A(0)',
+        '30 INPUT $A(1)',
+        '40 INPUT $A(2)',
+        '50 PRINT A(0);A(1);A(2)',
+        '60 END',
+      ].join('\n'),
+    );
+  await page.locator('#run').click();
+  const input = page.getByRole('textbox', {name: 'Program input'});
+  await expect(input).toBeVisible();
+  await input.fill('Ab');
+  await input.press('Enter');
+  await expect(page.locator('#status')).toHaveText('Finished');
+  await expect(page.locator('#console-output')).toContainText(' 193  226  141 ');
+});

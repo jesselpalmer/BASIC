@@ -61,10 +61,10 @@ function validateNumber(expression: Expression): void {
       case 'CallExpression':
         if (
           node.arguments.length !== 1 ||
-          (!['ABS', 'INT', 'RND', 'SQR', 'EXP'].includes(node.name) &&
+          (!['ABS', 'INT', 'RND', 'SQR', 'EXP', 'LOG'].includes(node.name) &&
             !eduSystem30FunctionName.test(node.name))
         )
-          unsupported(node, 'one numeric argument to ABS, INT, RND, SQR, EXP or FN functions');
+          unsupported(node, 'one numeric argument to ABS, INT, RND, SQR, EXP, LOG or FN functions');
         pending.push(node.arguments[0]);
         break;
       default:
@@ -178,6 +178,13 @@ function validateStatement(statement: SimpleStatement): void {
       validateScalar(statement.target);
       return;
     case 'InputTargetsStatement':
+      if (statement.character) {
+        const [target] = statement.targets;
+        if (statement.prompt || statement.targets.length !== 1 || target.type !== 'ArrayReference')
+          unsupported(statement, 'unprompted indexed character INPUT');
+        validateNumber(target);
+        return;
+      }
       if (statement.prompt || statement.targets.length > 3)
         unsupported(statement, 'unprompted INPUT with two or three numeric scalars');
       statement.targets.forEach(validateScalar);

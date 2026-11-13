@@ -77,7 +77,8 @@ export function validateSourceLines(
       !isEduSystem30Dialect(dialect) &&
       (statement.type === 'RandomizeStatement' ||
         statement.type === 'DefStatement' ||
-        (statement.type === 'InputStatement' && statement.character !== undefined))
+        ((statement.type === 'InputStatement' || statement.type === 'InputTargetsStatement') &&
+          statement.character !== undefined))
     )
       throw new BasicSyntaxError(
         'UNSUPPORTED_STATEMENT',

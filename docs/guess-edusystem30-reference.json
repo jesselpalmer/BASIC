@@ -1,0 +1,39 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "d7f8c25bdd3ad6885ba33159b16701ff2f18371db2ad04e2478a4c73d4c78ce8",
+  "printedFixtureSha256": "a0a07de4a7d6b94ab8289d2785263e59294f87f4a15f9a5e0c3b1d76f9641e26",
+  "fixtureSha256": "b9307abe9b1229d4df364fb64a2fae7605547e9326f0e04bb50f7e297a1e201a",
+  "printedDiagnostics": [
+    "ST 1",
+    "ST 2",
+    "ST 3",
+    "ST 4",
+    "ST 5",
+    "ST 6",
+    "ST 7",
+    "ST 10",
+    "ST 14",
+    "ST 20",
+    "ST 32",
+    "ST 40",
+    "ST 50",
+    "ST 56",
+    "ST 57",
+    "ST 58",
+    "ST 60",
+    "ST 71"
+  ],
+  "runs": [
+    {
+      "name": "both clues, fast and exact wins, limit reset",
+      "answers": ["100", "50", "12", "23", "1", "2", "3", "4", "5", "6", "27", "0", "32", "26"],
+      "outputSha256": "208de684123dd307fc8df67a6e26d7835b5d79f8c014311bae5f646a4de510a5"
+    },
+    {
+      "name": "fresh run, too many guesses",
+      "answers": ["8", "8", "8", "8", "8", "2"],
+      "outputSha256": "46353a6712743b6f7aa7d62396745a2b1379f9b6bd84d033bd9b57b6cb48d50e"
+    }
+  ]
+}

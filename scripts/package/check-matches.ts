@@ -27,6 +27,27 @@ import {assertGolfOutput, golfOptions, golfRuns, golfSource} from '../golf-accep
 import {assertChompOutput, chompRuns, chompSource} from '../chomp-acceptance.ts';
 import {assertBuzzwdOutput, buzzwdRuns, buzzwdSource} from '../buzzwd-acceptance.ts';
 import {assertTowerOutput, towerRuns, towerSource, towerOptions} from '../tower-acceptance.ts';
+import {
+  assertSlotsOutput,
+  slotsRuns,
+  slotsSource,
+  slotsOptions,
+  slotsEntropy,
+} from '../slots-acceptance.ts';
+import {
+  assertReverseOutput,
+  reverseRuns,
+  reverseSource,
+  reverseOptions,
+} from '../reverse-acceptance.ts';
+import {
+  assertEven1Output,
+  even1Runs,
+  even1Source,
+  even1Options,
+  even1Entropy,
+} from '../even1-acceptance.ts';
+import {assertGuessOutput, guessRuns, guessSource} from '../guess-acceptance.ts';
 import {assertPlotOutput, plotSource} from '../3dplot-acceptance.ts';
 import {
   assertMugwumpOutput,
@@ -266,6 +287,26 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     assertTowerOutput,
     towerOptions,
   );
+  checkCompletedGame(executable, directory, 'slots', slotsSource, slotsRuns, assertSlotsOutput, {
+    dialect: slotsOptions.dialect,
+    entropy: () => slotsEntropy,
+  });
+  checkCompletedGame(
+    executable,
+    directory,
+    'reverse',
+    reverseSource,
+    reverseRuns,
+    assertReverseOutput,
+    {
+      dialect: reverseOptions.dialect,
+      entropy: (run) => run.clockWord / 4096,
+    },
+  );
+  checkCompletedGame(executable, directory, 'even1', even1Source, even1Runs, assertEven1Output, {
+    dialect: even1Options.dialect,
+    entropy: () => even1Entropy,
+  });
   checkCompletedGame(
     executable,
     directory,
@@ -293,6 +334,15 @@ export async function checkWaitingEduSystem30Cli(
   executable: string,
   directory: string,
 ): Promise<void> {
+  await checkWaitingGame(
+    executable,
+    directory,
+    'guess',
+    guessSource,
+    guessRuns,
+    20,
+    assertGuessOutput,
+  );
   await checkWaitingGame(
     executable,
     directory,

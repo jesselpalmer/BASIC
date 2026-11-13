@@ -457,6 +457,10 @@ class Scanner {
       const previous = this.tokens.at(-1);
       const atStatementStart =
         previous?.type === 'LABEL' || (previous?.type === 'PUNCTUATION' && previous.value === '\\');
+      if (atStatementStart && value === 'INPUT$' && letter(this.source[this.index])) {
+        this.index--;
+        value = 'INPUT';
+      }
       if (atStatementStart && /^LET[A-Z][0-9]?$/.test(value)) {
         let next = this.index;
         while (this.source[next] === ' ' || this.source[next] === '\t') next++;
@@ -482,7 +486,8 @@ class Scanner {
       this.policy.compact
         ? historicalKeyword && value !== 'USING' && !altairContextual
         : reservedWords.has(value) ||
-          (this.policy.eduSystem30 && ['RANDOMIZE', 'CHR$', 'TAB', 'SQR', 'EXP'].includes(value))
+          (this.policy.eduSystem30 &&
+            ['RANDOMIZE', 'CHR$', 'TAB', 'SQR', 'EXP', 'LOG'].includes(value))
     )
       ? 'KEYWORD'
       : 'IDENTIFIER';

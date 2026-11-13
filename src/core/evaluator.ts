@@ -11,6 +11,7 @@ import {nativeIntrinsic} from './intrinsics.ts';
 import {EduSystem30Random} from './edusystem30_rng.ts';
 import {
   eduSystem30Exponential,
+  eduSystem30Logarithm,
   eduSystem30Power,
   eduSystem30SquareRoot,
 } from './edusystem30_advanced.ts';
@@ -949,9 +950,10 @@ function evaluateTree(
             if (argument.significand < 0n)
               fail('NUMERIC_DOMAIN', 'SQR requires a nonnegative argument', node.nameLocation);
             values.push(eduSystem30SquareRoot(argument));
-          } else if (node.name === 'EXP') {
+          } else if (node.name === 'EXP' || node.name === 'LOG') {
             try {
-              values.push(eduSystem30Exponential(argument));
+              const evaluate = node.name === 'EXP' ? eduSystem30Exponential : eduSystem30Logarithm;
+              values.push(evaluate(argument));
             } catch (cause) {
               if (!(cause instanceof RangeError)) throw cause;
               throw new BasicRuntimeError(

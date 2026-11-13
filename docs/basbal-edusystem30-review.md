@@ -42,11 +42,29 @@ hashes and observations on archived `EDU30.SV` with `NOLINE`.
 ## Requirements for the two-part game
 
 The public selected runtime currently rejects the reviewed compact source
-at BASBAL 110 (`1TO19`) and BASBL1 150 (`4THEN160`). Even with explicit token
-spacing, the game needs character input into numeric array cells. One
-submitted team name or play must feed successive character reads, including
-its final marked Return. BASBAL allocates 50 cells above zero but loops to 99. BASBL1 allocates 16 cells above zero but loops to 20. Acceptance should
-cover these original bounds and the early exit on Return.
+at BASBAL 110 (`1TO19`) and BASBL1 150 (`4THEN160`). The selected profile
+supports indexed character input, so the team name or play can feed the
+successive array reads and final marked Return. BASBAL allocates 50 cells
+above zero but loops to 99. BASBL1 allocates 16 cells above zero but loops
+to 20. The bounded opening test keeps these limits and the exit on Return.
+It adds spacing for compact tokens and replaces each CHAIN with END.
+Standalone BASBL1 also declares the roster arrays explicitly and observes
+only the opening before any handoff is needed.
+
+An indexed read such as `INPUT $A(I)` submits a printable ASCII line on the
+public host. Each character statement stores one byte, then stores Return
+after the last character. SPACE stores the ASCII value and MARK sets bit 7.
+An intervening scalar character read consumes an already buffered byte.
+Scalar reads starting without a buffer still ask for one character. Numeric
+INPUT can read the remaining line after it uses any previously retained
+numeric fields. A fresh RUN discards unread character and numeric input.
+
+Reproduce the focused parity and input-order probes with the same archive:
+
+```sh
+python3 scripts/research/probe-edusystem30-indexed-input.py \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56
+```
 
 BASBAL initializes scalar `X` and fills `C`, `F` and `Z` arrays from DATA.
 BASBL1 reads `C(X)` and `F(X)` at 310 and 320 and reads and updates `C(Y)`

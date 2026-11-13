@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 
 import reference from '../../docs/edusystem30-reference.json';
+import signedReference from '../../docs/edusystem30-signed-rng-reference.json';
 import letterReference from '../../docs/letter-edusystem30-reference.json';
 import {runLetterAcceptance} from '../../scripts/letter-acceptance.ts';
 import * as api from '../index.ts';
@@ -12,6 +13,16 @@ test('EDUSYSTEM-30 draws match the archived interpreter words for a full stream'
   expect(states).toHaveLength(512);
   for (const wordPair of states) {
     expect(stream.next()).toBe(Number.parseInt(wordPair, 8) / 2 ** 23);
+  }
+});
+
+test('EDUSYSTEM-30 seeded draws match the archive across sign and wrap boundaries', () => {
+  const stream = new EduSystem30Random();
+  for (const {clockWord, drawStatesOctal} of signedReference.observations) {
+    stream.reset();
+    stream.randomize(clockWord);
+    const expected = drawStatesOctal.map((words) => Number.parseInt(words, 8) / 2 ** 23);
+    expect(Array.from({length: expected.length}, () => stream.next())).toEqual(expected);
   }
 });
 
