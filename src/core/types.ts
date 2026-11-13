@@ -254,6 +254,8 @@ export interface NodeFields {
   InputTargetsStatement: {
     readonly prompt: NodeOf<'StringLiteral'> | null;
     readonly targets: readonly AssignmentTarget[];
+    /** EDUSYSTEM-30 indexed INPUT $ reads one character into its numeric target. */
+    readonly character?: true;
   };
   PrintStatement: {
     readonly items: readonly Expression[];

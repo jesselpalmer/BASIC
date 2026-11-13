@@ -1,0 +1,40 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "e52d0bafedfdc5040b9fe0997a38c41553f6b1669b5b9821b651b3c249ecdd7a",
+  "reviewedFixtureSha256": "74a75e29e4c0d756dc38ab265e7c1585cc2c64b959a6e7ce9951ccd7e83839e5",
+  "fixtureSha256": "1258cda98b7585b0bda0b9562b6e3eb4108acd32928b743161f23a52dc27e7f0",
+  "rawCompilerOutput": "PC 160\nS1 170\nS1 210\nPC 220\nS1 230\nPC 240\nPC 530\nS1 550\nUL 520\n",
+  "reviewedCompilerOutput": "PC 160\nS1 180\nS1 210\nPC 220\nS1 230\nPC 240\nPC 530\nS1 550\nUL 520\n",
+  "runs": [
+    {
+      "name": "rules, invalid move, win, replay, and quit",
+      "clockWord": 0,
+      "answers": ["Y", "10", "1", "7", "9", "5", "8", "3", "7", "3", "5", "3", "4", "3", "Y", "0"],
+      "boards": [
+        [3, 4, 8, 7, 6, 2, 9, 5, 1],
+        [3, 4, 8, 7, 6, 2, 9, 5, 1],
+        [9, 2, 6, 7, 8, 4, 3, 5, 1],
+        [1, 5, 3, 4, 8, 7, 6, 2, 9],
+        [8, 4, 3, 5, 1, 7, 6, 2, 9],
+        [2, 6, 7, 1, 5, 3, 4, 8, 9],
+        [7, 6, 2, 1, 5, 3, 4, 8, 9],
+        [4, 3, 5, 1, 2, 6, 7, 8, 9],
+        [5, 3, 4, 1, 2, 6, 7, 8, 9],
+        [2, 1, 4, 3, 5, 6, 7, 8, 9],
+        [4, 1, 2, 3, 5, 6, 7, 8, 9],
+        [3, 2, 1, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [6, 2, 9, 7, 8, 1, 4, 3, 5]
+      ],
+      "outputSha256": "e073906cc68f5136f560f532fa0c120327a98cf905131cb32353a379da4121cc"
+    },
+    {
+      "name": "fresh run without rules",
+      "clockWord": 113,
+      "answers": ["N", "0"],
+      "boards": [[4, 5, 1, 6, 2, 9, 7, 3, 8]],
+      "outputSha256": "62aecfb0e0c7fb750eede9af79e14889a2abf6b7da7ea4d7274651a51dbf45d4"
+    }
+  ]
+}

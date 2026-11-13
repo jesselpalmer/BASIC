@@ -20,7 +20,8 @@ and words in the table are octal.
 Combine the two 12-bit words as one integer. Each draw follows this transition.
 
 ```text
-middle = floor(state * 0o14613007 / 2^12)
+magnitude = abs(signed24(state))
+middle = floor(magnitude * 0o14613007 / 2^12)
 state  = (middle mod 2^23) OR 1
 draw   = state / 2^23
 ```
@@ -46,7 +47,13 @@ The `RANDOMIZE` routine at octal 02755–02757 adds
 the 12-bit clock word at 07471 to the high state word at 00150 modulo 4096
 and leaves 00151 unchanged. The [LETTER capture](letter-edusystem30-reference.json)
 sets that clock word to octal 2304 and observes the high word change from
-1461 to 3765. The portable profile uses `floor(host.random() * 4096)` as
+1461 to 3765. The
+[signed-seed capture](edusystem30-signed-rng-reference.json) observes the
+initialized word pair and four committed draws just below and above the sign
+boundary, before and after high-word wrap, and with the EVEN1 clock word.
+For example, clock word 1246 produces octal `4017 3007`. The first draw
+multiplies the magnitude of that signed 24-bit value and commits `0752 7373`.
+All committed draws clear the sign bit. The portable profile uses `floor(host.random() * 4096)` as
 the clock word, preserving an injectable entropy source. The archived
 interpreter emits a diagnostic and still draws when `X` divides by zero. The
 selected profile currently reports a runtime error in that case. Diagnostic

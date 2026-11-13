@@ -62,12 +62,20 @@ function tabColumn({significand, exponent}: EduSystem30FloatingValue): number {
 export class EduSystem30Terminal {
   #column = 0;
   #fields: RegExpStringIterator<RegExpMatchArray> | undefined;
+  #characters = '';
+  #characterIndex = 0;
 
   constructor(private readonly markInput = false) {}
 
   reset(): void {
     this.#column = 0;
     this.#fields = undefined;
+    this.#clearCharacters();
+  }
+
+  #clearCharacters(): void {
+    this.#characters = '';
+    this.#characterIndex = 0;
   }
 
   print(
@@ -112,28 +120,70 @@ export class EduSystem30Terminal {
     return output + (continues ? '' : '\n');
   }
 
+  async #readCharacter(
+    host: Pick<Host, 'readLine' | 'write'>,
+    statement: NodeOf<'InputStatement'> | NodeOf<'InputTargetsStatement'>,
+    signal: AbortSignal,
+  ): Promise<number> {
+    if (this.#characters) {
+      const code = this.#characters.charCodeAt(this.#characterIndex++);
+      if (this.#characterIndex === this.#characters.length) this.#clearCharacters();
+      return code;
+    }
+
+    if (statement.type === 'InputTargetsStatement') {
+      for (;;) {
+        const text = await readInputResponse(host, '', statement.location, signal);
+        if (signal.aborted) throw abortError();
+        if (text.length > maxInputResponseLength)
+          throw new BasicRuntimeError(
+            'INPUT_LIMIT',
+            `EDUSYSTEM-30 INPUT permits at most ${maxInputResponseLength} response characters`,
+            statement.location.start,
+            statement.location.label,
+          );
+        if (!/[^\x20-\x7e]/.test(text)) {
+          if (!text) return 13;
+          // The host submits a whole line. Retain its unread characters and Return
+          // for later INPUT statements in this run.
+          this.#characters = text + '\r';
+          this.#characterIndex = 1;
+          return text.charCodeAt(0);
+        }
+        this.#column = 0;
+        host.write('\nEnter an ASCII line.\n');
+      }
+    }
+
+    const [code] = await readInput(
+      {
+        ...host,
+        write: (text) => {
+          if (signal.aborted) throw abortError();
+          this.#column = 0;
+          host.write(text);
+        },
+      },
+      statement,
+      signal,
+    );
+    return Number(code);
+  }
+
   async read(
     host: Pick<Host, 'readLine' | 'write'>,
     statement: InputStatement,
     signal: AbortSignal,
   ): Promise<readonly EduSystem30FloatingValue[]> {
-    if (statement.type === 'InputStatement' && statement.character) {
-      const [code] = await readInput(
-        {
-          ...host,
-          write: (text) => {
-            if (signal.aborted) throw abortError();
-            this.#column = 0;
-            host.write(text);
-          },
-        },
-        statement,
-        signal,
-      );
+    if (
+      (statement.type === 'InputStatement' || statement.type === 'InputTargetsStatement') &&
+      statement.character
+    ) {
+      const code = await this.#readCharacter(host, statement, signal);
       if (signal.aborted) throw abortError();
       // The archive echoes a character into the column counter, even Return.
       this.#column++;
-      return [eduSystem30FromNumber(Number(code) | (this.markInput ? 0x80 : 0))];
+      return [eduSystem30FromNumber(code | (this.markInput ? 0x80 : 0))];
     }
 
     const count = inputTargets(statement).length;
@@ -141,8 +191,15 @@ export class EduSystem30Terminal {
     while (values.length < count) {
       const field = this.#fields?.next().value?.[0];
       if (field === undefined) {
-        const text = await readInputResponse(host, '?', statement.location, signal);
-        if (signal.aborted) throw abortError();
+        let text: string;
+        if (this.#characters) {
+          host.write('?');
+          text = this.#characters.slice(this.#characterIndex, -1);
+          this.#clearCharacters();
+        } else {
+          text = await readInputResponse(host, '?', statement.location, signal);
+          if (signal.aborted) throw abortError();
+        }
         this.#column = 0;
         if (text.length > maxInputResponseLength)
           throw new BasicRuntimeError(

@@ -1,0 +1,37 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "source": "10 RANDOMIZE\n20 FOR I=1 TO 4\n30 X=RND(0)\n40 NEXT I\n50 END",
+  "observations": [
+    {
+      "clockWord": 1230,
+      "initialStateOctal": "37773007",
+      "drawStatesOctal": ["04060225", "22463347", "03467133", "04720035"]
+    },
+    {
+      "clockWord": 1231,
+      "initialStateOctal": "40003007",
+      "drawStatesOctal": ["07174543", "00547445", "36021775", "06016173"]
+    },
+    {
+      "clockWord": 1246,
+      "initialStateOctal": "40173007",
+      "drawStatesOctal": ["07527373", "35777025", "07612315", "17213643"]
+    },
+    {
+      "clockWord": 1744,
+      "initialStateOctal": "50013007",
+      "drawStatesOctal": ["17352535", "33234335", "16717151", "26601225"]
+    },
+    {
+      "clockWord": 3278,
+      "initialStateOctal": "77773007",
+      "drawStatesOctal": ["07753553", "12475461", "10624051", "20064511"]
+    },
+    {
+      "clockWord": 3279,
+      "initialStateOctal": "00003007",
+      "drawStatesOctal": ["04637235", "34411363", "16271207", "33022353"]
+    }
+  ]
+}

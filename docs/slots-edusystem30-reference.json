@@ -1,0 +1,45 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "9a2972829e96bf7046386656e253bbdda8c29d95f922e25087ee6cdae238a1d7",
+  "rawDiagnostics": ["S1 560", "S1 560"],
+  "printedFixtureSha256": "a9ae50c07e84fab8341ed2b3214f65a9117d8695a0f9190a64d12648a71f81a5",
+  "fixtureSha256": "d1a90662051650c9d2b5e5c3b177d7a9b5cd6a182e1599b2b1ee2b29df0bd69d",
+  "clockWord": 3289,
+  "runs": [
+    {
+      "name": "all 21 printed spins",
+      "answers": [
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "N"
+      ],
+      "totals": [1, 6, 26, 27, 32, 31, 32, 31, 30, 29, 28, 27, 28, 27, 26, 27, 28, 27, 26, 25, 26],
+      "outputSha256": "ae4495ec4afb8e9bd61e0b3a15e0e54508124d5c23289be49fb2e5cbd9324125"
+    },
+    {
+      "name": "fresh RUN with invalid replay response",
+      "answers": ["X", "Y", "N"],
+      "totals": [1, 6],
+      "outputSha256": "187dfd66063b954efb9df1f58cb3c7d6115fe1ed18c07a36ec1c4d0ea1168699"
+    }
+  ]
+}

@@ -482,13 +482,23 @@ class Parser {
       case 'INPUT': {
         if (this.eduSystem30 && this.at('PUNCTUATION', '$')) {
           this.take();
-          const name = this.expect('IDENTIFIER', undefined, 'Expected a variable after INPUT $');
-          const target = this.node('Variable', name, name, {name: name.value});
-          return this.node('InputStatement', command, target, {
-            prompt: null,
-            target,
-            character: true,
-          });
+          const name = this.expect(
+            'IDENTIFIER',
+            undefined,
+            'Expected a numeric target after INPUT $',
+          );
+          const target = this.reference(name);
+          return target.type === 'ArrayReference'
+            ? this.node('InputTargetsStatement', command, target, {
+                prompt: null,
+                targets: [target],
+                character: true,
+              })
+            : this.node('InputStatement', command, target, {
+                prompt: null,
+                target,
+                character: true,
+              });
         }
         if (this.at('KEYWORD', 'LINE')) {
           this.take();
@@ -837,7 +847,7 @@ class Parser {
             !(
               next.type === 'KEYWORD' &&
               (nativeIntrinsic(next.value) !== null ||
-                (this.eduSystem30 && ['SQR', 'EXP', 'CHR$'].includes(next.value)))
+                (this.eduSystem30 && ['SQR', 'EXP', 'LOG', 'CHR$'].includes(next.value)))
             ) &&
             !this.at('PUNCTUATION', '(')
           )
@@ -1093,7 +1103,7 @@ class Parser {
       token.type === 'KEYWORD' &&
       (nativeIntrinsic(token.value) !== null ||
         ((this.altair || this.eduSystem30) && token.value === 'CHR$') ||
-        (this.eduSystem30 && ['SQR', 'EXP'].includes(token.value)))
+        (this.eduSystem30 && ['SQR', 'EXP', 'LOG'].includes(token.value)))
     ) {
       return this.call();
     }

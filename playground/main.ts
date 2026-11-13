@@ -39,6 +39,10 @@ import golf from '../scripts/package/fixtures/classic/golf-mar75-text.bas' with 
 import chomp from '../scripts/package/fixtures/classic/chomp-mar75-text.bas' with {type: 'text'};
 import buzzwd from '../scripts/package/fixtures/classic/buzzwd-edusystem30.bas' with {type: 'text'};
 import tower from '../scripts/package/fixtures/classic/tower-mark-adapted.bas' with {type: 'text'};
+import slots from '../scripts/package/fixtures/classic/slots-edusystem30.bas' with {type: 'text'};
+import reverse from '../scripts/package/fixtures/classic/reverse-mark-adapted.bas' with {type: 'text'};
+import even1 from '../scripts/package/fixtures/classic/even1-mark-adapted.bas' with {type: 'text'};
+import classicGuess from '../scripts/package/fixtures/classic/guess-edusystem30.bas' with {type: 'text'};
 import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 'text'};
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
@@ -113,6 +117,10 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   chomp: {source: chomp, dialect: 'edusystem-30'},
   buzzwd: {source: buzzwd, dialect: 'edusystem-30'},
   tower: {source: tower, dialect: 'edusystem-30-mark'},
+  slots: {source: slots, dialect: 'edusystem-30-mark'},
+  reverse: {source: reverse, dialect: 'edusystem-30-mark'},
+  even1: {source: even1, dialect: 'edusystem-30-mark'},
+  'guess-classic': {source: classicGuess, dialect: 'edusystem-30'},
   '3dplot': {source: plot, dialect: 'edusystem-30'},
   mugwump: {source: mugwump, dialect: 'edusystem-30'},
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
@@ -339,7 +347,7 @@ const session = new BrowserSession({
       write(prompt);
       inputPrompt.textContent = prompt
         ? 'Enter a number or comma-separated values'
-        : 'Enter one ASCII character';
+        : 'Program input';
       if (!prompt) inputEchoSuffix = '';
     } else if (session.state.dialect === 'altair-8k-4.0') {
       write(prompt);

@@ -1617,11 +1617,13 @@
         "title": "EVEN1",
         "referencePage": 98,
         "dialectHint": null,
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 98
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "even1-edusystem30-review.md#even1-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [20],
@@ -1878,11 +1880,14 @@
         "title": "GUESS",
         "referencePage": 113,
         "dialectHint": "EduSystem 20",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 114
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EduSystem 20",
+      "reviewRecord": "guess-edusystem30-review.md#guess-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "gosub": [15, 31]
@@ -3072,11 +3077,13 @@
         "title": "REVERSE",
         "referencePage": 178,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 181
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "reverse-edusystem30-review.md#reverse-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [120],
@@ -3395,11 +3402,13 @@
         "title": "SLOTS",
         "referencePage": 196,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 199
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "slots-edusystem30.md#slots-source-review-and-edusystem-30-replay",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [100],

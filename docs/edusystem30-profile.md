@@ -13,10 +13,13 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [3DPLOT](3dplot-edusystem30.md) listings.
 It also runs the separately labeled adaptations
 [KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
-[AMAZIN](amazin-edusystem30.md), and [BUZZWD](buzzwd-edusystem30.md).
+[AMAZIN](amazin-edusystem30.md), [BUZZWD](buzzwd-edusystem30.md), and
+[GUESS](guess-edusystem30-review.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
-[BLKJAK](blkjak-edusystem30-review.md) listings and the
-[TOWER adaptation](tower-edusystem30-review.md). Both modes share the same
+[BLKJAK](blkjak-edusystem30-review.md) and [SLOTS](slots-edusystem30.md)
+listings, plus the [TOWER](tower-edusystem30-review.md),
+[REVERSE](reverse-edusystem30-review.md), and [EVEN1](even1-edusystem30-review.md)
+adaptations. Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK
 parity respectively, and preserve that choice in portable documents.
 The book and archived `EDU30.SV`
@@ -62,8 +65,11 @@ runs supply the references.
   system. Try `9,7` for its sample dimensions.
   For **BUZZWD**, enter three digits separated by commas. Enter
   `100,100,100` to finish. For **3DPLOT**, select Run to draw the 41-row plot.
-  **GOLF**, **BLKJAK**, and **TOWER** select MARK input automatically. Enter a single
-  letter at a character prompt and submit numbers at the other prompts.
+  **GOLF**, **BLKJAK**, **TOWER**, **SLOTS**, **REVERSE**, and **EVEN1**
+  select MARK input automatically. Enter a single letter at a character
+  prompt and submit numbers at the other prompts. For **GUESS**, enter a
+  positive integer limit and follow the high and low clues. Enter `0` to
+  change the limit.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -82,9 +88,9 @@ runs supply the references.
 | Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric DATA/READ and bare RESTORE, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN (including compact literal transfer targets), INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source has an END statement at the highest label. Unary numeric `DEF FN` definitions bind before execution. |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, EXP, INT, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                                                                          |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, EXP, INT, LOG, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                                                                     |
 | Arrays                 | Rank-one and rank-two numeric arrays use explicit DIM and zero-based indices through the inclusive bound. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                                                                                                                                   |
-| INPUT                  | Unprompted numeric INPUT accepts one to three scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Longer or non-ASCII responses retry.                                                                                                                       |
+| INPUT                  | Unprompted numeric INPUT accepts one to three scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Indexed character INPUT reads successive bytes from a printable ASCII line.                                                                                |
 | PRINT                  | Literal text, bounded numeric expressions, numeric `CHR$(expression)` (printable ASCII and BEL) and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                                                            |
 | RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                                                                                      |
 
@@ -103,6 +109,8 @@ diagnostics. [DEF evidence](3dplot-edusystem30.md)
 
 `EXP` uses archived stored arithmetic and accepts zero or stored magnitudes
 from `2^-1000` through 700. [EXP evidence](edusystem30-exp-evidence.md)
+`LOG` evaluates the natural logarithm of the stored magnitude. Zero and a reciprocal outside
+the stored exponent range report located domain errors. [LOG evidence](edusystem30-log-evidence.md)
 
 All lines are checked before execution, including unreachable lines and
 function definitions overridden by a later definition. A supplied
@@ -115,6 +123,14 @@ diagnostic continuation, and additional language forms require separate evidence
 A false line-target IF continues with the next backslash statement.
 STOP finishes the run like END and skips later statements on the same line.
 A subsequent RUN starts over. The program must still end in END.
+
+An indexed character read such as `INPUT $A(I)` or `INPUT $A(I,J)` requests
+a printable ASCII line and stores one byte. Subsequent character reads
+consume the rest of the line, then Return. An empty reply gives Return
+immediately. A scalar character read without a buffered line still requests
+one ASCII character and retries a longer reply. Numeric INPUT uses remaining
+numeric fields first, then can consume a buffered character line's remainder.
+See the [archived baseball input probes](basbal-edusystem30-review.md).
 
 Numeric INPUT skips blank fields and spaces, retains surplus fields for later
 numeric INPUT in the same run, and retries a bad field after dropping the

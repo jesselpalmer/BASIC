@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
 import {expect, test} from 'bun:test';
+import logarithmReference from '../../docs/edusystem30-log-reference.json';
 import exponentialReference from '../../docs/edusystem30-exp-reference.json';
 import reference from '../../docs/edusystem30-roots-reference.json';
 import {Basic, BasicRuntimeError, BasicSyntaxError, parseProgram} from '../index.ts';
-import {eduSystem30Exponential} from './edusystem30_advanced.ts';
+import {eduSystem30Exponential, eduSystem30Logarithm} from './edusystem30_advanced.ts';
 import {
   eduSystem30FromNumber,
+  eduSystem30Integer,
+  evaluateEduSystem30Arithmetic,
+  observeEduSystem30,
   parseEduSystem30Input,
   type EduSystem30FloatingValue,
 } from './edusystem30_floating.ts';
@@ -124,4 +128,57 @@ test('EDUSYSTEM-30 rejects unadmitted EXP arities without reserving the native v
   const basic = new Basic();
   basic.run('10 EXP=2\n20 END');
   expect(basic.variables).toEqual([{name: 'EXP', value: 2}]);
+});
+
+test('EDUSYSTEM-30 LOG matches the archived INPUT, arithmetic, and PRINT words', () => {
+  for (const sample of logarithmReference.observations) {
+    const argument = parseEduSystem30Input(sample.input);
+    expect(words(argument)).toEqual(sample.words.A);
+    const result = eduSystem30Logarithm(argument);
+    expect(words(result)).toEqual(sample.words.P);
+    expect(formatEduSystem30Number(result) + '\n').toEqual(sample.output);
+  }
+});
+
+test('EDUSYSTEM-30 LOG rejects zero and preserves the GUESS power-of-two benchmark', () => {
+  expect(() => eduSystem30Logarithm(eduSystem30FromNumber(0))).toThrow(RangeError);
+  const logTwo = eduSystem30Logarithm(eduSystem30FromNumber(2));
+  for (const [limit, expected] of [
+    [1, 1],
+    [7, 3],
+    [8, 4],
+    [31, 5],
+    [32, 6],
+    [100, 7],
+  ]) {
+    const logLimit = eduSystem30Logarithm(eduSystem30FromNumber(limit));
+    const ratio = evaluateEduSystem30Arithmetic('/', logLimit, logTwo);
+    expect(observeEduSystem30(eduSystem30Integer(ratio)) + 1).toBe(expected);
+  }
+});
+
+test.each(['0', '6E-617'])(
+  'EDUSYSTEM-30 LOG reports %s at the source before printing',
+  (argument) => {
+    const writes: string[] = [];
+    const basic = new Basic({write: (text) => writes.push(text)}, options);
+    assert.throws(
+      () => basic.run(`10 PRINT "VALUE";LOG(${argument})\n20 END`),
+      (error) =>
+        error instanceof BasicRuntimeError &&
+        error.diagnostic.code === 'NUMERIC_DOMAIN' &&
+        error.diagnostic.label === 10 &&
+        error.diagnostic.column === 18,
+    );
+    expect(writes).toEqual([]);
+  },
+);
+
+test('LOG requires one selected argument and remains a native variable name', () => {
+  for (const expression of ['LOG()', 'LOG(1,2)']) {
+    expect(() => parseProgram(`10 PRINT ${expression}\n20 END`, options)).toThrow(BasicSyntaxError);
+  }
+  const basic = new Basic();
+  basic.run('10 LOG=2\n20 END');
+  expect(basic.variables).toEqual([{name: 'LOG', value: 2}]);
 });
