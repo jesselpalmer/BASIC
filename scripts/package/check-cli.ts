@@ -7,6 +7,7 @@ import {checkHorsesCli} from './check-horses.ts';
 import {checkTictacCli} from './check-tictac.ts';
 import {checkFipfopCli} from './check-fipfop.ts';
 import {checkWekdayCli} from './check-wekday.ts';
+import {checkBaglesCli} from './check-bagles.ts';
 import {checkAceyduCli} from './check-aceydu.ts';
 import {checkDiceCli} from './check-dice.ts';
 import {checkNicomaCli} from './check-nicoma.ts';
@@ -789,6 +790,7 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   await checkNicomaCli(executable, consumer);
   checkDiceCli(executable, consumer);
   checkAceyduCli(executable, consumer);
+  checkBaglesCli(executable, consumer);
   await checkWekdayCli(executable, consumer);
   checkFipfopCli(executable, consumer);
   await checkTictacCli(executable, consumer);

@@ -51,6 +51,8 @@ import {assertGuessOutput, guessRuns, guessSource} from '../guess-acceptance.ts'
 import {assertCalndrOutput, calndrRuns, calndrProgram} from '../calndr-acceptance.ts';
 import {assertChiefOutput, chiefRuns, chiefSource} from '../chief-acceptance.ts';
 import {assertHiLoOutput, hiLoRuns, hiLoSource} from '../hi-lo-acceptance.ts';
+import {assertHmrabiOutput, hmrabiOptions, hmrabiRuns, hmrabiSource} from '../hmrabi-acceptance.ts';
+import {assertNimOutput, nimOptions, nimRuns, nimSource} from '../nim-acceptance.ts';
 import {assertSalvo1Output, salvo1Options, salvo1Runs, salvo1Source} from '../salvo1-acceptance.ts';
 import {assertCubeOutput, cubeRuns, cubeSource} from '../cube-acceptance.ts';
 import {assertCrapsOutput, crapsOptions, crapsRuns, crapsSource} from '../craps-acceptance.ts';
@@ -333,6 +335,22 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
   checkCompletedGame(executable, directory, 'hi-lo', hiLoSource, hiLoRuns, assertHiLoOutput, {
     dialect: 'edusystem-30-mark',
     entropy: (run) => run.clockWord / 4096,
+  });
+  checkCompletedGame(
+    executable,
+    directory,
+    'hmrabi',
+    hmrabiSource,
+    hmrabiRuns,
+    assertHmrabiOutput,
+    {
+      dialect: hmrabiOptions.dialect,
+      entropy: ({clockWord}) => clockWord / 4096,
+    },
+  );
+  checkCompletedGame(executable, directory, 'nim', nimSource, nimRuns, assertNimOutput, {
+    dialect: nimOptions.dialect,
+    entropy: ({clockWord}) => clockWord / 4096,
   });
   checkCompletedGame(
     executable,

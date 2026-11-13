@@ -1,0 +1,136 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "33a374ea77be95e20b4dc6c14882623930736eb814a164dc940e2e2bc229711b",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "pinnedFixtureSha256": "032c831d2d037bcad31a0621bcc5b766119957c58d2e617fa88c4e3d5319cf53",
+  "reviewedFixtureSha256": "56345141bb290e9fe67c8b01c182fa6946eae3c87e8227c4114d3f8d5339101f",
+  "portableFixtureSha256": "bb21b441d040614f09456e47e891d94f70243decea0f9a1292354b2f7ae7169b",
+  "turns": [
+    {
+      "prompt": "GAME OF BAGLES.  WOULD YOU LIKE THE RULES (YES OR NO)",
+      "answer": "NO"
+    },
+    {
+      "prompt": "",
+      "answer": "12"
+    },
+    {
+      "prompt": "",
+      "answer": "ABC"
+    },
+    {
+      "prompt": "",
+      "answer": "112"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "134"
+    },
+    {
+      "prompt": "",
+      "answer": "350"
+    },
+    {
+      "prompt": "",
+      "answer": "460"
+    },
+    {
+      "prompt": "",
+      "answer": "740"
+    },
+    {
+      "prompt": "PLAY AGAIN (YES OR NO)",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "",
+      "answer": "012"
+    },
+    {
+      "prompt": "PLAY AGAIN (YES OR NO)",
+      "answer": "NO"
+    }
+  ],
+  "output": "GAME OF BAGLES.  WOULD YOU LIKE THE RULES (YES OR NO)? \nO.K.   I HAVE A NUMBER IN MIND.\nGUESS # 1 ? TRY GUESSING A THREE-DIGIT NUMBER. \nGUESS # 1 ? WHAT?\nGUESS # 1 ? OH, I FORGOT TO TELL YOU THAT THE NUMBER I HAVE IN\nMIND HAS NO TWO DIGITS THE SAME. \nGUESS # 1 ? PICO \nGUESS # 2 ? PICO \nGUESS # 3 ? FERMI \nGUESS # 4 ? PICO FERMI \nGUESS # 5 ? YOU GOT IT!!!\n\nPLAY AGAIN (YES OR NO)? \nO.K.   I HAVE A NUMBER IN MIND.\nGUESS # 1 ? PICO \nGUESS # 2 ? PICO \nGUESS # 3 ? PICO \nGUESS # 4 ? PICO \nGUESS # 5 ? PICO \nGUESS # 6 ? PICO \nGUESS # 7 ? PICO \nGUESS # 8 ? PICO \nGUESS # 9 ? PICO \nGUESS # 10 ? PICO \nGUESS # 11 ? PICO \nGUESS # 12 ? PICO \nGUESS # 13 ? PICO \nGUESS # 14 ? PICO \nGUESS # 15 ? PICO \nGUESS # 16 ? PICO \nGUESS # 17 ? PICO \nGUESS # 18 ? PICO \nGUESS # 19 ? PICO \nGUESS # 20 ? PICO \nOH WELL\nTHAT'S 20 GUESSES.  MY NUMBER WAS  259 \nPLAY AGAIN (YES OR NO)? \nA 1 - POINT BAGLES BUFF!!\nHOPE YOU HAD FUN.  BYE.\n"
+}

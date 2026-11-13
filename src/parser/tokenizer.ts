@@ -180,6 +180,7 @@ class Scanner {
     if (word === 'ELSE') return this.openConditionals > 0;
     if (this.statementStart) return entry.role === 'statement';
     if (entry.role === 'function') return true;
+    if (word === 'TO' && this.statementWord === 'CHANGE') return true;
     if (word === 'TO' || word === 'STEP') return this.statementWord === 'FOR';
     if (word === 'THEN') return this.statementWord === 'IF';
     return (

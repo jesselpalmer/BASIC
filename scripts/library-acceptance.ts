@@ -32,11 +32,14 @@ import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
 import {runCubeAcceptance} from './cube-acceptance.ts';
 import {runCrapsAcceptance} from './craps-acceptance.ts';
+import {runHmrabiAcceptance} from './hmrabi-acceptance.ts';
+import {runNimAcceptance} from './nim-acceptance.ts';
 import {runSalvo1Acceptance} from './salvo1-acceptance.ts';
 import {runHorsesAcceptance} from './horses-acceptance.ts';
 import {runTictacAcceptance} from './tictac-acceptance.ts';
 import {runFipfopAcceptance} from './fipfop-acceptance.ts';
 import {runWekdayAcceptance} from './wekday-acceptance.ts';
+import {runBaglesAcceptance} from './bagles-acceptance.ts';
 import {runAceyduAcceptance} from './aceydu-acceptance.ts';
 import {runDiceAcceptance} from './dice-acceptance.ts';
 import {runTrainAcceptance} from './train-acceptance.ts';
@@ -114,11 +117,14 @@ export const libraryAcceptanceCases = [
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
   'adapted CUBE matches the archived win, wager retry and both losses',
   'adapted CRAPS matches archived wagers, shooter changes and endings',
+  'adapted HMRABI matches archived city management and endings',
+  'adapted NIM matches archived play, retries and replay',
   'adapted SALVO 1 matches archived victories and defeats',
   'adapted HORSES matches the archived race, payouts and return to DEMON',
   'adapted TICTAC matches the archived computer win, tie and return to DEMON',
   'adapted FIPFOP matches the archived fixed puzzle, repeated move and replay',
   'adapted WEKDAY matches the archived date facts and return to DEMON',
+  'adapted BAGLES matches archived clues, retries, victory and replay',
   'reviewed ACEYDU matches the archived default deal, wagers and replay',
   'adapted DICE matches archived frequency tables and replay',
   'adapted TRAIN matches archived distance answers and replay',
@@ -487,6 +493,10 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check('adapted CRAPS matches archived wagers, shooter changes and endings', () =>
     runCrapsAcceptance(api),
   );
+  await check('adapted HMRABI matches archived city management and endings', () =>
+    runHmrabiAcceptance(api),
+  );
+  await check('adapted NIM matches archived play, retries and replay', () => runNimAcceptance(api));
   await check('adapted SALVO 1 matches archived victories and defeats', () =>
     runSalvo1Acceptance(api),
   );
@@ -501,6 +511,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted WEKDAY matches the archived date facts and return to DEMON', () =>
     runWekdayAcceptance(api),
+  );
+  await check('adapted BAGLES matches archived clues, retries, victory and replay', () =>
+    runBaglesAcceptance(api),
   );
   await check('reviewed ACEYDU matches the archived default deal, wagers and replay', () =>
     runAceyduAcceptance(api),

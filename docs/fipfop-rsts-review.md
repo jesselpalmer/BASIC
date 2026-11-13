@@ -34,6 +34,37 @@ does not establish the printed sample's random sequence.
 Archived EDU30.SV rejects the printed listing, including its ampersand
 abbreviation, string board, trig expression at 530 and inline FOR modifier.
 
+## Varying-Q replay on both BASIC-PLUS builds
+
+The [cross-build capture](fipfop-randomized-reference.json) checks V4A-12
+software MA2 and V04B-17. The replay replaces the unsupported `COT(x)` with
+`1/TAN(x)` and bypasses clock seeding so that each build draws the same
+default random sequence. It keeps the printed string board, inline PRINT
+FOR, SIN, COS and TAN, and both trig paths. The opening, restart with 11,
+and YES replay draw distinct Q values. The latter two puzzles each solve
+in six moves, including consecutive repeated positions. Both interpreters
+produce the same full transcript.
+
+The formula probe separately captures both secondary flip positions for
+all ten moves at each of the three exact Q values. Additional Q values
+from the [archived RNG domain](rsts-v4a-ma2-rng.md) show why evaluating the
+formulas with direct binary64 arithmetic changes play. At Q=1/32768 and
+move 8, both builds return ordinary secondary position 7. Direct binary64
+evaluation returns 3. At Q=9/32768 and move 9, both secondary positions
+differ. Q=57/32768 and move 3 demonstrates a difference on the repeated
+path alone. These cases establish the need to reproduce archive evaluation
+of the formulas, including the precision of intermediates. For the first
+case, both archives confirm the tangent operand is exactly 262136 and
+print `TAN(262136)` as `13.5567`. Binary64 tangent of that same
+operand is about 16.1575, so rounding the binary64 result to 24 bits
+cannot reproduce the archived tangent.
+
+```sh
+python3 scripts/research/capture-fipfop-randomized.py \
+  --simulator /path/to/pdp11 --v4a-disk /path/to/raw.dsk \
+  --v4b-disk /path/to/RSTS11v4B.DSK --output /tmp/fipfop-randomized-reference.json
+```
+
 ## Play the fixed-Q adaptation
 
 Select **FIPFOP · BASIC-PLUS fixed-Q adaptation** in the

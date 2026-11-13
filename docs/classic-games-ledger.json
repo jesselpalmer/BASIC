@@ -320,11 +320,14 @@
         "title": "BAGLES",
         "referencePage": 22,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 23
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "bagles-rsts-review.md#bagles-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [30],
@@ -2190,11 +2193,14 @@
         "title": "HMRABI",
         "referencePage": 128,
         "dialectHint": "generic",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 129
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM 70",
+      "reviewRecord": "hmrabi-edusystem30.md#hmrabi-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [90],
@@ -2758,11 +2764,13 @@
         "title": "NIM",
         "referencePage": 160,
         "dialectHint": "EduSystem 30?",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 161
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "nim-edusystem30.md#nim-on-edusystem-30-mark",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [190],
