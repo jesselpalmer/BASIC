@@ -11,7 +11,7 @@ import {createHost} from './host.ts';
 import {isEduSystem30Dialect, validateDialect} from './dialect.ts';
 import {readInput, inputTargets, isInputStatement} from './input.ts';
 import type {InputStatement} from './input.ts';
-import {waitFor} from './wait.ts';
+import {waitFor, waitForMilliseconds} from './wait.ts';
 import {
   isInternalSelectedProgram,
   prepareInternalSelectedProgram,
@@ -56,6 +56,14 @@ export function createInternalSelectedBasic(
   host: Partial<Host> = {},
 ): Basic {
   return new Basic(host, {}, {token: internalSelectedToken, program});
+}
+
+type DelayStatement = NodeOf<'WaitStatement'> | NodeOf<'SleepStatement'>;
+
+function isDelayStatement(
+  statement: Instruction['statement'] | undefined,
+): statement is DelayStatement {
+  return statement?.type === 'WaitStatement' || statement?.type === 'SleepStatement';
 }
 
 export default class Basic {
@@ -366,8 +374,7 @@ export default class Basic {
         executed++;
         // WAIT already yields a task. Begin a fresh batch so the next small
         // animation frame is not split because of work before that boundary.
-        statementsSinceYield =
-          line?.statement.type === 'WaitStatement' ? 0 : statementsSinceYield + 1;
+        statementsSinceYield = isDelayStatement(line?.statement) ? 0 : statementsSinceYield + 1;
         if (
           (this.#status === 'ready' || this.#status === 'running') &&
           statementsSinceYield >= yieldEvery &&
@@ -450,7 +457,7 @@ export default class Basic {
     if (
       !line ||
       this.#immediate ||
-      (!isInputStatement(line.statement) && line.statement.type !== 'WaitStatement')
+      (!isInputStatement(line.statement) && !isDelayStatement(line.statement))
     )
       return this.#step();
     const generation = this.#generation;
@@ -482,7 +489,7 @@ export default class Basic {
     this.#checkAbort(options.signal);
     const generation = this.#generation;
     const line = this.#prepareImmediate(source, options);
-    if (line && (isInputStatement(line.statement) || line.statement.type === 'WaitStatement')) {
+    if (line && (isInputStatement(line.statement) || isDelayStatement(line.statement))) {
       await this.#executeSuspension(line, line.statement, options.signal);
       if (generation !== this.#generation) throw abortError();
       this.#checkAbort(options.signal);
@@ -550,7 +557,7 @@ export default class Basic {
     this.#assertIdle();
     if (this.#status === 'waiting')
       throw new Error(
-        `${this.#current?.statement.type === 'WaitStatement' ? 'WAIT' : 'Input'} is already pending; cancel or reset first`,
+        `${isDelayStatement(this.#current?.statement) ? 'WAIT' : 'Input'} is already pending; cancel or reset first`,
       );
     if (this.#activeRun && this.#status !== 'halted' && this.#status !== 'error')
       throw new Error('An async run is active; cancel or reset before stepping or immediate input');
@@ -596,7 +603,7 @@ export default class Basic {
 
   async #executeSuspension(
     line: Instruction,
-    statement: InputStatement | NodeOf<'WaitStatement'>,
+    statement: InputStatement | DelayStatement,
     signal?: AbortSignal,
   ): Promise<void> {
     const generation = this.#generation;
@@ -608,13 +615,21 @@ export default class Basic {
     this.#current = line;
     this.#status = 'waiting';
     try {
-      if (statement.type === 'WaitStatement') {
+      if (isDelayStatement(statement)) {
         // waitFor evaluates and calls the host before its first await, so the
         // same synchronous callback guard covers both phases of this statement.
         let pending: Promise<void>;
         this.#executing = true;
         try {
-          pending = waitFor(this.#host, this.#evaluator, statement, controller.signal);
+          pending =
+            statement.type === 'WaitStatement'
+              ? waitFor(this.#host, this.#evaluator, statement, controller.signal)
+              : waitForMilliseconds(
+                  this.#host,
+                  this.#selectedDriver!.sleepDuration(statement),
+                  statement.location,
+                  controller.signal,
+                );
         } finally {
           this.#executing = false;
         }

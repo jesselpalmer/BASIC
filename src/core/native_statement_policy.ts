@@ -90,6 +90,7 @@ export function createNativeStatementPolicy(services: {
           );
           break;
         case 'WaitStatement':
+        case 'SleepStatement':
           throw new BasicRuntimeError(
             'ASYNC_WAIT_REQUIRED',
             'Use runAsync, stepAsync, or readLineAsync for WAIT',

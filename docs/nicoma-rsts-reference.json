@@ -1,4 +1,5 @@
 {
+  "sourceSha256": "0d92549b3d7adcbfef3c2ce797574f4efe8c17246e6588610b3d3f4a6c2f44e8",
   "transcript": [
     "BOOMERANG PUZZLE FROM ARITHMETICA OF NICOMACHUS -- A.D. 90!",
     "",
@@ -62,5 +63,17 @@
     "",
     "Ready",
     ""
+  ],
+  "inputCursor": [
+    {
+      "statement": "INPUT A",
+      "reply": "7",
+      "outputAfterReply": "    TAIL\n"
+    },
+    {
+      "statement": "INPUT A$",
+      "reply": "YES",
+      "outputAfterReply": "    TAIL\n"
+    }
   ]
 }

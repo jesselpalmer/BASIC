@@ -1,7 +1,7 @@
 import {abortable, abortError, isAbortError} from './cancellation.ts';
 import {BasicRuntimeError} from './diagnostic.ts';
 import type {Evaluator} from './evaluator.ts';
-import type {Host, NodeOf} from './types.ts';
+import type {Host, Location, NodeOf} from './types.ts';
 
 /** Validate once before requesting any timer; the caller guards synchronous host effects. */
 export async function waitFor(
@@ -31,16 +31,21 @@ export async function waitFor(
     );
   }
   const milliseconds = duration === 0 ? 0 : Math.ceil(duration);
+  await waitForMilliseconds(host, milliseconds, statement.location, signal);
+}
+
+export async function waitForMilliseconds(
+  host: Pick<Host, 'wait'>,
+  milliseconds: number,
+  location: Location,
+  signal: AbortSignal,
+): Promise<void> {
   try {
     await abortable(() => host.wait(milliseconds, {signal}), signal, 'Host wait failed');
   } catch (cause) {
     if (signal.aborted || isAbortError(cause)) throw abortError();
-    throw new BasicRuntimeError(
-      'WAIT_FAILED',
-      'Host wait failed',
-      statement.location.start,
-      statement.location.label,
-      {cause},
-    );
+    throw new BasicRuntimeError('WAIT_FAILED', 'Host wait failed', location.start, location.label, {
+      cause,
+    });
   }
 }

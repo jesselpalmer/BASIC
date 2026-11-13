@@ -37,6 +37,7 @@ const simpleKinds: Record<SimpleStatement['type'], true> = {
   PrintUsingStatement: true,
   RemStatement: true,
   WaitStatement: true,
+  SleepStatement: true,
   ColorStatement: true,
   PsetStatement: true,
   LineStatement: true,

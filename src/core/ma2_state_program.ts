@@ -76,6 +76,7 @@ function prepareSelectedMa2Program(
     'EndStatement',
     ...(opening ? ['PrintStatement', 'PrintUsingStatement'] : []),
     ...(opening && !noInput ? ['InputStatement'] : []),
+    ...(externalWrite ? ['SleepStatement'] : []),
   ]);
   // Check every statement, including dead source, before changing state.
   for (const {statement} of candidate.instructions) {
@@ -129,6 +130,15 @@ function prepareSelectedMa2Program(
             statement.location.label,
           );
       }
+    } else if (statement.type === 'SleepStatement') {
+      if (expressionType(statement.seconds) === 'string')
+        throw new BasicSyntaxError(
+          'TYPE_MISMATCH',
+          'SLEEP duration must be numeric',
+          statement.seconds.location.start,
+          statement.location.label,
+        );
+      state.validateNode(statement.seconds);
     } else if (statement.type === 'ForStatement') {
       state.validateNode(statement.start);
       state.validateNode(statement.end);
@@ -313,6 +323,13 @@ function prepareSelectedMa2Program(
       case 'EndStatement':
         halt();
         break;
+      case 'SleepStatement':
+        throw new BasicRuntimeError(
+          'ASYNC_WAIT_REQUIRED',
+          'Use runAsync or stepAsync for SLEEP',
+          statement.location.start,
+          instruction.label,
+        );
       case 'InputStatement':
         throw new BasicRuntimeError(
           'ASYNC_INPUT_REQUIRED',
@@ -434,6 +451,20 @@ function prepareSelectedMa2Program(
       const committed = state.injectNode(statement.target, input);
       if (committed.kind !== 'value') fail(committed, statement.target.location);
     }
+    // The response's Return starts a fresh terminal line; the host owns the echo.
+    output.reset();
+  }
+
+  function sleepDuration(statement: NodeOf<'SleepStatement'>): number {
+    const seconds = value(statement.seconds);
+    if (!Number.isInteger(seconds) || seconds < 0 || seconds > 32767)
+      throw new BasicRuntimeError(
+        'INVALID_SLEEP_DURATION',
+        'Selected SLEEP requires a whole number of seconds from 0 through 32767',
+        statement.seconds.location.start,
+        statement.location.label,
+      );
+    return seconds * 1000;
   }
 
   const driver = Object.freeze({
@@ -445,6 +476,7 @@ function prepareSelectedMa2Program(
     variables: () => state.snapshot(),
     arrays: () => state.snapshotArrays(),
     readInput: readSelectedMa2Input,
+    sleepDuration,
     commitInput,
   });
   return Object.freeze({

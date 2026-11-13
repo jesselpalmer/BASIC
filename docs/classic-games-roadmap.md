@@ -1,8 +1,42 @@
 # Classic-game compatibility roadmap
 
-Native BASIC and three bounded public profile families run today. The selected
-profiles run 38 listings through the library, CLI/editor and browser. The
-[EDUSYSTEM-30 profile](edusystem30-profile.md) identifies the adapted listings.
+## Release progress
+
+**BASIC 1.0 is still open.** The gate covers all **108 pinned listings**.
+A listing can be playable under a selected profile while its raw source or
+original interpreter still needs verification. [Release tracker #109](https://github.com/jesselpalmer/BASIC/issues/109)
+
+| Measure                                                                |  Progress |
+| ---------------------------------------------------------------------- | --------: |
+| Runnable through the library, CLI/editor and browser                   | 41 of 108 |
+| Source reviewed against primary evidence                               | 46 of 108 |
+| Printed system identified                                              | 20 of 108 |
+| Raw listings certified through a complete game on the original dialect |  0 of 108 |
+
+The [corpus ledger](classic-games-ledger.json) tracks source and historical
+evidence. The [EDUSYSTEM-30 profile](edusystem30-profile.md) identifies
+runnable adaptations. These measures overlap.
+
+| Merged batch                                                                                        | Added runnable listings                                       | Running total |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [WAR-2](war2-edusystem30-review.md), [ZOOP](zoop-edusystem30.md), [NICOMA](nicoma-source-review.md) | WAR-2, ZOOP, NICOMA                                           |            41 |
+| [#296](https://github.com/jesselpalmer/BASIC/pull/296)                                              | BASBAL and BASBL1, the two listings in the OMSI Baseball game |            38 |
+| [#295](https://github.com/jesselpalmer/BASIC/pull/295)                                              | CALNDR, CHIEF, HI-LO, ROCKSP, ROCKT1                          |            36 |
+| [#294](https://github.com/jesselpalmer/BASIC/pull/294)                                              | SLOTS, REVERSE, EVEN1, GUESS                                  |            31 |
+| [#293](https://github.com/jesselpalmer/BASIC/pull/293)                                              | BUZZWD, TOWER, 3DPLOT                                         |            27 |
+| [#292](https://github.com/jesselpalmer/BASIC/pull/292)                                              | CHOMP, MUGWUMP, GOMOKO, AMAZIN                                |            24 |
+
+## Next compatibility targets
+
+- [DICE](dice-train-source-review.md) needs a bounded EDUSYSTEM-30 adaptation for
+  random draws and replay input.
+- [ACEYDU](aceydu-rsts-review.md) has a complete archived session. The next
+  interpreter checkpoint is its BASIC-PLUS random stream and bare `RND`.
+- [FIPFOP](fipfop-rsts-review.md) needs string arrays, inline FOR and trigonometry
+  before a public replay can match its archived reference.
+
+## Verified playthroughs
+
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
 [browser playground](https://basic-playground-rho.vercel.app/). Choose
@@ -138,15 +172,20 @@ three-disk solution, a two-disk replay and move retries. The unchanged
 [3DPLOT listing](3dplot-edusystem30.md) matches all 41 archived plot rows.
 
 The [NICOMA review](nicoma-source-review.md) reproduces four printed rounds
-in archived RSTS V04B-17 BASIC-PLUS and records the EDUSYSTEM-30 rejections.
-The original interpreter and the project's selected-profile path remain open.
+on archived RSTS V04B-17 BASIC-PLUS and through the public selected
+BASIC-PLUS profile. The original interpreter remains open. The
+[WAR-2 adaptation](war2-edusystem30-review.md) matches the archived treaty,
+loss and win. The [ZOOP adaptation](zoop-edusystem30.md) runs the archived
+OMSI demonstration with a self-CHAIN and a return to the DEMON menu.
+The [ACEYDU source review](aceydu-rsts-review.md) reproduces a complete
+archived RSTS/E session. Public replay still needs BASIC-PLUS's bare RND.
 The [recovered OMSI library](basbal-edusystem30-review.md#recovered-demonstration-library)
 contains BASBAL, BASBL1 and the DEMON menu. With a second copy of the pinned
 tape mounted on DT1, stock EDU30.SV runs the full menu, baseball game and
 return to the menu. The public MARK profile replays that same 71-play game
 through the installed library, CLI/editor and browser. The three runnable
 sources use token-spacing adaptations. BASBAL and BASBL1 count as two corpus
-listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs.
+listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs and ZOOP.
 
 The [SLOTS replay](slots-edusystem30.md) matches all 21 printed spins and
 running totals. The [REVERSE adaptation](reverse-edusystem30-review.md) verifies
@@ -189,12 +228,12 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **43 reviewed
-source differences / 65 unresolved**, **18 printed-system identifications / 90
+The [corpus ledger](classic-games-ledger.json) records **46 reviewed
+source differences / 62 unresolved**, **20 printed-system identifications / 88
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 
-## Remaining blockers for the first game
+## First-game acceptance and attribution
 
 | Outcome and owning issues                                                 | Evidence delivered                                                                                                                                                                                                                                                                                              | Next proof                                                                                                                                    |
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |

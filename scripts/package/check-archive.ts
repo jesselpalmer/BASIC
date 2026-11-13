@@ -129,6 +129,9 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'gomoko-acceptance.ts',
       'amazin-acceptance.ts',
       'baseball-acceptance.ts',
+      'war2-acceptance.ts',
+      'zoop-acceptance.ts',
+      'nicoma-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
@@ -172,6 +175,9 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'gomoko-edusystem30-reference.json',
       'amazin-edusystem30-reference.json',
       'edusystem30-omsi-reference.json',
+      'war2-edusystem30-reference.json',
+      'zoop-edusystem30-reference.json',
+      'nicoma-rsts-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

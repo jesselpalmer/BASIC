@@ -284,6 +284,7 @@ export interface NodeFields {
   };
   RemStatement: {readonly text: string};
   WaitStatement: {readonly duration: Expression};
+  SleepStatement: {readonly seconds: Expression};
   ColorStatement: {readonly color: Expression};
   PsetStatement: {readonly x: Expression; readonly y: Expression};
   LineStatement: {
@@ -354,6 +355,7 @@ export type SimpleStatement = Nodes<
   | 'PrintUsingStatement'
   | 'RemStatement'
   | 'WaitStatement'
+  | 'SleepStatement'
   | 'ColorStatement'
   | 'PsetStatement'
   | 'LineStatement'
