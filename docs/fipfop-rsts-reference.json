@@ -1,0 +1,76 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "diskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "rawFixtureSha256": "ce41c81c5db270e429a891d8b0883b63bf1af3838f0911518ab7669a5b619f1e",
+  "reviewedFixtureSha256": "82a1551be2be4d6f65d74c24c320f3f634d58f8f3df6e53e4e8617d7f0fb6535",
+  "probeFixtureSha256": "56f49db732929f46b810bfc8956e379666f1b0038d6c886713f834df103ccede",
+  "printedListing": {
+    "entryDiagnostic": "MODIFIER ERROR at line 530",
+    "inputs": ["12", "0", "11", "1", "1"],
+    "observations": [
+      "out-of-range entry retries",
+      "0 resets the board",
+      "11 starts a new puzzle",
+      "first position flips",
+      "ILLEGAL STATEMENT at line 530"
+    ]
+  },
+  "fixedQProbe": {
+    "inputs": [
+      "1",
+      "2",
+      "2",
+      "4",
+      "5",
+      "7",
+      "8",
+      "10",
+      "YES",
+      "1",
+      "2",
+      "2",
+      "4",
+      "5",
+      "7",
+      "8",
+      "10",
+      "NO"
+    ],
+    "boardsPerRound": [
+      "OXXXXXXXXX",
+      "OOXXXXXXOX",
+      "OXXXXOXXOX",
+      "OOXOXOXXOX",
+      "OOOOOOXXOX",
+      "OOOOOXOXOX",
+      "OOOOOOOOOX",
+      "OOOOOOOOOO"
+    ],
+    "outputSha256": "91ba11f06444001f735ba96abfcfd54ab7efe02d8717e8d9df371b98469492ae"
+  },
+  "edu30": {
+    "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+    "diagnostics": [
+      "S1 100",
+      "S1 120",
+      "S1 140",
+      "S1 160",
+      "S1 260",
+      "S1 280",
+      "S1 400",
+      "S1 410",
+      "S1 450",
+      "S1 460",
+      "S1 480",
+      "S1 510",
+      "S1 520",
+      "S1 530",
+      "S1 560",
+      "S1 570",
+      "S1 590",
+      "S1 620",
+      "S1 660",
+      "S1 740"
+    ]
+  }
+}

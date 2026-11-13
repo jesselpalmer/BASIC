@@ -1,0 +1,29 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "9d579faa15340c3b2eccae30ccfe3f0bb1ec0530b47e150617e5de7201337608",
+  "reviewedFixtureSha256": "f29f96d1da778ffc79aefee6110e689630f6c50ba38db28ac3ed02bd8e731ce1",
+  "fixtureSha256": "8bf0092dfdf0678e2454f1acec44ec27fdd4761fe5d48c465fcc9af53928060b",
+  "rawCompilerOutput": "S1 180\nPC 200\nUQ 280\nS1 360\n",
+  "reviewedCompilerOutput": "S1 180\nPC 200\nS1 360\n",
+  "runs": [
+    {
+      "name": "clues, cumulative wins, six misses, reset and quit",
+      "clockWord": 0,
+      "answers": ["0", "90", "22", "Y", "26", "Y", "0", "1", "2", "50", "51", "52", "Y", "78", "N"],
+      "wins": [22, 26, 78],
+      "totals": [22, 48, 78],
+      "missed": [36],
+      "outputSha256": "6b3eebf93d4e7148e348a9a5928ec328eb174ad715f25653f96fe4fa0a8505aa"
+    },
+    {
+      "name": "fresh zero jackpot and quit",
+      "clockWord": 17,
+      "answers": ["0", "N"],
+      "wins": [0],
+      "totals": [0],
+      "missed": [],
+      "outputSha256": "726feae7d70b70629225d57a4e610e08a120226cfdb6e8acf3885567490d94d7"
+    }
+  ]
+}

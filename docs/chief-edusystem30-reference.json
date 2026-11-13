@@ -1,0 +1,51 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "4077ac9c2aaa02df410442637336e21a2a0c753d88df2cb1c49b559f972286f8",
+  "printedFixtureSha256": "64c1028618c05c524982fa6a53feda87f6c467625f672bf4697b08eb954c585e",
+  "fixtureSha256": "09ee053fdeaf5d5dd405a013592b0b16c4f1acca33e48389dc430e8e19be02d2",
+  "rawDiagnostic": "S1 40\nS1 130\nS1 290\n",
+  "printedDiagnostic": "S1 40\nS1 130\nS1 290\n",
+  "boltRows": [
+    "                              X X",
+    "                             X X",
+    "                            X X",
+    "                           X X",
+    "                          X X",
+    "                         X X",
+    "                        X X",
+    "                       X X",
+    "                      X X",
+    "                     X XXX",
+    "                    X   X",
+    "                   XX X",
+    "                    X X",
+    "                   X X",
+    "                  X X",
+    "                 X X",
+    "                X X",
+    "               X X",
+    "              X X",
+    "             X X",
+    "            XX",
+    "           X",
+    "          *"
+  ],
+  "runs": [
+    {
+      "name": "printed arithmetic and full lightning bolt",
+      "answers": ["N", "3.8", "N", "12", "N"],
+      "outputSha256": "1aca637a3ae217a111c40ad8af18f094b55df29da7a63976741e6ae61ceba89e"
+    },
+    {
+      "name": "fresh immediate agreement",
+      "answers": ["Y", "8.8", "Y"],
+      "outputSha256": "06fe4652ede1bc1497608d27f17741155f642073ed67fc2db3c3966897961199"
+    },
+    {
+      "name": "agreement after the explanation",
+      "answers": ["Y", "3.8", "N", "12", "Y"],
+      "outputSha256": "f9b7ea33d1e612db60b4a93bdfa9ce440be182aaa355bcecfe5d1d6f6d759fe3"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "1b238c24de29206c8b1b086bc4fedbef63e3173e3c578315e2c425ae0d0f9f15",
+  "reviewedFixtureSha256": "b44118d91460308c55f9cf4af36ec2458e1e12b91a691f39beae41097a843f1f",
+  "fixtureSha256": "ccacbcb91fc42d639d9830fdd10293e3115b49e6f35eb151f4b94286453fdacd",
+  "rawDiagnostics": ["PC 100", "S1 120", "S1 520", "S1 530", "S1 870", "UQ 880"],
+  "reviewedDiagnostics": ["PC 100", "S1 120", "S1 520", "S1 530", "S1 870"],
+  "runs": [
+    {
+      "name": "printed crash and perfect landing replay",
+      "answers": [
+        "Y",
+        "3",
+        "3",
+        "3",
+        "3",
+        "7",
+        "9",
+        "9",
+        "8",
+        "25",
+        "25",
+        "25",
+        "Y",
+        "5",
+        "5",
+        "5",
+        "5",
+        "5",
+        "5",
+        "5",
+        "5",
+        "5",
+        "30",
+        "30",
+        "N"
+      ],
+      "touchdowns": ["18.6475", "11"],
+      "velocities": ["23.2379", "0"],
+      "fuelRemaining": ["0", "15"],
+      "outputSha256": "0e56fef1077b34074c74918f5edc3ab93d694a064c7203ab8b6c2ac99fb7c9b0",
+      "paperOutputSha256": "7feb3b0bd04b2198b3fc4ff91ded121a26f61e972a27ef7b492614885eb92727"
+    },
+    {
+      "name": "fresh perfect landing with thrust capped",
+      "answers": ["N", "5", "5", "5", "5", "5", "5", "5", "5", "5", "30", "40", "N"],
+      "touchdowns": ["11"],
+      "velocities": ["0"],
+      "fuelRemaining": ["15"],
+      "outputSha256": "3d930f4a8f933e350cb6453d09038cd8da7d44c915f24eb5da3ddbb2b94905a8",
+      "paperOutputSha256": "620fac92ac9035c7734809541f26271e4b8858965cb9d1933e9b1363c255fe93"
+    }
+  ]
+}

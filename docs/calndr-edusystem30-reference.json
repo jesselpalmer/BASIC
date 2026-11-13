@@ -1,0 +1,24 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "c42b11a6afdcda9815b2d91d8b1a379a615451f7bdf47153d0175fcf01f422ef",
+  "printedFixtureSha256": "28295713e543a2c1314744308cb3a407da4979c0ddd226832c3fce749740cea4",
+  "fixtureSha256": "67a5c54ea9f556830e04192b88f7dcad7ec51531fd9f7b6260268c0165e3f706",
+  "printedDiagnostics": ["S1 220", "UQ 390", "S1 510"],
+  "runs": [
+    {
+      "year": 1973,
+      "edits": [],
+      "outputSha256": "8ef5116bd03931c26787dfacba091ee658d5f920ab56860d0325ff60bcada9b8"
+    },
+    {
+      "year": 1984,
+      "edits": [
+        ["130 D=-1", "130 D=0"],
+        ["360 PRINT 365-S", "360 PRINT 366-S"],
+        ["620 DATA 0,31,28", "620 DATA 0,31,29"]
+      ],
+      "outputSha256": "156be49fcc882244c94cc752a2abc2b5cf47e018beb0b8439d31ae2a6479d9c9"
+    }
+  ]
+}

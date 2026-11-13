@@ -14,12 +14,14 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 It also runs the separately labeled adaptations
 [KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
 [AMAZIN](amazin-edusystem30.md), [BUZZWD](buzzwd-edusystem30.md), and
-[GUESS](guess-edusystem30-review.md).
+[GUESS](guess-edusystem30-review.md), [CALNDR](calndr-edusystem30-review.md),
+and [ROCKSP](rocksp-edusystem30-review.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
 [BLKJAK](blkjak-edusystem30-review.md) and [SLOTS](slots-edusystem30.md)
 listings, plus the [TOWER](tower-edusystem30-review.md),
-[REVERSE](reverse-edusystem30-review.md), and [EVEN1](even1-edusystem30-review.md)
-adaptations. Both modes share the same
+[REVERSE](reverse-edusystem30-review.md), [EVEN1](even1-edusystem30-review.md),
+[CHIEF](chief-edusystem30-review.md), [HI-LO](hi-lo-edusystem30-review.md),
+and [ROCKT1](rockt1-edusystem30-review.md) adaptations. Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK
 parity respectively, and preserve that choice in portable documents.
 The book and archived `EDU30.SV`
