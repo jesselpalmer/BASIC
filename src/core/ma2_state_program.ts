@@ -82,7 +82,7 @@ function prepareSelectedMa2Program(
     'NextStatement',
     'RemStatement',
     'EndStatement',
-    ...(opening ? ['PrintStatement', 'PrintUsingStatement'] : []),
+    ...(opening ? ['ChangeStatement', 'PrintStatement', 'PrintUsingStatement'] : []),
     ...(opening && !noInput ? ['InputStatement'] : []),
     ...(externalWrite ? ['SleepStatement'] : []),
     ...(entropyHost ? ['RandomizeStatement'] : []),
@@ -113,6 +113,8 @@ function prepareSelectedMa2Program(
         );
       state.validateNode(statement.expression);
       if (statement.target.type === 'ArrayReference') state.validateNode(statement.target);
+    } else if (statement.type === 'ChangeStatement') {
+      strings.validateOperand(statement.source);
     } else if (statement.type === 'IfStatement') {
       if (
         opening &&
@@ -297,6 +299,9 @@ function prepareSelectedMa2Program(
         if (result.kind !== 'value') fail(result, statement.expression.location);
         break;
       }
+      case 'ChangeStatement':
+        state.changeToNumbers(statement.target, strings.resolve(statement.source));
+        break;
       case 'IfStatement': {
         const matched =
           opening &&

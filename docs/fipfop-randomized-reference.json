@@ -1,0 +1,72 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "builds": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "reviewedFixtureSha256": "82a1551be2be4d6f65d74c24c320f3f634d58f8f3df6e53e4e8617d7f0fb6535",
+  "replaySourceSha256": "79e6b110e372721d6907af9199860eb7a32e4c0cce64e813af9602ca6ba3bdec",
+  "inputs": [
+    "12",
+    "0",
+    "1",
+    "1",
+    "11",
+    "3",
+    "3",
+    "4",
+    "5",
+    "6",
+    "10",
+    "YES",
+    "10",
+    "2",
+    "2",
+    "5",
+    "8",
+    "9",
+    "NO"
+  ],
+  "secondaryPositions": [
+    {
+      "qTimes32768": 25265,
+      "ordinary": [1, 2, 7, 7, 3, 4, 4, 0, 8, 0],
+      "repeated": [5, 1, 7, 3, 2, 3, 8, 5, 3, 3]
+    },
+    {
+      "qTimes32768": 25619,
+      "ordinary": [1, 7, 9, 2, 1, 3, 3, 9, 7, 8],
+      "repeated": [4, 1, 7, 3, 2, 1, 8, 5, 5, 3]
+    },
+    {
+      "qTimes32768": 24633,
+      "ordinary": [2, 7, 9, 3, 6, 7, 7, 3, 2, 6],
+      "repeated": [5, 1, 8, 3, 2, 7, 8, 5, 4, 4]
+    }
+  ],
+  "binary64Comparison": {
+    "secondaryPositions": [
+      {
+        "qTimes32768": 1,
+        "move": 8,
+        "archive": [7, 7],
+        "binary64": [3, 7]
+      },
+      {
+        "qTimes32768": 9,
+        "move": 9,
+        "archive": [6, 2],
+        "binary64": [3, 1]
+      },
+      {
+        "qTimes32768": 57,
+        "move": 3,
+        "archive": [9, 0],
+        "binary64": [9, 9]
+      }
+    ],
+    "tangentProbe": {
+      "operand": 262136,
+      "archivePrint": "13.5567",
+      "binary64": 16.157516060745472
+    }
+  },
+  "output": "THE OBJECT OF THIS PUZZLE IS TO CHANGE THIS:\n\nX X X X X X X X X X\n\nTO THIS:\n\nO O O O O O O O O O\n\nBY TYPING IN THE NUMBER CORRESPONDING TO THE POSITION OF THE LETTER\nON SOME NUMBERS, ONE POSITION WILL CHANGE, ON OTHERS, TWO WILL CHANGE\nTO RESET THE LINE TO ALL X'S, TYPE 0 (ZERO) AND TO START A NEW\nIN THE MIDDLE OF A GAME, TYPE 11 (ELEVEN)\n\nHERE IS THE STARTING LINE OF X'S:\n\n1 2 3 4 5 6 7 8 9 10\nX X X X X X X X X X\n\nINPUT THE NUMBER? ILLEGAL ENTRY--TRY AGAIN\nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX X X X X X X X X X\n\nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO X X X X X X X X X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX X X X O X X X X X \nINPUT THE NUMBER? HERE IS THE STARTING LINE OF X'S:\n\n1 2 3 4 5 6 7 8 9 10\nX X X X X X X X X X\n\nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX X O X X X X X O X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX X X X X X O X O X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX O X O X X O X O X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO O X O O X O X O X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO O O O O O O X O X \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO O O O O O O O O O \nVERY GOOD. YOU GUESSED IT IN ONLY  6 GUESSES!!!!\nDO YOU WANT TO DO ANOTHER PUZZLE? \nHERE IS THE STARTING LINE OF X'S:\n\n1 2 3 4 5 6 7 8 9 10\nX X X X X X X X X X\n\nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX X X O X X X X X O \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nX O X O X X O X X O \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO X X O X X O X X O \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO X X O O O O X X O \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO X O O O O O O X O \nINPUT THE NUMBER? 1 2 3 4 5 6 7 8 9 10\nO O O O O O O O O O \nVERY GOOD. YOU GUESSED IT IN ONLY  6 GUESSES!!!!\nDO YOU WANT TO DO ANOTHER PUZZLE? "
+}

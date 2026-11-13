@@ -366,19 +366,7 @@ class Parser {
       }
       if (command.value === 'CHANGE') {
         this.take();
-        const source = this.expect(
-          'IDENTIFIER',
-          undefined,
-          'Expected a bare source name after CHANGE',
-        );
-        this.expect('KEYWORD', 'TO', 'Expected TO between CHANGE operands');
-        const target = this.expect('IDENTIFIER', undefined, 'Expected a bare target name after TO');
-        const statement = this.node('ChangeStatement', command, target, {
-          source: this.node('Variable', source, source, {name: source.value}),
-          target: this.node('Variable', target, target, {name: target.value}),
-        });
-        changeOperands(statement);
-        return statement;
+        return this.change(command);
       }
       if (command.value === 'RESTORE') {
         this.take();
@@ -431,6 +419,8 @@ class Parser {
         // Native DIM is contextual IDENTIFIER syntax above; the selected
         // historical scanner recognizes it as a statement keyword.
         return this.dimension(command);
+      case 'CHANGE':
+        return this.change(command);
       case 'LET': {
         const name = this.expect('IDENTIFIER', undefined, 'Expected a variable name after LET');
         return this.assignment(command, name);
@@ -598,6 +588,18 @@ class Parser {
         break;
     }
     this.fail('UNSUPPORTED_STATEMENT', `Unsupported statement ${command.raw}`, command);
+  }
+
+  change(command: Token): NodeOf<'ChangeStatement'> {
+    const source = this.expect('IDENTIFIER', undefined, 'Expected a bare source name after CHANGE');
+    this.expect('KEYWORD', 'TO', 'Expected TO between CHANGE operands');
+    const target = this.expect('IDENTIFIER', undefined, 'Expected a bare target name after TO');
+    const statement = this.node('ChangeStatement', command, target, {
+      source: this.node('Variable', source, source, {name: source.value}),
+      target: this.node('Variable', target, target, {name: target.value}),
+    });
+    changeOperands(statement);
+    return statement;
   }
 
   comma(): void {

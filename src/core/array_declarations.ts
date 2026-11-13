@@ -82,6 +82,35 @@ function arrayDeclarationsWithDefaults(
 ): readonly ArrayDeclaration[] {
   const declarations = [...arrayDeclarations(lines)];
   const declared = new Set(declarations.map((declaration) => declaration.name.toUpperCase()));
+  function declareDefault(name: string, rank: number, location: Location, nameLocation: Location) {
+    if (declared.has(name)) return;
+    if (mode === 'ma2' && !/^[A-Z][0-9]?$/.test(name))
+      fail(
+        'UNSUPPORTED_MA2_ARRAY_DEFAULT',
+        'Selected MA2 implicit arrays require numeric names',
+        nameLocation,
+      );
+    declarations.push(
+      Object.freeze({
+        type: 'ArrayDeclaration',
+        name,
+        nameLocation,
+        location,
+        bounds: Object.freeze(
+          Array.from({length: rank}, () =>
+            Object.freeze({
+              type: 'NumberLiteral' as const,
+              value: 10,
+              raw: '10',
+              location: nameLocation,
+            }),
+          ),
+        ),
+      }),
+    );
+    declared.add(name);
+  }
+  const changes: NodeOf<'Variable'>[] = [];
   const pending: unknown[] = [...lines];
   const visited = new Set<object>();
   while (pending.length) {
@@ -90,34 +119,21 @@ function arrayDeclarationsWithDefaults(
     visited.add(value);
     if ('type' in value && value.type === 'ArrayReference') {
       const reference = value as NodeOf<'ArrayReference'>;
-      const name = reference.name.toUpperCase();
       // EDUSYSTEM-30 requires DIM for rank two. The MA2 default covers both ranks.
-      if (!declared.has(name) && (mode === 'ma2' || reference.indices.length === 1)) {
-        if (mode === 'ma2' && !/^[A-Z][0-9]?$/.test(name))
-          fail(
-            'UNSUPPORTED_MA2_ARRAY_DEFAULT',
-            'Selected MA2 implicit arrays require numeric names',
-            reference.nameLocation,
-          );
-        const location = reference.nameLocation;
-        declarations.push(
-          Object.freeze({
-            type: 'ArrayDeclaration',
-            name,
-            nameLocation: location,
-            location: reference.location,
-            bounds: Object.freeze(
-              Array.from({length: reference.indices.length}, () =>
-                Object.freeze({type: 'NumberLiteral' as const, value: 10, raw: '10', location}),
-              ),
-            ),
-          }),
+      if (mode === 'ma2' || reference.indices.length === 1)
+        declareDefault(
+          reference.name.toUpperCase(),
+          reference.indices.length,
+          reference.location,
+          reference.nameLocation,
         );
-        declared.add(name);
-      }
     }
+    if (mode === 'ma2' && 'type' in value && value.type === 'ChangeStatement')
+      changes.push(changeOperands(value as NodeOf<'ChangeStatement'>).array);
     for (const child of Object.values(value)) pending.push(child);
   }
+  for (const array of changes)
+    declareDefault(array.name.toUpperCase(), 1, array.location, array.location);
   return Object.freeze(declarations);
 }
 

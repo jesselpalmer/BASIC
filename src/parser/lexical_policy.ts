@@ -62,6 +62,7 @@ const words: readonly HistoricalWord[] = Object.freeze([
     'FOR',
     'NEXT',
     'DIM',
+    'CHANGE',
     'DATA',
     'READ',
     'RESTORE',
@@ -80,7 +81,6 @@ const words: readonly HistoricalWord[] = Object.freeze([
   ...[
     'IMAGE',
     'STOP',
-    'CHANGE',
     'MAT',
     'DEF',
     'FNEND',
@@ -120,6 +120,7 @@ function historicalWord(source: string, index: number): HistoricalWord | undefin
 const altairExtraWords: readonly HistoricalWord[] = [
   {word: 'CHR$', role: 'function'},
   {word: 'RUN', role: 'statement'},
+  {word: 'CHANGE', role: 'unsupported'},
 ];
 
 function altairWord(source: string, index: number): HistoricalWord | undefined {

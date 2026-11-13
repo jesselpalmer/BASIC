@@ -15,7 +15,8 @@ It also runs the separately labeled adaptations
 [KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
 [AMAZIN](amazin-edusystem30.md), [BUZZWD](buzzwd-edusystem30.md), and
 [GUESS](guess-edusystem30-review.md), [CALNDR](calndr-edusystem30-review.md),
-[ROCKSP](rocksp-edusystem30-review.md), and [SALVO 1](salvo1-edusystem30.md).
+[ROCKSP](rocksp-edusystem30-review.md), [SALVO 1](salvo1-edusystem30.md), and
+[HMRABI](hmrabi-edusystem30.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
 [BLKJAK](blkjak-edusystem30-review.md) and [SLOTS](slots-edusystem30.md)
 listings, plus the [TOWER](tower-edusystem30-review.md),
@@ -27,7 +28,7 @@ programs in [OMSI Baseball](basbal-edusystem30-review.md) and
 [TICTAC](tictac-edusystem30.md), and [HORSES](horses-edusystem30.md).
 The [DICE](dice-train-source-review.md#dice)
 and [TRAIN](train-edusystem30.md) adaptations also use MARK input, as does
-[CRAPS](craps-edusystem30.md). [CUBE](cube-edusystem30.md) uses SPACE input.
+[CRAPS](craps-edusystem30.md) and [NIM](nim-edusystem30.md). [CUBE](cube-edusystem30.md) uses SPACE input.
 The [WAR-2 adaptation](war2-edusystem30-review.md)
 uses the SPACE profile. Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK

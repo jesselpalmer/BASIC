@@ -7,6 +7,7 @@ import {validateBasicPlusMa2Candidate} from './ma2_candidate_validation.ts';
 // statement executor can take ownership of a candidate.
 const candidateStatements = new Set<SimpleStatement['type']>([
   'DimStatement',
+  'ChangeStatement',
   'LetStatement',
   'InputStatement',
   'SleepStatement',
@@ -29,7 +30,10 @@ export function preflightBasicPlusMa2Candidate(
 ) {
   const candidate = validateBasicPlusMa2Candidate(source, supplied, dialect);
   for (const {statement} of candidate.instructions) {
-    if (!candidateStatements.has(statement.type))
+    if (
+      !candidateStatements.has(statement.type) ||
+      (statement.type === 'ChangeStatement' && !statement.source.name.endsWith('$'))
+    )
       throw new BasicSyntaxError(
         'UNSUPPORTED_MA2_STATEMENT',
         `Selected MA2 candidate does not support ${statement.type}`,

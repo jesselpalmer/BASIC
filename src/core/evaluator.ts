@@ -599,6 +599,11 @@ class Ma2ScalarSession {
     );
   }
 
+  changeToNumbers(target: NodeOf<'Variable'>, source: string): void {
+    if (!this.#arrays) throw new TypeError('CHANGE requires MA2 array storage');
+    this.#arrays.changeToMa2Numbers(target, source);
+  }
+
   snapshotArrays(): readonly ArraySnapshot[] {
     return this.#arrays?.snapshot() ?? Object.freeze([]);
   }

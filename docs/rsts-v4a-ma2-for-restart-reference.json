@@ -1,0 +1,75 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "build": "RSTS V4A-12 V4A12MA2",
+  "probes": [
+    {
+      "name": "SAME",
+      "source": [
+        "10 C=C+1",
+        "20 FOR I=1 TO 2",
+        "30 PRINT I;C",
+        "40 IF C<2 THEN 10",
+        "50 NEXT I",
+        "60 END"
+      ],
+      "output": " 1  1 \n 1  2 \n 2  2 \n\n"
+    },
+    {
+      "name": "NEST",
+      "source": [
+        "10 FOR I=1 TO 2",
+        "20 FOR I=3 TO 4",
+        "30 PRINT I",
+        "40 NEXT I",
+        "50 NEXT I",
+        "60 END"
+      ],
+      "output": " 3 \n 4 \n\n"
+    },
+    {
+      "name": "PRUNE",
+      "source": [
+        "10 C=C+1",
+        "20 FOR I=1 TO 2",
+        "30 FOR J=1 TO 2",
+        "40 IF C<2 THEN 10",
+        "50 PRINT I;J",
+        "60 NEXT J",
+        "70 NEXT I",
+        "80 END"
+      ],
+      "output": " 1  1 \n 1  2 \n 2  1 \n 2  2 \n\n"
+    },
+    {
+      "name": "OTHER",
+      "source": [
+        "10 FOR I=1 TO 2",
+        "20 IF C=0 THEN 50",
+        "30 NEXT I",
+        "40 GOTO 90",
+        "50 FOR I=3 TO 4",
+        "60 PRINT I",
+        "70 NEXT I",
+        "75 C=1",
+        "80 GOTO 30",
+        "90 END"
+      ],
+      "output": " 3 \n 4 \n\n"
+    },
+    {
+      "name": "EXITS",
+      "source": [
+        "10 C=C+1",
+        "20 FOR I=1 TO 2",
+        "30 FOR J=1 TO 2",
+        "40 IF C=1 THEN 10",
+        "50 IF C=2 THEN 70",
+        "60 NEXT J",
+        "70 PRINT I;J",
+        "80 NEXT I",
+        "90 END"
+      ],
+      "output": " 1  1 \n 2  1 \n\n"
+    }
+  ]
+}

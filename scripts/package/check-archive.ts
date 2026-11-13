@@ -134,6 +134,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'nicoma-acceptance.ts',
       'dice-acceptance.ts',
       'aceydu-acceptance.ts',
+      'bagles-acceptance.ts',
       'wekday-acceptance.ts',
       'fipfop-acceptance.ts',
       'craps-acceptance.ts',
@@ -141,6 +142,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'tictac-acceptance.ts',
       'horses-acceptance.ts',
       'salvo1-acceptance.ts',
+      'nim-acceptance.ts',
+      'hmrabi-acceptance.ts',
       'train-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
@@ -190,6 +193,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'nicoma-rsts-reference.json',
       'dice-edusystem30-reference.json',
       'aceydu-rsts-reference.json',
+      'bagles-rsts-reference.json',
       'wekday-edusystem30-reference.json',
       'fipfop-rsts-reference.json',
       'craps-edusystem30-reference.json',
@@ -197,6 +201,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'tictac-edusystem30-reference.json',
       'horses-edusystem30-reference.json',
       'salvo1-edusystem30-reference.json',
+      'nim-edusystem30-reference.json',
+      'hmrabi-edusystem30-reference.json',
       'train-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));

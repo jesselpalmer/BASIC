@@ -46,6 +46,14 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
       ['STRING', 'FORI=0TO12'],
       ['EOF', null],
     ]);
+    expect(values('10CHANGEA$TOA1')).toEqual([
+      ['LABEL', 10],
+      ['KEYWORD', 'CHANGE'],
+      ['IDENTIFIER', 'A$'],
+      ['KEYWORD', 'TO'],
+      ['IDENTIFIER', 'A1'],
+      ['EOF', null],
+    ]);
     expect(values('10READN1:NEXTI:RESTORE:RETURN:END')).toEqual([
       ['LABEL', 10],
       ['KEYWORD', 'READ'],
@@ -209,7 +217,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
   it.each([
     'IMAGE',
     'STOP',
-    'CHANGE',
     'MAT',
     'DEF',
     'FNEND',

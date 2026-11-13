@@ -199,6 +199,23 @@ export class ArrayStore {
 
   changeToNumbers(variable: NodeOf<'Variable'>, source: BasicValue): void {
     this.requireNative();
+    this.storeChange(variable, source, (code) => code);
+  }
+
+  changeToMa2Numbers(variable: NodeOf<'Variable'>, source: string): void {
+    this.requireMa2();
+    this.storeChange(variable, source, (code) => {
+      const result = injectMa2Value(code);
+      if (result.kind !== 'value') throw new TypeError('Expected an exact MA2 byte or length');
+      return result.value;
+    });
+  }
+
+  private storeChange(
+    variable: NodeOf<'Variable'>,
+    source: BasicValue,
+    encode: (number: number) => CellValue,
+  ): void {
     const array = this.changeArray(variable);
     if (typeof source !== 'string')
       fail('TYPE_MISMATCH', 'CHANGE requires a string source', variable.location);
@@ -215,8 +232,8 @@ export class ArrayStore {
       if (source.charCodeAt(i) > 255)
         fail('CHANGE_CHARACTER', 'CHANGE requires byte characters in 0..255', variable.location);
     }
-    array.values[0] = source.length;
-    for (let i = 0; i < source.length; i++) array.values[i + 1] = source.charCodeAt(i);
+    array.values[0] = encode(source.length);
+    for (let i = 0; i < source.length; i++) array.values[i + 1] = encode(source.charCodeAt(i));
   }
 
   changeToString(variable: NodeOf<'Variable'>): string {

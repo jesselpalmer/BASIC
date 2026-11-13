@@ -88,6 +88,27 @@ paths. They do not establish all floating-rounding, body assignment, nested,
 GOSUB/FN, repeated-entry, overflow or zero-step behavior. Native continues to
 retain its incremented completion value and discard frames on loop exit.
 
+## FOR restarts in BAGLES
+
+Reconstructed V4A-12 MA2 executes the same numbered FOR header twice during
+one active loop. It resets the counter to the second header's start and
+continues to the limit. Entering a different FOR header with the same scalar
+also runs its new range. In the two same-scalar probes, the earlier range
+produces no further output after the new loop finishes. Nested probes record
+what happens when an outer FOR restarts with an inner loop still active.
+
+The selected profile currently rejects reinitializing an active loop variable.
+BAGLES completes its validation loops and uses an explicit guess counter in
+the portable adaptation. The
+[FOR restart captures](rsts-v4a-ma2-for-restart-reference.json) keep the
+archived control-flow cases available for future profile work.
+
+```sh
+python3 scripts/research/probe-ma2-for-restart.py \
+  --simulator /path/to/simh/BIN/pdp11 --disk /path/to/raw-v4a-rk05.dsk \
+  --output /tmp/rsts-v4a-ma2-for-restart-reference.json
+```
+
 ## Concrete first-game inventory
 
 The unchanged reviewed-text fixture is
