@@ -1,6 +1,10 @@
 import {
+  compareEduSystem30,
+  eduSystem30Absolute,
   eduSystem30FromNumber,
+  eduSystem30Integer,
   evaluateEduSystem30Arithmetic,
+  observeEduSystem30,
   type EduSystem30FloatingValue,
 } from './edusystem30_floating.ts';
 
@@ -38,4 +42,43 @@ export function eduSystem30SquareRoot(value: EduSystem30FloatingValue): EduSyste
       return next;
     estimate = next;
   }
+}
+
+// EDU30.SV octal 03056–03074, in the order the rational approximation uses them.
+const expScale = {exponent: 1, significand: 0o27052435n};
+const expRatioOffset = {exponent: 7, significand: 0o25665341n};
+const expRatioNumerator = {exponent: 10, significand: -0o23237435n};
+const expOffset = {exponent: 4, significand: 0o23721402n};
+const expCorrection = {exponent: -4, significand: 0o21575157n};
+const minimumExpMagnitude = eduSystem30FromNumber(2 ** -1000);
+const maximumExpMagnitude = eduSystem30FromNumber(700);
+
+/** Reproduce the archived EXP range reduction and approximation at octal 03001–03055. */
+export function eduSystem30Exponential(value: EduSystem30FloatingValue): EduSystem30FloatingValue {
+  if (value.significand === 0n) return one;
+  const magnitude = eduSystem30Absolute(value);
+  if (
+    compareEduSystem30(magnitude, minimumExpMagnitude) < 0 ||
+    compareEduSystem30(magnitude, maximumExpMagnitude) > 0
+  )
+    throw new RangeError('EDUSYSTEM-30 EXP accepts zero or magnitudes from 2^-1000 through 700');
+
+  const scaled = evaluateEduSystem30Arithmetic('*', magnitude, expScale);
+  const integer = eduSystem30Integer(scaled);
+  const integerPart = observeEduSystem30(integer);
+  const fraction = evaluateEduSystem30Arithmetic('-', scaled, integer);
+  const square = evaluateEduSystem30Arithmetic('*', fraction, fraction);
+  const ratioDivisor = evaluateEduSystem30Arithmetic('+', square, expRatioOffset);
+  const ratio = evaluateEduSystem30Arithmetic('/', expRatioNumerator, ratioDivisor);
+  const adjustedRatio = evaluateEduSystem30Arithmetic('-', ratio, fraction);
+  const rational = evaluateEduSystem30Arithmetic('+', adjustedRatio, expOffset);
+  const correction = evaluateEduSystem30Arithmetic('*', expCorrection, square);
+  const divisor = evaluateEduSystem30Arithmetic('+', correction, rational);
+  const quotient = evaluateEduSystem30Arithmetic('/', fraction, divisor);
+  const fractionPower = evaluateEduSystem30Arithmetic('+', one, {
+    significand: quotient.significand,
+    exponent: quotient.exponent + 1,
+  });
+  const result = {...fractionPower, exponent: fractionPower.exponent + integerPart};
+  return value.significand < 0n ? evaluateEduSystem30Arithmetic('/', one, result) : result;
 }

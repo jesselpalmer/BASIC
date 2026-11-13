@@ -128,6 +128,7 @@ export function createNativeStatementPolicy(services: {
           break;
         case 'RemStatement':
         case 'DimStatement':
+        case 'DefStatement':
         case 'DataStatement':
           break;
         case 'RunStatement':

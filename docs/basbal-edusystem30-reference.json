@@ -1,0 +1,28 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": {
+    "basbal": "0cf3efbea619a50b2ab913b0304cabc5e25a5e2c0d90250c343ab71b0293a8bc",
+    "basbl1": "2c3ac95029628b46505d33f55925e630e542a43d5c27d9ac09b3662a2e6de7c4"
+  },
+  "reviewedFixtureSha256": {
+    "basbal": "769f51ae6efe45079234f536217b1eb8bfa61d510cceee8bc29f5e2cd1c2f8b9",
+    "basbl1": "1691a2ea228977df2c954cfcd7bde0710c547d73aebf2b222f52c8fabf2fde16"
+  },
+  "rawBasbal": "S2 140",
+  "rawBasbl1": "S1 410",
+  "reviewedBasbal": {
+    "answer": "RSTS/E ROCKETS",
+    "output": "WELCOME TO HUISMAN STADIUM FOR TODAY'S GREAT GAME BETWEEN\nTHE PDP-8 PANTHERS AND (YOUR NAME PLEASE) THE A HIGHLY PARTISAN CROWD OF 40778 FANS IS ANXIOUSLY AWAITING THE\nSTART OF THE GAME.\nHERE IS MY TEAM:            AND HERE IS YOURS:\nNAME          AVERAGE       NAME          AVERAGE\n----          -------       ----          -------\nHUISMAN        .412         KLOOS          .263 \nHOEREN         .236         ANDREWS        .316 \nBACCUS         .241         MAYER          .386 \nSMITH          .367         HANSEN         .321 \nSCHNEIDER      .295         MICHEL         .296 \nROSENBAUM      .319         P.  D.  PEATE  .285 \nPOULSEN        .295         WILLIAMS       .295 \nKILGOUR        .218         NELSON         .139 \nJOHNSON        .238         ANKCORN        .231 \nWHITNEY        MANAGER      IVEY           MANAGER\n\nPITCHER'S OPTIONS ARE:\nFASTBALL\nBEANBALL\nBRUSHBACK\nBALL\nCURVE\nSLIDER\nKNUCKLE\nGREASEBALL (ILLEGAL)\nSPITBALL (ILLEGAL)\nCHECK\n\nBATTER'S OPTIONS ARE:\nBUNT\nSWING\nHIT-AWAY\nSACRIFICE\nGROUNDER\nFLY\nKILL\n\n\n\nTHE PANTHERS ARE TAKING THE FIELD NOW AS ANDREWS OF THE\nRSTS/E ROCKETS ADVANCES TO THE PLATE.  PLEASE WAIT AS THE COMPUTER SINGS\nOUR NATIONAL ANTHEM TO ITSELF - 2 OR 3 TIMES!  JUST SING\nALONG UNTIL ASKED FOR YOUR PLAY.\n\n",
+    "chainWaitIotOctal": "6773"
+  },
+  "reviewedBasbl1": {
+    "answers": ["ZZ", "BUNT", "SWING", "HIT-AWAY"],
+    "output": "\nYOUR PLAY? ?\nYOUR PLAY? YOUR BATTER GROUNDED TO THE PITCHER WHO THREW OUT THE MAN AT FIRST.\nTHAT WAS OUT NUMBER 1 \n\nYOUR PLAY? INSIDE - BALL 1 \nYOUR PLAY? INSIDE CORNER - CALL  STRIKE 1 \nYOUR PLAY? "
+  },
+  "characterInput": "A 193  141 A",
+  "minimalChain": {
+    "output": "BEFORE",
+    "chainWaitIotOctal": "6773"
+  }
+}

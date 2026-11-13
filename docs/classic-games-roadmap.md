@@ -1,8 +1,8 @@
 # Classic-game compatibility roadmap
 
 Native BASIC and three bounded public profile families run today. The selected
-profiles run 24 listings through the library, CLI/editor and browser, including
-the documented KINEMA, GOMOKO and AMAZIN adaptations.
+profiles run 27 listings through the library, CLI/editor and browser, including
+the documented KINEMA, GOMOKO, AMAZIN, BUZZWD and TOWER adaptations.
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
 [browser playground](https://basic-playground-rho.vercel.app/). Choose
@@ -131,6 +131,19 @@ approach and reproduces two seeded archived mazes. The
 [DIGITS review](digits-source-review.md) records archive rejection of the
 printed matrix statements and bare `RND`.
 
+The [BUZZWD adaptation](buzzwd-edusystem30.md) matches eight printed phrases
+and the farewell, with three-field INPUT retries verified on the archive.
+The [TOWER MARK adaptation](tower-edusystem30-review.md) matches the printed
+three-disk solution, a two-disk replay and move retries. The unchanged
+[3DPLOT listing](3dplot-edusystem30.md) matches all 41 archived plot rows.
+
+The [NICOMA review](nicoma-source-review.md) reproduces four printed rounds
+in archived RSTS V04B-17 BASIC-PLUS and records the EDUSYSTEM-30 rejections.
+The original interpreter and the project's selected-profile path remain open.
+The [BASBAL and BASBL1 review](basbal-edusystem30-review.md) identifies the
+printed system and verifies both openings. Full play needs indexed character
+input, the archived CHAIN handoff, and the final DEMON companion.
+
 The [DICE and TRAIN reviews](dice-train-source-review.md) preserve the printed
 listings and record archive rejections of bare `RND`. TRAIN also needs string
 input and comparison forms rejected by the archived interpreter. Original
@@ -143,16 +156,16 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 
 ## What runs now
 
-| Path                         | Verified result                                                                                                                                                                                                                                                                                                                                              | Boundary                                                                                                                                                             |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                     | [Native language reference](language-v1.md).                                                                                                                         |
-| Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it. | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation.                          |
-| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS, HURKLE, CHANGE, CHEMST, DIAMND, BATNUM, EVEN, ROCKET, BOUNCE, GOLF, BLKJAK, CHOMP and MUGWUMP run across the library, CLI and browser, alongside the KINEMA, GOMOKO and AMAZIN adaptations. Archive checks cover game outcomes, drills, receipts, terminal patterns and lunar flight rows.       | Bounded arrays, stored arithmetic, numeric `RND(expression)`, signed `FOR STEP`, and PRINT with TAB or comma zones. See the [profile scope](edusystem30-profile.md). |
-| Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                          | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
-| Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                       | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
+| Path                         | Verified result                                                                                                                                                                                                                                                                                                                                                               | Boundary                                                                                                                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                                      | [Native language reference](language-v1.md).                                                                                                                         |
+| Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it.                  | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation.                          |
+| Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS, HURKLE, CHANGE, CHEMST, DIAMND, BATNUM, EVEN, ROCKET, BOUNCE, GOLF, BLKJAK, CHOMP, MUGWUMP and 3DPLOT run across the library, CLI and browser, alongside the KINEMA, GOMOKO, AMAZIN, BUZZWD and TOWER adaptations. Archive checks cover game outcomes, drills, receipts, terminal patterns and lunar flight rows. | Bounded arrays, stored arithmetic, numeric `RND(expression)`, signed `FOR STEP`, and PRINT with TAB or comma zones. See the [profile scope](edusystem30-profile.md). |
+| Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
+| Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **27 reviewed
-source differences / 81 unresolved**, **13 printed-system identifications / 95
+The [corpus ledger](classic-games-ledger.json) records **33 reviewed
+source differences / 75 unresolved**, **16 printed-system identifications / 92
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 
@@ -180,7 +193,7 @@ explicit recorded decision in #109. Missing-book BUNNY/SNOOPY entries remain
 outside the 108-file denominator.
 
 Remaining corpus work includes verified DATA/READ, RNG, integer/logical forms,
-subroutines/dispatch, DEF FN, modifiers, MAT and file/CHAIN/terminal services as
+subroutines/dispatch, additional DEF FN forms, modifiers, MAT and file/CHAIN/terminal services as
 required by the listings. They remain required even when unnecessary to 1CHECK.
 Preserve native behavior, source bytes/locations, bounded execution, Step/Stop,
 atomic replacement and fresh runs across all supported distributions.

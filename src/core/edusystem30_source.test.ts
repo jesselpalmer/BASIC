@@ -6,6 +6,17 @@ import {parseEduSystem30SourceLiteral} from './edusystem30_floating.ts';
 
 const options = {dialect: 'edusystem-30'} as const;
 
+test('EDUSYSTEM-30 accepts END inside the highest numbered statement sequence', () => {
+  const output: string[] = [];
+  const basic = new Basic({write: (text) => output.push(text)}, options);
+  basic.run('20 PRINT "BYE"\\END\\PRINT "SKIPPED"\n10 PRINT "HELLO"');
+  expect(output.join('')).toBe('HELLO\nBYE\n');
+  assert.throws(
+    () => parseProgram('10 END\n20 PRINT "BYE"', options),
+    (error) => error instanceof BasicSyntaxError && error.diagnostic.code === 'MISSING_END',
+  );
+});
+
 test('EDUSYSTEM-30 separates compact LET at a statement boundary', () => {
   const source = '10 LETT=27\\LETA1 = 6\n20 END';
   const selected = new Basic({}, options);

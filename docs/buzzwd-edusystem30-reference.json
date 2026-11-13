@@ -1,0 +1,30 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "db72b73ff978a030486616fd961f70bae322935e05b14782b808951261ce42ce",
+  "printedFixtureSha256": "8e56b1e61ba77f5f26e077c2f9c444e7e95e1b4d2f07eaa6bcd4273ef36a71b2",
+  "fixtureSha256": "d984a8fe87e106f45d85200172415c50d4f6d4ce7440ea6688a3affd30766a77",
+  "printedDiagnostic": "UL 1080",
+  "runs": [
+    {
+      "name": "printed phrases and farewell",
+      "answers": [
+        "1,2,3",
+        "2,3,4",
+        "0,0,0",
+        "9,8,7",
+        "7,8,9",
+        "5,3,8",
+        "2,6,4",
+        "3,4,5",
+        "100,100,100"
+      ],
+      "outputSha256": "36d717c50a207c7d4dc06e8a9aebb7b4ddb6edb2cb470157a71d82fb67445fb3"
+    },
+    {
+      "name": "partial input, bad data, range retry and repaired branch",
+      "answers": ["1,2", "3", "0,BAD,4", "0,2", "-1,0,0", "100,100,100"],
+      "outputSha256": "f9818d9b569a78a43cea443deeb2457e3b6b990f87801f806bf0747ffa12ebf6"
+    }
+  ]
+}

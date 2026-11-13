@@ -108,7 +108,7 @@ export async function runTrapAcceptance(
     {name: 'B', value: 2},
   ]);
 
-  for (const form of ['INPUT A,B,C', 'INPUT "N";A,B', 'INPUT A(1),B', 'INPUT A,B$']) {
+  for (const form of ['INPUT A,B,C,D', 'INPUT "N";A,B', 'INPUT A(1),B', 'INPUT A,B$']) {
     assert.throws(
       () => api.parseProgram(`10 END\n20 ${form}\n30 END`, trapOptions),
       (error: unknown) => {

@@ -16,6 +16,9 @@ import {runBounceAcceptance} from './bounce-acceptance.ts';
 import {runBlkjakAcceptance} from './blkjak-acceptance.ts';
 import {runGolfAcceptance} from './golf-acceptance.ts';
 import {runChompAcceptance} from './chomp-acceptance.ts';
+import {runBuzzwdAcceptance} from './buzzwd-acceptance.ts';
+import {runTowerAcceptance} from './tower-acceptance.ts';
+import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
 import {runAmazinAcceptance} from './amazin-acceptance.ts';
@@ -71,6 +74,9 @@ export const libraryAcceptanceCases = [
   'reviewed BLKJAK matches archived wagers, replay and bankroll summaries',
   'reviewed GOLF matches archived scores, traps, water and fresh RUN',
   'reviewed CHOMP matches archived board states, retries and replay',
+  'adapted BUZZWD matches archived phrases, numeric input retries and fresh RUN',
+  'adapted TOWER matches archived boards, retries, replay and fresh RUN',
+  'pinned 3DPLOT matches all archived plot rows and fresh RUN',
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
@@ -382,6 +388,15 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('reviewed CHOMP matches archived board states, retries and replay', () =>
     runChompAcceptance(api),
+  );
+  await check('adapted BUZZWD matches archived phrases, numeric input retries and fresh RUN', () =>
+    runBuzzwdAcceptance(api),
+  );
+  await check('adapted TOWER matches archived boards, retries, replay and fresh RUN', () =>
+    runTowerAcceptance(api),
+  );
+  await check('pinned 3DPLOT matches all archived plot rows and fresh RUN', () =>
+    runPlotAcceptance(api),
   );
   await check('reviewed MUGWUMP matches archived wins, losses and fresh RUN', () =>
     runMugwumpAcceptance(api),

@@ -212,7 +212,9 @@ export default class Basic {
   }
 
   #startSharedRun(candidate: PreparedProgram): void {
-    this.#evaluator.reset(candidate.arrayDeclarations);
+    if (this.#eduSystem30) {
+      this.#eduSystem30.evaluator.reset(candidate.arrayDeclarations, candidate.instructions);
+    } else this.#evaluator.reset(candidate.arrayDeclarations);
     this.#prepared = candidate;
     this.#controlFlow = this.#createControlFlow(candidate);
     this.#data = new DataReader(candidate.dataItems);

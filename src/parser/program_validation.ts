@@ -76,11 +76,12 @@ export function validateSourceLines(
     if (
       !isEduSystem30Dialect(dialect) &&
       (statement.type === 'RandomizeStatement' ||
+        statement.type === 'DefStatement' ||
         (statement.type === 'InputStatement' && statement.character !== undefined))
     )
       throw new BasicSyntaxError(
         'UNSUPPORTED_STATEMENT',
-        'RANDOMIZE and character INPUT require the EDUSYSTEM-30 profile',
+        'DEF, RANDOMIZE and character INPUT require the EDUSYSTEM-30 profile',
         statement.location.start,
         statement.location.label,
       );
