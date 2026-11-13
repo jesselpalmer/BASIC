@@ -23,9 +23,10 @@ Neither command restarts the delay. Stop or replacement cancels it. Browser
 status remains `running` during a stepped WAIT; no input field appears. See
 [timing and animation](wait.md).
 
-Locations and variable observations always belong to the immutable source
-snapshot captured when the run started. Editing the source field cannot relocate
-an active run's statement. Locations retain physical lines and offsets even when
+Locations and variable observations belong to the immutable active source
+snapshot. After an EDUSYSTEM-30 CHAIN, the inspector shows the target while the
+editor keeps the entry program. Editing the source field cannot relocate an
+active run's statement. Locations retain physical lines and offsets even when
 BASIC labels execute in a different numeric order. A waiting INPUT has a current
 location and no next location until it completes. Terminal states have no next
 location. The inspector shows explicitly assigned numeric and string variables,

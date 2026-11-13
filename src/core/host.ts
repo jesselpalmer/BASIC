@@ -21,6 +21,7 @@ export function createHost(overrides: Partial<Host> = {}): Host {
     readLine: bind('readLine', () =>
       Promise.reject(new Error('Input is not supported by this host')),
     ),
+    ...(overrides.loadProgram === undefined ? {} : {loadProgram: bind('loadProgram', undefined)}),
     random: bind('random', Math.random),
   };
 }

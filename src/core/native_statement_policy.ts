@@ -14,6 +14,7 @@ export interface StatementExecutionContext {
   callHost(callback: 'write' | 'clear', line: Instruction, text?: string): void;
   halt(): void;
   restart(): void;
+  chain(statement: NodeOf<'ChainStatement'>): void;
 }
 
 /** The Basic driver retains status, host callback guards and failure ownership. */
@@ -130,6 +131,9 @@ export function createNativeStatementPolicy(services: {
         case 'DimStatement':
         case 'DefStatement':
         case 'DataStatement':
+          break;
+        case 'ChainStatement':
+          context.chain(statement);
           break;
         case 'RunStatement':
           context.restart();

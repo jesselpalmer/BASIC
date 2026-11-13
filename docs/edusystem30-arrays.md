@@ -1,9 +1,16 @@
-# EDUSYSTEM-30 explicit numeric arrays
+# EDUSYSTEM-30 numeric arrays
 
 The selected profile supports positive literal bounds in one- and
 two-dimensional numeric DIM declarations. A line can declare several arrays. The archived
 interpreter accepts a DIM declaration after the first indexed access and
 keeps a scalar distinct from an array with the same name.
+
+An undeclared one-dimensional array has an implicit upper bound of 10.
+Archived EDU30.SV reads zero from cells 0 and 10, preserves writes to those
+cells within the same RUN, and reports SS at index 11. Indexed character
+INPUT also accepts an implicit array. A later explicit DIM sets the bound
+from the first reference, whether it expands or reduces the default.
+An undeclared two-dimensional reference reports S2 at compilation.
 
 Cells start at zero on each RUN. A declaration such as `DIM A(3)` allows
 indices 0 through 3. The archived interpreter truncates nonnegative indices
@@ -20,8 +27,8 @@ same bounds diagnostic as a negative first index.
 
 The selected profile uses the shared interpreter's array allocation limits.
 Archived programs can exhaust PDP-8 memory at smaller bounds, depending on
-the compiled program. Implicit DIM, rank above two, indexed INPUT,
-and duplicate DIM semantics remain outside this selected slice.
+the compiled program. Rank above two and duplicate DIM semantics remain
+outside this selected slice.
 
 The probe checks two fresh RUNs for each case against the same pinned interpreter
 and tape used in the [EDUSYSTEM-30 profile](edusystem30-profile.md).

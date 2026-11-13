@@ -128,6 +128,8 @@ export interface Host {
   wait(milliseconds: number, options?: InputOptions): Promise<void>;
   /** Return untrimmed text, or null at EOF. Honor the signal to release input resources. */
   readLine(prompt?: string, options?: InputOptions): Promise<string | null>;
+  /** Resolve a canonical six-character EDUSYSTEM-30 tape name to source or null. */
+  loadProgram?(name: string): string | null;
   /** Return a finite number in [0, 1). */
   random(): number;
 }
@@ -226,6 +228,11 @@ export interface NodeFields {
   };
   GotoStatement: {readonly target: NodeOf<'NumberLiteral'>};
   GosubStatement: {readonly target: NodeOf<'NumberLiteral'>};
+  ChainStatement: {
+    readonly target: NodeOf<'StringLiteral'>;
+    /** Six-character archived tape key, right-padded with spaces. */
+    readonly name: string;
+  };
   OnStatement: {
     readonly selector: Expression;
     readonly transfer: 'goto' | 'gosub';
@@ -334,6 +341,7 @@ export type SimpleStatement = Nodes<
   | 'InlineIfStatement'
   | 'GotoStatement'
   | 'GosubStatement'
+  | 'ChainStatement'
   | 'OnStatement'
   | 'ReturnStatement'
   | 'DataStatement'

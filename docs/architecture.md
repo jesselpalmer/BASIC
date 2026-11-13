@@ -105,6 +105,11 @@ conversion, RNG and terminal output. Their distinct source contexts select
 SPACE or MARK character input. The
 Altair profile uses the shared driver with a run-owned terminal column and a
 numbered RUN that restarts the prepared snapshot within the current driver.
+EDUSYSTEM-30 CHAIN resolves and prepares a complete target in the selected
+dialect. The shared driver keeps its cancellation, debugger and instruction
+budget while the target gets a fresh control flow and execution state. The
+prepared RUN entry and active source are tracked separately. The target's DATA
+pool replaces the current one if supplied, and every transfer rewinds READ.
 The standalone `Evaluator` uses native semantics. Legacy trees without metadata remain native, and
 unsupported declarations fail before effects. See [dialect context](dialect-design.md).
 

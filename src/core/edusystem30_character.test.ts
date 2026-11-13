@@ -150,12 +150,22 @@ test('EDUSYSTEM-30 indexed character INPUT retains complete program array valida
     }),
   ).toThrow('unprompted indexed character INPUT');
   expect(() => parseProgram(source)).toThrow();
-  expect(() => parseProgram('10 INPUT $A(1)\n20 END', mark)).toThrow('requires DIM');
+  expect(() => parseProgram('10 INPUT $A(1,2)\n20 END', mark)).toThrow('requires DIM');
   expect(() => parseProgram('10 DIM A(3)\n20 INPUT $A(1,2)\n30 END', mark)).toThrow(
     'requires 1 index(es)',
   );
   expect(() => parseProgram('10 DIM A$(3)\n20 INPUT $A$(1)\n30 END', mark)).toThrow('numeric DIM');
   expect(() => new Basic({}, space).reset(program)).toThrow('conflicting');
+});
+
+test('EDUSYSTEM-30 indexed character INPUT writes to an implicit array', async () => {
+  let output = '';
+  const basic = new Basic(
+    {readLine: () => Promise.resolve('Z'), write: (text) => (output += text)},
+    mark,
+  );
+  await basic.runAsync('10 INPUT $A(10)\n20 PRINT A(10)\n30 END');
+  expect(output).toBe(' 218 \n');
 });
 
 test('EDUSYSTEM-30 ignores a cancelled indexed reply after a replacement starts', async () => {

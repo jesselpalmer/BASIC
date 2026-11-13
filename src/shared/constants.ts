@@ -13,7 +13,7 @@ const constants = {
     },
   },
   ErrorMessages: {
-    TOO_MANY_ARGS: 'Usage: basic [script]',
+    TOO_MANY_ARGS: 'Usage: basic [--chain-dir DIR] [script]',
   },
 };
 

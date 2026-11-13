@@ -63,10 +63,22 @@ export function arrayDeclarations(lines: readonly ParsedLine[]): readonly ArrayD
   );
 }
 
-/** Selected BASIC-PLUS numeric arrays default to upper bound 10 per dimension.
- * These derived declarations are storage metadata, never inserted into source. */
 export function selectedMa2ArrayDeclarations(
   lines: readonly ParsedLine[],
+): readonly ArrayDeclaration[] {
+  return arrayDeclarationsWithDefaults(lines, 'ma2');
+}
+
+export function eduSystem30ArrayDeclarations(
+  lines: readonly ParsedLine[],
+): readonly ArrayDeclaration[] {
+  return arrayDeclarationsWithDefaults(lines, 'edu30');
+}
+
+/** Derive storage metadata for implicit arrays without changing the source tree. */
+function arrayDeclarationsWithDefaults(
+  lines: readonly ParsedLine[],
+  mode: 'ma2' | 'edu30',
 ): readonly ArrayDeclaration[] {
   const declarations = [...arrayDeclarations(lines)];
   const declared = new Set(declarations.map((declaration) => declaration.name.toUpperCase()));
@@ -79,9 +91,9 @@ export function selectedMa2ArrayDeclarations(
     if ('type' in value && value.type === 'ArrayReference') {
       const reference = value as NodeOf<'ArrayReference'>;
       const name = reference.name.toUpperCase();
-      if (!declared.has(name)) {
-        // The parser admits one or two indices; arrayShapes rejects any other rank.
-        if (!/^[A-Z][0-9]?$/.test(name))
+      // EDUSYSTEM-30 requires DIM for rank two. The MA2 default covers both ranks.
+      if (!declared.has(name) && (mode === 'ma2' || reference.indices.length === 1)) {
+        if (mode === 'ma2' && !/^[A-Z][0-9]?$/.test(name))
           fail(
             'UNSUPPORTED_MA2_ARRAY_DEFAULT',
             'Selected MA2 implicit arrays require numeric names',

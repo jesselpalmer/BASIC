@@ -48,6 +48,36 @@ test('EDUSYSTEM-30 truncates nonnegative subscripts for both reads and writes', 
   }
 });
 
+test.each(['edusystem-30', 'edusystem-30-mark'] as const)(
+  '%s defaults rank-one bounds to 0 through 10 and clears values on RUN',
+  (dialect) => {
+    const program = parseProgram(
+      '10 PRINT A(0);A(10);A\n20 A(0)=7\n30 A(10)=9\n40 A=42\n50 PRINT A(0);A(10);A\n60 END',
+      {dialect},
+    );
+    let output = '';
+    const basic = new Basic({write: (text) => (output += text)}, {dialect});
+    basic.reset(program);
+    for (let i = 0; i < 2; i++) {
+      output = '';
+      basic.run();
+      expect(output).toBe(' 0  0  0 \n 7  9  42 \n');
+      expect(basic.arrays[0]).toMatchObject({name: 'A', bounds: [10], elementCount: 11});
+    }
+    expect(() => basic.run('10 PRINT A(10.5)\n20 PRINT A(11)\n30 END')).toThrow('0 through 10');
+    expect(basic.state.diagnostic).toMatchObject({code: 'ARRAY_BOUNDS', label: 20});
+  },
+);
+
+test('EDUSYSTEM-30 uses later DIM bounds from the first access', () => {
+  let output = '';
+  const basic = new Basic({write: (text) => (output += text)}, options);
+  basic.run('10 A(12)=9\n20 DIM A(12)\n30 PRINT A(12)\n40 END');
+  expect(output).toBe(' 9 \n');
+  expect(() => basic.run('10 PRINT A(5)\n20 DIM A(3)\n30 END')).toThrow('0 through 3');
+  expect(basic.state.diagnostic).toMatchObject({code: 'ARRAY_BOUNDS', label: 10});
+});
+
 test('EDUSYSTEM-30 stores exact array values below the host observation range', async () => {
   let output = '';
   const basic = new Basic(
@@ -85,7 +115,8 @@ test('EDUSYSTEM-30 preflights array declarations and references even after END',
   for (const line of ['DIM A(0)', 'DIM A(1,0)', 'DIM A$(1)', 'PRINT A$(1)', 'PRINT A(1,A$)']) {
     expect(() => parseProgram(`10 END\n20 ${line}\n30 END`, options)).toThrow('EDUSYSTEM-30');
   }
-  expect(() => parseProgram('10 PRINT A(1)\n20 END', options)).toThrow('requires DIM');
+  expect(() => parseProgram('10 PRINT A(1,2)\n20 END', options)).toThrow('requires DIM');
+  expect(() => parseProgram('10 PRINT A(1)\n20 END')).toThrow('requires DIM');
   expect(() => parseProgram('10 DIM A(1,2)\n20 END\n30 PRINT A(1)\n40 END', options)).toThrow(
     'requires 2 index(es)',
   );

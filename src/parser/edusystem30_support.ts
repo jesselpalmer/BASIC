@@ -132,6 +132,10 @@ function validateStatement(statement: SimpleStatement): void {
     case 'RandomizeStatement':
     case 'RestoreStatement':
       return;
+    case 'ChainStatement':
+      if (!/^[A-Z0-9]{1,6} *$/.test(statement.target.value))
+        unsupported(statement.target, 'a CHAIN name of one to six letters or digits');
+      return;
     case 'DefStatement':
       if (!eduSystem30FunctionName.test(statement.name))
         unsupported(statement, 'DEF names from FNA through FNZ');
@@ -204,7 +208,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, DIM, DEF, DATA/READ/RESTORE, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
+        'REM, LET, DIM, DEF, DATA/READ/RESTORE, IF with a line target, GO TO, GOSUB/RETURN, CHAIN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
       );
   }
 }
