@@ -136,8 +136,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "3dplot-edusystem30.md#3dplot-on-archived-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "defined-functions": [5]
@@ -391,11 +392,14 @@
         "title": "BASBAL",
         "referencePage": 26,
         "dialectHint": "EduSystem 15/30/35, uses CHAIN",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 27
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM-35",
+      "reviewRecord": "basbal-edusystem30-review.md#basbal-and-basbl1-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [100],
@@ -428,11 +432,14 @@
         "title": "BASBAL",
         "referencePage": 26,
         "dialectHint": "EduSystem 15/30/35, uses CHAIN",
-        "evidence": "companion of BASBAL; exact printed listing page still unverified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 27
       },
       "role": "companion",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM-35",
+      "reviewRecord": "basbal-edusystem30-review.md#basbal-and-basbl1-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [100],
@@ -1031,8 +1038,10 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM-35",
+      "reviewRecord": "buzzwd-edusystem30.md#buzzwd-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [710, 1010, 1070, 1130],
@@ -2696,8 +2705,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "nicoma-source-review.md#nicoma-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {
@@ -3687,8 +3697,9 @@
         "evidence": "upstream README; attribution not certified"
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "tower-edusystem30-review.md#tower-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [110],

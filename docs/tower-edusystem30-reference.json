@@ -1,0 +1,84 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "f2fb365ff612428885857284d191ffb99b31536cd092680bf2d852d2e47997f1",
+  "reviewedFixtureSha256": "4712ebd79baa0f326d1ae912aad28ce7111a5e7d5cbb22ea9e80aedf5dc41069",
+  "fixtureSha256": "942aa2632ae47c0ec160d0c9e61f7004c3b2abe86f85098738fc6d2339902782",
+  "rawCompilerOutput": "S1 800\nS1 840\nS1 880\nS1 930\nS1 1030\nS1 1160\nS1 1170\nS1 1240\n",
+  "reviewedCompilerOutput": "S1 1160\nS1 1170\n",
+  "endProbes": [
+    {
+      "source": "10 PRINT \"BEFORE\"\n20 PRINT \"AFTER\"\\END",
+      "output": "BEFORE\nAFTER\n"
+    },
+    {
+      "source": "10 PRINT \"BEFORE\"\n20 END\\PRINT \"AFTER\"",
+      "output": "BEFORE\n"
+    },
+    {
+      "source": "10 PRINT \"BEFORE\"\n20 PRINT \"DURING\"\\END\\PRINT \"AFTER\"",
+      "output": "BEFORE\nDURING\n"
+    },
+    {
+      "source": "10 PRINT \"BEFORE\"\n20 PRINT \"AFTER\"",
+      "output": "EN 20\n"
+    }
+  ],
+  "runs": [
+    {
+      "name": "printed game, invalid replay response and two-disk replay",
+      "answers": [
+        "3",
+        "11",
+        "3",
+        "13",
+        "2",
+        "11",
+        "2",
+        "15",
+        "3",
+        "11",
+        "1",
+        "12",
+        "13",
+        "3",
+        "11",
+        "3",
+        "Q",
+        "Y",
+        "2",
+        "13",
+        "2",
+        "15",
+        "3",
+        "13",
+        "3",
+        "N"
+      ],
+      "moveCounts": [7, 3],
+      "haltLabel": 1390,
+      "outputSha256": "8e83a5d50dd58608c7dc554241727f80de22d04607f50a8b4d97bfc18565dee4"
+    },
+    {
+      "name": "fresh two-disk game",
+      "answers": ["2", "13", "2", "15", "3", "13", "3", "N"],
+      "moveCounts": [3],
+      "haltLabel": 1390,
+      "outputSha256": "93141b5a082b00619cb72d5dd3cd24f4cb279f08005df22061c7b9aeb2e7b2ca"
+    },
+    {
+      "name": "maximum size, blocked disks and repeated invalid needle",
+      "answers": ["0", "8", "7", "5", "3", "2", "5", "2", "5", "4", "0"],
+      "moveCounts": [],
+      "haltLabel": 790,
+      "outputSha256": "95b1df7e91e81a9e51a06c777b07dc289e02c7b87a912f5207a5c6b5dfe3122c"
+    },
+    {
+      "name": "third invalid size stops before a board is shown",
+      "answers": ["0", "8", "9"],
+      "moveCounts": [],
+      "haltLabel": 320,
+      "outputSha256": "6432fb3695cb07e49143ef87df518b74b9caec62980244662a52ad19501f07be"
+    }
+  ]
+}

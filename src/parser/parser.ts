@@ -24,13 +24,22 @@ import {prepareBasicPlusMa2Literal} from '../core/basic_plus_ma2_literal.ts';
 import {isEduSystem30Dialect, validateDialect} from '../core/dialect.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {changeOperands} from '../core/change.ts';
-import {maxLineStatements, maxConditionalDepth, inlineBodyAllowed} from '../core/instructions.ts';
+import {
+  lineStatements,
+  maxLineStatements,
+  maxConditionalDepth,
+  inlineBodyAllowed,
+} from '../core/instructions.ts';
 import {maxDataListItems} from '../core/data.ts';
 import {maxInputTargets, validateInputLineTarget} from '../core/input.ts';
 import {maxDispatchTargets} from '../core/dispatch.ts';
 import {freezeTree, validateSourceLines} from './program_validation.ts';
 import {validateAltairLine, validateAltairDimensions} from './altair_support.ts';
-import {validateEduSystem30Line} from './edusystem30_support.ts';
+import {
+  eduSystem30FunctionName,
+  validateEduSystem30Functions,
+  validateEduSystem30Line,
+} from './edusystem30_support.ts';
 import {preflightBasicPlusMa2Candidate} from './ma2_candidate_support.ts';
 
 export {validateProgram} from './program_validation.ts';
@@ -73,8 +82,9 @@ export function parseProgram(source: string, options: LanguageOptions = {}): Pro
     return freezeTree({...program, source});
   }
   if (!isEduSystem30Dialect(dialect)) return program;
+  validateEduSystem30Functions(program.lines);
   const last = program.lines.at(-1);
-  if (last && last.statement.type !== 'EndStatement')
+  if (last && !lineStatements(last).some(({type}) => type === 'EndStatement'))
     throw new BasicSyntaxError(
       'MISSING_END',
       'EDUSYSTEM-30 requires END on the highest numbered line',
@@ -330,6 +340,20 @@ class Parser {
       ) {
         this.take();
         return this.assignment(command, command);
+      }
+      if (this.eduSystem30 && command.value === 'DEF') {
+        this.take();
+        const name = this.expect('IDENTIFIER', undefined, 'Expected a function name after DEF');
+        this.expect('PUNCTUATION', '(', 'Expected ( after the function name');
+        const parameter = this.loopVariable();
+        this.expect('PUNCTUATION', ')', 'Expected ) after the function parameter');
+        this.expect('OPERATOR', '=', 'Expected = before the function body');
+        const expression = this.expression();
+        return this.node('DefStatement', command, expression, {
+          name: name.value,
+          parameter,
+          expression,
+        });
       }
       // Contextual statement forms preserve these existing scalar/array names.
       if (command.value === 'DATA') {
@@ -813,7 +837,7 @@ class Parser {
             !(
               next.type === 'KEYWORD' &&
               (nativeIntrinsic(next.value) !== null ||
-                (this.eduSystem30 && ['SQR', 'CHR$'].includes(next.value)))
+                (this.eduSystem30 && ['SQR', 'EXP', 'CHR$'].includes(next.value)))
             ) &&
             !this.at('PUNCTUATION', '(')
           )
@@ -1053,6 +1077,7 @@ class Parser {
     }
     if (token.type === 'IDENTIFIER') {
       this.take();
+      if (this.eduSystem30 && eduSystem30FunctionName.test(token.value)) return this.call(token);
       return this.reference(token);
     }
     if (this.ma2 && token.type === 'KEYWORD') {
@@ -1068,7 +1093,7 @@ class Parser {
       token.type === 'KEYWORD' &&
       (nativeIntrinsic(token.value) !== null ||
         ((this.altair || this.eduSystem30) && token.value === 'CHR$') ||
-        (this.eduSystem30 && token.value === 'SQR'))
+        (this.eduSystem30 && ['SQR', 'EXP'].includes(token.value)))
     ) {
       return this.call();
     }
@@ -1081,8 +1106,13 @@ class Parser {
     this.fail('EXPECTED_EXPRESSION', 'Expected an expression');
   }
 
-  call(): Expression {
-    const name = this.expect('KEYWORD', undefined, 'Expected function name');
+  call(
+    name: TokenOf<'KEYWORD'> | TokenOf<'IDENTIFIER'> = this.expect(
+      'KEYWORD',
+      undefined,
+      'Expected function name',
+    ),
+  ): Expression {
     const open = this.expect('PUNCTUATION', '(', `Expected ( after ${name.value}`);
     return this.nested(open, () => {
       const args: Expression[] = [];

@@ -15,6 +15,7 @@ export function inlineBodyAllowed(statement: SimpleStatement): boolean {
 // the public pre-1.0 statement union grows; malformed constructed trees fail.
 const simpleKinds: Record<SimpleStatement['type'], true> = {
   DimStatement: true,
+  DefStatement: true,
   LetStatement: true,
   InputStatement: true,
   InputTargetsStatement: true,

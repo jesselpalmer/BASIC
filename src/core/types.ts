@@ -190,6 +190,11 @@ export interface NodeFields {
     readonly bounds: readonly NodeOf<'NumberLiteral'>[];
   };
   DimStatement: {readonly declarations: readonly ArrayDeclaration[]};
+  DefStatement: {
+    readonly name: string;
+    readonly parameter: NodeOf<'Variable'>;
+    readonly expression: Expression;
+  };
   GroupExpression: {readonly expression: Expression};
   UnaryExpression: {
     readonly operator: string;
@@ -318,6 +323,7 @@ export type ArrayDeclaration = NodeOf<'ArrayDeclaration'>;
 export type Comparison = NodeOf<'Comparison'>;
 export type SimpleStatement = Nodes<
   | 'DimStatement'
+  | 'DefStatement'
   | 'LetStatement'
   | 'InputStatement'
   | 'InputTargetsStatement'

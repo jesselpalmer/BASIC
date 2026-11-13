@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict';
 import {expect, test} from 'bun:test';
+import exponentialReference from '../../docs/edusystem30-exp-reference.json';
 import reference from '../../docs/edusystem30-roots-reference.json';
 import {Basic, BasicRuntimeError, BasicSyntaxError, parseProgram} from '../index.ts';
-import {eduSystem30FromNumber, type EduSystem30FloatingValue} from './edusystem30_floating.ts';
+import {eduSystem30Exponential} from './edusystem30_advanced.ts';
+import {
+  eduSystem30FromNumber,
+  parseEduSystem30Input,
+  type EduSystem30FloatingValue,
+} from './edusystem30_floating.ts';
+import {formatEduSystem30Number} from './edusystem30_format.ts';
 
 const options = {dialect: 'edusystem-30'} as const;
 
@@ -78,4 +85,43 @@ test('EDUSYSTEM-30 rejects unadmitted SQR arities at preparation', () => {
       BasicSyntaxError,
     );
   }
+});
+
+test('EDUSYSTEM-30 EXP matches the archived INPUT, arithmetic, and PRINT words', () => {
+  for (const sample of exponentialReference.observations) {
+    const argument = parseEduSystem30Input(sample.input);
+    expect(words(argument)).toEqual(sample.words.A);
+    const result = eduSystem30Exponential(argument);
+    expect(words(result)).toEqual(sample.words.P);
+    expect(formatEduSystem30Number(result) + '\n').toEqual(sample.output);
+  }
+});
+
+test.each([-701, 701, 2 ** -1001, -(2 ** -1001)])(
+  'EDUSYSTEM-30 EXP rejects a stored argument of %s',
+  (argument) => {
+    expect(() => eduSystem30Exponential(eduSystem30FromNumber(argument))).toThrow(RangeError);
+  },
+);
+
+test.each(['701', '1E-400'])('EDUSYSTEM-30 EXP reports %s at the source before printing', (arg) => {
+  const writes: string[] = [];
+  const basic = new Basic({write: (text) => writes.push(text)}, options);
+  assert.throws(
+    () => basic.run(`10 PRINT "VALUE";EXP(${arg})\n20 END`),
+    (error) =>
+      error instanceof BasicRuntimeError &&
+      error.diagnostic.code === 'NUMERIC_DOMAIN' &&
+      error.diagnostic.label === 10,
+  );
+  expect(writes).toEqual([]);
+});
+
+test('EDUSYSTEM-30 rejects unadmitted EXP arities without reserving the native variable name', () => {
+  for (const expression of ['EXP()', 'EXP(1,2)']) {
+    expect(() => parseProgram(`10 PRINT ${expression}\n20 END`, options)).toThrow(BasicSyntaxError);
+  }
+  const basic = new Basic();
+  basic.run('10 EXP=2\n20 END');
+  expect(basic.variables).toEqual([{name: 'EXP', value: 2}]);
 });

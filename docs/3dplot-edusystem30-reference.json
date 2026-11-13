@@ -1,0 +1,77 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "fixtureSha256": "37a24eff0b3ff254479d22e0318800342d4a19deecfd8c46ee6c9f108a95d01a",
+  "outputSha256": "214855d70a06d51b31eb90e0a101018a1cd88fe244d8b51be5ef6583b2d13ada",
+  "rowCount": 41,
+  "rows": [
+    "                         *",
+    "                     *   *  *",
+    "                  *  *   *  *   *",
+    "              *   *  *   *  *   *  *",
+    "              *   *  *   *  *   *  *",
+    "              *   *  *   *  *   *  *",
+    "           *  *   *  *   *  *   *  *   *",
+    "           *  *   *   *  *   *  *  *   *",
+    "           *  *   *   *   *  *  *  *   *",
+    "       *   *  *   *    *  *   * *  *   *  *",
+    "       *   *  *    *   *    * *  * *   *  *",
+    "       *   *   *   *     *   *  **  *  *  *",
+    "       *   *   *    *      *    * * *  *  *",
+    "       *   *   *     *       *    * *  *  *",
+    "       *   *   *      *        *      **  *",
+    "       *   *    *       *         *       *",
+    "       *   *    *        *           *       *",
+    "       *   *     *         *            *        *",
+    "       *   *     *          *             *         *",
+    "       *   *     *          *               *         *",
+    "    *  *   *     *           *              *          *",
+    "       *   *     *          *               *         *",
+    "       *   *     *          *             *         *",
+    "       *   *     *         *            *        *",
+    "       *   *    *        *           *       *",
+    "       *   *    *       *         *       *",
+    "       *   *   *      *        *      **  *",
+    "       *   *   *     *       *    * *  *  *",
+    "       *   *   *    *      *    * * *  *  *",
+    "       *   *   *   *     *   *  **  *  *  *",
+    "       *   *  *    *   *    * *  * *   *  *",
+    "       *   *  *   *    *  *   * *  *   *  *",
+    "           *  *   *   *   *  *  *  *   *",
+    "           *  *   *   *  *   *  *  *   *",
+    "           *  *   *  *   *  *   *  *   *",
+    "              *   *  *   *  *   *  *",
+    "              *   *  *   *  *   *  *",
+    "              *   *  *   *  *   *  *",
+    "                  *  *   *  *   *",
+    "                     *   *  *",
+    "                         *"
+  ],
+  "functionProbes": [
+    {
+      "name": "forward and skipped definition",
+      "source": "10 Z=9\n20 B=4\n30 PRINT FNA(3);Z\n40 GOTO 60\n50 DEF FNA(Z)=Z+B\n60 B=8\n70 PRINT FNA(3);Z\n80 END",
+      "output": " 7  9 \n 11  9 \n"
+    },
+    {
+      "name": "last numbered definition",
+      "source": "20 DEF FNA(Z)=Z+2\n10 DEF FNA(Z)=Z+1\n30 PRINT FNA(5)\n40 END",
+      "output": " 7 \n"
+    },
+    {
+      "name": "nested formal shadows a global in the callee",
+      "source": "10 DEF FNA(Z)=Z+B\n20 DEF FNB(B)=FNA(B+1)+B\n30 Z=8\\B=7\n40 PRINT FNB(2);B;Z\n50 END",
+      "output": " 7  7  8 \n"
+    },
+    {
+      "name": "argument evaluated before binding",
+      "source": "10 DEF FNB(A1)=A1+1\n20 A1=7\n30 PRINT FNB(A1+1);A1\n40 END",
+      "output": " 9  7 \n"
+    },
+    {
+      "name": "recursive call exhausts the archive stack",
+      "source": "10 DEF FNA(Z)=FNA(Z)+1\n20 PRINT FNA(1)\n30 END",
+      "output": "\nERROR SP AT LINE 0020\n"
+    }
+  ]
+}

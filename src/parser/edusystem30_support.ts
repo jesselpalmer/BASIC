@@ -18,6 +18,7 @@ function unsupported(node: {location: ParsedLine['location']}, detail: string): 
 }
 
 const numericName = /^[A-Z][0-9]?$/;
+export const eduSystem30FunctionName = /^FN[A-Z]$/;
 
 function validateScalar(node: Expression): void {
   if (node.type !== 'Variable' || !numericName.test(node.name))
@@ -58,8 +59,12 @@ function validateNumber(expression: Expression): void {
         pending.push(node.right, node.left);
         break;
       case 'CallExpression':
-        if (!['ABS', 'INT', 'RND', 'SQR'].includes(node.name) || node.arguments.length !== 1)
-          unsupported(node, 'one numeric argument to ABS, INT, RND and SQR');
+        if (
+          node.arguments.length !== 1 ||
+          (!['ABS', 'INT', 'RND', 'SQR', 'EXP'].includes(node.name) &&
+            !eduSystem30FunctionName.test(node.name))
+        )
+          unsupported(node, 'one numeric argument to ABS, INT, RND, SQR, EXP or FN functions');
         pending.push(node.arguments[0]);
         break;
       default:
@@ -94,6 +99,26 @@ export function validateEduSystem30Line(line: ParsedLine): void {
   for (const statement of lineStatements(line)) validateStatement(statement);
 }
 
+/** Resolve numbered DEFs before execution, including calls that precede them. */
+export function validateEduSystem30Functions(lines: readonly ParsedLine[]): void {
+  const definitions = new Set<string>();
+  const statements = lines.flatMap(lineStatements);
+  for (const statement of statements) {
+    if (statement.type === 'DefStatement') definitions.add(statement.name);
+  }
+  const pending: unknown[] = [...statements].reverse();
+  while (pending.length) {
+    const value = pending.pop();
+    if (value === null || typeof value !== 'object') continue;
+    if ('type' in value && value.type === 'CallExpression') {
+      const call = value as NodeOf<'CallExpression'>;
+      if (eduSystem30FunctionName.test(call.name) && !definitions.has(call.name))
+        unsupported(call, `a numbered DEF for ${call.name}`);
+    }
+    for (const child of Object.values(value).reverse()) pending.push(child);
+  }
+}
+
 function validateStatement(statement: SimpleStatement): void {
   // Every statement outside the allowlist is unsupported.
   // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -106,6 +131,12 @@ function validateStatement(statement: SimpleStatement): void {
     case 'ReturnStatement':
     case 'RandomizeStatement':
     case 'RestoreStatement':
+      return;
+    case 'DefStatement':
+      if (!eduSystem30FunctionName.test(statement.name))
+        unsupported(statement, 'DEF names from FNA through FNZ');
+      validateScalar(statement.parameter);
+      validateNumber(statement.expression);
       return;
     case 'DimStatement':
       for (const declaration of statement.declarations) {
@@ -147,8 +178,8 @@ function validateStatement(statement: SimpleStatement): void {
       validateScalar(statement.target);
       return;
     case 'InputTargetsStatement':
-      if (statement.prompt || statement.targets.length !== 2)
-        unsupported(statement, 'unprompted INPUT with two numeric scalars');
+      if (statement.prompt || statement.targets.length > 3)
+        unsupported(statement, 'unprompted INPUT with two or three numeric scalars');
       statement.targets.forEach(validateScalar);
       return;
     case 'ForStatement':
@@ -166,7 +197,7 @@ function validateStatement(statement: SimpleStatement): void {
     default:
       unsupported(
         statement,
-        'REM, LET, DIM, DATA/READ/RESTORE, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
+        'REM, LET, DIM, DEF, DATA/READ/RESTORE, IF with a line target, GO TO, GOSUB/RETURN, INPUT, FOR/NEXT, PRINT, RANDOMIZE, STOP and END',
       );
   }
 }

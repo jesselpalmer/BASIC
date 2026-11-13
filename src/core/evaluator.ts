@@ -3,12 +3,17 @@ import {changeOperands} from './change.ts';
 import {createHost} from './host.ts';
 import {validateDialect} from './dialect.ts';
 import {ArrayStore, createBasicPlusMa2ArrayStore} from './arrays.ts';
+import type {Instruction} from './instructions.ts';
 import {compareValues, compareMa2Relation, type Ma2RelationResult} from './comparison.ts';
 import {firstMa2Literal} from './foreign_literal.ts';
 import {truncateMa2ToWord} from './ma2_word_conversion.ts';
 import {nativeIntrinsic} from './intrinsics.ts';
 import {EduSystem30Random} from './edusystem30_rng.ts';
-import {eduSystem30Power, eduSystem30SquareRoot} from './edusystem30_advanced.ts';
+import {
+  eduSystem30Exponential,
+  eduSystem30Power,
+  eduSystem30SquareRoot,
+} from './edusystem30_advanced.ts';
 import {
   compareEduSystem30,
   eduSystem30Absolute,
@@ -97,7 +102,9 @@ function binary(node: NodeOf<'BinaryExpression'>, left: BasicValue, right: Basic
   return number(result, location);
 }
 
-type Frame = {node: Expression; ready: boolean};
+type Frame =
+  | {node: Expression; ready: boolean}
+  | {functionName: string; parameter: string; prior: EduSystem30FloatingValue | undefined};
 
 const altairToken = Symbol('altair-evaluator');
 
@@ -208,18 +215,27 @@ export class Evaluator {
 }
 
 const eduSystem30Zero = eduSystem30FromNumber(0);
+const maxEduSystem30FunctionCalls = 4096;
 
 class EduSystem30Evaluator extends Evaluator {
   readonly #scalars = new Map<string, EduSystem30FloatingValue>();
+  readonly #functions = new Map<string, NodeOf<'DefStatement'>>();
   #arrays = new ArrayStore([], 'edusystem-30');
 
   constructor(private readonly random: EduSystem30Random) {
     super();
   }
 
-  override reset(declarations: readonly ArrayDeclaration[] = []): void {
+  override reset(
+    declarations: readonly ArrayDeclaration[] = [],
+    instructions: readonly Instruction[] = [],
+  ): void {
     this.#arrays = new ArrayStore(declarations, 'edusystem-30');
     this.#scalars.clear();
+    this.#functions.clear();
+    for (const {statement} of instructions) {
+      if (statement.type === 'DefStatement') this.#functions.set(statement.name, statement);
+    }
     this.random.reset();
   }
 
@@ -264,6 +280,7 @@ class EduSystem30Evaluator extends Evaluator {
   evaluateNumber(expression: Expression): EduSystem30FloatingValue {
     return evaluateTree(expression, {
       kind: 'edu30',
+      functions: this.#functions,
       scalars: this.#scalars,
       arrays: this.#arrays,
       random: this.random,
@@ -300,6 +317,7 @@ interface NativeContext {
 }
 interface EduSystem30Context {
   readonly kind: 'edu30';
+  readonly functions: ReadonlyMap<string, NodeOf<'DefStatement'>>;
   readonly scalars: ReadonlyMap<string, EduSystem30FloatingValue>;
   readonly arrays: ArrayStore;
   readonly random: EduSystem30Random;
@@ -682,8 +700,20 @@ function evaluateTree(
   // explicit traversal also preserves left-to-right host callback ordering.
   const pending: Frame[] = [{node: expression, ready: false}];
   const values: (BasicValue | Ma2Value | EduSystem30FloatingValue)[] = [];
+  // Formals temporarily shadow scalars and remain visible to nested function
+  // bodies. Keep their bindings local to this expression even if it fails.
+  const formals = new Map<string, EduSystem30FloatingValue>();
+  const activeFunctions = new Set<string>();
+  let functionCalls = 0;
   while (pending.length) {
-    const {node, ready} = pending.pop()!;
+    const frame = pending.pop()!;
+    if ('functionName' in frame) {
+      activeFunctions.delete(frame.functionName);
+      if (frame.prior === undefined) formals.delete(frame.parameter);
+      else formals.set(frame.parameter, frame.prior);
+      continue;
+    }
+    const {node, ready} = frame;
     let ma2Operation:
       {result: ReturnType<typeof ma2Unary> | Ma2BinaryResult; location: Location} | undefined;
     switch (node.type) {
@@ -710,7 +740,7 @@ function evaluateTree(
       case 'Variable': {
         const name = node.name.toUpperCase();
         if (context.kind === 'edu30') {
-          values.push(context.scalars.get(name) ?? eduSystem30Zero);
+          values.push(formals.get(name) ?? context.scalars.get(name) ?? eduSystem30Zero);
           break;
         }
         const value =
@@ -890,12 +920,48 @@ function evaluateTree(
           };
         } else if (context.kind === 'edu30') {
           const argument = values.pop()! as EduSystem30FloatingValue;
-          if (node.name === 'RND') values.push(eduSystem30FromNumber(context.random.next()));
+          const definition = context.functions.get(node.name);
+          if (definition) {
+            if (activeFunctions.has(node.name))
+              fail(
+                'FUNCTION_RECURSION',
+                'EDUSYSTEM-30 function stack exhausted',
+                expression.location,
+              );
+            // Acyclic bodies can still branch into exponentially many calls.
+            if (functionCalls === maxEduSystem30FunctionCalls)
+              fail(
+                'FUNCTION_LIMIT',
+                `EDUSYSTEM-30 expressions permit at most ${maxEduSystem30FunctionCalls} function calls`,
+                expression.location,
+              );
+            functionCalls++;
+            const parameter = definition.parameter.name;
+            activeFunctions.add(node.name);
+            pending.push(
+              {functionName: node.name, parameter, prior: formals.get(parameter)},
+              {node: definition.expression, ready: false},
+            );
+            formals.set(parameter, argument);
+          } else if (node.name === 'RND') values.push(eduSystem30FromNumber(context.random.next()));
           else if (node.name === 'ABS') values.push(eduSystem30Absolute(argument));
           else if (node.name === 'SQR') {
             if (argument.significand < 0n)
               fail('NUMERIC_DOMAIN', 'SQR requires a nonnegative argument', node.nameLocation);
             values.push(eduSystem30SquareRoot(argument));
+          } else if (node.name === 'EXP') {
+            try {
+              values.push(eduSystem30Exponential(argument));
+            } catch (cause) {
+              if (!(cause instanceof RangeError)) throw cause;
+              throw new BasicRuntimeError(
+                'NUMERIC_DOMAIN',
+                cause.message,
+                node.nameLocation.start,
+                node.nameLocation.label,
+                {cause},
+              );
+            }
           } else values.push(eduSystem30Integer(argument));
         } else if (node.name === 'INKEY$') {
           values.push(readKey(context.host, node.nameLocation));

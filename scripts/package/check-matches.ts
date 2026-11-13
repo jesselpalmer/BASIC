@@ -25,6 +25,9 @@ import {
 import type {Dialect} from '../../src/index.ts';
 import {assertGolfOutput, golfOptions, golfRuns, golfSource} from '../golf-acceptance.ts';
 import {assertChompOutput, chompRuns, chompSource} from '../chomp-acceptance.ts';
+import {assertBuzzwdOutput, buzzwdRuns, buzzwdSource} from '../buzzwd-acceptance.ts';
+import {assertTowerOutput, towerRuns, towerSource, towerOptions} from '../tower-acceptance.ts';
+import {assertPlotOutput, plotSource} from '../3dplot-acceptance.ts';
 import {
   assertMugwumpOutput,
   mugwumpRuns,
@@ -253,6 +256,24 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     entropy: ({clockWord}) => clockWord / 4096,
   });
   checkCompletedGame(executable, directory, 'chomp', chompSource, chompRuns, assertChompOutput);
+  checkCompletedGame(executable, directory, 'buzzwd', buzzwdSource, buzzwdRuns, assertBuzzwdOutput);
+  checkCompletedGame(
+    executable,
+    directory,
+    'tower',
+    towerSource,
+    towerRuns,
+    assertTowerOutput,
+    towerOptions,
+  );
+  checkCompletedGame(
+    executable,
+    directory,
+    '3dplot',
+    plotSource,
+    [{answers: []}, {answers: []}],
+    assertPlotOutput,
+  );
   checkCompletedGame(executable, directory, 'gomoko', gomokoSource, gomokoRuns, assertGomokoOutput);
   checkCompletedGame(
     executable,

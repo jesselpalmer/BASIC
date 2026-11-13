@@ -9,12 +9,14 @@ The bounded `edusystem-30` profile runs the reviewed March 1975
 [CHEMST](chemst-edusystem30.md), [DIAMND](diamnd-edusystem30-review.md),
 [BATNUM](batnum-edusystem30.md), [EVEN](even-edusystem30.md),
 [ROCKET](rocket-edusystem30.md), [BOUNCE](bounce-edusystem30.md),
-[CHOMP](chomp-edusystem30.md), and [MUGWUMP](mugwump-edusystem30.md) listings.
+[CHOMP](chomp-edusystem30.md), [MUGWUMP](mugwump-edusystem30.md), and
+[3DPLOT](3dplot-edusystem30.md) listings.
 It also runs the separately labeled adaptations
 [KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
-[AMAZIN](amazin-edusystem30.md).
+[AMAZIN](amazin-edusystem30.md), and [BUZZWD](buzzwd-edusystem30.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
-[BLKJAK](blkjak-edusystem30-review.md) listings. Both modes share the same
+[BLKJAK](blkjak-edusystem30-review.md) listings and the
+[TOWER adaptation](tower-edusystem30-review.md). Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK
 parity respectively, and preserve that choice in portable documents.
 The book and archived `EDU30.SV`
@@ -58,7 +60,9 @@ runs supply the references.
   The **GOMOKO** adaptation declares the board at the size described in the
   book. The **AMAZIN** adaptation uses smaller DIM bounds to fit the archived
   system. Try `9,7` for its sample dimensions.
-  **GOLF** and **BLKJAK** select MARK input automatically. Enter a single
+  For **BUZZWD**, enter three digits separated by commas. Enter
+  `100,100,100` to finish. For **3DPLOT**, select Run to draw the 41-row plot.
+  **GOLF**, **BLKJAK**, and **TOWER** select MARK input automatically. Enter a single
   letter at a character prompt and submit numbers at the other prompts.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
@@ -75,14 +79,14 @@ runs supply the references.
 
 ## Admitted forms
 
-| Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric DATA/READ and bare RESTORE, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN (including compact literal transfer targets), INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source ends in END at the highest label. |
-| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, INT, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                            |
-| Arrays                 | Rank-one and rank-two numeric arrays use explicit DIM and zero-based indices through the inclusive bound. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                                                                |
-| INPUT                  | Unprompted numeric INPUT accepts one or two scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Longer or non-ASCII responses retry.                                                      |
-| PRINT                  | Literal text, bounded numeric expressions, numeric `CHR$(expression)` (printable ASCII and BEL) and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                         |
-| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                   |
+| Area                   | Supported slice                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric DATA/READ and bare RESTORE, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN (including compact literal transfer targets), INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, STOP and END. Complete nonempty source has an END statement at the highest label. Unary numeric `DEF FN` definitions bind before execution. |
+| Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, EXP, INT, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                                                                          |
+| Arrays                 | Rank-one and rank-two numeric arrays use explicit DIM and zero-based indices through the inclusive bound. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                                                                                                                                   |
+| INPUT                  | Unprompted numeric INPUT accepts one to three scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Longer or non-ASCII responses retry.                                                                                                                       |
+| PRINT                  | Literal text, bounded numeric expressions, numeric `CHR$(expression)` (printable ASCII and BEL) and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                                                            |
+| RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                                                                                      |
 
 Character constants compile to marked ASCII in both modes. The selected
 spellings are `#` followed by an uppercase letter, decimal digit, `#`, or `!`.
@@ -91,7 +95,17 @@ mode. Numeric `CHR$` rounds down, masks to seven bits and emits the resulting
 printable character or BEL. Other terminal control bytes report a located
 diagnostic.
 
-All lines are checked before execution, including unreachable lines. A supplied
+Unary `DEF FN` functions use a single letter for the function name and a
+letter and optional digit for the formal. The last numbered definition wins. The argument
+is evaluated before the formal shadows the current scalar for the call. Evaluated
+recursive calls and expressions exceeding 4,096 function calls report located
+diagnostics. [DEF evidence](3dplot-edusystem30.md)
+
+`EXP` uses archived stored arithmetic and accepts zero or stored magnitudes
+from `2^-1000` through 700. [EXP evidence](edusystem30-exp-evidence.md)
+
+All lines are checked before execution, including unreachable lines and
+function definitions overridden by a later definition. A supplied
 Program must agree with its exact source. Source envelopes retain the explicit
 dialect through import, save and reload. Immediate library statements are
 native-only. The shared source tokenizer requires finite JavaScript numbers.
