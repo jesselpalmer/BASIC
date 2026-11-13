@@ -9,6 +9,7 @@ const candidateStatements = new Set<SimpleStatement['type']>([
   'DimStatement',
   'LetStatement',
   'InputStatement',
+  'SleepStatement',
   'IfStatement',
   'GotoStatement',
   'ForStatement',

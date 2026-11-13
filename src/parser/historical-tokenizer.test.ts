@@ -167,6 +167,12 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     ]);
   });
 
+  it('scans SLEEP as a statement with its original numeric expression tokens', () => {
+    const tokens = scan('10SLEEP(5)');
+    expect(tokens[1]).toMatchObject({type: 'KEYWORD', raw: 'SLEEP', value: 'SLEEP'});
+    expect(tokens[3]).toMatchObject({type: 'RAW_NUMBER', raw: '5'});
+  });
+
   it.each([
     'STOP',
     'PRINTSTOP',
@@ -210,7 +216,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     'UNLESS',
     'WHILE',
     'UNTIL',
-    'SLEEP',
     'WAIT',
     'LSET',
     'RSET',

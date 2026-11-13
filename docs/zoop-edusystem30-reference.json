@@ -1,0 +1,69 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "63840e940c2a780ad04ba4a731ec2f9b7456504919d2b06bbd6eba59218f1683",
+  "tapeFixtureSha256": "c8be4f2b43b0fcaf797a38e3b75b83be51ba2364742eb1f6d05363e0520026d7",
+  "adaptedFixtureSha256": "bc1d98f31dbf17db81452dccd4207af68ff633cb013b382056ef98bb5d297cac",
+  "sessions": [
+    {
+      "entry": "ZOOP",
+      "start": "\nREADY\n\n",
+      "steps": [
+        {
+          "keys": ["C", "A"],
+          "output": "TALOG  TRY MONTGOMERY WARD'S\n\nREADY\n\n"
+        },
+        {
+          "keys": ["S", "C"],
+          "output": "RATCH  GOT AN ITCH?\n\nREADY\n\n"
+        },
+        {
+          "keys": ["S", "A"],
+          "output": "VE I DON'T LIKE BANKS\n\nREADY\n\n"
+        },
+        {
+          "keys": ["?", "?", "\n"],
+          "output": "\nWHAT??\n\nREADY\n\n"
+        },
+        {
+          "keys": ["T", "X"],
+          "output": "SAVE O.K., THE WHOLE DEC TAPE\n\nREADY\n\n"
+        },
+        {
+          "keys": ["}"],
+          "output": " WIPED OUT COMPLETELY!!!\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+        }
+      ]
+    },
+    {
+      "entry": "DEMON",
+      "start": "\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?\nPLEASE WAIT A FEW MOMENTS WHILE I SEARCH FOR YOUR PROGRAM.\n\n\n\nREADY\n\n",
+      "steps": [
+        {
+          "keys": ["C", "A"],
+          "output": "TALOG  TRY MONTGOMERY WARD'S\n\nREADY\n\n"
+        },
+        {
+          "keys": ["S", "C"],
+          "output": "RATCH  GOT AN ITCH?\n\nREADY\n\n"
+        },
+        {
+          "keys": ["S", "A"],
+          "output": "VE I DON'T LIKE BANKS\n\nREADY\n\n"
+        },
+        {
+          "keys": ["?", "?", "\n"],
+          "output": "\nWHAT??\n\nREADY\n\n"
+        },
+        {
+          "keys": ["T", "X"],
+          "output": "SAVE O.K., THE WHOLE DEC TAPE\n\nREADY\n\n"
+        },
+        {
+          "keys": ["}"],
+          "output": " WIPED OUT COMPLETELY!!!\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+        }
+      ]
+    }
+  ]
+}

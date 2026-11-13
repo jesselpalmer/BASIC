@@ -51,6 +51,9 @@ import rocksp from '../scripts/package/fixtures/classic/rocksp-edusystem30.bas' 
 import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 'text'};
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
+import war2 from '../scripts/package/fixtures/classic/war2-edusystem30-adapted.bas' with {type: 'text'};
+import nicoma from '../scripts/package/fixtures/classic/nicoma-mar75-text.bas' with {type: 'text'};
+import zoop from '../examples/omsi/ZOOP.bas' with {type: 'text'};
 import demon from '../examples/omsi/DEMON.bas' with {type: 'text'};
 import basbal from '../examples/omsi/BASBAL.bas' with {type: 'text'};
 import basbl1 from '../examples/omsi/BASBL1.bas' with {type: 'text'};
@@ -138,6 +141,9 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   mugwump: {source: mugwump, dialect: 'edusystem-30'},
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
   amazin: {source: amazin, dialect: 'edusystem-30'},
+  war2: {source: war2, dialect: 'edusystem-30'},
+  nicoma: {source: nicoma, dialect: 'basic-plus-v4a12-ma2'},
+  zoop: {source: zoop, dialect: 'edusystem-30-mark'},
   baseball: {source: demon, dialect: 'edusystem-30-mark'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
@@ -345,6 +351,7 @@ const omsiPrograms = new Map([
   ['DEMON ', demon],
   ['BASBAL', basbal],
   ['BASBL1', basbl1],
+  ['ZOOP  ', zoop],
 ]);
 
 const session = new BrowserSession(

@@ -49,10 +49,33 @@ the listing's thinking message and the spaces in the numeric guesses.
 In one run, the observed host delay from the thinking message to the guess
 was 4.49–5.02 seconds. Wall-clock delay varies with simulator scheduling.
 The archive establishes compatibility with V04B-17. The original interpreter
-and compatibility with the project's selected V4A-12 MA2 path remain
-unverified.
+is still unverified. Separate numeric and string INPUT probes print
+`PREFIX` without a newline before INPUT, then `TAB(4);"TAIL"` after
+the response. Both print four spaces before `TAIL` on the new line.
+
+The [October 1972 BASIC-PLUS manual, §8.8](https://www.bitsavers.org/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf)
+defines SLEEP as a duration in seconds. The public profile implements whole
+seconds from 0 through 32767. The V04B-17 archive accepts fractional syntax,
+a negative value can remain suspended until interrupted, and 32768 reports
+`INTEGER ERROR`. Those conversions and diagnostic continuation are outside the
+public subset. The host implements a cancellable millisecond timer. The archive
+capture does not establish the V4A-12 monitor's timer behavior.
 
 ```sh
 python3 scripts/research/capture-nicoma-rsts.py \
   --simulator /path/to/simh/BIN/pdp11 --disk /path/to/RSTS11v4B.DSK
 ```
+
+## Play the reviewed source
+
+In the [playground](https://basic-playground-rho.vercel.app/), choose
+**NICOMA · BASIC-PLUS selected profile** and select **Run program**. Enter the
+remainders from dividing your number by 3, 5 and 7, then answer `YES` or
+`NO` to the guess. Each answer starts another round. Select **Stop program**
+to exit, including during the thinking pause.
+
+The public library, CLI/editor and browser replay the four V04B-17 reference
+rounds with the exact reviewed source under `basic-plus-v4a12-ma2`. The
+library test observes four 5000 ms requests. The CLI and browser tests
+exercise the real timers and interrupt a fresh run during SLEEP. Transcript
+comparisons account for host presentation of input prompts and echo.

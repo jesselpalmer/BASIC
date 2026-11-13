@@ -98,6 +98,32 @@ def play(console):
     return ''.join(transcript).replace('\r\n', '\n'), pause_seconds
 
 
+
+def probe_input_columns(console):
+    captures = []
+    for statement, reply in [('INPUT A', '7'), ('INPUT A$', 'YES')]:
+        enter(console, 'NEW CURSOR')
+        console.expect_exact('Ready')
+        for line in [
+            '10 PRINT "PREFIX";',
+            f'20 {statement}',
+            '30 PRINT TAB(4);"TAIL"',
+            '40 END',
+        ]:
+            enter(console, line)
+        enter(console, 'RUN')
+        console.expect_exact('PREFIX? ')
+        console.send(reply + '\r')
+        console.expect_exact('Ready')
+        assert console.before == reply + '\r\n    TAIL\r\n\r\n'
+        captures.append({
+            'statement': statement,
+            'reply': reply,
+            'outputAfterReply': '    TAIL\n',
+        })
+    return captures
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', type=Path, required=True)
@@ -127,13 +153,18 @@ def main():
             boot(console)
             enter_program(console, source.decode('ascii').splitlines())
             transcript, pause_seconds = play(console)
+            cursor_probes = probe_input_columns(console)
 
+    observed = {
+        'sourceSha256': SOURCE_SHA256,
+        'transcript': transcript.split('\n'),
+        'inputCursor': cursor_probes,
+    }
     if args.record:
-        reference = {'transcript': transcript.split('\n')}
-        REFERENCE.write_text(json.dumps(reference, indent=2) + '\n', encoding='ascii')
+        REFERENCE.write_text(json.dumps(observed, indent=2) + '\n', encoding='ascii')
     else:
         reference = json.loads(REFERENCE.read_text(encoding='ascii'))
-        assert transcript == '\n'.join(reference['transcript']), repr(transcript)
+        assert observed == reference, repr(observed)
     print('Observed pause seconds:', ', '.join(f'{duration:.2f}' for duration in pause_seconds))
     print(f'Verified NICOMA on {BUILD}')
 

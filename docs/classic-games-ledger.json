@@ -168,11 +168,14 @@
         "title": "ACEYDU",
         "referencePage": 13,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 14
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "aceydu-rsts-review.md#aceydu-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [100]
@@ -3894,11 +3897,13 @@
         "title": "WAR-2",
         "referencePage": 232,
         "dialectHint": "EduSystem 30",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 233
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "war2-edusystem30-review.md#war-2-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {
@@ -4048,11 +4053,14 @@
         "title": "ZOOP",
         "referencePage": 243,
         "dialectHint": "EduSystem 15/30/35",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 243
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "DIGITAL Edusystems 15/30/35",
+      "reviewRecord": "zoop-edusystem30.md#zoop-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "file-or-program-services": [240, 310]

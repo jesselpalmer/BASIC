@@ -73,6 +73,13 @@ export function validateSourceLines(
         statement.location.start,
         statement.location.label,
       );
+    if (statement.type === 'SleepStatement')
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'SLEEP requires the selected BASIC-PLUS profile',
+        statement.location.start,
+        statement.location.label,
+      );
     if (statement.type === 'StopStatement' && !isEduSystem30Dialect(dialect))
       throw new BasicSyntaxError(
         'UNSUPPORTED_STATEMENT',

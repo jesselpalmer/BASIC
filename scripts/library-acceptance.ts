@@ -30,6 +30,9 @@ import {runRockspAcceptance} from './rocksp-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
+import {runZoopAcceptance} from './zoop-acceptance.ts';
+import {runWar2Acceptance} from './war2-acceptance.ts';
+import {runNicomaAcceptance} from './nicoma-acceptance.ts';
 import {runBaseballAcceptance} from './baseball-acceptance.ts';
 import {runAmazinAcceptance} from './amazin-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
@@ -99,6 +102,9 @@ export const libraryAcceptanceCases = [
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
+  'adapted ZOOP matches archived self-CHAIN and return to DEMON',
+  'adapted WAR-2 matches the archived treaty, loss and win',
+  'reviewed NICOMA matches the archived guesses and string retries',
   'adapted OMSI Baseball matches the full archived game and return to DEMON',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
@@ -454,6 +460,15 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted AMAZIN matches archived seeded mazes and dimension retry', () =>
     runAmazinAcceptance(api),
+  );
+  await check('adapted ZOOP matches archived self-CHAIN and return to DEMON', () =>
+    runZoopAcceptance(api),
+  );
+  await check('adapted WAR-2 matches the archived treaty, loss and win', () =>
+    runWar2Acceptance(api),
+  );
+  await check('reviewed NICOMA matches the archived guesses and string retries', () =>
+    runNicomaAcceptance(api),
   );
   await check('adapted OMSI Baseball matches the full archived game and return to DEMON', () =>
     runBaseballAcceptance(api),

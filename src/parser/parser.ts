@@ -548,6 +548,10 @@ class Parser {
         const comment = this.expect('COMMENT', undefined, 'Expected comment');
         return this.node('RemStatement', command, comment, {text: comment.value});
       }
+      case 'SLEEP': {
+        const seconds = this.expression();
+        return this.node('SleepStatement', command, seconds, {seconds});
+      }
       case 'WAIT': {
         const duration = this.expression();
         return this.node('WaitStatement', command, duration, {duration});
