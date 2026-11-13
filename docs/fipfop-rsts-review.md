@@ -33,8 +33,28 @@ does not establish the printed sample's random sequence.
 
 Archived EDU30.SV rejects the printed listing, including its ampersand
 abbreviation, string board, trig expression at 530 and inline FOR modifier.
-The public selected profiles currently reject the ampersand at line 100.
-FIPFOP remains a source review and archive case.
+
+## Play the fixed-Q adaptation
+
+Select **FIPFOP · BASIC-PLUS fixed-Q adaptation** in the
+[playground](https://basic-playground-rho.vercel.app/) and enter positions
+1 through 10 to flip the row from X to O. The documented archive solution is
+`1, 2, 2, 4, 5, 7, 8, 10`. Enter `YES` to replay or `NO` to finish.
+The fixed-Q edition keeps the original prompt for 11, which starts another
+round with the same flip rules.
+
+The [portable source](../scripts/package/fixtures/classic/fipfop-ma2-fixed-q.bas)
+uses ordinary PRINT and FOR statements and a numeric board. It replaces
+the two trig paths with secondary-position tables observed on archived
+V04B-17 at `Q=.125` for all ten inputs, including repeated moves.
+The board check counts O cells before branching, so each FOR completes.
+Both the fixed-Q archive probe and the portable source produce the same
+stock V04B-17 transcript through invalid input retries, reset, restart,
+two solved boards, replay and exit. The installed library, CLI/editor
+and browser verify that replay and fresh RUN under the selected BASIC-PLUS
+profile. The original listing's randomized puzzle generation and
+general BASIC-PLUS trigonometry, inline FOR modifiers and string arrays
+remain separate compatibility work.
 
 ```sh
 python3 scripts/research/capture-fipfop-rsts.py \

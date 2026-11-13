@@ -21,6 +21,14 @@ HEADING = 'HERE IS THE STARTING LINE OF X\'S:'
 BOARD = '1 2 3 4 5 6 7 8 9 10\r\n'
 WIN = 'VERY GOOD. YOU GUESSED IT IN ONLY  8 GUESSES!!!!'
 SOLUTION = ['1', '2', '2', '4', '5', '7', '8', '10']
+SECONDARY_PROBE = [
+    '10 LET Q=.125', '20 FOR N=1 TO 10',
+    '30 LET R=TAN(Q+N/Q-N)-SIN(Q/N)+336*SIN(.8*N)',
+    '40 LET A=R-INT(R)', '45 LET A=INT(10*A)',
+    '50 LET R=.592*(1/TAN(Q/N+Q))/SIN(N*2+Q)-COS(N)',
+    '60 LET B=R-INT(R)', '65 LET B=INT(10*B)',
+    '70 PRINT N;A;B', '80 NEXT N', '90 END',
+]
 BOARDS = ['OXXXXXXXXX', 'OOXXXXXXOX', 'OXXXXOXXOX', 'OOXOXOXXOX',
           'OOOOOOXXOX', 'OOOOOXOXOX', 'OOOOOOOOOX', 'OOOOOOOOOO']
 BOOT = (
@@ -128,6 +136,46 @@ def solved(console, shared, lines):
     }
 
 
+
+def secondary_positions(console, shared, lines):
+    load(console, shared, lines)
+    console.expect_exact(READY)
+    rows = [tuple(map(int, line.split())) for line in console.before.splitlines() if line]
+    assert [row[0] for row in rows] == list(range(1, 11)), rows
+    assert all(0 <= position <= 9 for row in rows for position in row[1:]), rows
+    return {'ordinary': [row[1] for row in rows], 'repeated': [row[2] for row in rows]}
+
+
+def playable(console, shared, lines):
+    load(console, shared, lines)
+    console.expect_exact(NUMBER)
+    transcript = [console.before + NUMBER]
+    inputs = ['12', '1.5', '0', '11', *SOLUTION, 'YES', *SOLUTION, 'NO']
+    for index, answer in enumerate(inputs):
+        prompt = READY if answer == 'NO' else REPLAY if index in (11, 20) else NUMBER
+        output = respond(console, answer, prompt)
+        transcript.append(output + (prompt if prompt != READY else ''))
+        if index in (0, 1):
+            assert output == 'ILLEGAL ENTRY--TRY AGAIN\r\n', repr(output)
+        elif index == 2:
+            assert output == BOARD + 'X X X X X X X X X X\r\n\r\n', repr(output)
+        elif index == 3:
+            assert output.startswith(HEADING), repr(output)
+        elif index == 12:
+            assert output.startswith('\r\n' + HEADING), repr(output)
+        elif answer == 'NO':
+            assert output == '\r\n', repr(output)
+        else:
+            board = BOARDS[(index - 4) % 9]
+            expected = BOARD + ' '.join(board) + ' \r\n'
+            if prompt == REPLAY:
+                expected += WIN + '\r\n'
+            assert output == expected, repr(output)
+    # The monitor adds a blank line after END, separate from the program output.
+    output = ''.join(transcript).replace('\r\n', '\n').removesuffix('\n')
+    return {'inputs': inputs, 'output': output}
+
+
 def edu30_rejection(simulator, tape, lines):
     shared = runpy.run_path(str(Path(__file__).with_name('capture-edusystem30.py')))
     assert shared['digest'](tape.read_bytes()) == shared['TAPE_SHA256']
@@ -159,6 +207,7 @@ def main():
     raw = (FIXTURES / 'fipfop.bas').read_bytes()
     reviewed = (FIXTURES / 'fipfop-mar75-text.bas').read_bytes()
     probe = (FIXTURES / 'fipfop-v4b-probe.bas').read_bytes()
+    adapted = (FIXTURES / 'fipfop-ma2-fixed-q.bas').read_bytes()
     assert digest(raw) == RAW_SHA256 and digest(reviewed) == REVIEWED_SHA256
     assert probe == reviewed.replace(b'190 LET Q=RND(Y)', b'190 LET Q=.125').replace(
         b'COT(Q/N+Q)', b'(1/TAN(Q/N+Q))',
@@ -174,6 +223,13 @@ def main():
             ) as console:
                 return run(console, shared, source.decode('ascii').splitlines())
 
+    maps = capture(secondary_positions, '\n'.join(SECONDARY_PROBE).encode('ascii'))
+    source = adapted.decode('ascii')
+    for index, values in enumerate(zip(maps['ordinary'], maps['repeated']), start=1):
+        assert f'LET B({index})={values[0]}:LET D({index})={values[1]}' in source
+    playable_result = capture(playable, adapted)
+    assert playable_result == capture(playable, probe)
+
     args.output.write_text(json.dumps({
         'simulatorCommit': shared['SIMULATOR'],
         'diskSha256': shared['DISK_SHA256'],
@@ -182,6 +238,9 @@ def main():
         'probeFixtureSha256': digest(probe),
         'printedListing': capture(original, reviewed),
         'fixedQProbe': capture(solved, probe),
+        'fixedQSecondaryPositions': maps,
+        'adaptedFixtureSha256': digest(adapted),
+        'portableReplay': playable_result,
         'edu30': edu30_rejection(
             args.edu30_simulator.resolve(), args.edu30_tape.resolve(),
             reviewed.decode('ascii').splitlines(),

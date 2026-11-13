@@ -1371,11 +1371,13 @@
         "title": "CRAPS",
         "referencePage": 83,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 84
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "craps-edusystem30.md#book-and-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [80],
@@ -1407,11 +1409,13 @@
         "title": "CUBE",
         "referencePage": 85,
         "dialectHint": "generic",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 86
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "cube-edusystem30.md#book-and-corpus",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [
@@ -3678,11 +3682,14 @@
         "title": "TICTAC",
         "referencePage": 218,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 219
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "EDUSYSTEM-35",
+      "reviewRecord": "tictac-edusystem30.md#book-and-tape",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [150, 160, 230, 240],
