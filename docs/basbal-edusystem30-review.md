@@ -39,6 +39,46 @@ hashes and observations on archived `EDU30.SV` with `NOLINE`.
   observation and a breakpoint at octal `07312` on instruction `6773`.
   It establishes neither a successful load nor the missing-name diagnostic.
 
+## Recovered demonstration library
+
+Attach two independent copies of the same pinned DECtape in SIMH. Boot the
+system copy on DT0 and attach the program-library copy to DT1. The prior
+single-drive capture stopped at octal `07312` because EDU30.SV selected unit 1.
+SIMH reported a drive selection error when that transport was absent. With
+both drives present, the unchanged archive's `CATALOG` identifies 16 programs,
+including DEMON, BASBAL and BASBL1.
+
+The recovered [DEMON](../scripts/package/fixtures/classic/demon-edu30-tape.bas)
+is Tom Kloos's OMSI demonstration menu. The recovered
+[BASBAL](../scripts/package/fixtures/classic/basbal-edu30-tape.bas) and
+[BASBL1](../scripts/package/fixtures/classic/basbl1-edu30-tape.bas) are distinct
+from the pinned corpus and the book transcription. The stored BASBAL differs
+from the reviewed book at 450 (spaces inside the player's name) and 480
+(keyword spacing). Stored BASBL1 adds a semicolon after the inning heading
+at 190 and prints a period at 640. The capture records the normalized LIST
+body separately from the fixture, which removes one trailing space from
+DEMON line 807.
+
+The [two-drive capture](edusystem30-omsi-reference.json) records the full
+unmodified archive session. From DEMON, enter `BASEBALL` and the team name
+`RSTS/E ROCKETS`. Use BUNT on offense and FASTBALL on defense. After 71 plays,
+the game prints its fourth completed inning, a 3–0 computer win, and the DEMON
+prompt. `LIST` at the returned menu prints the demonstration catalog again.
+
+The isolated handoff probes use a separate disposable copy of the library.
+They enable the normal SAVE command through its in-memory SIMH flag to create
+short targets. CHAIN clears scalar and array contents, resets the RNG to its
+default stream, and discards explicit dimensions. A target without its own
+DATA reads the caller's data list starting at the first item. An explicit
+WRITE followed by RESTORE passes the updated list. The missing-target probe
+reports `ERROR CH AT LINE 0010`.
+
+```sh
+python3 scripts/research/capture-edusystem30-omsi.py \
+  --simulator /path/to/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/edusystem30-omsi-reference.json
+```
+
 ## Requirements for the two-part game
 
 The public selected runtime currently rejects the reviewed compact source
@@ -73,11 +113,10 @@ line 110 assigns `Z(0)=.5` and a separate scalar `Z=.5`. The published
 listings contain no `WRITE` or `RESTORE` handoff. The January 1973
 [DEC handbook, §§7-5–7-8](https://deramp.com/downloads/mfe_archive/011-Digital%20Equipment%20Corporation/00%20Digital%20Handbooks/08%20PDP-8%20Family/Edusystem%20Handbook/EduSystemHandbookJan73.pdf#page=293)
 describes six-character CHAIN names and passing data through a data file.
-A successful archive chain or another original source is needed to establish
-whether the initialized values, array dimensions and random stream continue
-into BASBL1. The pinned corpus contains BASBL1 and contains no `DEMON` file.
-Resolving that final transition is a separate asset requirement for a complete
-game.
+The recovered flow and focused probes establish the archive handoff. The
+public selected path still needs source-bound program loading, implicit
+numeric arrays and verified DATA transfer semantics. The recovered DEMON
+remains outside the 108 pinned corpus listings.
 
 ```sh
 python3 scripts/research/capture-edusystem30-basbal.py \

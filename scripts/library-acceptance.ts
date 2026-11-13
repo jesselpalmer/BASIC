@@ -22,6 +22,11 @@ import {runSlotsAcceptance} from './slots-acceptance.ts';
 import {runReverseAcceptance} from './reverse-acceptance.ts';
 import {runEven1Acceptance} from './even1-acceptance.ts';
 import {runGuessAcceptance} from './guess-acceptance.ts';
+import {runCalndrAcceptance} from './calndr-acceptance.ts';
+import {runChiefAcceptance} from './chief-acceptance.ts';
+import {runHiLoAcceptance} from './hi-lo-acceptance.ts';
+import {runRockt1Acceptance} from './rockt1-acceptance.ts';
+import {runRockspAcceptance} from './rocksp-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
@@ -84,6 +89,11 @@ export const libraryAcceptanceCases = [
   'adapted REVERSE matches archived moves, win, replay and fresh RUN',
   'adapted EVEN1 matches archived learning, wins, losses and fresh RUN',
   'adapted GUESS matches archived clues, assessments, limit changes and fresh RUN',
+  'adapted CALNDR matches archived common-year and leap-year calendars',
+  'adapted CHIEF matches archived arithmetic, endings and lightning',
+  'adapted HI-LO matches archived jackpots, replay and fresh RUN',
+  'adapted ROCKT1 matches archived landing, crash and fresh RUN',
+  'adapted ROCKSP matches archived rounds, retries and fresh RUN',
   'pinned 3DPLOT matches all archived plot rows and fresh RUN',
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
@@ -415,6 +425,21 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check(
     'adapted GUESS matches archived clues, assessments, limit changes and fresh RUN',
     () => runGuessAcceptance(api),
+  );
+  await check('adapted CALNDR matches archived common-year and leap-year calendars', () =>
+    runCalndrAcceptance(api),
+  );
+  await check('adapted CHIEF matches archived arithmetic, endings and lightning', () =>
+    runChiefAcceptance(api),
+  );
+  await check('adapted HI-LO matches archived jackpots, replay and fresh RUN', () =>
+    runHiLoAcceptance(api),
+  );
+  await check('adapted ROCKT1 matches archived landing, crash and fresh RUN', () =>
+    runRockt1Acceptance(api),
+  );
+  await check('adapted ROCKSP matches archived rounds, retries and fresh RUN', () =>
+    runRockspAcceptance(api),
   );
   await check('pinned 3DPLOT matches all archived plot rows and fresh RUN', () =>
     runPlotAcceptance(api),

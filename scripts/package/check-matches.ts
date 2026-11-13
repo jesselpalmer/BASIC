@@ -48,6 +48,11 @@ import {
   even1Entropy,
 } from '../even1-acceptance.ts';
 import {assertGuessOutput, guessRuns, guessSource} from '../guess-acceptance.ts';
+import {assertCalndrOutput, calndrRuns, calndrProgram} from '../calndr-acceptance.ts';
+import {assertChiefOutput, chiefRuns, chiefSource} from '../chief-acceptance.ts';
+import {assertHiLoOutput, hiLoRuns, hiLoSource} from '../hi-lo-acceptance.ts';
+import {assertRockt1Output, rockt1Runs, rockt1Source} from '../rockt1-acceptance.ts';
+import {assertRockspOutput, rockspRuns, rockspSource} from '../rocksp-acceptance.ts';
 import {assertPlotOutput, plotSource} from '../3dplot-acceptance.ts';
 import {
   assertMugwumpOutput,
@@ -307,6 +312,42 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
     dialect: even1Options.dialect,
     entropy: () => even1Entropy,
   });
+  for (const run of calndrRuns) {
+    const round = {...run, answers: []};
+    checkCompletedGame(
+      executable,
+      directory,
+      `calndr-${run.year}`,
+      calndrProgram(run),
+      [round, round],
+      assertCalndrOutput,
+    );
+  }
+  checkCompletedGame(executable, directory, 'chief', chiefSource, chiefRuns, assertChiefOutput, {
+    dialect: 'edusystem-30-mark',
+  });
+  checkCompletedGame(executable, directory, 'hi-lo', hiLoSource, hiLoRuns, assertHiLoOutput, {
+    dialect: 'edusystem-30-mark',
+    entropy: (run) => run.clockWord / 4096,
+  });
+  checkCompletedGame(
+    executable,
+    directory,
+    'rockt1',
+    rockt1Source,
+    rockt1Runs,
+    assertRockt1Output,
+    {dialect: 'edusystem-30-mark'},
+  );
+  checkCompletedGame(
+    executable,
+    directory,
+    'rocksp',
+    rockspSource,
+    rockspRuns,
+    assertRockspOutput,
+    {dialect: 'edusystem-30', entropy: (run) => run.clockWord / 4096},
+  );
   checkCompletedGame(
     executable,
     directory,

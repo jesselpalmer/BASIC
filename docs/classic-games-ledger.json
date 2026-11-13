@@ -1072,11 +1072,13 @@
         "title": "CALNDR",
         "referencePage": 65,
         "dialectHint": "EduSystem",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 66
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "calndr-edusystem30-review.md#calndr-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "square-subscripts": [130],
@@ -1259,11 +1261,13 @@
         "title": "CHIEF",
         "referencePage": 77,
         "dialectHint": "EduSystem",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 77
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "chief-edusystem30-review.md#chief-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {
@@ -1654,11 +1658,14 @@
         "title": "FIPFOP",
         "referencePage": 99,
         "dialectHint": null,
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 100
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "fipfop-rsts-review.md#fipfop-source-review-and-archived-rsts-probes",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [180],
@@ -2104,11 +2111,13 @@
         "title": "HI-LO",
         "referencePage": 124,
         "dialectHint": null,
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 125
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "hi-lo-edusystem30-review.md#hi-lo-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [90]
@@ -3152,11 +3161,13 @@
         "title": "ROCKSP",
         "referencePage": 188,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 188
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "rocksp-edusystem30-review.md#rocksp-source-review-and-edusystem-30-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [5]
@@ -3186,11 +3197,13 @@
         "title": "ROCKT1",
         "referencePage": 183,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 185
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "rockt1-edusystem30-review.md#rockt1-source-review-and-edusystem-30-mark-adaptation",
       "verifiedDialect": null,
       "observedFeatureLabels": {},
       "firstNativeDiagnostic": {

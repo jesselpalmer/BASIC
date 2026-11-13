@@ -43,6 +43,11 @@ import slots from '../scripts/package/fixtures/classic/slots-edusystem30.bas' wi
 import reverse from '../scripts/package/fixtures/classic/reverse-mark-adapted.bas' with {type: 'text'};
 import even1 from '../scripts/package/fixtures/classic/even1-mark-adapted.bas' with {type: 'text'};
 import classicGuess from '../scripts/package/fixtures/classic/guess-edusystem30.bas' with {type: 'text'};
+import calndr from '../scripts/package/fixtures/classic/calndr-edusystem30.bas' with {type: 'text'};
+import chief from '../scripts/package/fixtures/classic/chief-mark-adapted.bas' with {type: 'text'};
+import hiLo from '../scripts/package/fixtures/classic/hi-lo-mark-adapted.bas' with {type: 'text'};
+import rockt1 from '../scripts/package/fixtures/classic/rockt1-mark-adapted.bas' with {type: 'text'};
+import rocksp from '../scripts/package/fixtures/classic/rocksp-edusystem30.bas' with {type: 'text'};
 import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 'text'};
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
@@ -121,6 +126,11 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   reverse: {source: reverse, dialect: 'edusystem-30-mark'},
   even1: {source: even1, dialect: 'edusystem-30-mark'},
   'guess-classic': {source: classicGuess, dialect: 'edusystem-30'},
+  calndr: {source: calndr, dialect: 'edusystem-30'},
+  chief: {source: chief, dialect: 'edusystem-30-mark'},
+  'hi-lo': {source: hiLo, dialect: 'edusystem-30-mark'},
+  rockt1: {source: rockt1, dialect: 'edusystem-30-mark'},
+  rocksp: {source: rocksp, dialect: 'edusystem-30'},
   '3dplot': {source: plot, dialect: 'edusystem-30'},
   mugwump: {source: mugwump, dialect: 'edusystem-30'},
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
