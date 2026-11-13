@@ -15,7 +15,7 @@ It also runs the separately labeled adaptations
 [KINEMA](kinema-edusystem30.md), [GOMOKO](gomoko-edusystem30-review.md) and
 [AMAZIN](amazin-edusystem30.md), [BUZZWD](buzzwd-edusystem30.md), and
 [GUESS](guess-edusystem30-review.md), [CALNDR](calndr-edusystem30-review.md),
-and [ROCKSP](rocksp-edusystem30-review.md).
+[ROCKSP](rocksp-edusystem30-review.md), and [SALVO 1](salvo1-edusystem30.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
 [BLKJAK](blkjak-edusystem30-review.md) and [SLOTS](slots-edusystem30.md)
 listings, plus the [TOWER](tower-edusystem30-review.md),
@@ -23,7 +23,9 @@ listings, plus the [TOWER](tower-edusystem30-review.md),
 [CHIEF](chief-edusystem30-review.md), [HI-LO](hi-lo-edusystem30-review.md),
 and [ROCKT1](rockt1-edusystem30-review.md) adaptations, plus the three
 programs in [OMSI Baseball](basbal-edusystem30-review.md) and
-[ZOOP](zoop-edusystem30.md) and [WEKDAY](wekday-edusystem30.md), and [TICTAC](tictac-edusystem30.md). The [DICE](dice-train-source-review.md#dice)
+[ZOOP](zoop-edusystem30.md), [WEKDAY](wekday-edusystem30.md),
+[TICTAC](tictac-edusystem30.md), and [HORSES](horses-edusystem30.md).
+The [DICE](dice-train-source-review.md#dice)
 and [TRAIN](train-edusystem30.md) adaptations also use MARK input, as does
 [CRAPS](craps-edusystem30.md). [CUBE](cube-edusystem30.md) uses SPACE input.
 The [WAR-2 adaptation](war2-edusystem30-review.md)
@@ -79,6 +81,9 @@ runs supply the references.
   positive integer limit and follow the high and low clues. Enter `0` to
   change the limit. Choose **OMSI Baseball · EDUSYSTEM-30 MARK adaptation**,
   enter `BASEBALL` at the menu and submit a team name.
+  For **HORSES · EDUSYSTEM-30 MARK adaptation**, enter a horse number, position
+  and wager. For **SALVO 1 · EDUSYSTEM-30 adaptation**, enter four distinct
+  positions from 1 to 25 separated by commas, then enter one position per shot.
 - For the CLI, export the selected source from the playground as a
   `.basic.json` document. Run `basic path/to/23mtch.basic.json` or use
   `LOAD "path/to/23mtch.basic.json"` and `RUN` in the editor. Press Ctrl+C
@@ -106,7 +111,8 @@ transfer emits no newline. A fresh RUN starts at the original source.
 
 Use `basic --chain-dir DIR` to give the CLI/editor an explicit library of
 uppercase `NAME.bas` files. Embedders can supply the same resolver through
-`BrowserSession` options. The playground provides the three baseball programs, ZOOP, WEKDAY, and TICTAC.
+`BrowserSession` options. The playground provides the three baseball programs,
+ZOOP, WEKDAY, TICTAC, and HORSES.
 The archived scratch-file `WRITE` mechanism is outside this profile.
 [Archive probes](edusystem30-omsi-reference.json)
 
@@ -117,7 +123,7 @@ The archived scratch-file `WRITE` mechanism is outside this profile.
 | Statements             | Backslash-separated statements. REM, LET (including compact spelling before a scalar assignment), numeric DIM, numeric DATA/READ and bare RESTORE, numeric IF with a literal line target, GO TO, literal GOSUB and RETURN (including compact literal transfer targets), INPUT, FOR/NEXT with optional signed STEP, PRINT, RANDOMIZE or RANDOM, literal CHAIN, STOP and END. Complete nonempty source has an END statement at the highest label. Unary numeric `DEF FN` definitions bind before execution. |
 | Values and expressions | Numeric scalars use a letter and optional digit and default to zero. Source admits decimal and scientific literals within the compiled range, grouping, unary `+` and `-`, binary `+`, `-`, `*`, `/`, `^` with stored integer exponents 0 through 20, and single-argument ABS, EXP, INT, LOG, RND and SQR. Scalar arithmetic stores the archived binary exponent and 23-bit magnitude.                                                                                                                    |
 | Arrays                 | Rank-one numeric arrays without DIM have indices 0 through 10. Explicit DIM sets inclusive zero-based bounds for rank one or two. Nonnegative fractional indices truncate. Same-name scalar and array storage are independent. Fresh RUN clears array elements. See the [archive probes](edusystem30-arrays.md).                                                                                                                                                                                          |
-| INPUT                  | Unprompted numeric INPUT accepts one to three scalar targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Indexed character INPUT reads successive bytes from a printable ASCII line.                                                                                               |
+| INPUT                  | Unprompted numeric INPUT accepts one to three scalar or indexed numeric targets. The terminal reads comma-separated values and prompts with `?` when it needs more. `INPUT $A` reads one ASCII character and stores its ASCII value in SPACE mode or sets bit 7 in MARK mode, with no extra prompt. An empty character response represents Return. Indexed character INPUT reads successive bytes from a printable ASCII line.                                                                            |
 | PRINT                  | Literal text, bounded numeric expressions, numeric `CHR$(expression)` (printable ASCII and BEL) and top-level `TAB(expression)`. String-involved adjacency and semicolons join items. A trailing semicolon or comma continues the line. Commas advance through the archived 14-column zones. Numeric fields use archived sign and trailing padding, fixed/scientific selection and digit rules.                                                                                                           |
 | RNG                    | A fresh RUN starts from the [archived default seed](edusystem30-rng.md). RND evaluates its numeric argument and then draws regardless of the argument value. RANDOMIZE adds a 12-bit host entropy word to the high seed word. Replay inside a RUN retains the stream.                                                                                                                                                                                                                                     |
 
@@ -159,6 +165,8 @@ one ASCII character and retries a longer reply. Numeric INPUT uses remaining
 numeric fields first, then can consume a buffered character line's remainder.
 See the [archived baseball input probes](basbal-edusystem30-review.md).
 
+Numeric INPUT accepts up to three scalar or indexed numeric targets and assigns
+them from left to right. [Indexed INPUT evidence](edusystem30-indexed-input.md)
 Numeric INPUT skips blank fields and spaces, retains surplus fields for later
 numeric INPUT in the same run, and retries a bad field after dropping the
 remainder of that response. Values already read for that statement are kept
@@ -178,6 +186,11 @@ visible scalar inside `FOR I=1 TO 3` prints `1`, `3`, and `5` in the body,
 then `6` after the terminating NEXT.
 The [STEP capture](edusystem30-step-reference.json) checks descending loops,
 fractional steps, reversed bounds and a STEP expression changed in the body.
+GOSUB, GOTO and conditional transfers can enter a FOR body without first
+executing the FOR header. The [HORSES transfer probes](horses-edu30-blockers.md)
+exercise branches in the called body and RETURN to the caller before the
+body's NEXT. The portable profile reports `LOOP_NOT_ACTIVE` when NEXT runs
+without an active loop frame.
 
 `TAB` uses the archived column position across trailing semicolons. It wraps
 its target modulo 70 before rounding up. A lower target sends carriage return

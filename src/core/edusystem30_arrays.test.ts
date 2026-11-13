@@ -1,5 +1,7 @@
 import {expect, test} from 'bun:test';
+import assert from 'node:assert/strict';
 import golfReference from '../../docs/golf-edusystem30-reference.json';
+import indexedInputReference from '../../docs/edusystem30-indexed-input-reference.json';
 import {Basic, parseProgram} from '../index.ts';
 import {ArrayStore} from './arrays.ts';
 import {eduSystem30FromNumber} from './edusystem30_floating.ts';
@@ -85,10 +87,59 @@ test('EDUSYSTEM-30 stores exact array values below the host observation range', 
     options,
   );
   await basic.runAsync(
-    '10 DIM A(1)\n20 INPUT X\n30 A(0)=X\n40 IF A(0)>0 THEN 60\n50 PRINT "LOST"\n60 IF A(0)=X THEN 80\n70 PRINT "MISMATCH"\n80 END',
+    '10 DIM A(1)\n20 INPUT X\n30 A(0)=X\n35 INPUT A(1)\n40 IF A(1)>0 THEN 60\n50 PRINT "LOST"\n60 IF A(1)=A(0) THEN 80\n70 PRINT "MISMATCH"\n80 END',
   );
   expect(output).toBe('');
-  expect(basic.arrays[0].values[0]).toBe(0);
+  expect(basic.arrays[0].values).toEqual([0, 0]);
+});
+
+for (const {name, source, answers, output: archived, diagnostic} of indexedInputReference.probes) {
+  test(`EDUSYSTEM-30 indexed INPUT reproduces archived ${name}`, async () => {
+    let output = '';
+    let answer = 0;
+    const basic = new Basic(
+      {
+        write: (text) => (output += text),
+        readLine(prompt) {
+          output += prompt ?? '';
+          return Promise.resolve(answers[answer++] ?? null);
+        },
+      },
+      options,
+    );
+    const run = basic.runAsync(source.join('\n'));
+    if (diagnostic) {
+      await assert.rejects(run, /0 through 2/);
+      expect(basic.state.diagnostic).toMatchObject(diagnostic);
+    } else {
+      await run;
+    }
+    expect(answer).toBe(answers.length);
+    expect(output).toBe(archived.replace(/\nERROR SS AT LINE \d+\n$/, ''));
+  });
+}
+
+test('EDUSYSTEM-30 indexed INPUT keeps the first target intact when cancelled mid-read', async () => {
+  const requested = Promise.withResolvers<void>();
+  const pending = Promise.withResolvers<string>();
+  let reads = 0;
+  const basic = new Basic(
+    {
+      readLine() {
+        if (reads++ === 0) return Promise.resolve('9');
+        requested.resolve();
+        return pending.promise;
+      },
+    },
+    options,
+  );
+  const run = basic.runAsync('10 DIM A(2)\n20 A(1)=5\n30 INPUT A(1),A(2)\n40 END');
+  await requested.promise;
+  expect(basic.arrays[0].values).toEqual([0, 5, 0]);
+  basic.cancel();
+  pending.resolve('7');
+  await assert.rejects(run, {name: 'AbortError'});
+  expect(basic.arrays[0].values).toEqual([0, 5, 0]);
 });
 
 test('EDUSYSTEM-30 reproduces the archived GOLF rank-two array probe', () => {
@@ -120,9 +171,12 @@ test('EDUSYSTEM-30 preflights array declarations and references even after END',
   expect(() => parseProgram('10 DIM A(1,2)\n20 END\n30 PRINT A(1)\n40 END', options)).toThrow(
     'requires 2 index(es)',
   );
-  expect(() => parseProgram('10 DIM A(2)\n20 INPUT A(1)\n30 END', options)).toThrow(
-    'numeric scalars',
+  expect(() => parseProgram('10 END\n20 INPUT A(1,2)\n30 END', options)).toThrow('requires DIM');
+  expect(() => parseProgram('10 DIM A(1,2)\n20 END\n30 INPUT A(1)\n40 END', options)).toThrow(
+    'requires 2 index(es)',
   );
+  for (const line of ['INPUT A(1,A$)', 'INPUT A$(1)', 'INPUT "A";A(1)', 'INPUT A(1),B,C,D'])
+    expect(() => parseProgram(`10 ${line}\n20 END`, options)).toThrow('EDUSYSTEM-30');
 });
 
 test('ArrayStore guards native and EDUSYSTEM-30 access against the wrong storage context', () => {

@@ -8,8 +8,8 @@ original interpreter still needs verification. [Release tracker #109](https://gi
 
 | Measure                                                                |  Progress |
 | ---------------------------------------------------------------------- | --------: |
-| Runnable through the library, CLI/editor and browser                   | 49 of 108 |
-| Source reviewed against primary evidence                               | 50 of 108 |
+| Runnable through the library, CLI/editor and browser                   | 51 of 108 |
+| Source reviewed against primary evidence                               | 52 of 108 |
 | Printed system identified                                              | 22 of 108 |
 | Raw listings certified through a complete game on the original dialect |  0 of 108 |
 
@@ -19,6 +19,7 @@ runnable adaptations. These measures overlap.
 
 | Merged batch                                                                                                                              | Added runnable listings                                       | Running total |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [HORSES](horses-edusystem30.md), [SALVO 1](salvo1-edusystem30.md)                                                                         | HORSES, SALVO 1                                               |            51 |
 | [CRAPS](craps-edusystem30.md), [CUBE](cube-edusystem30.md), [TICTAC](tictac-edusystem30.md), [FIPFOP](fipfop-rsts-review.md)              | CRAPS, CUBE, TICTAC, FIPFOP                                   |            49 |
 | [DICE](dice-train-source-review.md#dice), [TRAIN](train-edusystem30.md), [ACEYDU](aceydu-rsts-review.md), [WEKDAY](wekday-edusystem30.md) | DICE, TRAIN, ACEYDU, WEKDAY                                   |            45 |
 | [WAR-2](war2-edusystem30-review.md), [ZOOP](zoop-edusystem30.md), [NICOMA](nicoma-source-review.md)                                       | WAR-2, ZOOP, NICOMA                                           |            41 |
@@ -32,9 +33,12 @@ runnable adaptations. These measures overlap.
 
 - [FIPFOP](fipfop-rsts-review.md) runs the fixed-Q puzzle. The randomized
   listing still needs string arrays, inline FOR, and trigonometry.
-- [OMSI HORSES](horses-edu30-blockers.md) needs indexed numeric INPUT and
-  archive-compatible GOSUB entry into a FOR body. The book and tape
-  editions need a source comparison before a public replay.
+- The [printed BAGLES listing](https://archive.decromancer.ca/bitsavers.org/pdf/dec/_Books/101_BASIC_Computer_Games_Mar75.pdf#page=23) identifies an RSTS/E conversion.
+  On archived V04B-17, `CHANGE A$ TO A1` stores the length in element zero
+  and byte codes in the following elements. Changing `"012"` to `"9"` leaves
+  the later cells intact, and changing to the empty string updates only the
+  length. Implement this form in the selected profile and verify clues,
+  retries, win, loss and replay.
 
 ## Verified playthroughs
 
@@ -188,7 +192,7 @@ tape mounted on DT1, stock EDU30.SV runs the full menu, baseball game and
 return to the menu. The public MARK profile replays that same 71-play game
 through the installed library, CLI/editor and browser. The three runnable
 sources use token-spacing adaptations. BASBAL and BASBL1 count as two corpus
-listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs, ZOOP, WEKDAY, and TICTAC.
+listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs, ZOOP, WEKDAY, TICTAC and HORSES.
 
 The [SLOTS replay](slots-edusystem30.md) matches all 21 printed spins and
 running totals. The [REVERSE adaptation](reverse-edusystem30-review.md) verifies
@@ -214,6 +218,10 @@ archived solved boards, including a repeated move and replay. The
 changes, a voluntary exit, and bankruptcy. The [CUBE adaptation](cube-edusystem30.md)
 replays a win and two kinds of loss. The [TICTAC tape edition](tictac-edusystem30.md)
 replays a computer win, a tie, and the return to the DEMON menu.
+The [HORSES tape edition](horses-edusystem30.md) uses indexed numeric INPUT
+and enters the race subroutine inside a FOR body. It replays the race,
+payouts and return to DEMON. The [SALVO 1 adaptation](salvo1-edusystem30.md)
+replays archived outpost battles.
 
 The [DICE adaptation](dice-train-source-review.md#dice) matches complete
 archived frequency tables and repeat play. The [TRAIN adaptation](train-edusystem30.md)
@@ -237,8 +245,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **50 reviewed
-source differences / 58 unresolved**, **22 printed-system identifications / 86
+The [corpus ledger](classic-games-ledger.json) records **52 reviewed
+source differences / 56 unresolved**, **22 printed-system identifications / 86
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 

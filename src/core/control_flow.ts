@@ -290,6 +290,8 @@ export class ControlFlow {
     location: Location,
     frames: ReadonlyMap<number, LoopFrame>,
   ): void {
+    // EDU30 allows transfers into a lexical FOR body without running its header.
+    if (this.loopPolicy === 'selected-edu30') return;
     for (const pair of this.prepared.loopPairs) {
       if (containsLoopBody(pair, index) && !frames.has(pair.forIndex)) {
         throw new BasicRuntimeError(

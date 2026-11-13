@@ -1,0 +1,97 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "cbc3fed02ad1c86fc00f8d6a2f7428ffd4fa748a789542bf775be4e5adf0035d",
+  "tapeListBodySha256": "d0196b9135cfd3291b9c1b67f0eb399ce3dd92d7e25ff1ec0e61047c2eb8f900",
+  "tapeFixtureSha256": "d0196b9135cfd3291b9c1b67f0eb399ce3dd92d7e25ff1ec0e61047c2eb8f900",
+  "adaptedFixtureSha256": "bc232204b5de7d974c8ab039c4781dd0f5f3e3a61e056178e946cd4fa797ce19",
+  "sessions": [
+    {
+      "entry": "HORSES",
+      "inputs": [
+        {
+          "answer": "2",
+          "prompt": "ON WHAT HORSE DO YOU WISH TO BET (1-8)?",
+          "numeric": true
+        },
+        {
+          "answer": "WIN",
+          "prompt": "'WIN', 'SHOW', OR 'PLACE'?",
+          "numeric": false
+        },
+        {
+          "answer": "5",
+          "prompt": "HOW MANY DOLLARS DO YOU WISH TO WAGER?",
+          "numeric": true
+        },
+        {
+          "answer": "NO",
+          "prompt": "ANYMORE BETS ('YES' OR 'NO')? ",
+          "numeric": false
+        }
+      ],
+      "output": "THIS DEMONSTRATION SHOWS YOU SOME VERSATILE FEATURES\nOF OMSI'S PDP-8 COMPUTER BY SIMULATING A HORSE\nRACE.  UP TO TEN BETS CAN BE MADE.     \n\n      SEVENTH - 1 MILE, 3 YR. OLDS       POST 2:35\n\n1 MAN O'WAR       3:1\n2 CITATION        4:1\n3 WHIRLAWAY       5:1\n4 ASSAULT         8:1\n5 SEABISCUIT      9:1\n6 GALLANT FOX    11:1\n7 STYMIE         20:1\n8 COALTOWN       30:1\n\n\nBET NUMBER  1 \nON WHAT HORSE DO YOU WISH TO BET (1-8)?'WIN', 'SHOW', OR 'PLACE'?\nHOW MANY DOLLARS DO YOU WISH TO WAGER?ANYMORE BETS ('YES' OR 'NO')? \n\n\n   THEY'RE OFF AND RUNNING -\n\n\n   AS THEY BREAK FROM THE GATE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 WHIRLAWAY  \n 2 COALTOWN    0 \n 3 GALLANT FOX .6 \n 4 ASSAULT     .8 \n 5 CITATION    .9 \n 6 STYMIE      .9 \n 7 SEABISCUIT  2.1 \n 8 MAN O'WAR   3.7 \n\n   AT THE 1/4 MILE POLE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 WHIRLAWAY  \n 2 ASSAULT     1.2 \n 3 STYMIE      1.8 \n 4 CITATION    2.9 \n 5 GALLANT FOX 3 \n 6 MAN O'WAR   3.1 \n 7 COALTOWN    3.5 \n 8 SEABISCUIT  4.1 \n\n   NEARING THE HALFWAY MARK -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 STYMIE     \n 2 ASSAULT     1.3 \n 3 WHIRLAWAY   2 \n 4 GALLANT FOX 2.3 \n 5 CITATION    2.4 \n 6 COALTOWN    2.7 \n 7 SEABISCUIT  4.4 \n 8 MAN O'WAR   5.1 \n\n   MIDWAY IN THE RACE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 COALTOWN    1 \n 3 CITATION    1.3 \n 4 STYMIE      2.8 \n 5 WHIRLAWAY   4.6 \n 6 GALLANT FOX 4.8 \n 7 SEABISCUIT  4.9 \n 8 MAN O'WAR   7.7 \n\n   AT 5/8 OF A MILE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 COALTOWN    .3 \n 3 CITATION    1.9 \n 4 GALLANT FOX 4.7 \n 5 STYMIE      4.8 \n 6 SEABISCUIT  7.6 \n 7 WHIRLAWAY   7.8 \n 8 MAN O'WAR   10.5 \n\n   ROUNDING THE TURN -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 CITATION    3.3 \n 3 COALTOWN    4.7 \n 4 STYMIE      5.4 \n 5 GALLANT FOX 6.2 \n 6 WHIRLAWAY   11.2 \n 7 SEABISCUIT  12.5 \n 8 MAN O'WAR   14.5 \n\n   COMING DOWN THE STRETCH -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 CITATION    5.7 \n 3 STYMIE      6.7 \n 4 GALLANT FOX 8.3 \n 5 COALTOWN    9 \n 6 WHIRLAWAY   12.2 \n 7 SEABISCUIT  16.1 \n 8 MAN O'WAR   19.3 \n\n           FINISH\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 CITATION    4.9 \n 3 GALLANT FOX 7.3 \n 4 STYMIE      7.5 \n 5 COALTOWN    7.6 \n 6 WHIRLAWAY   11.1 \n 7 SEABISCUIT  17.7 \n 8 MAN O'WAR   19 \n\n\n$2 MUTUELS PAID:\n          STRAIGHT  PLACE     SHOW\nASSAULT     17.58  7.47  4.31 \nCITATION             5.13  3.15 \nGALLANT FOX                   5.61 \n\nBET NO.  1 \nNEXT TIME, PURCHASE A SHOW TICKET ON CITATION   \nYOUR TOTAL LOSSES AMOUNT TO $ 5 \n\nTHANK YOU FOR PLAYING!!\n\n\n\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    },
+    {
+      "entry": "DEMON",
+      "inputs": [
+        {
+          "answer": "HORSES",
+          "prompt": "WHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?",
+          "numeric": false
+        },
+        {
+          "answer": "9",
+          "prompt": "ON WHAT HORSE DO YOU WISH TO BET (1-8)?",
+          "numeric": true
+        },
+        {
+          "answer": "4",
+          "prompt": "ON WHAT HORSE DO YOU WISH TO BET (1-8)?",
+          "numeric": true
+        },
+        {
+          "answer": "WIN",
+          "prompt": "'WIN', 'SHOW', OR 'PLACE'?",
+          "numeric": false
+        },
+        {
+          "answer": "1",
+          "prompt": "HOW MANY DOLLARS DO YOU WISH TO WAGER?",
+          "numeric": true
+        },
+        {
+          "answer": "5",
+          "prompt": "HOW MANY DOLLARS DO YOU WISH TO WAGER?",
+          "numeric": true
+        },
+        {
+          "answer": "YES",
+          "prompt": "ANYMORE BETS ('YES' OR 'NO')? ",
+          "numeric": false
+        },
+        {
+          "answer": "2",
+          "prompt": "ON WHAT HORSE DO YOU WISH TO BET (1-8)?",
+          "numeric": true
+        },
+        {
+          "answer": "PLACE",
+          "prompt": "'WIN', 'SHOW', OR 'PLACE'?",
+          "numeric": false
+        },
+        {
+          "answer": "2",
+          "prompt": "HOW MANY DOLLARS DO YOU WISH TO WAGER?",
+          "numeric": true
+        },
+        {
+          "answer": "NO",
+          "prompt": "ANYMORE BETS ('YES' OR 'NO')? ",
+          "numeric": false
+        }
+      ],
+      "output": "\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?\n\nPLEASE WAIT A FEW MOMENTS WHILE I SEARCH FOR YOUR PROGRAM.\n\n\nTHIS DEMONSTRATION SHOWS YOU SOME VERSATILE FEATURES\nOF OMSI'S PDP-8 COMPUTER BY SIMULATING A HORSE\nRACE.  UP TO TEN BETS CAN BE MADE.     \n\n      SEVENTH - 1 MILE, 3 YR. OLDS       POST 2:35\n\n1 MAN O'WAR       3:1\n2 CITATION        4:1\n3 WHIRLAWAY       5:1\n4 ASSAULT         8:1\n5 SEABISCUIT      9:1\n6 GALLANT FOX    11:1\n7 STYMIE         20:1\n8 COALTOWN       30:1\n\n\nBET NUMBER  1 \nON WHAT HORSE DO YOU WISH TO BET (1-8)?HORSE NUMBER IN ERROR (MUST BE 1,2,3,4,5,6,7,OR 8)\nON WHAT HORSE DO YOU WISH TO BET (1-8)?'WIN', 'SHOW', OR 'PLACE'?\nHOW MANY DOLLARS DO YOU WISH TO WAGER?BET MUST BE $2 OR GREATER BUT LESS THAN $300\nHOW MANY DOLLARS DO YOU WISH TO WAGER?ANYMORE BETS ('YES' OR 'NO')? \n\nBET NUMBER  2 \nON WHAT HORSE DO YOU WISH TO BET (1-8)?'WIN', 'SHOW', OR 'PLACE'?\nHOW MANY DOLLARS DO YOU WISH TO WAGER?ANYMORE BETS ('YES' OR 'NO')? \n\n\n   THEY'RE OFF AND RUNNING -\n\n\n   AS THEY BREAK FROM THE GATE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 COALTOWN   \n 2 STYMIE      .8 \n 3 WHIRLAWAY   1.1 \n 4 ASSAULT     2.1 \n 5 SEABISCUIT  2.3 \n 6 CITATION    3.1 \n 7 GALLANT FOX 3.3 \n 8 MAN O'WAR   3.8 \n\n   AT THE 1/4 MILE POLE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 COALTOWN   \n 2 SEABISCUIT  1.6 \n 3 STYMIE      2.6 \n 4 GALLANT FOX 2.9 \n 5 CITATION    3.2 \n 6 WHIRLAWAY   3.3 \n 7 ASSAULT     6.4 \n 8 MAN O'WAR   8 \n\n   NEARING THE HALFWAY MARK -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 COALTOWN   \n 2 STYMIE      .5 \n 3 SEABISCUIT  1.9 \n 4 WHIRLAWAY   2.5 \n 5 CITATION    2.6 \n 6 GALLANT FOX 2.8 \n 7 MAN O'WAR   3.5 \n 8 ASSAULT     6.8 \n\n   MIDWAY IN THE RACE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 STYMIE     \n 2 WHIRLAWAY   .3 \n 3 CITATION    .3 \n 4 COALTOWN    2.8 \n 5 SEABISCUIT  3.8 \n 6 GALLANT FOX 5.6 \n 7 ASSAULT     6.3 \n 8 MAN O'WAR   6.5 \n\n   AT 5/8 OF A MILE -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 STYMIE     \n 2 CITATION    1E-1 \n 3 WHIRLAWAY   1.1 \n 4 SEABISCUIT  1.5 \n 5 ASSAULT     4.4 \n 6 COALTOWN    5 \n 7 MAN O'WAR   7 \n 8 GALLANT FOX 7.5 \n\n   ROUNDING THE TURN -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 CITATION   \n 2 STYMIE      .9 \n 3 ASSAULT     3.6 \n 4 SEABISCUIT  4.3 \n 5 WHIRLAWAY   4.4 \n 6 MAN O'WAR   6.7 \n 7 COALTOWN    7.6 \n 8 GALLANT FOX 10.7 \n\n   COMING DOWN THE STRETCH -\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 STYMIE     \n 2 ASSAULT     0 \n 3 CITATION    .4 \n 4 WHIRLAWAY   1.7 \n 5 SEABISCUIT  4.1 \n 6 COALTOWN    5.3 \n 7 MAN O'WAR   5.4 \n 8 GALLANT FOX 11.8 \n\n           FINISH\nPOS.  HORSE   LENGTHS BEHIND\n\n 1 ASSAULT    \n 2 STYMIE      .9 \n 3 CITATION    1.6 \n 4 WHIRLAWAY   4.2 \n 5 MAN O'WAR   5.1 \n 6 COALTOWN    6.1 \n 7 SEABISCUIT  7.2 \n 8 GALLANT FOX 13.3 \n\n\n$2 MUTUELS PAID:\n          STRAIGHT  PLACE     SHOW\nASSAULT     17.85  7.22  4.22 \nSTYMIE               15.77  8.71 \nCITATION                      3.82 \n\nBET NO.  1 \nYOU COLLECT 44.62 ON ASSAULT    \nBET NO.  2 \nNEXT TIME, PURCHASE A SHOW TICKET ON CITATION   \nYOUR TOTAL WINNINGS AMOUNT TO $ 37.62 \n\nTHANK YOU FOR PLAYING!!\n\n\n\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    }
+  ]
+}

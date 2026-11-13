@@ -1,0 +1,41 @@
+{
+  "probes": [
+    {
+      "name": "calculated wager index",
+      "source": ["10 DIM T(3)", "20 S=2", "30 INPUT T(S)", "40 PRINT T(2)", "50 END"],
+      "answers": ["17"],
+      "output": "? 17 \n"
+    },
+    {
+      "name": "fractional rank-two indices",
+      "source": ["10 DIM A(2,3)", "20 I=1", "30 INPUT A(I+1,2+.5)", "40 PRINT A(2,2)", "50 END"],
+      "answers": ["17"],
+      "output": "? 17 \n"
+    },
+    {
+      "name": "implicit array with a separate scalar",
+      "source": ["10 INPUT A(10)", "20 PRINT A(10);A", "30 END"],
+      "answers": ["17"],
+      "output": "? 17  0 \n"
+    },
+    {
+      "name": "dependent scalar and array targets",
+      "source": ["10 DIM A(4)", "20 INPUT I,A(I),A(A(I))", "30 PRINT I;A(2);A(3)", "40 END"],
+      "answers": ["2,3,17"],
+      "output": "? 2  3  17 \n"
+    },
+    {
+      "name": "later DIM",
+      "source": ["10 INPUT A(12)", "20 DIM A(12)", "30 PRINT A(12)", "40 END"],
+      "answers": ["17"],
+      "output": "? 17 \n"
+    },
+    {
+      "name": "input retry before subscript error",
+      "source": ["10 DIM A(2)", "20 INPUT A(3)", "30 END"],
+      "answers": ["X", "17"],
+      "output": "?BAD DATA-RETYPE FROM ERROR.\n?\nERROR SS AT LINE 0020\n",
+      "diagnostic": {"code": "ARRAY_BOUNDS", "label": 20, "column": 12}
+    }
+  ]
+}

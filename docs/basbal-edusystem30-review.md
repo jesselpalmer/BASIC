@@ -86,9 +86,10 @@ enter `BASEBALL` at the DEMON menu. Enter a team name, then follow the play
 options printed by the program. The baseball path uses
 [DEMON](../examples/omsi/DEMON.bas), [BASBAL](../examples/omsi/BASBAL.bas), and
 [BASBL1](../examples/omsi/BASBL1.bas). The playground also supplies
-[ZOOP](zoop-edusystem30.md), [WEKDAY](wekday-edusystem30.md), and
-[TICTAC](tictac-edusystem30.md). DEMON lists the original tape catalog. The game returns to DEMON when it ends. Use **Stop** at a prompt
-to leave the session.
+[ZOOP](zoop-edusystem30.md), [WEKDAY](wekday-edusystem30.md),
+[TICTAC](tictac-edusystem30.md) and [HORSES](horses-edusystem30.md). DEMON
+lists the original tape catalog. The game returns to DEMON when it ends. Use
+**Stop** at a prompt to leave the session.
 
 For the CLI or editor, export the browser example as a `.basic.json` file
 to preserve its `edusystem-30-mark` profile. From the repository root, pass

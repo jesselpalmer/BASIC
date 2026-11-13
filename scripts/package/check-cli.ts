@@ -3,6 +3,7 @@ import {existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync} from '
 import {delimiter, dirname, join} from 'node:path';
 import metadata from '../../package.json' with {type: 'json'};
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
+import {checkHorsesCli} from './check-horses.ts';
 import {checkTictacCli} from './check-tictac.ts';
 import {checkFipfopCli} from './check-fipfop.ts';
 import {checkWekdayCli} from './check-wekday.ts';
@@ -791,6 +792,7 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   await checkWekdayCli(executable, consumer);
   checkFipfopCli(executable, consumer);
   await checkTictacCli(executable, consumer);
+  await checkHorsesCli(executable, consumer);
 }
 
 export function checkGlobalCli(directory: string, archive: string): void {
