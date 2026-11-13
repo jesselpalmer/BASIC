@@ -1,7 +1,7 @@
 import {parseProgram, validateProgram} from '../parser/parser.ts';
 import {pairLoops} from './loops.ts';
 import {isEduSystem30Dialect, validateDialect} from './dialect.ts';
-import {arrayDeclarations} from './array_declarations.ts';
+import {arrayDeclarations, eduSystem30ArrayDeclarations} from './array_declarations.ts';
 import {programInstructions} from './instructions.ts';
 import {dataItems} from './data.ts';
 import {sameTree} from '../parser/canonical_tree.ts';
@@ -116,7 +116,9 @@ export function prepareProgram(source: string | Program, dialect: Dialect): Prep
   return {
     program,
     ...instructionTables(instructions),
-    arrayDeclarations: arrayDeclarations(program.lines),
+    arrayDeclarations: isEduSystem30Dialect(dialect)
+      ? eduSystem30ArrayDeclarations(program.lines)
+      : arrayDeclarations(program.lines),
     dataItems: dataItems(program.lines),
   };
 }

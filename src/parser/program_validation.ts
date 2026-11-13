@@ -4,7 +4,7 @@ import {BasicSyntaxError} from '../core/diagnostic.ts';
 import {comparisonTypeError, expressionType} from '../core/comparison.ts';
 import {graphicsArguments} from '../core/graphics.ts';
 import {pairLoops} from '../core/loops.ts';
-import {validateArrays} from '../core/array_declarations.ts';
+import {eduSystem30ArrayDeclarations, validateArrays} from '../core/array_declarations.ts';
 import {maxPrintUsingValues} from '../core/print_using.ts';
 import {programInstructions} from '../core/instructions.ts';
 import {dataItems} from '../core/data.ts';
@@ -63,6 +63,13 @@ export function validateSourceLines(
       throw new BasicSyntaxError(
         'UNSUPPORTED_STATEMENT',
         'Numbered RUN requires the Altair profile',
+        statement.location.start,
+        statement.location.label,
+      );
+    if (statement.type === 'ChainStatement' && !isEduSystem30Dialect(dialect))
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'CHAIN requires the EDUSYSTEM-30 profile',
         statement.location.start,
         statement.location.label,
       );
@@ -175,7 +182,10 @@ export function validateSourceLines(
     .map((line) => ({...line, dialect}))
     .sort((a, b) => a.label - b.label);
   pairLoops(programInstructions(snapshot));
-  validateArrays(snapshot);
+  validateArrays(
+    snapshot,
+    isEduSystem30Dialect(dialect) ? eduSystem30ArrayDeclarations(snapshot) : undefined,
+  );
   return freezeTree({type: 'Program', dialect, lines: snapshot});
 }
 

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {checkBaseballCli} from './check-baseball.ts';
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
 import {
   checkChangeCli,
@@ -40,6 +41,7 @@ export async function checkPersistenceSessions(executable: string): Promise<void
     );
   try {
     checkMatchesCli(executable, directory);
+    await checkBaseballCli(executable, directory);
     await checkEduSystem30Cli(executable, directory);
     checkLetterCli(executable, directory);
     await checkTrapCli(executable, directory);

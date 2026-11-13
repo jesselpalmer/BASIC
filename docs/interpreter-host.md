@@ -240,6 +240,13 @@ input. They are independent of text INPUT; missing capabilities fail clearly.
 See [keyboard input](keyboard.md) for the exported `LogicalKey` type, host
 return values, ownership, source diagnostics, and browser focus policy.
 
+The EDUSYSTEM-30 profiles use the optional synchronous
+`loadProgram(name): string | null` callback for CHAIN. The tape name is padded to
+six characters. Return complete source in the active dialect, or null for a
+missing program. `basic.activeSource` gives the exact selected source currently
+being executed when available, including after CHAIN.
+[CHAIN behavior](edusystem30-profile.md#chain-and-program-libraries)
+
 Input callbacks serve both the terminal prompt and BASIC `INPUT`. Async
 write/clear results are unsupported. `runAsync` also yields to host tasks every
 256 statements by default. Its `RunOptions` accepts an instruction limit, batch

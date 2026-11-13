@@ -1,7 +1,16 @@
 import type {Host, InputOptions, RunResult} from '../core/types.ts';
-import {promises as fs} from 'node:fs';
+import {
+  closeSync,
+  constants as fileFlags,
+  fstatSync,
+  openSync,
+  promises as fs,
+  readFileSync,
+} from 'node:fs';
+import {join, resolve} from 'node:path';
 import Basic from '../basic.ts';
 import {isAbortError} from '../core/cancellation.ts';
+import {createHost} from '../core/host.ts';
 import Repl, {createTerminalProgram} from '../repl/repl.ts';
 import type {ReplHost} from '../repl/repl.ts';
 import constants from '../shared/constants.ts';
@@ -22,6 +31,27 @@ interface CliOptions {
   files?: ProgramFiles;
 }
 
+function chainLoader(directory: string): NonNullable<Host['loadProgram']> {
+  const root = resolve(directory);
+  return (name) => {
+    // CHAIN admission has already restricted the tape name to alphanumerics and padding.
+    const filename = join(root, `${name.trimEnd()}.bas`);
+    let file: number;
+    try {
+      file = openSync(filename, fileFlags.O_RDONLY | fileFlags.O_NOFOLLOW | fileFlags.O_NONBLOCK);
+    } catch (error) {
+      const {code} = error as NodeJS.ErrnoException;
+      if (code === 'ENOENT' || code === 'ENOTDIR' || code === 'ELOOP') return null;
+      throw error;
+    }
+    try {
+      return fstatSync(file).isFile() ? readFileSync(file, 'utf8') : null;
+    } finally {
+      closeSync(file);
+    }
+  };
+}
+
 export async function runFile(
   filePath: string,
   host: Partial<Host>,
@@ -39,7 +69,7 @@ export async function runCli(
   {host = new TerminalHost(), files = new NodeProgramFiles()}: CliOptions = {},
 ): Promise<number> {
   const controller = new AbortController();
-  const repl = args.length === 0 ? new Repl(host, files) : null;
+  let repl: Repl | null = null;
   const onInterrupt = () => {
     host.discardEntry();
     if (repl) repl.interrupt();
@@ -48,12 +78,22 @@ export async function runCli(
   process.on('SIGINT', onInterrupt);
   try {
     host.setInterruptHandler(onInterrupt);
-    if (args.length > 1) {
+    const hasChainDir = args[0] === '--chain-dir';
+    const chainDir = hasChainDir ? args[1] : undefined;
+    const scripts = hasChainDir ? args.slice(2) : args;
+    if (
+      scripts.length > 1 ||
+      (hasChainDir && (!chainDir || chainDir === '--chain-dir' || scripts[0] === '--chain-dir'))
+    ) {
       host.writeError(`${constants.ErrorMessages.TOO_MANY_ARGS}\n`);
       return constants.ExitCodes.INVALID_ARGUMENT;
     }
-    if (repl) return await repl.start({signal: controller.signal});
-    await runFile(args[0], host, {signal: controller.signal});
+    const programHost = chainDir ? {...createHost(host), loadProgram: chainLoader(chainDir)} : host;
+    if (scripts.length === 0) {
+      repl = new Repl(host, files, programHost);
+      return await repl.start({signal: controller.signal});
+    }
+    await runFile(scripts[0], programHost, {signal: controller.signal});
     return constants.ExitCodes.NORMAL;
   } catch (error) {
     if (isAbortError(error)) return 130;

@@ -1,7 +1,7 @@
 # Classic-game compatibility roadmap
 
 Native BASIC and three bounded public profile families run today. The selected
-profiles run 36 listings through the library, CLI/editor and browser. The
+profiles run 38 listings through the library, CLI/editor and browser. The
 [EDUSYSTEM-30 profile](edusystem30-profile.md) identifies the adapted listings.
 The [reviewed March 1975 1CHECK text](1check-reviewed-text.md) runs to END
 under explicit selection through the library, portable CLI/editor and
@@ -143,9 +143,10 @@ The original interpreter and the project's selected-profile path remain open.
 The [recovered OMSI library](basbal-edusystem30-review.md#recovered-demonstration-library)
 contains BASBAL, BASBL1 and the DEMON menu. With a second copy of the pinned
 tape mounted on DT1, stock EDU30.SV runs the full menu, baseball game and
-return to the menu. The public profile runs the bounded openings with indexed
-character input. The next baseball milestone is a public CHAIN path with
-archive-backed DATA handoff, array behavior and fresh execution state.
+return to the menu. The public MARK profile replays that same 71-play game
+through the installed library, CLI/editor and browser. The three runnable
+sources use token-spacing adaptations. BASBAL and BASBL1 count as two corpus
+listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs.
 
 The [SLOTS replay](slots-edusystem30.md) matches all 21 printed spins and
 running totals. The [REVERSE adaptation](reverse-edusystem30-review.md) verifies
@@ -217,7 +218,7 @@ explicit recorded decision in #109. Missing-book BUNNY/SNOOPY entries remain
 outside the 108-file denominator.
 
 Remaining corpus work includes verified DATA/READ, RNG, integer/logical forms,
-subroutines/dispatch, additional DEF FN forms, modifiers, MAT and file/CHAIN/terminal services as
+subroutines/dispatch, additional DEF FN forms, modifiers, MAT and remaining file/terminal services as
 required by the listings. They remain required even when unnecessary to 1CHECK.
 Preserve native behavior, source bytes/locations, bounded execution, Step/Stop,
 atomic replacement and fresh runs across all supported distributions.

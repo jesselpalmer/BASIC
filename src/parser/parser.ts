@@ -389,6 +389,15 @@ class Parser {
         const target = this.jumpTarget();
         return this.node('GosubStatement', command, target, {target});
       }
+      if (this.eduSystem30 && command.value === 'CHAIN') {
+        this.take();
+        const name = this.expect('STRING', undefined, 'Expected a quoted program name after CHAIN');
+        const target = this.node('StringLiteral', name, name, {value: name.value, raw: name.raw});
+        return this.node('ChainStatement', command, target, {
+          target,
+          name: name.value.trimEnd().padEnd(6, ' '),
+        });
+      }
       if (command.value === 'ON') {
         this.take();
         return this.dispatch(command);

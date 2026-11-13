@@ -34,6 +34,7 @@ export default class Repl {
   constructor(
     private host: ReplHost,
     files?: ProgramFiles,
+    private readonly programHost: Partial<Host> = host,
   ) {
     this.#persistence = files ? new ProgramPersistence(this.#source, files) : null;
   }
@@ -110,7 +111,7 @@ export default class Repl {
             if (warning) this.host.writeError(`${warning}\n`);
           } else if (command === 'RUN') {
             const snapshot = this.#source.document;
-            const program = createTerminalProgram(this.host, snapshot.dialect);
+            const program = createTerminalProgram(this.programHost, snapshot.dialect);
             await this.#withSignal((signal) => program.runAsync(snapshot.source, {signal}));
           } else if (command === 'LIST') {
             const source = this.#source.source;

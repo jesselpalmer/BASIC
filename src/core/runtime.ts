@@ -76,6 +76,7 @@ export default class Basic {
   #privateSelectedSteps = 0;
   #controlFlow: ControlFlow;
   #data: DataReader;
+  #activeSource: string | undefined;
   #status: RunStatus = 'ready';
   #current: Instruction | null = null;
   #diagnostic: Readonly<Diagnostic> | null = null;
@@ -154,6 +155,13 @@ export default class Basic {
     return this.#dialect;
   }
 
+  /** Exact source of the current selected program, including a loaded CHAIN target. */
+  get activeSource(): string | undefined {
+    return this.#privateSelected
+      ? undefined
+      : (this.#selectedProgram?.source ?? this.#activeSource);
+  }
+
   get status(): RunStatus {
     return this.#status;
   }
@@ -204,6 +212,7 @@ export default class Basic {
           ? (this.#prepared as PreparedProgram)
           : prepareProgram(program, this.#dialect);
       this.#startSharedRun(candidate);
+      this.#prepared = candidate;
     } catch (error) {
       this.#recordFailure(error);
       throw error;
@@ -211,13 +220,13 @@ export default class Basic {
     return this.state;
   }
 
-  #startSharedRun(candidate: PreparedProgram): void {
+  #startSharedRun(candidate: PreparedProgram, data = candidate.dataItems): void {
     if (this.#eduSystem30) {
       this.#eduSystem30.evaluator.reset(candidate.arrayDeclarations, candidate.instructions);
     } else this.#evaluator.reset(candidate.arrayDeclarations);
-    this.#prepared = candidate;
+    this.#activeSource = candidate.program.source;
     this.#controlFlow = this.#createControlFlow(candidate);
-    this.#data = new DataReader(candidate.dataItems);
+    this.#data = new DataReader(data);
   }
 
   #createControlFlow(prepared: PreparedProgram): ControlFlow {
@@ -523,6 +532,7 @@ export default class Basic {
         );
       this.#usedLabels.add(line.label);
       this.#prepared = this.#emptyProgram;
+      this.#activeSource = undefined;
       this.#controlFlow = this.#createControlFlow(this.#prepared);
       this.#immediate = true;
       return programInstructions([line])[0];
@@ -730,6 +740,7 @@ export default class Basic {
           statement.type === 'InlineIfStatement' ||
           statement.type === 'GotoStatement' ||
           statement.type === 'GosubStatement' ||
+          statement.type === 'ChainStatement' ||
           statement.type === 'OnStatement' ||
           statement.type === 'ReturnStatement' ||
           statement.type === 'ForStatement' ||
@@ -737,7 +748,7 @@ export default class Basic {
       ) {
         throw new BasicRuntimeError(
           'PROGRAM_REQUIRED',
-          'DIM, CHANGE, DATA, READ, RESTORE, IF, GOTO, GOSUB, ON, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
+          'DIM, CHANGE, DATA, READ, RESTORE, IF, GOTO, GOSUB, ON, CHAIN, RETURN, FOR, and NEXT require a complete program; use run or runAsync',
           statement.location.start,
           line.label,
         );
@@ -755,13 +766,15 @@ export default class Basic {
           // Restart inside the current driver, retaining its cancellation,
           // debugger gate, instruction budget and terminal column.
           restart: () => this.#startSharedRun(this.#prepared as PreparedProgram),
+          chain: (statement) => this.#chain(statement),
         });
       }
       if (
         !this.#immediate &&
         statement.type !== 'EndStatement' &&
         statement.type !== 'StopStatement' &&
-        statement.type !== 'RunStatement'
+        statement.type !== 'RunStatement' &&
+        statement.type !== 'ChainStatement'
       )
         this.#controlFlow.finishInstruction();
     } catch (error) {
@@ -770,6 +783,59 @@ export default class Basic {
     } finally {
       this.#executing = false;
     }
+  }
+
+  #chain(statement: NodeOf<'ChainStatement'>): void {
+    const {name, location} = statement;
+    if (!this.#host.loadProgram)
+      throw new BasicRuntimeError(
+        'CHAIN_UNAVAILABLE',
+        'CHAIN requires a program library',
+        location.start,
+        location.label,
+      );
+    let source: string | null;
+    try {
+      source = this.#host.loadProgram(name);
+    } catch (cause) {
+      throw new BasicRuntimeError(
+        'HOST_ERROR',
+        'Host loadProgram failed',
+        location.start,
+        location.label,
+        {cause},
+      );
+    }
+    if (source === null)
+      throw new BasicRuntimeError(
+        'CHAIN_NOT_FOUND',
+        `Program ${name.trimEnd()} was not found`,
+        location.start,
+        location.label,
+      );
+    let candidate: PreparedProgram;
+    try {
+      if (typeof source !== 'string' || !source.trim())
+        throw new TypeError('Expected nonempty BASIC source');
+      candidate = prepareProgram(source, this.#dialect);
+    } catch (cause) {
+      throw new BasicRuntimeError(
+        'CHAIN_INVALID_PROGRAM',
+        `Program ${name.trimEnd()} could not be loaded`,
+        location.start,
+        location.label,
+        {cause},
+      );
+    }
+    // The archive resets the print column and discards unread input.
+    // A target with DATA replaces the pool. Otherwise READ starts at the
+    // beginning of the inherited pool.
+    this.#eduSystem30!.terminal.reset();
+    this.#startSharedRun(
+      candidate,
+      candidate.dataItems.length ? candidate.dataItems : this.#data.items,
+    );
+    this.#current = null;
   }
 
   #callHost(callback: 'write' | 'clear', line: Instruction, text = ''): void {

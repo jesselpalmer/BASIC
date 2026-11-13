@@ -30,6 +30,7 @@ import {runRockspAcceptance} from './rocksp-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
+import {runBaseballAcceptance} from './baseball-acceptance.ts';
 import {runAmazinAcceptance} from './amazin-acceptance.ts';
 import {runTrapAcceptance} from './trap-acceptance.ts';
 import assert from 'node:assert/strict';
@@ -98,6 +99,7 @@ export const libraryAcceptanceCases = [
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
+  'adapted OMSI Baseball matches the full archived game and return to DEMON',
   'reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts',
   'public parser snapshots and diagnostics',
   'explicit native context rejects unsupported program metadata before effects',
@@ -452,6 +454,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted AMAZIN matches archived seeded mazes and dimension retry', () =>
     runAmazinAcceptance(api),
+  );
+  await check('adapted OMSI Baseball matches the full archived game and return to DEMON', () =>
+    runBaseballAcceptance(api),
   );
   await check('reviewed LIFE2 matches the Altair win, draw, restart and retry transcripts', () =>
     runAltairLife2Acceptance(api),

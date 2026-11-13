@@ -128,9 +128,13 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'mugwump-acceptance.ts',
       'gomoko-acceptance.ts',
       'amazin-acceptance.ts',
+      'baseball-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
     }
+    cpSync(join(installed, 'examples/omsi'), join(consumer, 'examples/omsi'), {
+      recursive: true,
+    });
     mkdirSync(join(consumer, 'docs'));
     for (const reference of [
       'life2-altair-reference.json',
@@ -167,6 +171,7 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'mugwump-edusystem30-reference.json',
       'gomoko-edusystem30-reference.json',
       'amazin-edusystem30-reference.json',
+      'edusystem30-omsi-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));
     await checkLibraryConsumers(consumer, installed);

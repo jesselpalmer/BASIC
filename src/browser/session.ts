@@ -20,7 +20,7 @@ export interface BrowserState {
   readonly status: BrowserStatus;
   /** True while execution is gated, including a single step awaiting INPUT or WAIT. */
   readonly isPaused: boolean;
-  /** The exact source snapshot used by this run, independent of editor changes. */
+  /** The exact source snapshot for the active program, independent of editor changes. */
   readonly source: string;
   /** Immutable language context used to prepare this source snapshot. */
   readonly dialect: Dialect;
@@ -49,6 +49,8 @@ export interface BrowserSessionOptions {
   yieldEvery?: number;
   /** Override timing for a controlled host; honor cancellation and yield to a task. */
   wait?: Host['wait'];
+  /** Resolve an exact six-character CHAIN name to source from an explicitly supplied catalog. */
+  loadProgram?: Host['loadProgram'];
 }
 
 export interface BrowserRunOptions {
@@ -106,13 +108,20 @@ export class BrowserSession {
   async run(source: string, options: BrowserRunOptions = {}): Promise<BrowserState> {
     this.#assertOutsideCallback();
     const dialect = validateDialect(options.dialect);
-    const {yieldEvery = 256, scheduler = defaultScheduler, wait = defaultWait} = this.#options;
+    const {
+      yieldEvery = 256,
+      scheduler = defaultScheduler,
+      wait = defaultWait,
+      loadProgram,
+    } = this.#options;
     let optionError: TypeError | null = null;
     if (!Number.isSafeInteger(yieldEvery) || yieldEvery < 1)
       optionError = new TypeError('yieldEvery must be a positive safe integer');
     else if (typeof scheduler !== 'function')
       optionError = new TypeError('scheduler must be a function');
     else if (typeof wait !== 'function') optionError = new TypeError('wait must be a function');
+    else if (loadProgram !== undefined && typeof loadProgram !== 'function')
+      optionError = new TypeError('loadProgram must be a function');
     if (optionError) {
       if (!this.#execution)
         this.#state = Object.freeze({...this.#state, status: 'error', source, dialect});
@@ -131,6 +140,16 @@ export class BrowserSession {
           readKey: readKey ? () => this.#callView(execution, readKey) : undefined,
           keyDown: keyDown ? (key) => this.#callView(execution, () => keyDown(key)) : undefined,
           draw: draw ? (command) => this.#callView(execution, () => draw(command)) : undefined,
+          loadProgram: loadProgram
+            ? (name) => {
+                this.#callbackDepth++;
+                try {
+                  return loadProgram(name);
+                } finally {
+                  this.#callbackDepth--;
+                }
+              }
+            : undefined,
           wait: (milliseconds, options) => {
             this.#publish(execution, 'running');
             this.#callView(execution, () => this.#view.present?.());
@@ -359,7 +378,7 @@ export class BrowserSession {
       status,
       isPaused:
         execution.paused && (status === 'paused' || status === 'running' || status === 'waiting'),
-      source: execution.state.source,
+      source: execution.basic.activeSource ?? execution.state.source,
       dialect: execution.state.dialect,
       diagnostic,
       currentLocation: state.currentLocation,

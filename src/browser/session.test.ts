@@ -102,6 +102,51 @@ describe('browser session', () => {
     expect(session.state.variables).toEqual([]);
   });
 
+  test('steps through CHAIN into a new source snapshot and resumes that program', async () => {
+    const ui = view();
+    const source = '10 CHAIN "NEXT"\n20 PRINT "UNREACHABLE"\n30 END';
+    const callee = '\n90 PRINT "CALLEE"\n100 END';
+    const names: string[] = [];
+    const session = new BrowserSession(ui.callbacks, {
+      loadProgram(name) {
+        names.push(name);
+        return callee;
+      },
+    });
+
+    const result = session.run(source, {dialect: 'edusystem-30', paused: true});
+    expect(session.state).toMatchObject({source, nextLocation: {label: 10}});
+    session.step();
+    await until(() => session.state.status === 'paused');
+    expect(names).toEqual(['NEXT  ']);
+    expect(ui.clears()).toBe(1);
+    expect(session.state).toMatchObject({
+      source: callee,
+      currentLocation: null,
+      nextLocation: {label: 90, start: {line: 2}},
+    });
+    session.resume();
+    expect(await result).toMatchObject({status: 'finished', source: callee});
+    expect(ui.output.join('').trim()).toBe('CALLEE');
+  });
+
+  test('keeps the CHAIN source active when a resolver tries to stop execution', async () => {
+    const ui = view();
+    const source = '10 CHAIN "NEXT  "\n20 END';
+    const session = new BrowserSession(ui.callbacks, {
+      loadProgram() {
+        session.stop();
+        return null;
+      },
+    });
+    expect(await session.run(source, {dialect: 'edusystem-30'})).toMatchObject({
+      status: 'error',
+      source,
+      diagnostic: {code: 'HOST_ERROR', line: 1, label: 10},
+    });
+    expect((await session.run('10 END')).status).toBe('finished');
+  });
+
   test('steps exactly one statement through labels, branches, loops and END', async () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);
@@ -515,6 +560,12 @@ describe('browser session', () => {
       message: 'scheduler must be a function',
     });
     expect(invalidScheduler.state.status).toBe('error');
+    const invalidResolver = new BrowserSession(ui.callbacks, {
+      loadProgram: null,
+    } as unknown as BrowserSessionOptions);
+    expect(await rejection(invalidResolver.run('10 END'))).toMatchObject({
+      message: 'loadProgram must be a function',
+    });
   });
 
   test('rejects unsupported run context before stopping an active native run', async () => {

@@ -79,17 +79,43 @@ python3 scripts/research/capture-edusystem30-omsi.py \
   --output /tmp/edusystem30-omsi-reference.json
 ```
 
-## Requirements for the two-part game
+## Play the recovered game
 
-The public selected runtime currently rejects the reviewed compact source
-at BASBAL 110 (`1TO19`) and BASBL1 150 (`4THEN160`). The selected profile
-supports indexed character input, so the team name or play can feed the
-successive array reads and final marked Return. BASBAL allocates 50 cells
-above zero but loops to 99. BASBL1 allocates 16 cells above zero but loops
-to 20. The bounded opening test keeps these limits and the exit on Return.
-It adds spacing for compact tokens and replaces each CHAIN with END.
-Standalone BASBL1 also declares the roster arrays explicitly and observes
-only the opening before any handoff is needed.
+Select the OMSI baseball example in the web interpreter, click **Run**, and
+enter `BASEBALL` at the DEMON menu. Enter a team name, then follow the play
+options printed by the program. The available source library contains only
+[DEMON](../examples/omsi/DEMON.bas), [BASBAL](../examples/omsi/BASBAL.bas), and
+[BASBL1](../examples/omsi/BASBL1.bas). DEMON still lists the titles on the
+original tape. The game returns to DEMON when it ends. Use **Stop** at a prompt
+to leave the session.
+
+For the CLI or editor, export the browser example as a `.basic.json` file
+to preserve its `edusystem-30-mark` profile. From the repository root, pass
+the directory of available programs explicitly:
+
+```sh
+bun ./bin/basic --chain-dir examples/omsi /path/to/demon.basic.json
+bun ./bin/basic --chain-dir examples/omsi
+```
+
+In the editor session, enter `LOAD "/path/to/demon.basic.json"` and `RUN`.
+The installed library accepts the same source via `parseProgram` with
+`{dialect: 'edusystem-30-mark'}` and a `Basic` host with `loadProgram(name)`.
+The host receives six characters (`BASBAL`, `BASBL1`, `DEMON `). The CLI
+resolves these to `BASBAL.bas`, `BASBL1.bas`, and `DEMON.bas` in its explicit
+directory.
+
+The portable sources separate compact keyword boundaries, such as `1TO19`
+and `4THEN160`, and spell DEMON's `GO SUB` as `GOSUB`. They keep the tape
+listings' line numbers, string literals, data, and control flow. BASBAL
+allocates 50 cells above zero but loops to 99. BASBL1 allocates 16 cells
+above zero but loops to 20. The captured inputs terminate with Return
+before either loop reaches an out-of-bounds subscript.
+
+The package and browser acceptance tests replay the archive's 71 plays
+and `LIST` after the return to DEMON. They compare the full game and menu
+output after accounting for the archive monitor's RUN banner and the
+terminal's operator-echo line endings.
 
 An indexed read such as `INPUT $A(I)` submits a printable ASCII line on the
 public host. Each character statement stores one byte, then stores Return
@@ -113,10 +139,10 @@ line 110 assigns `Z(0)=.5` and a separate scalar `Z=.5`. The published
 listings contain no `WRITE` or `RESTORE` handoff. The January 1973
 [DEC handbook, §§7-5–7-8](https://deramp.com/downloads/mfe_archive/011-Digital%20Equipment%20Corporation/00%20Digital%20Handbooks/08%20PDP-8%20Family/Edusystem%20Handbook/EduSystemHandbookJan73.pdf#page=293)
 describes six-character CHAIN names and passing data through a data file.
-The recovered flow and focused probes establish the archive handoff. The
-public selected path still needs source-bound program loading, implicit
-numeric arrays and verified DATA transfer semantics. The recovered DEMON
-remains outside the 108 pinned corpus listings.
+The public game uses implicit numeric arrays after CHAIN resets the
+variables. Separate runtime tests cover the DATA handoff because BASBL1
+has no READ. The recovered DEMON remains outside the 108 pinned corpus
+listings.
 
 ```sh
 python3 scripts/research/capture-edusystem30-basbal.py \

@@ -2,10 +2,11 @@ import {once} from 'node:events';
 import {describe, it, expect, beforeEach, afterEach} from 'bun:test';
 import {jest} from 'bun:test';
 import {PassThrough} from 'node:stream';
-import {mkdtempSync, promises as fs, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, promises as fs, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {createHost} from '../core/host.ts';
+import {encodeSourceDocument} from '../core/source_document.ts';
 import {runCli, runFile} from './run_cli.ts';
 import TerminalHost from './terminal_host.ts';
 import NodeProgramFiles from './program_files.ts';
@@ -173,6 +174,86 @@ describe('CLI adapter lifecycle', () => {
     }
     expect(readAll(output)).toBe('file\n');
     expect(errors.read()).toBeNull();
+  });
+
+  it('loads a padded CHAIN name from an explicit directory in script mode', async () => {
+    const script = join(directory, 'start.basic.json');
+    const library = join(directory, 'library');
+    mkdirSync(library);
+    writeFileSync(join(library, 'NEXT.bas'), '10 PRINT "CALLEE"\n20 END');
+    writeFileSync(
+      script,
+      encodeSourceDocument('10 CHAIN "NEXT"\n20 PRINT "UNREACHABLE"\n30 END', {
+        dialect: 'edusystem-30',
+      }),
+    );
+
+    expect(await runCli(['--chain-dir', library, script], {host})).toBe(0);
+    expect(readAll(output).trim()).toBe('CALLEE');
+    expect(readAll(errors)).toBe('');
+  });
+
+  it('starts each editor RUN from the saved source even after a CHAIN', async () => {
+    const script = join(directory, 'start.basic.json');
+    const source = '10 PRINT "CALLER"\n20 CHAIN "NEXT  "\n30 END';
+    writeFileSync(script, encodeSourceDocument(source, {dialect: 'edusystem-30'}));
+    writeFileSync(join(directory, 'NEXT.bas'), '10 PRINT "CALLEE"\n20 END');
+
+    const result = runCli(['--chain-dir', directory], {host});
+    input.end(`LOAD "${script}"\nRUN\nLIST\nRUN\nEXIT\n`);
+    expect(await result).toBe(0);
+    expect(readAll(output)).toMatch(
+      /CALLER\n+CALLEE\n+[\s\S]*10 PRINT "CALLER"\n20 CHAIN "NEXT {2}"[\s\S]*CALLER\n+CALLEE/,
+    );
+    expect(readAll(errors)).toBe('');
+  });
+
+  it('requires a CHAIN directory even when the target is beside the script', async () => {
+    const script = join(directory, 'start.basic.json');
+    writeFileSync(
+      script,
+      encodeSourceDocument('10 CHAIN "NEXT"\n20 END', {dialect: 'edusystem-30'}),
+    );
+    writeFileSync(join(directory, 'NEXT.bas'), '10 PRINT "UNREACHABLE"\n20 END');
+    expect(await runCli([script], {host})).toBe(1);
+    expect(readAll(output)).toBe('');
+    expect(readAll(errors)).toContain('CHAIN requires a program library');
+  });
+
+  it.each(['missing', 'directory', 'symlink', 'non-directory root'] as const)(
+    'reports a missing CHAIN program for a %s',
+    async (kind) => {
+      const script = join(directory, 'start.basic.json');
+      const filename = join(directory, 'NEXT.bas');
+      writeFileSync(
+        script,
+        encodeSourceDocument('10 CHAIN "NEXT"\n20 END', {dialect: 'edusystem-30'}),
+      );
+      if (kind === 'directory') mkdirSync(filename);
+      if (kind === 'symlink') symlinkSync(script, filename);
+
+      const chainDir = kind === 'non-directory root' ? script : directory;
+      expect(await runCli(['--chain-dir', chainDir, script], {host})).toBe(1);
+      expect(readAll(output)).toBe('');
+      expect(readAll(errors)).toContain('Program NEXT was not found');
+    },
+  );
+
+  it('surfaces a CHAIN directory I/O error as a located host failure', async () => {
+    const script = join(directory, 'start.basic.json');
+    writeFileSync(
+      script,
+      encodeSourceDocument('10 CHAIN "NEXT"\n20 END', {dialect: 'edusystem-30'}),
+    );
+    const longDirectoryName = join(directory, 'x'.repeat(1024));
+    expect(await runCli(['--chain-dir', longDirectoryName, script], {host})).toBe(1);
+    expect(readAll(errors)).toContain('Host loadProgram failed');
+  });
+
+  it('reports a missing CHAIN directory argument without starting the editor', async () => {
+    expect(await runCli(['--chain-dir'], {host})).toBe(9);
+    expect(readAll(output)).toBe('');
+    expect(readAll(errors)).toBe('Usage: basic [--chain-dir DIR] [script]\n');
   });
 
   it('routes process SIGINT to a pending file program and returns 130', async () => {

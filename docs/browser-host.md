@@ -83,7 +83,9 @@ Handle the run promise in the application. A callback failure while submitting
 also throws to the submit caller. A later run can recover with a working view.
 
 Optional constructor options are `random`, `scheduler`, `yieldEvery`, and `wait`, useful
-for deterministic testing. Defaults use `Math.random` and the core's cancellable
+for deterministic testing. Supply `loadProgram` to resolve EDUSYSTEM-30 CHAIN
+targets. After a successful CHAIN, `state.source` and statement locations refer
+to the target program. Defaults use `Math.random` and the core's cancellable
 browser timer scheduler, yielding every 256 statements. An already resolved
 promise used as a scheduler does not yield to browser input events; production
 hosts should retain the default or provide a real task boundary. This adapter

@@ -25,6 +25,7 @@ test('source-bound supplied 1CHECK Program runs through Basic async and reruns f
     readLine: () => Promise.resolve(answers.shift() ?? null),
   });
   expect(() => basic.dialect).toThrow('no public dialect');
+  expect(basic.activeSource).toBeUndefined();
   expect((await basic.runAsync()).status).toBe('halted');
   const first = writes.join('');
   expect(first).toContain('AND HERE IS THE OPENING POSITION OF THE CHECKERS:');

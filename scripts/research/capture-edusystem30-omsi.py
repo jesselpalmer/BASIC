@@ -139,6 +139,11 @@ def capture_chain_state(console, shared):
         'PROBE1': ['10 DIM A(20)', '20 PRINT "CALLEE";A;A(17);RND(0)', '30 END'],
         'PROBE2': ['10 READ U,V', '20 PRINT "DATA";U;V', '30 END'],
         'PROBE3': ['10 PRINT "IMPLICIT";A(17)', '20 END'],
+        'PROBE4': ['10 DATA 81', '20 READ U,V', '30 PRINT U;V', '40 END'],
+        'PROBE5': ['10 PRINT TAB(2);"B"', '20 END'],
+        'PROBE6': ['10 PRINT "INSIDE"', '20 END'],
+        'PROBE7': ['10 READ A', '20 PRINT "FIRST";A', '30 CHAIN "PROBE2"', '40 END'],
+        'PROBE8': ['10 DATA 71,72', '20 READ A', '30 PRINT "OWN";A', '40 CHAIN "PROBE2"', '50 END'],
     }
     for name, source in targets.items():
         save(name, source)
@@ -152,6 +157,27 @@ def capture_chain_state(console, shared):
         'dataCursorRestarts': (
             ['10 DATA 41,42', '20 READ A', '30 CHAIN "PROBE2"', '40 END'],
             'DATA 41  42 \n\n',
+        ),
+        'ownDataReplacesCaller': (
+            ['10 DATA 41,42', '20 READ A', '30 CHAIN "PROBE4"', '40 END'],
+            '\nERROR DA AT LINE 0020\n\n',
+        ),
+        'dataPoolSurvivesSuccessiveChains': (
+            ['10 DATA 41,42', '20 READ B', '30 CHAIN "PROBE7"', '40 END'],
+            'FIRST 41 \nDATA 41  42 \n\n',
+        ),
+        'targetDataReplacesTheInheritedPool': (
+            ['10 DATA 41,42', '20 CHAIN "PROBE8"', '30 END'],
+            'OWN 71 \nDATA 71  72 \n\n',
+        ),
+        'terminalColumnResets': (
+            ['10 PRINT "LONG";', '20 CHAIN "PROBE5"', '30 END'],
+            'LONG  B\n\n',
+        ),
+        'subroutineDoesNotResume': (
+            ['10 GOSUB 30', '20 PRINT "OUTSIDE"', '25 GOTO 60', '30 CHAIN "PROBE6"',
+             '40 RETURN', '60 END'],
+            'INSIDE\n\n',
         ),
         'writtenDataPersists': (
             ['10 DATA 41,42', '20 WRITE 75,76', '30 RESTORE', '40 CHAIN "PROBE2"', '50 END'],

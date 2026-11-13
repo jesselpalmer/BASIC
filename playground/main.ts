@@ -51,6 +51,9 @@ import rocksp from '../scripts/package/fixtures/classic/rocksp-edusystem30.bas' 
 import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 'text'};
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
+import demon from '../examples/omsi/DEMON.bas' with {type: 'text'};
+import basbal from '../examples/omsi/BASBAL.bas' with {type: 'text'};
+import basbl1 from '../examples/omsi/BASBL1.bas' with {type: 'text'};
 import amazin from '../scripts/package/fixtures/classic/amazin-edu30-adapted.bas' with {type: 'text'};
 import checker from '../scripts/package/fixtures/classic/1check-mar75-text.bas' with {type: 'text'};
 import type {Diagnostic, Dialect} from '../src/core/types.ts';
@@ -135,6 +138,7 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   mugwump: {source: mugwump, dialect: 'edusystem-30'},
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
   amazin: {source: amazin, dialect: 'edusystem-30'},
+  baseball: {source: demon, dialect: 'edusystem-30-mark'},
   life2: {source: life2, dialect: 'altair-8k-4.0'},
 };
 const canvas = element<HTMLCanvasElement>('graphics');
@@ -337,38 +341,47 @@ function stateChanged(state: BrowserState): void {
   }
 }
 
-const session = new BrowserSession({
-  write,
-  clear,
-  present,
-  readKey: () => keyboard.readKey(),
-  keyDown: (key) => keyboard.keyDown(key),
-  draw: graphics
-    ? (command) => {
-        graphics.draw(command);
-        pendingFrame ??= requestAnimationFrame(renderTranscript);
-      }
-    : undefined,
-  stateChanged,
-  requestInput(prompt, submit) {
-    submitInput = submit;
-    inputEchoSuffix = '\n';
-    if (isEduSystem30Dialect(session.state.dialect)) {
-      write(prompt);
-      inputPrompt.textContent = prompt
-        ? 'Enter a number or comma-separated values'
-        : 'Program input';
-      if (!prompt) inputEchoSuffix = '';
-    } else if (session.state.dialect === 'altair-8k-4.0') {
-      write(prompt);
-      inputPrompt.textContent =
-        prompt === '?? ' ? 'Enter the remaining coordinates' : 'Program input';
-    } else inputPrompt.textContent = prompt || 'Program input';
-    inputValue.value = '';
-    inputForm.hidden = false;
-    inputValue.focus();
+const omsiPrograms = new Map([
+  ['DEMON ', demon],
+  ['BASBAL', basbal],
+  ['BASBL1', basbl1],
+]);
+
+const session = new BrowserSession(
+  {
+    write,
+    clear,
+    present,
+    readKey: () => keyboard.readKey(),
+    keyDown: (key) => keyboard.keyDown(key),
+    draw: graphics
+      ? (command) => {
+          graphics.draw(command);
+          pendingFrame ??= requestAnimationFrame(renderTranscript);
+        }
+      : undefined,
+    stateChanged,
+    requestInput(prompt, submit) {
+      submitInput = submit;
+      inputEchoSuffix = '\n';
+      if (isEduSystem30Dialect(session.state.dialect)) {
+        write(prompt);
+        inputPrompt.textContent = prompt
+          ? 'Enter a number or comma-separated values'
+          : 'Program input';
+        if (!prompt) inputEchoSuffix = '';
+      } else if (session.state.dialect === 'altair-8k-4.0') {
+        write(prompt);
+        inputPrompt.textContent =
+          prompt === '?? ' ? 'Enter the remaining coordinates' : 'Program input';
+      } else inputPrompt.textContent = prompt || 'Program input';
+      inputValue.value = '';
+      inputForm.hidden = false;
+      inputValue.focus();
+    },
   },
-});
+  {loadProgram: (name) => omsiPrograms.get(name) ?? null},
+);
 
 function formatDiagnostic(detail: Readonly<Diagnostic>): string {
   const label = detail.label === null ? '' : ` (BASIC line ${detail.label})`;
