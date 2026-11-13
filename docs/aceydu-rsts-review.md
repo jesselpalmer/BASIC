@@ -25,7 +25,7 @@ NO returning to Ready. The script responds to the current bankroll because
 the clock can change the deal.
 
 The [default-stream replay](aceydu-rsts-reference.json) omits only line 100
-to give the next implementation a repeatable oracle. It checks every printed
+for a repeatable deal. It checks every printed
 card, prompt and bankroll through the same operator sequence, including a
 $70 win, a $140 loss, and a fresh $100 on replay. The archive's initial
 face-up cards are 3 and 4. The capture normalizes CRLF to LF and removes
@@ -35,15 +35,29 @@ A separate probe records 12 exact fractions from the default stream. Each
 observed result times 32,768 is integral. A second RUN repeats the sequence.
 `RND(I-2)` yields the same sequence for arguments from −1 through 10.
 `RND(1/(I-1))` reports division by zero before the first draw, then the
-archive continues with the same sequence. These observations are for V04B-17.
-
-The public selected MA2 profile rejects `RANDOMIZE`. Its numeric expression
-slice also needs bare `RND` at 270, 300 and 730. A future implementation needs
-archive-backed RNG and the game's quoted INPUT prompts, numeric fields, string
-replay test and colon-separated statements. This review adds the listing and
-reference session for that work.
+archive continues with the same sequence. The
+[rebuilt V4A-12 MA2 archive](rsts-v4a-ma2-rng.md) reproduces the default
+values with both forms.
 
 ```sh
 python3 scripts/research/capture-aceydu-rsts.py \
   --simulator /path/to/simh/BIN/pdp11 --disk /path/to/RSTS11v4B.DSK
 ```
+
+## Play the reviewed listing
+
+The [playground](https://basic-playground-rho.vercel.app/) offers
+**ACEYDU · BASIC-PLUS selected profile** under `basic-plus-v4a12-ma2`.
+It runs the exact reviewed source, including `RANDOMIZE` on line 100.
+The runtime obtains an entropy word from the host in place of the original
+monitor's changing system word. The printed sample's deal remains unverified.
+
+Enter a bet when prompted. A bet of `0` passes. When your bankroll reaches
+zero, enter `YES` to restart with $100 and continue the random stream, or
+`NO` to finish. The installed library, CLI/editor and browser acceptance
+tests supply a zero entropy word to reproduce the complete captured
+default-stream session using the reviewed listing. The library and CLI also
+run the [separate default-stream fixture](../scripts/package/fixtures/classic/aceydu-rsts-default.bas),
+which removes line 100 and needs no injected entropy. The portable terminal
+excludes the monitor's final blank line. The browser renders the input prompt
+beside the entry field and echoes responses in the transcript.

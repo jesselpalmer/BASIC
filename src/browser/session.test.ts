@@ -49,7 +49,7 @@ describe('browser session', () => {
     expect(session.state).toMatchObject({status: 'waiting', dialect});
     const clears = ui.clears();
     expect(
-      await rejection(session.run('10 PRINT "NEVER"\n20 END\n30 PRINT RND()', {dialect})),
+      await rejection(session.run('10 PRINT "NEVER"\n20 END\n30 PRINT SIN(0)', {dialect})),
     ).toMatchObject({diagnostic: {code: 'UNSUPPORTED_FUNCTION'}});
     expect(ui.clears()).toBe(clears);
     expect(session.state.status).toBe('waiting');
@@ -62,7 +62,7 @@ describe('browser session', () => {
     const ui = view();
     const session = new BrowserSession(ui.callbacks);
     const dialect = 'basic-plus-v4a12-ma2' as const;
-    const source = '10 PRINT "NEVER"\n20 END\n30 PRINT RND()';
+    const source = '10 PRINT "NEVER"\n20 END\n30 PRINT SIN(0)';
     const result = await session.run(source, {dialect});
     expect(result).toMatchObject({
       status: 'error',

@@ -51,6 +51,10 @@ import rocksp from '../scripts/package/fixtures/classic/rocksp-edusystem30.bas' 
 import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 'text'};
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
+import wekday from '../examples/omsi/WEKDAY.bas' with {type: 'text'};
+import aceydu from '../scripts/package/fixtures/classic/aceydu-mar75-text.bas' with {type: 'text'};
+import dice from '../scripts/package/fixtures/classic/dice-mark-adapted.bas' with {type: 'text'};
+import train from '../scripts/package/fixtures/classic/train-mark-adapted.bas' with {type: 'text'};
 import war2 from '../scripts/package/fixtures/classic/war2-edusystem30-adapted.bas' with {type: 'text'};
 import nicoma from '../scripts/package/fixtures/classic/nicoma-mar75-text.bas' with {type: 'text'};
 import zoop from '../examples/omsi/ZOOP.bas' with {type: 'text'};
@@ -141,6 +145,10 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   mugwump: {source: mugwump, dialect: 'edusystem-30'},
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
   amazin: {source: amazin, dialect: 'edusystem-30'},
+  wekday: {source: wekday, dialect: 'edusystem-30-mark'},
+  aceydu: {source: aceydu, dialect: 'basic-plus-v4a12-ma2'},
+  dice: {source: dice, dialect: 'edusystem-30-mark'},
+  train: {source: train, dialect: 'edusystem-30-mark'},
   war2: {source: war2, dialect: 'edusystem-30'},
   nicoma: {source: nicoma, dialect: 'basic-plus-v4a12-ma2'},
   zoop: {source: zoop, dialect: 'edusystem-30-mark'},
@@ -352,6 +360,7 @@ const omsiPrograms = new Map([
   ['BASBAL', basbal],
   ['BASBL1', basbl1],
   ['ZOOP  ', zoop],
+  ['WEKDAY', wekday],
 ]);
 
 const session = new BrowserSession(

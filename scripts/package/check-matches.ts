@@ -51,6 +51,7 @@ import {assertGuessOutput, guessRuns, guessSource} from '../guess-acceptance.ts'
 import {assertCalndrOutput, calndrRuns, calndrProgram} from '../calndr-acceptance.ts';
 import {assertChiefOutput, chiefRuns, chiefSource} from '../chief-acceptance.ts';
 import {assertHiLoOutput, hiLoRuns, hiLoSource} from '../hi-lo-acceptance.ts';
+import {assertTrainOutput, trainOptions, trainRuns, trainSource} from '../train-acceptance.ts';
 import {assertRockt1Output, rockt1Runs, rockt1Source} from '../rockt1-acceptance.ts';
 import {assertRockspOutput, rockspRuns, rockspSource} from '../rocksp-acceptance.ts';
 import {assertPlotOutput, plotSource} from '../3dplot-acceptance.ts';
@@ -329,6 +330,10 @@ export function checkCompletedEduSystem30Cli(executable: string, directory: stri
   checkCompletedGame(executable, directory, 'hi-lo', hiLoSource, hiLoRuns, assertHiLoOutput, {
     dialect: 'edusystem-30-mark',
     entropy: (run) => run.clockWord / 4096,
+  });
+  checkCompletedGame(executable, directory, 'train', trainSource, trainRuns, assertTrainOutput, {
+    dialect: trainOptions.dialect,
+    entropy: ({clockWord}) => clockWord / 4096,
   });
   checkCompletedGame(
     executable,

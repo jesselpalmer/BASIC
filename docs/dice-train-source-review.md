@@ -14,7 +14,27 @@ storage, comma-separated `PRINT`, and a string response to the replay prompt.
 The printed edition leaves the BASIC interpreter unspecified.
 
 Archived EDU30.SV returns `S1 140`, `PC 150` and `S1 224` when compiling the
-reviewed listing. The original source remains outside the selected profile.
+reviewed listing.
+
+The [EDUSYSTEM-30 MARK adaptation](../scripts/package/fixtures/classic/dice-mark-adapted.bas)
+changes bare `RND` to `RND(0)` and uses a single marked character for replay.
+`Y` starts the next round. Other accepted characters end the session.
+The [archive replay](dice-edusystem30-reference.json) captures all 11
+frequency rows for 36 rolls and a 12-roll replay. A fresh 12-roll RUN
+produces a different table because it starts at the original random seed.
+The library, CLI/editor and browser match those complete transcripts.
+The archive evidence applies to the adaptation. The printed listing's
+original dialect and random sequence remain unverified.
+
+Choose **DICE · EDUSYSTEM-30 MARK adaptation** in the
+[playground](https://basic-playground-rho.vercel.app/). Enter `36`, `Y`, `12`
+and `N` to replay the archive session.
+
+```sh
+python3 scripts/research/capture-edusystem30-dice.py \
+  --simulator /path/to/simh/BIN/pdp8 --tape /path/to/edu30.tu56 \
+  --output /tmp/dice-edusystem30-reference.json
+```
 
 ## TRAIN
 

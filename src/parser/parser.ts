@@ -590,7 +590,7 @@ class Parser {
         if (!this.altair) break;
         return this.node('RunStatement', command, command, {});
       case 'RANDOMIZE':
-        if (!this.eduSystem30) break;
+        if (!this.eduSystem30 && !this.candidate) break;
         return this.node('RandomizeStatement', command, command, {});
       case 'END':
         return this.node('EndStatement', command, command, {});
@@ -1104,6 +1104,15 @@ class Parser {
       return this.reference(token);
     }
     if (this.ma2 && token.type === 'KEYWORD') {
+      if (this.candidate && token.value === 'RND') {
+        this.take();
+        if (this.at('PUNCTUATION', '(')) return this.call(token);
+        return this.node('CallExpression', token, token, {
+          name: 'RND',
+          nameLocation: this.location(token),
+          arguments: [],
+        });
+      }
       if (token.value !== 'INT' && token.value !== 'ABS')
         this.fail(
           'UNSUPPORTED_FUNCTION',
