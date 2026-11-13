@@ -1,27 +1,17 @@
 """Verify the indexed INPUT and FOR-body GOSUB used by the OMSI HORSES tape."""
 
 import argparse
+import json
 from pathlib import Path
 import runpy
 
 
-PROBES = (
-    ('indexed input',
-     ('10 DIM T(3)', '20 S=2', '30 INPUT T(S)', '40 PRINT T(2)', '50 END'),
-     '? 17 \n'),
-    ('never entered',
-     ('10 GOSUB 40', '20 GOTO 80', '30 FOR I=1 TO 2', '40 PRINT "SUBROUTINE";I',
-      '50 RETURN', '60 NEXT I', '80 END'),
-     'SUBROUTINE 0 \n'),
-    ('completed',
-     ('10 FOR I=1 TO 2', '20 GOTO 50', '30 PRINT "SUBROUTINE";I', '40 RETURN',
-      '50 NEXT I', '60 GOSUB 30', '70 END'),
-     'SUBROUTINE 2 \n'),
-    ('active',
-     ('10 FOR I=1 TO 2', '20 GOSUB 40', '30 GOTO 60', '40 PRINT "SUBROUTINE";I',
-      '50 RETURN', '60 NEXT I', '70 END'),
-     'SUBROUTINE 1 \nSUBROUTINE 2 \n'),
-)
+INPUT_PROBE = {
+    'name': 'indexed input',
+    'source': '10 DIM T(3)\n20 S=2\n30 INPUT T(S)\n40 PRINT T(2)\n50 END',
+    'output': '? 17 \n',
+    'reply': '17',
+}
 
 
 def main():
@@ -32,19 +22,23 @@ def main():
     directory = Path(__file__).resolve().parent
     archive = runpy.run_path(str(directory / 'capture-edusystem30-omsi.py'))
     shared = runpy.run_path(str(directory / 'capture-edusystem30.py'))
+    transfer_reference = directory.parents[1] / 'docs' / 'horses-edu30-transfer-reference.json'
+    transfer_probes = json.loads(transfer_reference.read_text())['probes']
     simulator, tape = args.simulator.resolve(), args.tape.resolve()
     assert shared['digest'](tape.read_bytes()) == shared['TAPE_SHA256']
-    for name, source, expected in PROBES:
+    for probe in [INPUT_PROBE, *transfer_probes]:
+        name, source, expected = probe['name'], probe['source'], probe['output']
+        reply = probe.get('reply')
         with archive['console_on_copies'](simulator, tape, shared) as console:
             def command(text, prompt):
                 return archive['command'](console, shared, text, prompt)
 
-            for line in source:
+            for line in source.splitlines():
                 shared['send_line'](console, line)
             end = '\r\nREADY'
-            output = command('RUN', '?' if name == 'indexed input' else end)
-            if name == 'indexed input':
-                output += '?' + command('17', end)
+            output = command('RUN', '?' if reply else end)
+            if reply:
+                output += '?' + command(reply, end)
             banner = '\f\n\n*NONE*  EDUSYSTEM-30\n\n'
             assert output == banner + expected, (name, repr(output))
             print(name, repr(expected))

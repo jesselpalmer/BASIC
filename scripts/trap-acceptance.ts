@@ -108,7 +108,12 @@ export async function runTrapAcceptance(
     {name: 'B', value: 2},
   ]);
 
-  for (const form of ['INPUT A,B,C,D', 'INPUT "N";A,B', 'INPUT A(1),B', 'INPUT A,B$']) {
+  output = '';
+  answers = ['2,17'];
+  await basic.runAsync('10 DIM A(2)\n20 INPUT I,A(I)\n30 PRINT I;A(2)\n40 END');
+  assert.equal(output, '? 2  17 \n');
+
+  for (const form of ['INPUT A,B,C,D', 'INPUT "N";A,B', 'INPUT A(1,S$),B', 'INPUT A,B$']) {
     assert.throws(
       () => api.parseProgram(`10 END\n20 ${form}\n30 END`, trapOptions),
       (error: unknown) => {

@@ -1,0 +1,34 @@
+{
+  "probes": [
+    {
+      "name": "GOSUB into a FOR body before entering the loop",
+      "source": "10 GOSUB 40\n20 GOTO 80\n30 FOR I=1 TO 2\n40 PRINT \"SUBROUTINE\";I\n50 RETURN\n60 NEXT I\n80 END",
+      "output": "SUBROUTINE 0 \n"
+    },
+    {
+      "name": "GOSUB into a FOR body after the loop completes",
+      "source": "10 FOR I=1 TO 2\n20 GOTO 50\n30 PRINT \"SUBROUTINE\";I\n40 RETURN\n50 NEXT I\n60 GOSUB 30\n70 END",
+      "output": "SUBROUTINE 2 \n"
+    },
+    {
+      "name": "GOSUB into an active FOR body",
+      "source": "10 FOR I=1 TO 2\n20 GOSUB 40\n30 GOTO 60\n40 PRINT \"SUBROUTINE\";I\n50 RETURN\n60 NEXT I\n70 END",
+      "output": "SUBROUTINE 1 \nSUBROUTINE 2 \n"
+    },
+    {
+      "name": "GOTO into an inactive FOR body",
+      "source": "10 GOTO 40\n30 FOR I=1 TO 2\n40 PRINT \"BODY\";I\n50 GOTO 70\n60 NEXT I\n70 END",
+      "output": "BODY 0 \n"
+    },
+    {
+      "name": "conditional branch and GOTO inside a called FOR body",
+      "source": "10 GOSUB 40\n20 GOTO 80\n30 FOR I=1 TO 2\n40 IF I=0 THEN 50\n45 PRINT \"SKIP\"\n50 PRINT \"BODY\";I\n55 GOTO 58\n58 RETURN\n60 NEXT I\n80 END",
+      "output": "BODY 0 \n"
+    },
+    {
+      "name": "nested RETURN to a called FOR body",
+      "source": "10 GOSUB 40\n20 GOTO 100\n30 FOR I=1 TO 2\n40 GOSUB 80\n50 PRINT \"BODY\";I\n60 RETURN\n70 NEXT I\n80 PRINT \"NESTED\";I\n90 RETURN\n100 END",
+      "output": "NESTED 0 \nBODY 0 \n"
+    }
+  ]
+}

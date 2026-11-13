@@ -190,8 +190,8 @@ function validateStatement(statement: SimpleStatement): void {
         return;
       }
       if (statement.prompt || statement.targets.length > 3)
-        unsupported(statement, 'unprompted INPUT with two or three numeric scalars');
-      statement.targets.forEach(validateScalar);
+        unsupported(statement, 'unprompted INPUT with up to three numeric targets');
+      statement.targets.forEach(validateNumber);
       return;
     case 'ForStatement':
       validateScalar(statement.variable);
