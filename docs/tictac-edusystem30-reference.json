@@ -1,0 +1,34 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "0d6a0a6ab2edc7e7f02efd1ae9cd844d9b4fa1cc3080fefc0d4b22051fd8bed2",
+  "tapeListBodySha256": "391380ce34a517e2e1c39e5fc45c6908b328d2c07f5e5c1a3c9b0b24a81c4fd9",
+  "tapeFixtureSha256": "36f06ec4d3c4fdaa1661364776867ec8c74b04293e9f76c21463011d4e03bd22",
+  "adaptedFixtureSha256": "baddeb8dc86fd1d9b4a2096a5406a0e8c2e2df6b2f2a8ead5b3514946c17f5e1",
+  "sessions": [
+    {
+      "entry": "TICTAC",
+      "answers": [
+        "4,1",
+        "1,1",
+        "1,1",
+        "1,2",
+        "1,3",
+        "2,1",
+        "2",
+        "1",
+        "1,1",
+        "1,2",
+        "2,3",
+        "3,1",
+        "0"
+      ],
+      "output": "YOU HAVE THE OPPORTUNITY OF TRYING TO BEAT THE COMPUTER\nAT TIC-TAC-TOE.  ENTER YOUR MOVES AS FOLLOWS:\n\n...ROW NUMBER...COMMA...COLUMN NUMBER...\n\nROWS ARE HORIZONTAL(ACROSS)...COLUMNS ARE VERTICAL(UP + DOWN)\n\nNEW GAME STARTED NOW...........................\nYOUR MOVE     ?\n---- ILLEGAL MOVE -- TRY AGAIN ----\n\nYOUR MOVE     ?\n\nYOU *     *   \n    *     * \n***************\n    * PDP *   \n    *     * \n***************\n    *     *   \n    *     * \n\nYOUR MOVE     ?\n---- ILLEGAL MOVE -- TRY AGAIN ----\n\nYOUR MOVE     ?\n\nYOU * YOU * PDP\n    *     * \n***************\n    * PDP *   \n    *     * \n***************\n    *     *   \n    *     * \n\nYOUR MOVE     ?\n---- ILLEGAL MOVE -- TRY AGAIN ----\n\nYOUR MOVE     ?\n ... THE PDP-8 WINS THIS TIME ...\n\nYOU * YOU * PDP\n    *     * \n***************\nYOU * PDP *   \n    *     * \n***************\nPDP *     *   \n    *     * \n\nDO YOU WANT TO PLAY ANOTHER GAME: YES(1), NO(0)         ?I SAID ONE OR ZERO: TRY AGAIN             ?\nNEW GAME STARTED NOW...........................\nYOUR MOVE     ?\n\nYOU *     *   \n    *     * \n***************\n    * PDP *   \n    *     * \n***************\n    *     *   \n    *     * \n\nYOUR MOVE     ?\n\nYOU * YOU * PDP\n    *     * \n***************\n    * PDP *   \n    *     * \n***************\n    *     *   \n    *     * \n\nYOUR MOVE     ?\n\nYOU * YOU * PDP\n    *     * \n***************\n    * PDP * YOU\n    *     * \n***************\n    *     * PDP\n    *     * \n\nYOUR MOVE     ?\n  ... TIE GAME ...  \n\nYOU * YOU * PDP\n    *     * \n***************\nPDP * PDP * YOU\n    *     * \n***************\nYOU *     * PDP\n    *     * \n\nDO YOU WANT TO PLAY ANOTHER GAME: YES(1), NO(0)         ?IT'S BEEN FUN, COME AGAIN SOMETIME\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    },
+    {
+      "entry": "DEMON",
+      "answers": ["TIC-TAC-TOE", "3,1", "1,1", "2,3", "1,2", "0"],
+      "output": "\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?\nPLEASE WAIT A FEW MOMENTS WHILE I SEARCH FOR YOUR PROGRAM.\n\n\nYOU HAVE THE OPPORTUNITY OF TRYING TO BEAT THE COMPUTER\nAT TIC-TAC-TOE.  ENTER YOUR MOVES AS FOLLOWS:\n\n...ROW NUMBER...COMMA...COLUMN NUMBER...\n\nROWS ARE HORIZONTAL(ACROSS)...COLUMNS ARE VERTICAL(UP + DOWN)\n\nNEW GAME STARTED NOW...........................\nYOUR MOVE     ?\n\n    *     *   \n    *     * \n***************\n    * PDP *   \n    *     * \n***************\nYOU *     *   \n    *     * \n\nYOUR MOVE     ?\n\nYOU *     *   \n    *     * \n***************\nPDP * PDP *   \n    *     * \n***************\nYOU *     *   \n    *     * \n\nYOUR MOVE     ?\n\nYOU *     *   \n    *     * \n***************\nPDP * PDP * YOU\n    *     * \n***************\nYOU *     * PDP\n    *     * \n\nYOUR MOVE     ?\n  ... TIE GAME ...  \n\nYOU * YOU * PDP\n    *     * \n***************\nPDP * PDP * YOU\n    *     * \n***************\nYOU *     * PDP\n    *     * \n\nDO YOU WANT TO PLAY ANOTHER GAME: YES(1), NO(0)         ?IT'S BEEN FUN, COME AGAIN SOMETIME\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    }
+  ]
+}

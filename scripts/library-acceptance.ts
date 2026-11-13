@@ -30,6 +30,10 @@ import {runRockspAcceptance} from './rocksp-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
+import {runCubeAcceptance} from './cube-acceptance.ts';
+import {runCrapsAcceptance} from './craps-acceptance.ts';
+import {runTictacAcceptance} from './tictac-acceptance.ts';
+import {runFipfopAcceptance} from './fipfop-acceptance.ts';
 import {runWekdayAcceptance} from './wekday-acceptance.ts';
 import {runAceyduAcceptance} from './aceydu-acceptance.ts';
 import {runDiceAcceptance} from './dice-acceptance.ts';
@@ -106,6 +110,10 @@ export const libraryAcceptanceCases = [
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
+  'adapted CUBE matches the archived win, wager retry and both losses',
+  'adapted CRAPS matches archived wagers, shooter changes and endings',
+  'adapted TICTAC matches the archived computer win, tie and return to DEMON',
+  'adapted FIPFOP matches the archived fixed puzzle, repeated move and replay',
   'adapted WEKDAY matches the archived date facts and return to DEMON',
   'reviewed ACEYDU matches the archived default deal, wagers and replay',
   'adapted DICE matches archived frequency tables and replay',
@@ -468,6 +476,18 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted AMAZIN matches archived seeded mazes and dimension retry', () =>
     runAmazinAcceptance(api),
+  );
+  await check('adapted CUBE matches the archived win, wager retry and both losses', () =>
+    runCubeAcceptance(api),
+  );
+  await check('adapted CRAPS matches archived wagers, shooter changes and endings', () =>
+    runCrapsAcceptance(api),
+  );
+  await check('adapted TICTAC matches the archived computer win, tie and return to DEMON', () =>
+    runTictacAcceptance(api),
+  );
+  await check('adapted FIPFOP matches the archived fixed puzzle, repeated move and replay', () =>
+    runFipfopAcceptance(api),
   );
   await check('adapted WEKDAY matches the archived date facts and return to DEMON', () =>
     runWekdayAcceptance(api),
