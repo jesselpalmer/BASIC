@@ -23,7 +23,9 @@ listings, plus the [TOWER](tower-edusystem30-review.md),
 [CHIEF](chief-edusystem30-review.md), [HI-LO](hi-lo-edusystem30-review.md),
 and [ROCKT1](rockt1-edusystem30-review.md) adaptations, plus the three
 programs in [OMSI Baseball](basbal-edusystem30-review.md) and
-[ZOOP](zoop-edusystem30.md). The [WAR-2 adaptation](war2-edusystem30-review.md)
+[ZOOP](zoop-edusystem30.md) and [WEKDAY](wekday-edusystem30.md). The [DICE](dice-train-source-review.md#dice)
+and [TRAIN](train-edusystem30.md) adaptations also use MARK input.
+The [WAR-2 adaptation](war2-edusystem30-review.md)
 uses the SPACE profile. Both modes share the same
 grammar and runtime. They encode character input using SPACE and MARK
 parity respectively, and preserve that choice in portable documents.
@@ -103,7 +105,7 @@ transfer emits no newline. A fresh RUN starts at the original source.
 
 Use `basic --chain-dir DIR` to give the CLI/editor an explicit library of
 uppercase `NAME.bas` files. Embedders can supply the same resolver through
-`BrowserSession` options. The playground provides the three baseball programs and ZOOP.
+`BrowserSession` options. The playground provides the three baseball programs, ZOOP and WEKDAY.
 The archived scratch-file `WRITE` mechanism is outside this profile.
 [Archive probes](edusystem30-omsi-reference.json)
 

@@ -284,6 +284,7 @@ export default class Basic {
         selected.source,
         (text) => this.#callHost('write', this.#current!, text),
         selected.lines,
+        this.#privateSelected ? undefined : this.#host,
       );
       this.#selectedProgram = selected;
       this.#selectedDriver = driver;

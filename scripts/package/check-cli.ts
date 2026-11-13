@@ -3,6 +3,9 @@ import {existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync} from '
 import {delimiter, dirname, join} from 'node:path';
 import metadata from '../../package.json' with {type: 'json'};
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
+import {checkWekdayCli} from './check-wekday.ts';
+import {checkAceyduCli} from './check-aceydu.ts';
+import {checkDiceCli} from './check-dice.ts';
 import {checkNicomaCli} from './check-nicoma.ts';
 import {checkAltairCli} from './check-life2.ts';
 import {checkPersistenceSessions} from './check-persistence.ts';
@@ -781,6 +784,9 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   await checkPersistenceSessions(executable);
   await checkAltairCli(executable, consumer);
   await checkNicomaCli(executable, consumer);
+  checkDiceCli(executable, consumer);
+  checkAceyduCli(executable, consumer);
+  await checkWekdayCli(executable, consumer);
 }
 
 export function checkGlobalCli(directory: string, archive: string): void {

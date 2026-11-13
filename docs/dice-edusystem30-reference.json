@@ -1,0 +1,24 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "b5d6fa09957b1f5eb780226c3e150dc6651a12e571290494adce94c0dea06e85",
+  "reviewedFixtureSha256": "de62170bac304a92aaf766f6bc3bdb7232380cc3912d08595bfa00760970548a",
+  "fixtureSha256": "818e52596e00437db2b1064cea39a5e22107c4f52a6171eff4e1f65983fc64a7",
+  "runs": [
+    {
+      "name": "replay",
+      "answers": ["36", "Y", "12", "N"],
+      "output": "THIS PROGRAM SIMULATES THE ROLLING OF A\nPAIR OF DICE. \nYOU ENTER THE NUMBER OF TIMES YOU WANT THE COMPUTER\nTO 'ROLL' THE DICE.  WATCH OUT, VERY LARGE NUMBERS TAKE\nA LONG TIME, IN PARTICULAR, NUMBERS OVER 5000. \n\nHOW MANY ROLLS?\nTOTAL SPOTS   NUMBER OF TIMES\n 2             1 \n 3             2 \n 4             6 \n 5             3 \n 6             6 \n 7             3 \n 8             2 \n 9             7 \n 10            2 \n 11            2 \n 12            2 \n\nTRY AGAIN\nHOW MANY ROLLS?\nTOTAL SPOTS   NUMBER OF TIMES\n 2             0 \n 3             1 \n 4             1 \n 5             0 \n 6             5 \n 7             1 \n 8             2 \n 9             0 \n 10            0 \n 11            1 \n 12            1 \n\nTRY AGAIN",
+      "counts": [
+        [1, 2, 6, 3, 6, 3, 2, 7, 2, 2, 2],
+        [0, 1, 1, 0, 5, 1, 2, 0, 0, 1, 1]
+      ]
+    },
+    {
+      "name": "fresh run",
+      "answers": ["12", "N"],
+      "output": "THIS PROGRAM SIMULATES THE ROLLING OF A\nPAIR OF DICE. \nYOU ENTER THE NUMBER OF TIMES YOU WANT THE COMPUTER\nTO 'ROLL' THE DICE.  WATCH OUT, VERY LARGE NUMBERS TAKE\nA LONG TIME, IN PARTICULAR, NUMBERS OVER 5000. \n\nHOW MANY ROLLS?\nTOTAL SPOTS   NUMBER OF TIMES\n 2             0 \n 3             1 \n 4             3 \n 5             1 \n 6             1 \n 7             1 \n 8             1 \n 9             3 \n 10            0 \n 11            1 \n 12            0 \n\nTRY AGAIN",
+      "counts": [[0, 1, 3, 1, 1, 1, 1, 3, 0, 1, 0]]
+    }
+  ]
+}

@@ -289,7 +289,7 @@ class EduSystem30Evaluator extends Evaluator {
   }
 }
 
-function readHostRandom(host: Pick<Host, 'random'>, location: Location): number {
+export function readHostRandom(host: Pick<Host, 'random'>, location: Location): number {
   let value: number;
   try {
     value = host.random();
@@ -325,6 +325,7 @@ interface EduSystem30Context {
 }
 interface Ma2Context {
   readonly kind: 'ma2-conformance';
+  readonly nextRandom?: () => Ma2Value;
   readonly scalars: ReadonlyMap<string, Ma2Value> | null;
   readonly arrays: ArrayStore | null;
   readonly defaultNumericScalars?: boolean;
@@ -353,6 +354,7 @@ function requireMa2NumericSyntax(
   expression: Expression,
   scalars: boolean,
   arrays: ArrayStore | null = null,
+  allowRandom = false,
 ): void {
   const reject = (code: string, message: string, location: Location): never => {
     throw new BasicSyntaxError(code, message, location.start, location.label);
@@ -410,6 +412,10 @@ function requireMa2NumericSyntax(
         pending.push(node.right, node.left);
         break;
       case 'CallExpression':
+        if (allowRandom && node.name === 'RND' && node.arguments.length <= 1) {
+          pending.push(...node.arguments);
+          break;
+        }
         if (node.name !== 'INT' && node.name !== 'ABS')
           reject('UNSUPPORTED_FUNCTION', 'Unsupported constant MA2 intrinsic', node.nameLocation);
         if (node.arguments.length !== 1)
@@ -441,7 +447,7 @@ export function createBasicPlusMa2ScalarSession() {
 /** Internal explicit array/scalar conformance; no historical index policy. */
 export function createBasicPlusMa2ArraySession(
   declarations: readonly ArrayDeclaration[] = [],
-  options: Readonly<{defaultNumericScalars?: boolean}> = {},
+  options: Readonly<{defaultNumericScalars?: boolean; nextRandom?: () => Ma2Value}> = {},
 ) {
   if (!Array.isArray(declarations)) throw new TypeError('Expected explicit array declarations');
   if (
@@ -449,7 +455,11 @@ export function createBasicPlusMa2ArraySession(
     typeof options.defaultNumericScalars !== 'boolean'
   )
     throw new TypeError('Expected a numeric scalar default policy');
-  return new Ma2ScalarSession(declarations, options.defaultNumericScalars === true);
+  return new Ma2ScalarSession(
+    declarations,
+    options.defaultNumericScalars === true,
+    options.nextRandom,
+  );
 }
 
 class Ma2ScalarSession {
@@ -459,6 +469,7 @@ class Ma2ScalarSession {
   constructor(
     declarations: readonly ArrayDeclaration[] | null = null,
     private readonly defaultNumericScalars = false,
+    private readonly nextRandom?: () => Ma2Value,
   ) {
     this.#arrays = declarations === null ? null : createBasicPlusMa2ArrayStore(declarations);
   }
@@ -469,17 +480,18 @@ class Ma2ScalarSession {
       scalars: this.#scalars,
       arrays: this.#arrays,
       defaultNumericScalars: this.defaultNumericScalars,
+      nextRandom: this.nextRandom,
     };
   }
 
   /** Consume the shared parser's immutable expression tree without reparsing source. */
   evaluateNode(expression: Expression): Ma2ConstantResult {
-    requireMa2NumericSyntax(expression, true, this.#arrays);
+    requireMa2NumericSyntax(expression, true, this.#arrays, this.nextRandom !== undefined);
     return evaluateTree(expression, this.context());
   }
 
   validateNode(expression: Expression): void {
-    requireMa2NumericSyntax(expression, true, this.#arrays);
+    requireMa2NumericSyntax(expression, true, this.#arrays, this.nextRandom !== undefined);
   }
 
   validateComparison(condition: Comparison): void {
@@ -488,8 +500,7 @@ class Ma2ScalarSession {
   }
 
   compareNode(condition: Comparison): Ma2ComparisonResult {
-    requireMa2NumericSyntax(condition.left, true, this.#arrays);
-    requireMa2NumericSyntax(condition.right, true, this.#arrays);
+    this.validateComparison(condition);
     const left = evaluateTree(condition.left, this.context());
     if (left.kind !== 'value') return left;
     const right = evaluateTree(condition.right, this.context());
@@ -509,7 +520,7 @@ class Ma2ScalarSession {
         target.location.label,
       );
     // Validate both sides before evaluating either; array indices run after RHS.
-    if (target.type === 'ArrayReference') requireMa2NumericSyntax(target, true, this.#arrays);
+    if (target.type === 'ArrayReference') this.validateNode(target);
     const result = this.evaluateNode(expression);
     if (result.kind !== 'value') return result;
     if (target.type === 'Variable') {
@@ -912,13 +923,18 @@ function evaluateTree(
             pending.push({node: node.arguments[i], ready: false});
           }
         } else if (context.kind === 'ma2-conformance') {
-          ma2Operation = {
-            result: ma2Unary(
-              values.pop()! as Ma2Value,
-              node.name === 'ABS' ? 'absolute' : 'integer',
-            ),
-            location: node.nameLocation,
-          };
+          if (node.name === 'RND') {
+            if (node.arguments.length) values.pop();
+            values.push(context.nextRandom!());
+          } else {
+            ma2Operation = {
+              result: ma2Unary(
+                values.pop()! as Ma2Value,
+                node.name === 'ABS' ? 'absolute' : 'integer',
+              ),
+              location: node.nameLocation,
+            };
+          }
         } else if (context.kind === 'edu30') {
           const argument = values.pop()! as EduSystem30FloatingValue;
           const definition = context.functions.get(node.name);

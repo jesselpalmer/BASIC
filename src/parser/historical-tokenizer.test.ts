@@ -173,6 +173,14 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     expect(tokens[3]).toMatchObject({type: 'RAW_NUMBER', raw: '5'});
   });
 
+  it('scans RANDOMIZE as a statement', () => {
+    expect(scan('10RANDOMIZE')[1]).toMatchObject({
+      type: 'KEYWORD',
+      raw: 'RANDOMIZE',
+      value: 'RANDOMIZE',
+    });
+  });
+
   it.each([
     'STOP',
     'PRINTSTOP',
@@ -205,7 +213,6 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     'MAT',
     'DEF',
     'FNEND',
-    'RANDOMIZE',
     'RANDOM',
     'OPEN',
     'CLOSE',

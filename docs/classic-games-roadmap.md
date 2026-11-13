@@ -8,30 +8,27 @@ original interpreter still needs verification. [Release tracker #109](https://gi
 
 | Measure                                                                |  Progress |
 | ---------------------------------------------------------------------- | --------: |
-| Runnable through the library, CLI/editor and browser                   | 41 of 108 |
-| Source reviewed against primary evidence                               | 46 of 108 |
-| Printed system identified                                              | 20 of 108 |
+| Runnable through the library, CLI/editor and browser                   | 45 of 108 |
+| Source reviewed against primary evidence                               | 47 of 108 |
+| Printed system identified                                              | 21 of 108 |
 | Raw listings certified through a complete game on the original dialect |  0 of 108 |
 
 The [corpus ledger](classic-games-ledger.json) tracks source and historical
 evidence. The [EDUSYSTEM-30 profile](edusystem30-profile.md) identifies
 runnable adaptations. These measures overlap.
 
-| Merged batch                                                                                        | Added runnable listings                                       | Running total |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
-| [WAR-2](war2-edusystem30-review.md), [ZOOP](zoop-edusystem30.md), [NICOMA](nicoma-source-review.md) | WAR-2, ZOOP, NICOMA                                           |            41 |
-| [#296](https://github.com/jesselpalmer/BASIC/pull/296)                                              | BASBAL and BASBL1, the two listings in the OMSI Baseball game |            38 |
-| [#295](https://github.com/jesselpalmer/BASIC/pull/295)                                              | CALNDR, CHIEF, HI-LO, ROCKSP, ROCKT1                          |            36 |
-| [#294](https://github.com/jesselpalmer/BASIC/pull/294)                                              | SLOTS, REVERSE, EVEN1, GUESS                                  |            31 |
-| [#293](https://github.com/jesselpalmer/BASIC/pull/293)                                              | BUZZWD, TOWER, 3DPLOT                                         |            27 |
-| [#292](https://github.com/jesselpalmer/BASIC/pull/292)                                              | CHOMP, MUGWUMP, GOMOKO, AMAZIN                                |            24 |
+| Merged batch                                                                                                                              | Added runnable listings                                       | Running total |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [DICE](dice-train-source-review.md#dice), [TRAIN](train-edusystem30.md), [ACEYDU](aceydu-rsts-review.md), [WEKDAY](wekday-edusystem30.md) | DICE, TRAIN, ACEYDU, WEKDAY                                   |            45 |
+| [WAR-2](war2-edusystem30-review.md), [ZOOP](zoop-edusystem30.md), [NICOMA](nicoma-source-review.md)                                       | WAR-2, ZOOP, NICOMA                                           |            41 |
+| [#296](https://github.com/jesselpalmer/BASIC/pull/296)                                                                                    | BASBAL and BASBL1, the two listings in the OMSI Baseball game |            38 |
+| [#295](https://github.com/jesselpalmer/BASIC/pull/295)                                                                                    | CALNDR, CHIEF, HI-LO, ROCKSP, ROCKT1                          |            36 |
+| [#294](https://github.com/jesselpalmer/BASIC/pull/294)                                                                                    | SLOTS, REVERSE, EVEN1, GUESS                                  |            31 |
+| [#293](https://github.com/jesselpalmer/BASIC/pull/293)                                                                                    | BUZZWD, TOWER, 3DPLOT                                         |            27 |
+| [#292](https://github.com/jesselpalmer/BASIC/pull/292)                                                                                    | CHOMP, MUGWUMP, GOMOKO, AMAZIN                                |            24 |
 
 ## Next compatibility targets
 
-- [DICE](dice-train-source-review.md) needs a bounded EDUSYSTEM-30 adaptation for
-  random draws and replay input.
-- [ACEYDU](aceydu-rsts-review.md) has a complete archived session. The next
-  interpreter checkpoint is its BASIC-PLUS random stream and bare `RND`.
 - [FIPFOP](fipfop-rsts-review.md) needs string arrays, inline FOR and trigonometry
   before a public replay can match its archived reference.
 
@@ -178,14 +175,16 @@ BASIC-PLUS profile. The original interpreter remains open. The
 loss and win. The [ZOOP adaptation](zoop-edusystem30.md) runs the archived
 OMSI demonstration with a self-CHAIN and a return to the DEMON menu.
 The [ACEYDU source review](aceydu-rsts-review.md) reproduces a complete
-archived RSTS/E session. Public replay still needs BASIC-PLUS's bare RND.
+archived RSTS/E session. The public selected profile runs the reviewed
+listing with a host entropy word for `RANDOMIZE`. A zero entropy word
+reproduces the archived default deal, wagers and replay.
 The [recovered OMSI library](basbal-edusystem30-review.md#recovered-demonstration-library)
 contains BASBAL, BASBL1 and the DEMON menu. With a second copy of the pinned
 tape mounted on DT1, stock EDU30.SV runs the full menu, baseball game and
 return to the menu. The public MARK profile replays that same 71-play game
 through the installed library, CLI/editor and browser. The three runnable
 sources use token-spacing adaptations. BASBAL and BASBL1 count as two corpus
-listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs and ZOOP.
+listings, and the recovered DEMON menu is an accompanying program outside the 108. The browser bundles the three baseball programs, ZOOP and WEKDAY.
 
 The [SLOTS replay](slots-edusystem30.md) matches all 21 printed spins and
 running totals. The [REVERSE adaptation](reverse-edusystem30-review.md) verifies
@@ -208,10 +207,12 @@ verifies a crash, an 11-second perfect landing and a fresh mission.
 The [FIPFOP review](fipfop-rsts-review.md) identifies the printed RSTS/E
 conversion and records behavior on archived V04B-17 BASIC-PLUS.
 
-The [DICE and TRAIN reviews](dice-train-source-review.md) preserve the printed
-listings and record archive rejections of bare `RND`. TRAIN also needs string
-input and comparison forms rejected by the archived interpreter. Original
-interpreter identification remains open for both.
+The [DICE adaptation](dice-train-source-review.md#dice) matches complete
+archived frequency tables and repeat play. The [TRAIN adaptation](train-edusystem30.md)
+matches seeded arithmetic rounds, answer checking and replay. Both use
+EDUSYSTEM-30 MARK character input. Their original interpreters remain unverified.
+The [WEKDAY adaptation](wekday-edusystem30.md) runs the recovered OMSI tape
+edition and returns to DEMON after printing date facts.
 
 **BASIC 1.0 is NOT READY.** One game is an intermediate milestone. Every one
 of the **108 pinned files** still requires disposition and behavioral evidence
@@ -228,8 +229,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **46 reviewed
-source differences / 62 unresolved**, **20 printed-system identifications / 88
+The [corpus ledger](classic-games-ledger.json) records **47 reviewed
+source differences / 61 unresolved**, **21 printed-system identifications / 87
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 

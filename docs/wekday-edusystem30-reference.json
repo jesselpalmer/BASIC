@@ -1,0 +1,20 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "rawFixtureSha256": "450f5c887db233b65807a778aa3bfe45bab446be9be29720910bc587ade36588",
+  "tapeListBodySha256": "391616796565d82b92fca6afb3039748415f28ea5d5c9214dac115a780bf970e",
+  "tapeFixtureSha256": "d31d026d881f718af567a4855b1d4f358cf955120af7d6e4f284ad4431c031f8",
+  "adaptedFixtureSha256": "7a427e30505ac1522fb7a6d76a99691dd5dc40a7cec688a6a82a8dbf13dbb102",
+  "sessions": [
+    {
+      "entry": "WEKDAY",
+      "answers": ["6,12,1973", "5,17,1939"],
+      "output": "WEEKDAY IS A COMPUTER DEMONSTRATION THAT\nGIVES FACTS ABOUT A DATE OF INTEREST TO YOU.\n\nENTER TODAY'S DATE IN THIS FORM: 3,24,1967   ?ENTER DAY OF BIRTH (OR OTHER DAY OF INTEREST)?\n 5 / 17 / 1939  WAS A WEDNESDAY\n\n                            YEARS         MONTHS        DAYS\nYOUR AGE IF BIRTHDATE        34            0             25 \nYOU HAVE SLEPT               11            11            7 \nYOU HAVE EATEN               5             9             18 \nYOU HAVE WORKED/PLAYED       7             10            5 \nYOU HAVE RELAXED             8             5             25 \n\n              *YOU MAY RETIRE IN 2004 *\n\n\n\n\n\n\n\n\n\n\n\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    },
+    {
+      "entry": "DEMON",
+      "answers": ["WEEKDAY", "11,13,1975", "5,5,1960"],
+      "output": "\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?\nPLEASE WAIT A FEW MOMENTS WHILE I SEARCH FOR YOUR PROGRAM.\n\n\nWEEKDAY IS A COMPUTER DEMONSTRATION THAT\nGIVES FACTS ABOUT A DATE OF INTEREST TO YOU.\n\nENTER TODAY'S DATE IN THIS FORM: 3,24,1967   ?ENTER DAY OF BIRTH (OR OTHER DAY OF INTEREST)?\n 5 / 5 / 1960  WAS A THURSDAY\n\n                            YEARS         MONTHS        DAYS\nYOUR AGE IF BIRTHDATE        15            6             8 \nYOU HAVE SLEPT               5             5             8 \nYOU HAVE EATEN               2             7             23 \nYOU HAVE PLAYED/STUDIED      3             6             28 \nYOU HAVE RELAXED             3             10            9 \n\n              *YOU MAY RETIRE IN 2025 *\n\n\n\n\n\n\n\n\n\n\n\n\nWHAT DEMONSTRATION WOULD YOU LIKE TO SEE\n(OR TYPE 'LIST' FOR A LISTING) ?"
+    }
+  ]
+}

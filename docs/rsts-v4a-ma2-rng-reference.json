@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "build": "RSTS V4A-12 V4A12MA2",
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "source": [
+    "10 FOR I=1 TO 12",
+    "20 A=RND*32768",
+    "30 PRINT INT(A);INT(32768*(A-INT(A)))",
+    "40 NEXT I",
+    "50 END"
+  ],
+  "scale": 32768,
+  "scaledDefaultValues": [
+    25265, 25619, 24633, 15531, 2561, 6659, 16905, 8731, 31313, 10995, 13529, 14987
+  ],
+  "identicalOnFreshRun": true,
+  "identicalWithArgumentsFromMinusOneThroughTen": true,
+  "randomizedDrawsFollowSameRecurrence": true
+}

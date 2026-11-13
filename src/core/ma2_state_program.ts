@@ -1,8 +1,8 @@
 import {ControlFlow, type LoopValues} from './control_flow.ts';
 import {BasicRuntimeError, BasicSyntaxError} from './diagnostic.ts';
-import {createBasicPlusMa2ArraySession} from './evaluator.ts';
+import {createBasicPlusMa2ArraySession, readHostRandom} from './evaluator.ts';
 import {prepareSelectedMa2Candidate} from './prepared_program.ts';
-import {observeMa2Value} from './ma2_value.ts';
+import {injectMa2Value, observeMa2Value, type Ma2Value} from './ma2_value.ts';
 import {basicPlusStringLength} from './basic_plus_strings.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
 import {readSelectedMa2Input} from './ma2_statement_input.ts';
@@ -40,14 +40,22 @@ function prepareSelectedMa2Program(
   supplied?: readonly ParsedLine[],
   noInput = false,
   externalWrite?: (text: string) => void,
+  entropyHost?: Pick<Host, 'random'>,
 ) {
   if (!Number.isSafeInteger(instructionLimit) || instructionLimit < 0)
     throw new TypeError('Expected a nonnegative instruction limit');
   const candidate = prepareSelectedMa2Candidate(source, supplied);
   // BASIC-PLUS numeric scalars start at zero (§§2.5.2, 3.6.2). The generic
   // MA2 conformance helper keeps its explicit-unbound diagnostic policy.
+  let randomSeed = 6715;
+  const nextRandom = () => {
+    randomSeed = (randomSeed * 31747) & 0xffff;
+    // Every 15-bit binary fraction is exactly representable in MA2.
+    return (injectMa2Value((randomSeed & 0x7fff) / 32768) as {value: Ma2Value}).value;
+  };
   const state = createBasicPlusMa2ArraySession(candidate.arrayDeclarations, {
     defaultNumericScalars: true,
+    nextRandom: entropyHost ? nextRandom : undefined,
   });
   const strings = new SelectedMa2StringState();
   const chunks: string[] = [];
@@ -77,6 +85,7 @@ function prepareSelectedMa2Program(
     ...(opening ? ['PrintStatement', 'PrintUsingStatement'] : []),
     ...(opening && !noInput ? ['InputStatement'] : []),
     ...(externalWrite ? ['SleepStatement'] : []),
+    ...(entropyHost ? ['RandomizeStatement'] : []),
   ]);
   // Check every statement, including dead source, before changing state.
   for (const {statement} of candidate.instructions) {
@@ -320,6 +329,11 @@ function prepareSelectedMa2Program(
         if (result.kind !== 'value') fail(result, statement.location);
         break;
       }
+      case 'RandomizeStatement': {
+        const word = Math.floor(readHostRandom(entropyHost!, statement.location) * 65536);
+        randomSeed = ((randomSeed + word) & 0xffff) | 1;
+        break;
+      }
       case 'EndStatement':
         halt();
         break;
@@ -493,7 +507,16 @@ export function prepareSelectedMa2Driver(
   source: string,
   externalWrite: (text: string) => void,
   supplied?: readonly ParsedLine[],
+  entropyHost?: Pick<Host, 'random'>,
 ) {
-  return prepareSelectedMa2Program(source, 10_000, true, false, supplied, false, externalWrite)
-    .driver;
+  return prepareSelectedMa2Program(
+    source,
+    10_000,
+    true,
+    false,
+    supplied,
+    false,
+    externalWrite,
+    entropyHost,
+  ).driver;
 }

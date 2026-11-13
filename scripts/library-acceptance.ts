@@ -30,6 +30,10 @@ import {runRockspAcceptance} from './rocksp-acceptance.ts';
 import {runPlotAcceptance} from './3dplot-acceptance.ts';
 import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
+import {runWekdayAcceptance} from './wekday-acceptance.ts';
+import {runAceyduAcceptance} from './aceydu-acceptance.ts';
+import {runDiceAcceptance} from './dice-acceptance.ts';
+import {runTrainAcceptance} from './train-acceptance.ts';
 import {runZoopAcceptance} from './zoop-acceptance.ts';
 import {runWar2Acceptance} from './war2-acceptance.ts';
 import {runNicomaAcceptance} from './nicoma-acceptance.ts';
@@ -102,6 +106,10 @@ export const libraryAcceptanceCases = [
   'reviewed MUGWUMP matches archived wins, losses and fresh RUN',
   'adapted GOMOKO matches archived boards, move retries and replay',
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
+  'adapted WEKDAY matches the archived date facts and return to DEMON',
+  'reviewed ACEYDU matches the archived default deal, wagers and replay',
+  'adapted DICE matches archived frequency tables and replay',
+  'adapted TRAIN matches archived distance answers and replay',
   'adapted ZOOP matches archived self-CHAIN and return to DEMON',
   'adapted WAR-2 matches the archived treaty, loss and win',
   'reviewed NICOMA matches the archived guesses and string retries',
@@ -460,6 +468,18 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted AMAZIN matches archived seeded mazes and dimension retry', () =>
     runAmazinAcceptance(api),
+  );
+  await check('adapted WEKDAY matches the archived date facts and return to DEMON', () =>
+    runWekdayAcceptance(api),
+  );
+  await check('reviewed ACEYDU matches the archived default deal, wagers and replay', () =>
+    runAceyduAcceptance(api),
+  );
+  await check('adapted DICE matches archived frequency tables and replay', () =>
+    runDiceAcceptance(api),
+  );
+  await check('adapted TRAIN matches archived distance answers and replay', () =>
+    runTrainAcceptance(api),
   );
   await check('adapted ZOOP matches archived self-CHAIN and return to DEMON', () =>
     runZoopAcceptance(api),

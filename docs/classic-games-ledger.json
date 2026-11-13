@@ -3931,11 +3931,14 @@
         "title": "WEKDAY",
         "referencePage": 234,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 235
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "PDP-11 BASIC",
+      "reviewRecord": "wekday-edusystem30.md#book-and-tape",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "defined-functions": [170, 190],
