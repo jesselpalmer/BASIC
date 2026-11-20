@@ -1,0 +1,64 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "pinnedFixtureSha256": "81e0671eda626980ff0e80f59cb81d82426c46ffac1bbcd60e7cce6a6da1747e",
+  "reviewedFixtureSha256": "e469ce1bc5fb43186ead0b9fd3d7ec4f51986548176249b91bea44762a2f1543",
+  "portableFixtureSha256": "429dd244100a3bb4596f9c400958a6274fd22d80fffeb31ccd6d1ec405ccd4ac",
+  "turns": [
+    {
+      "prompt": "",
+      "answer": "NOTAWORD"
+    },
+    {
+      "prompt": "",
+      "answer": "HELP"
+    },
+    {
+      "prompt": "",
+      "answer": "HELP"
+    },
+    {
+      "prompt": "",
+      "answer": "SHOVE"
+    },
+    {
+      "prompt": "",
+      "answer": "START"
+    },
+    {
+      "prompt": "",
+      "answer": "DWELLING"
+    },
+    {
+      "prompt": "",
+      "answer": "SUFFERING"
+    },
+    {
+      "prompt": "",
+      "answer": "HALT"
+    },
+    {
+      "prompt": "",
+      "answer": "PATTERN"
+    },
+    {
+      "prompt": "",
+      "answer": "ALIKE"
+    },
+    {
+      "prompt": "",
+      "answer": "HOLE"
+    },
+    {
+      "prompt": "",
+      "answer": "ROUGE"
+    },
+    {
+      "prompt": "",
+      "answer": "INSIGNIFICANT"
+    }
+  ],
+  "output": "\nSYNONYMS\n\nA SYNONYM OF A WORD MEANS ANOTHER WORD IN THE ENGLISH\nLANGUAGE WHICH HAS THE SAME OR VERY NEARLY THE SAME\nMEANING.\n\nI CHOOSE A WORD -- YOU TYPE A SYNONYM.\nIF YOU CAN'T THINK OF A SYNONYM, TYPE THE WORD 'HELP'\nAND I WILL TELL YOU A SYNONYM.\n\n\n\n     WHAT IS A SYNONYM OF PUSH?      TRY AGAIN.\n     WHAT IS A SYNONYM OF PUSH? **** A SYNONYM OF PUSH IS POKE.\n\n     WHAT IS A SYNONYM OF PUSH? **** A SYNONYM OF PUSH IS PROD.\n\n     WHAT IS A SYNONYM OF PUSH? FINE\n\n\n     WHAT IS A SYNONYM OF FIRST? CORRECT\n\n\n     WHAT IS A SYNONYM OF HOUSE? CORRECT\n\n\n     WHAT IS A SYNONYM OF PAIN? CORRECT\n\n\n     WHAT IS A SYNONYM OF STOP? FINE\n\n\n     WHAT IS A SYNONYM OF MODEL? RIGHT\n\n\n     WHAT IS A SYNONYM OF SIMILAR? RIGHT\n\n\n     WHAT IS A SYNONYM OF PIT? FINE\n\n\n     WHAT IS A SYNONYM OF RED? GOOD!\n\n\n     WHAT IS A SYNONYM OF SMALL? CORRECT\n\nSYNONYM DRILL COMPLETED.\n"
+}

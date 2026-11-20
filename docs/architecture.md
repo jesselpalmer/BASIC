@@ -91,9 +91,12 @@ separate from its successor. See [inline conditionals](inline-conditionals.md).
 Labels enter the first member; loops pair at instruction positions. False IF
 without ELSE skips the physical line through the same native
 loop guards. Immediate library entry rejects sequences before member effects.
-Literal GOSUB saves the real next position and caller loop-map ownership.
-Callees own fresh loop contexts; RETURN drops callee loops and restores caller
-frames while scalar/array values remain shared. An ownership set enforces native
+Literal GOSUB saves the real next position. Native and EDUSYSTEM-30 calls
+suspend caller loop-map ownership; callees own fresh loop contexts and RETURN
+drops callee loops before restoring caller frames. Selected MA2 calls instead
+share the run-owned lexical FOR map, so callee headers survive RETURN and a
+transfer can resume a caller NEXT. Scalar and array values remain shared in
+all three policies. An ownership set enforces native
 active-loop-variable rules across suspended calls. Terminal paths clear all
 call/loop frames. Bounded ON GOTO/GOSUB evaluates one selector and sends the
 selected literal through those same transfer owners, adding no synthetic

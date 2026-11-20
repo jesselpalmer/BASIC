@@ -52,6 +52,8 @@ import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 't
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
 import cube from '../scripts/package/fixtures/classic/cube-edusystem30.bas' with {type: 'text'};
+import synonm from '../scripts/package/fixtures/classic/synonm-ma2.bas' with {type: 'text'};
+import checkr from '../scripts/package/fixtures/classic/checkr-mar75-text.bas' with {type: 'text'};
 import buleye from '../scripts/package/fixtures/classic/buleye-ma2.bas' with {type: 'text'};
 import gunner from '../scripts/package/fixtures/classic/gunner-ma2.bas' with {type: 'text'};
 import rusrou from '../scripts/package/fixtures/classic/rusrou-edusystem30.bas' with {type: 'text'};
@@ -160,6 +162,8 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
   amazin: {source: amazin, dialect: 'edusystem-30'},
   cube: {source: cube, dialect: 'edusystem-30'},
+  synonm: {source: synonm, dialect: 'basic-plus-v4a12-ma2'},
+  checkr: {source: checkr, dialect: 'basic-plus-v4a12-ma2'},
   buleye: {source: buleye, dialect: 'basic-plus-v4a12-ma2'},
   gunner: {source: gunner, dialect: 'basic-plus-v4a12-ma2'},
   rusrou: {source: rusrou, dialect: 'edusystem-30'},

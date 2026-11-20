@@ -421,6 +421,12 @@ class Parser {
         return this.dimension(command);
       case 'CHANGE':
         return this.change(command);
+      case 'DATA':
+        return this.data(command);
+      case 'READ':
+        return this.read(command);
+      case 'RESTORE':
+        return this.node('RestoreStatement', command, command, {});
       case 'LET': {
         const name = this.expect('IDENTIFIER', undefined, 'Expected a variable name after LET');
         return this.assignment(command, name);
@@ -435,6 +441,12 @@ class Parser {
       }
       case 'GOTO':
         return this.goto(command);
+      case 'GOSUB': {
+        const target = this.jumpTarget();
+        return this.node('GosubStatement', command, target, {target});
+      }
+      case 'RETURN':
+        return this.node('ReturnStatement', command, command, {});
       case 'IF': {
         if (this.conditionalDepth === maxConditionalDepth)
           this.fail(

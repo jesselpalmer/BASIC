@@ -8,9 +8,9 @@ original interpreter still needs verification. [Release tracker #109](https://gi
 
 | Measure                                                                |  Progress |
 | ---------------------------------------------------------------------- | --------: |
-| Runnable through the library, CLI/editor and browser                   | 57 of 108 |
-| Source reviewed against primary evidence                               | 59 of 108 |
-| Printed system identified                                              | 25 of 108 |
+| Runnable through the library, CLI/editor and browser                   | 59 of 108 |
+| Source reviewed against primary evidence                               | 61 of 108 |
+| Printed system identified                                              | 27 of 108 |
 | Raw listings certified through a complete game on the original dialect |  0 of 108 |
 
 The [corpus ledger](classic-games-ledger.json) tracks source and historical
@@ -19,6 +19,7 @@ runnable adaptations. These measures overlap.
 
 | Merged batch                                                                                                                              | Added runnable listings                                       | Running total |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [CHECKR](checkr-rsts-review.md), [SYNONM](synonm-rsts-review.md)                                                                          | CHECKR, SYNONM                                                |            59 |
 | [GUNNER](gunner-rsts-review.md), [BULEYE](buleye-rsts-review.md)                                                                          | GUNNER, BULEYE                                                |            57 |
 | [RUSROU](rusrou-edusystem30.md)                                                                                                           | RUSROU                                                        |            55 |
 | [BAGLES](bagles-rsts-review.md), [NIM](nim-edusystem30.md), [HMRABI](hmrabi-edusystem30.md)                                               | BAGLES, NIM, HMRABI                                           |            54 |
@@ -34,12 +35,14 @@ runnable adaptations. These measures overlap.
 
 ## Next compatibility targets
 
-- [CHECKR's source review](checkr-rsts-review.md) restores printed board DATA
-  and a king-display comparison. Its opening matches both archived RSTS
-  builds. Complete-game support still needs selected MA2 DATA/READ/RESTORE,
-  GOSUB/RETURN and coordinate-row INPUT.
-- Extend the selected MA2 control forms needed by the remaining reviewed
-  listings, using complete archived playthroughs as acceptance.
+- [WAR's reviewed source](war-source-review.md) matches a complete candidate
+  RSTS session through all 26 card pairs. A public MA2 adaptation still needs
+  source-backed terminal wrapping and the explicit RANDOMIZE spelling before
+  library, CLI/editor and browser acceptance. The printed system is DECsystem-10;
+  its original version remains unverified.
+- Extend selected MA2 statement modifiers and other forms required by remaining
+  listings. SYNONM's playable adaptation expands its assignment FOR and STOP;
+  the reviewed source retains those forms separately.
 
 ## Verified playthroughs
 
@@ -222,6 +225,16 @@ replay, a loss and a fresh zero jackpot. [ROCKSP](rocksp-edusystem30-review.md)
 covers repeated moves, round counts and fresh RUN. [ROCKT1](rockt1-edusystem30-review.md)
 verifies a crash, an 11-second perfect landing and a fresh mission.
 
+The [reviewed CHECKR source](checkr-rsts-review.md) matches a complete archived
+24-turn game with nine human captures, kinging, invalid-square retries and a win.
+Choose **CHECKR · BASIC-PLUS reviewed source**. Enter `YES` to show the board,
+then enter FROM and TO coordinates as comma-separated pairs. The exact reviewed
+source uses selected DATA/READ/RESTORE, nested GOSUB/RETURN and numeric input rows.
+The [SYNONM adaptation](synonm-rsts-review.md) matches a complete ten-word drill,
+incorrect-answer retries and two HELP hints. Choose **SYNONM · BASIC-PLUS
+adaptation** and type uppercase synonyms or HELP. Both games run through the
+library, installed CLI/editor and browser and start fresh on another RUN.
+
 The [GUNNER adaptation](gunner-rsts-review.md) matches five destroyed targets,
 automatic replay and defeat. Its output retains archived bell characters and
 target distances above 32,767. Choose **GUNNER · BASIC-PLUS adaptation**.
@@ -267,13 +280,13 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Path                         | Verified result                                                                                                                                                                                                                                                                                                                                                                                               | Boundary                                                                                                                                                             |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public native BASIC          | Library, installed CLI/editor and browser run graphics, keyboard/Pong, arrays, calls, DATA/READ, CHANGE and supported PRINT USING forms.                                                                                                                                                                                                                                                                      | [Native language reference](language-v1.md).                                                                                                                         |
-| Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded short scalar INPUT, strings, integer USING images, arrays, control and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it.                                                  | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation.                          |
+| Public selected MA2          | Exact-source Programs use selected-stamped lines, canonical supplied-tree checks and whole-source admission. Bounded scalar and numeric-row INPUT, strings, integer USING images, arrays, DATA/READ/RESTORE, literal subroutines and output run through Basic. Direct and installed ESM/CommonJS complete reviewed 1CHECK; portable CLI runs its selected document; browser editor runs and edits it.         | Unsupported forms fail before effects, including dead lines. The profile is a selected execution slice, not complete RSTS/PDP-11 emulation.                          |
 | Public selected EDUSYSTEM-30 | Reviewed 23MTCH, LETTER, TRAP, LITQZ, MATHD, NUMBER, STARS, HURKLE, CHANGE, CHEMST, DIAMND, BATNUM, EVEN, ROCKET, BOUNCE, GOLF, BLKJAK, CHOMP, MUGWUMP, 3DPLOT and SLOTS run across the library, CLI and browser, alongside the documented adaptations, now including CALNDR, CHIEF, HI-LO, ROCKSP and ROCKT1. Archive checks cover game outcomes, drills, receipts, terminal patterns and lunar flight rows. | Bounded arrays, stored arithmetic, numeric `RND(expression)`, signed `FOR STEP`, and PRINT with TAB or comma zones. See the [profile scope](edusystem30-profile.md). |
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **59 reviewed
-source differences / 49 unresolved**, **25 printed-system identifications / 83
+The [corpus ledger](classic-games-ledger.json) records **61 reviewed
+source differences / 47 unresolved**, **27 printed-system identifications / 81
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 

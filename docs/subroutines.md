@@ -1,6 +1,7 @@
 # Literal subroutines
 
 **Status:** implemented first native #57 slice; design recorded before code.
+The selected BASIC-PLUS path has separate [MA2 call and loop rules](ma2-subroutines.md).
 The later [native ON dispatch slice](computed-dispatch.md) shares this call owner.
 Historical profiles and full-corpus gameplay certification remain open.
 

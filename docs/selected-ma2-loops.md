@@ -10,8 +10,11 @@ NEXT uses its lexically paired header and the scalar's current value. A
 terminating NEXT leaves both the scalar and header state intact. A later
 assignment can make that same NEXT continue the loop again. A skipped FOR
 also retains its limit and step. When a paired header has never executed,
-NEXT falls through without changing the scalar. Transfers may enter its
-body before the header has executed.
+the archive can fall through with a scalar change. The selected profile now
+reports a located unsupported-state error at that NEXT before changing its
+scalar. The [subroutine probes](ma2-subroutines.md) record this boundary.
+Transfers may enter a body before its header has executed; reaching that
+header's NEXT requires an executed header.
 
 The [earlier V4A-12 captures](rsts-v4a-ma2-for-restart-reference.json) cover
 same-header and same-variable restarts, nested loops and unfinished exits.
@@ -24,8 +27,10 @@ loops, preserved inner state, and entry before a header runs.
 These rules let the [reviewed BAGLES source](bagles-rsts-review.md) restart
 its digit-validation loops and replay after an early win. The profile's
 exact signed-word loop-value bound and zero-step diagnostic still apply.
-Whole-program validation pairs every FOR and NEXT before execution. A fresh
-RUN clears all captured header state.
+Whole-program validation pairs every FOR and NEXT before execution. GOSUB
+and RETURN preserve the same run-owned lexical map; they do not create or
+discard separate callee loop contexts. A fresh RUN clears all captured header
+state.
 
 ```sh
 python3 scripts/research/capture-ma2-loop-reentry.py \

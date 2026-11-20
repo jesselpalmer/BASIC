@@ -34,7 +34,9 @@ export function validateBasicPlusMa2Candidate(
   const instructions = programInstructions(lines, {ma2PrintModifiers: true});
   for (const {statement} of instructions) {
     const targets =
-      statement.type === 'GotoStatement' || statement.type === 'IfStatement'
+      statement.type === 'GotoStatement' ||
+      statement.type === 'GosubStatement' ||
+      statement.type === 'IfStatement'
         ? [statement.target]
         : statement.type === 'InlineIfStatement'
           ? [statement.consequent, statement.alternate].filter(

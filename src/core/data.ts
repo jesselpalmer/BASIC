@@ -87,18 +87,35 @@ export class DataReader {
     this.#index = 0;
   }
 
+  #item(target: AssignmentTarget): DataItem {
+    const item = this.items[this.#index];
+    if (!item)
+      throw new BasicRuntimeError(
+        'OUT_OF_DATA',
+        'READ has exhausted the DATA pool',
+        target.location.start,
+        target.location.label,
+      );
+    return item;
+  }
+
   read(statement: NodeOf<'ReadStatement'>, assign: DataAssignment): void {
     for (const target of statement.targets) {
-      const item = this.items[this.#index];
-      if (!item)
-        throw new BasicRuntimeError(
-          'OUT_OF_DATA',
-          'READ has exhausted the DATA pool',
-          target.location.start,
-          target.location.label,
-        );
-      assign(target, item);
+      assign(target, this.#item(target));
       this.#index++;
+    }
+  }
+
+  /** Selected READ converts first, then consumes before evaluating target indices. */
+  readPrepared<Value>(
+    statement: NodeOf<'ReadStatement'>,
+    prepare: (target: AssignmentTarget, item: DataItem) => Value,
+    assign: (target: AssignmentTarget, value: Value) => void,
+  ): void {
+    for (const target of statement.targets) {
+      const value = prepare(target, this.#item(target));
+      this.#index++;
+      assign(target, value);
     }
   }
 }

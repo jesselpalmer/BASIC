@@ -4,8 +4,10 @@ import {createBasicPlusMa2ArraySession, readHostRandom} from './evaluator.ts';
 import {prepareSelectedMa2Candidate} from './prepared_program.ts';
 import {injectMa2Value, observeMa2Value, type Ma2Value} from './ma2_value.ts';
 import {basicPlusStringLength} from './basic_plus_strings.ts';
+import {SelectedMa2Data} from './ma2_statement_data.ts';
 import {Ma2StatementOutput} from './ma2_statement_output.ts';
-import {readSelectedMa2Input} from './ma2_statement_input.ts';
+import {inputTargets} from './input.ts';
+import {readSelectedMa2Input, type SelectedMa2InputStatement} from './ma2_statement_input.ts';
 import {SelectedMa2StringState} from './ma2_replay_strings.ts';
 import {selectedMa2CandidateImages} from './ma2_using_image.ts';
 import {abortError} from './cancellation.ts';
@@ -70,6 +72,7 @@ function prepareSelectedMa2Program(
       if (result.kind !== 'value') fail(result, reference.location);
     },
   });
+  const data = new SelectedMa2Data(candidate.lines, state, strings);
   const chunks: string[] = [];
   let outputLength = 0;
   let outputLocation = candidate.instructions[0]?.statement.location;
@@ -87,15 +90,20 @@ function prepareSelectedMa2Program(
   });
   const supported = new Set([
     'DimStatement',
+    'DataStatement',
+    'ReadStatement',
+    'RestoreStatement',
     'LetStatement',
     'IfStatement',
     'GotoStatement',
+    'GosubStatement',
+    'ReturnStatement',
     'ForStatement',
     'NextStatement',
     'RemStatement',
     'EndStatement',
     ...(opening ? ['ChangeStatement', 'PrintStatement', 'PrintUsingStatement'] : []),
-    ...(opening && !noInput ? ['InputStatement'] : []),
+    ...(opening && !noInput ? ['InputStatement', 'InputTargetsStatement'] : []),
     ...(externalWrite ? ['SleepStatement'] : []),
     ...(entropyHost ? ['RandomizeStatement'] : []),
   ]);
@@ -103,7 +111,11 @@ function prepareSelectedMa2Program(
   for (const {statement} of candidate.instructions) {
     // The legacy opening preview cannot resume; only the resumable session
     // authorizes an entire source program and must inspect beyond INPUT.
-    if (firstInputOnly && statement.type === 'InputStatement') break;
+    if (
+      firstInputOnly &&
+      (statement.type === 'InputStatement' || statement.type === 'InputTargetsStatement')
+    )
+      break;
     if (!supported.has(statement.type))
       throw new BasicSyntaxError(
         'UNSUPPORTED_MA2_EXECUTION',
@@ -125,6 +137,8 @@ function prepareSelectedMa2Program(
         );
       state.validateNode(statement.expression);
       if (statement.target.type === 'ArrayReference') state.validateNode(statement.target);
+    } else if (statement.type === 'ReadStatement') {
+      data.validateRead(statement);
     } else if (statement.type === 'ChangeStatement') {
       strings.validateOperand(statement.source);
     } else if (statement.type === 'IfStatement') {
@@ -135,14 +149,19 @@ function prepareSelectedMa2Program(
       )
         strings.validateReplay(statement.condition);
       else state.validateComparison(statement.condition);
-    } else if (statement.type === 'InputStatement') {
-      if (!/^[A-Z][0-9]?\$?$/.test(statement.target.name))
-        throw new BasicSyntaxError(
-          'UNSUPPORTED_MA2_INPUT',
-          'Selected MA2 input requires a short numeric or string scalar',
-          statement.target.location.start,
-          statement.location.label,
-        );
+    } else if (statement.type === 'InputStatement' || statement.type === 'InputTargetsStatement') {
+      for (const target of inputTargets(statement)) {
+        const pattern = statement.type === 'InputStatement' ? /^[A-Z][0-9]?\$?$/ : /^[A-Z][0-9]?$/;
+        if (target.type !== 'Variable' || !pattern.test(target.name))
+          throw new BasicSyntaxError(
+            'UNSUPPORTED_MA2_INPUT',
+            statement.type === 'InputStatement'
+              ? 'Selected MA2 input requires a short numeric or string scalar'
+              : 'Selected MA2 INPUT lists require short numeric scalars',
+            target.location.start,
+            statement.location.label,
+          );
+      }
       if (statement.prompt) {
         const valid = basicPlusStringLength(statement.prompt.value);
         if (valid.kind !== 'value')
@@ -314,6 +333,12 @@ function prepareSelectedMa2Program(
         if (result.kind !== 'value') fail(result, statement.expression.location);
         break;
       }
+      case 'ReadStatement':
+        data.read(statement);
+        break;
+      case 'RestoreStatement':
+        data.restore();
+        break;
       case 'ChangeStatement':
         state.changeToNumbers(statement.target, strings.resolve(statement.source));
         break;
@@ -335,6 +360,12 @@ function prepareSelectedMa2Program(
       }
       case 'GotoStatement':
         currentFlow.jump(statement.target.value, statement.target.location);
+        break;
+      case 'GosubStatement':
+        currentFlow.call(statement.target, statement.location);
+        break;
+      case 'ReturnStatement':
+        currentFlow.returnFromCall(statement.location);
         break;
       case 'ForStatement':
         currentFlow.beginLoop(statement);
@@ -365,6 +396,7 @@ function prepareSelectedMa2Program(
           instruction.label,
         );
       case 'InputStatement':
+      case 'InputTargetsStatement':
         throw new BasicRuntimeError(
           'ASYNC_INPUT_REQUIRED',
           'Use runAsync or stepAsync for selected INPUT',
@@ -372,6 +404,7 @@ function prepareSelectedMa2Program(
           instruction.label,
         );
       case 'DimStatement':
+      case 'DataStatement':
       case 'RemStatement':
         break;
     }
@@ -393,7 +426,11 @@ function prepareSelectedMa2Program(
             next.statement.location.start,
             next.label,
           );
-        if (opening && next.statement.type === 'InputStatement')
+        if (
+          opening &&
+          (next.statement.type === 'InputStatement' ||
+            next.statement.type === 'InputTargetsStatement')
+        )
           return snapshot('waiting', next.statement.location);
         const instruction = flow.takeInstruction()!;
         executed++;
@@ -406,7 +443,9 @@ function prepareSelectedMa2Program(
       }
       if (!halted && flow.nextInstruction) {
         const next = flow.nextInstruction;
-        return opening && next.statement.type === 'InputStatement'
+        return opening &&
+          (next.statement.type === 'InputStatement' ||
+            next.statement.type === 'InputTargetsStatement')
           ? snapshot('waiting', next.statement.location)
           : snapshot('running', null);
       }
@@ -431,11 +470,18 @@ function prepareSelectedMa2Program(
     return snapshot('halted', null);
   }
 
-  async function resumeInput(host: Pick<Host, 'readLine'>, signal: AbortSignal) {
+  async function resumeInput(
+    host: Pick<Host, 'readLine'> & Partial<Pick<Host, 'write'>>,
+    signal: AbortSignal,
+  ) {
     if (terminated) throw new Error('Selected MA2 run has ended');
     if (reading) throw new Error('Selected MA2 input is already pending');
     const instruction = flow.nextInstruction;
-    if (!opening || instruction?.statement.type !== 'InputStatement')
+    if (
+      !opening ||
+      (instruction?.statement.type !== 'InputStatement' &&
+        instruction?.statement.type !== 'InputTargetsStatement')
+    )
       throw new Error('Selected MA2 run is not at INPUT');
     if (executed === instructionLimit)
       throw new BasicRuntimeError(
@@ -448,7 +494,10 @@ function prepareSelectedMa2Program(
     reading = true;
     const ownedSignal = AbortSignal.any([signal, cancellation.signal]);
     try {
-      const result = await readSelectedMa2Input(host, statement, ownedSignal);
+      const result = await readSelectedMa2Input(host, statement, ownedSignal, (index, value) => {
+        if (ownedSignal.aborted) throw abortError();
+        commitInputField(statement, index, value);
+      });
       if (ownedSignal.aborted) throw abortError();
       commitInput(statement, result);
       flow.takeInstruction();
@@ -467,26 +516,36 @@ function prepareSelectedMa2Program(
   }
 
   function commitInput(
-    statement: NodeOf<'InputStatement'>,
+    statement: SelectedMa2InputStatement,
     result: Awaited<ReturnType<typeof readSelectedMa2Input>>,
   ) {
-    if (result.kind !== 'value')
+    if (result.kind === 'unsupported')
       throw new BasicRuntimeError(
         'UNSUPPORTED_MA2_INPUT',
         `Selected MA2 input: ${result.reason}`,
         statement.location.start,
         statement.location.label,
       );
-    if (typeof result.value === 'string') strings.commitInput(statement, result);
-    else {
-      const observed = observeMa2Value(result.value);
-      const input =
-        'value' in observed ? observed.value : fail(observed, statement.target.location);
-      const committed = state.injectNode(statement.target, input);
-      if (committed.kind !== 'value') fail(committed, statement.target.location);
-    }
+    // Row fields already committed under the caller's generation/mutation guard.
+    if (
+      result.kind === 'value' &&
+      typeof result.value === 'string' &&
+      statement.type === 'InputStatement'
+    )
+      strings.commitInput(statement, result);
+    else if (result.kind === 'value' && typeof result.value !== 'string')
+      commitInputField(statement, 0, result.value);
     // The response's Return starts a fresh terminal line; the host owns the echo.
     output.reset();
+  }
+
+  function commitInputField(statement: SelectedMa2InputStatement, index: number, value: Ma2Value) {
+    // Whole-source INPUT admission limits these targets to numeric scalars.
+    const target = inputTargets(statement)[index] as NodeOf<'Variable'>;
+    const observed = observeMa2Value(value);
+    const input = 'value' in observed ? observed.value : fail(observed, target.location);
+    const committed = state.injectNode(target, input);
+    if (committed.kind !== 'value') fail(committed, target.location);
   }
 
   function sleepDuration(statement: NodeOf<'SleepStatement'>): number {
@@ -512,6 +571,7 @@ function prepareSelectedMa2Program(
     readInput: readSelectedMa2Input,
     sleepDuration,
     commitInput,
+    commitInputField,
   });
   return Object.freeze({
     advance: () => advance(),

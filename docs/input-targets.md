@@ -7,6 +7,10 @@ retains the rules below, including its existing raw single-string behavior.
 **Status:** implemented first native #121 slice; design recorded before code.
 Historical input/line/file profiles and whole-game certification remain pending.
 
+The selected BASIC-PLUS profile separately supports bounded [numeric scalar
+rows](ma2-input-rows.md), with archived short-row continuation, surplus fields,
+empty fields and V4A retry behavior. Its policy does not change native INPUT.
+
 ## Evidence and native boundary
 
 [BASIC-PLUS October 1972](https://bitsavers.trailing-edge.com/pdf/dec/pdp11/rsts-11/V004/DEC-11-ORBPA-A-D_BASIC-PLUS_LangMan_Oct72.pdf)

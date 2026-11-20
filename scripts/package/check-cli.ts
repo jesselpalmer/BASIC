@@ -9,6 +9,8 @@ import {checkFipfopReviewedCli} from './check-fipfop-reviewed.ts';
 import {checkFipfopRandomCli} from './check-fipfop-random.ts';
 import {checkFipfopCli} from './check-fipfop.ts';
 import {checkWekdayCli} from './check-wekday.ts';
+import {checkSynonmCli} from './check-synonm.ts';
+import {checkCheckrCli} from './check-checkr.ts';
 import {checkBuleyeCli} from './check-buleye.ts';
 import {checkGunnerCli} from './check-gunner.ts';
 import {checkRusrouCli} from './check-rusrou.ts';
@@ -799,6 +801,8 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   await checkRusrouCli(executable, consumer);
   await checkGunnerCli(executable, consumer);
   checkBuleyeCli(executable, consumer);
+  checkCheckrCli(executable, consumer);
+  checkSynonmCli(executable, consumer);
   await checkWekdayCli(executable, consumer);
   checkFipfopCli(executable, consumer);
   checkFipfopRandomCli(executable, consumer);

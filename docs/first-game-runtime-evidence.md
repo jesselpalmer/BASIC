@@ -1,13 +1,22 @@
 # First-game BASIC-PLUS runtime evidence and activation matrix
 
-**Status:** bounded reference observations for #115/#116/#126/#129; historical
-activation remains blocked. The reviewed March1975 1CHECK text is a candidate
-compatible program for the selected V4A-12 software MA2 experiment. Its original
-interpreter/version remains unknown. This document does not relabel that
-attribution or turn native game tests into a historical compatibility pass.
+**Status:** retained reference observations for #115/#116/#126/#129. The public
+selected BASIC-PLUS profile runs reviewed 1CHECK and the additional games on the
+[classic-game roadmap](classic-games-roadmap.md). 1CHECK's original interpreter
+and version remain unknown. Public selected-profile acceptance and original
+interpreter certification are separate evidence categories.
 The [first-game milestone](first-game-milestone.md) tracks the active runnable
 outcome, delivery order and acceptance checks; this document retains the detailed
 reference evidence and semantic obligations.
+
+## Current selected-profile extensions
+
+The selected profile now adds [DATA/READ/RESTORE](ma2-data.md),
+[subroutines with persistent lexical FOR state](ma2-subroutines.md), and bounded
+[numeric coordinate-row INPUT](ma2-input-rows.md). These extend the public source-bound execution
+path needed by CHECKR. The historical observations and original first-game gate
+below retain their earlier scope; use the linked contracts and
+[roadmap](classic-games-roadmap.md) for the current executable boundary.
 
 ## Reference experiment and capture
 

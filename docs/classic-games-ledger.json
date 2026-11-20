@@ -3633,11 +3633,12 @@
         "title": "SYNONM",
         "referencePage": 212,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 213
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "arrays": [10],
@@ -3658,7 +3659,9 @@
         "dialect-certification",
         "required-features",
         "behavioral-acceptance"
-      ]
+      ],
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "synonm-rsts-review.md#synonm-source-review"
     },
     {
       "file": "target.bas",
@@ -3888,11 +3891,12 @@
         "title": "WAR",
         "referencePage": 230,
         "dialectHint": "generic",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 231
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "spaced-jump": [170, 330, 480, 520, 600],
@@ -3914,7 +3918,9 @@
         "dialect-certification",
         "required-features",
         "behavioral-acceptance"
-      ]
+      ],
+      "printedSystem": "DECsystem-10",
+      "reviewRecord": "war-source-review.md#war-source-review"
     },
     {
       "file": "war2.bas",

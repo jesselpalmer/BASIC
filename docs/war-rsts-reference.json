@@ -1,0 +1,123 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "pinnedFixtureSha256": "2b691983456b0ce787c5d6175e58f2a5096d10031bed71ac87dd704d4df2d401",
+  "reviewedFixtureSha256": "ee1e4034b7e9896c93cb968b5d6b9b1e1ee7e870d87a16fd6d5165be6a01b241",
+  "turns": [
+    {
+      "prompt": "",
+      "answer": "MAYBE"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "MAYBE"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    },
+    {
+      "prompt": "",
+      "answer": "YES"
+    }
+  ],
+  "output": "THIS IS THE CARD GAME OF WAR.  EACH CARD IS GIVEN BY SUIT-#AS S-7 FOR SP\nADE 7.  \nDO YOU WANT DIRECTIONS? YES OR NO, PLEASE.  DO YOU WANT DIRECTIONS? THE COMPUTER GIVES YOU AND IT A 'CARD'.  THE HIGHER 'CARD' (NUMERICALLY)\n WINS.  THE GAME ENDS WHEN YOU CHOOSE NOT TO CONTINUE OR WHEN YOU HAVE F\nINISHED THE PACK.\n\n\n\n\nYOU: S-Q      COMPUTER: D-J YOU WIN.   YOU HAVE 1 ; COMPUTER HAS 0 \nDO YOU WANT TO CONTINUE? YES OR NO, PLEASE.  DO YOU WANT TO CONTINUE? \n\nYOU: S-8      COMPUTER: S-3 YOU WIN.   YOU HAVE 2 ; COMPUTER HAS 0 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-4      COMPUTER: C-8 COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 2 ; COMPUTER HAS 1 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-5      COMPUTER: H-A COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 2 ; COMPUTER HAS 2 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-6      COMPUTER: H-7 COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 2 ; COMPUTER HAS 3 \nDO YOU WANT TO CONTINUE? \n\nYOU: D-7      COMPUTER: H-2 YOU WIN.   YOU HAVE 3 ; COMPUTER HAS 3 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-2      COMPUTER: D-2 TIE.  NO SCORE CHANGE.\nDO YOU WANT TO CONTINUE? \n\nYOU: D-K      COMPUTER: S-5 YOU WIN.   YOU HAVE 4 ; COMPUTER HAS 3 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-3      COMPUTER: D-8 COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 4 ; COMPUTER HAS 4 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-J      COMPUTER: D-3 YOU WIN.   YOU HAVE 5 ; COMPUTER HAS 4 \nDO YOU WANT TO CONTINUE? \n\nYOU: S-4      COMPUTER: C-10              COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 5 ; C\nOMPUTER HAS 5 \nDO YOU WANT TO CONTINUE? \n\nYOU: D-Q      COMPUTER: S-J YOU WIN.   YOU HAVE 6 ; COMPUTER HAS 5 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-5      COMPUTER: S-2 YOU WIN.   YOU HAVE 7 ; COMPUTER HAS 5 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-9      COMPUTER: C-A COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 7 ; COMPUTER HAS 6 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-9      COMPUTER: D-A COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 7 ; COMPUTER HAS 7 \nDO YOU WANT TO CONTINUE? \n\nYOU: D-6      COMPUTER: H-10              COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 7 ; C\nOMPUTER HAS 8 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-K      COMPUTER: D-9 YOU WIN.   YOU HAVE 8 ; COMPUTER HAS 8 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-4      COMPUTER: H-Q COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 8 ; COMPUTER HAS 9 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-K      COMPUTER: S-6 YOU WIN.   YOU HAVE 9 ; COMPUTER HAS 9 \nDO YOU WANT TO CONTINUE? \n\nYOU: C-3      COMPUTER: S-9 COMPUTER WINS.\u0007\u0007\u0007  YOU HAVE 9 ; COMPUTER HAS 10\n \nDO YOU WANT TO CONTINUE? \n\nYOU: S-10     COMPUTER: D-10              TIE.  NO SCORE CHANGE.\nDO YOU WANT TO CONTINUE? \n\nYOU: S-A      COMPUTER: C-Q YOU WIN.   YOU HAVE 10 ; COMPUTER HAS 10 \nDO YOU WANT TO CONTINUE? \n\nYOU: S-K      COMPUTER: C-7 YOU WIN.   YOU HAVE 11 ; COMPUTER HAS 10 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-8      COMPUTER: D-4 YOU WIN.   YOU HAVE 12 ; COMPUTER HAS 10 \nDO YOU WANT TO CONTINUE? \n\nYOU: H-J      COMPUTER: D-5 YOU WIN.   YOU HAVE 13 ; COMPUTER HAS 10 \nDO YOU WANT TO CONTINUE? \n\nYOU: S-7      COMPUTER: C-6 YOU WIN.   YOU HAVE 14 ; COMPUTER HAS 10 \n\n\nYOU HAVE RUN OUT OF CARDS.  FINAL SCORE: YOU-- 14 ; COMPUTER-- 10 \nTHANKS FOR PLAYING.  IT WAS FUN.\u0007\u0007\n"
+}

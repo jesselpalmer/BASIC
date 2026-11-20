@@ -254,11 +254,7 @@ export default class Basic {
 
   #resetSelected(program?: string | Program | InternalSelectedProgram): RunResult {
     this.#assertIdle();
-    this.#invalidateExecution();
-    this.#privateSelectedSteps = 0;
-    this.#status = 'ready';
-    this.#current = null;
-    this.#diagnostic = null;
+    const retainActive = this.#activeRun !== null || this.#pendingStatement !== null;
     try {
       let selected = this.#selectedProgram;
       if (typeof program === 'string') {
@@ -286,6 +282,12 @@ export default class Basic {
         selected.lines,
         this.#privateSelected ? undefined : this.#host,
       );
+      // Validate the entire replacement before invalidating an owned continuation.
+      this.#invalidateExecution();
+      this.#privateSelectedSteps = 0;
+      this.#status = 'ready';
+      this.#current = null;
+      this.#diagnostic = null;
       this.#selectedProgram = selected;
       this.#selectedDriver = driver;
       this.#prepared = driver.prepared;
@@ -294,7 +296,10 @@ export default class Basic {
         execute: (line, context) => driver.execute(line, context.controlFlow, () => context.halt()),
       };
     } catch (error) {
-      this.#recordFailure(error);
+      if (!retainActive) {
+        this.#invalidateExecution();
+        this.#recordFailure(error);
+      }
       throw error;
     }
     return this.state;
@@ -637,7 +642,8 @@ export default class Basic {
         await pending;
       } else if (this.#internalSelected) {
         // Whole-source selected admission excludes other suspending forms.
-        const selectedStatement = statement as NodeOf<'InputStatement'>;
+        const selectedStatement = statement as
+          NodeOf<'InputStatement'> | NodeOf<'InputTargetsStatement'>;
         const selected = this.#selectedDriver!;
         const result = await selected.readInput(
           {
@@ -649,9 +655,27 @@ export default class Basic {
                 this.#executing = false;
               }
             },
+            write: (text) => {
+              if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+              this.#executing = true;
+              try {
+                this.#callHost('write', line, text);
+              } finally {
+                this.#executing = false;
+              }
+            },
           },
           selectedStatement,
           controller.signal,
+          (index, value) => {
+            if (generation !== this.#generation || controller.signal.aborted) throw abortError();
+            this.#executing = true;
+            try {
+              selected.commitInputField(selectedStatement, index, value);
+            } finally {
+              this.#executing = false;
+            }
+          },
         );
         if (generation !== this.#generation || controller.signal.aborted) throw abortError();
         this.#executing = true;
