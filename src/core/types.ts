@@ -274,6 +274,11 @@ export interface NodeFields {
     readonly candidateSeparators?: readonly ('comma' | 'semicolon' | null)[];
     /** Extra consecutive commas after each candidate item's first comma. */
     readonly candidateCommaSkips?: readonly number[];
+    /** Selected MA2 PRINT suffix; preparation budgets header, body and implicit NEXT. */
+    readonly forModifier?: {
+      readonly header: NodeOf<'ForStatement'>;
+      readonly bodyLocation: Location;
+    };
   };
   PrintUsingStatement: {
     readonly format: Expression;

@@ -167,7 +167,29 @@ describe('internal BASIC-PLUS PRINT layout', () => {
     });
   });
 
-  it.each([-32769, 32768, 0.5, NaN, Infinity, -Infinity])(
+  it('prints the archive-probed GUNNER range and rings without moving the cursor', () => {
+    expect(layout([integer(-46500), integer(32768), integer(43000), integer(46500)])).toEqual({
+      kind: 'value',
+      text: '-46500  32768  43000  46500 \n',
+      column: 0,
+    });
+    expect(layout([text('A\x07'), {kind: 'tab', value: 3}, text('B')])).toEqual({
+      kind: 'value',
+      text: 'A\x07  B\n',
+      column: 0,
+    });
+    expect(layout([text('\x07'), semicolon], 72)).toEqual({
+      kind: 'value',
+      text: '\x07',
+      column: 72,
+    });
+    expect(layout([text('\x07'.repeat(BASIC_PLUS_PRINT_OUTPUT_LIMIT + 1))])).toEqual({
+      kind: 'unsupported',
+      reason: 'output-limit',
+    });
+  });
+
+  it.each([-46501, 46501, 0.5, NaN, Infinity, -Infinity])(
     'rejects unsettled integer output %s atomically',
     (value) => {
       expect(layout([text('before'), integer(value)])).toEqual({

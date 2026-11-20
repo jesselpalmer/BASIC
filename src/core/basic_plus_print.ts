@@ -86,18 +86,19 @@ export function basicPlusPrintLayout(
       case 'text': {
         const input = operation.value;
         if (typeof input !== 'string') throw new TypeError('Expected PRINT text');
+        if (input.length > BASIC_PLUS_PRINT_OUTPUT_LIMIT - outputLength)
+          return unsupported('output-limit');
         text = input;
-        if (text.length > 72 - column) return unsupported('line-width');
         for (let index = 0; index < text.length; index++) {
           const code = text.charCodeAt(index);
-          if (code < 32 || code > 126) return unsupported('text-domain');
+          if ((code < 32 && code !== 7) || code > 126) return unsupported('text-domain');
         }
         break;
       }
       case 'integer': {
         const input = operation.value;
         if (typeof input !== 'number') throw new TypeError('Expected a PRINT integer');
-        if (!Number.isInteger(input) || input < -32768 || input > 32767)
+        if (!Number.isInteger(input) || input < -46500 || input > 46500)
           return unsupported('integer-domain');
         text = (input < 0 ? '' : ' ') + String(input) + ' ';
         break;
@@ -105,9 +106,11 @@ export function basicPlusPrintLayout(
       default:
         throw new TypeError('Unknown BASIC-PLUS PRINT operation');
     }
-    if (text.length > 72 - column) return unsupported('line-width');
+    // BEL rings the archived terminal without consuming a print position.
+    const width = text.replaceAll('\x07', '').length;
+    if (width > 72 - column) return unsupported('line-width');
     if (!append(text)) return unsupported('output-limit');
-    column += text.length;
+    column += width;
     suppressNewline = false;
   }
   if (!suppressNewline) {

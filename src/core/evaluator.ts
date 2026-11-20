@@ -374,6 +374,12 @@ function requireMa2NumericSyntax(
           node.location,
         );
       case 'ArrayReference':
+        if (node.name.endsWith('$'))
+          return reject(
+            'UNSUPPORTED_EXPRESSION',
+            'MA2 numeric syntax requires a numeric array',
+            node.location,
+          );
         if (arrays === null)
           return reject(
             'UNSUPPORTED_EXPRESSION',
@@ -448,7 +454,11 @@ export function createBasicPlusMa2ScalarSession() {
 /** Internal explicit array/scalar conformance; no historical index policy. */
 export function createBasicPlusMa2ArraySession(
   declarations: readonly ArrayDeclaration[] = [],
-  options: Readonly<{defaultNumericScalars?: boolean; nextRandom?: () => Ma2Value}> = {},
+  options: Readonly<{
+    defaultNumericScalars?: boolean;
+    nextRandom?: () => Ma2Value;
+    stringArrays?: boolean;
+  }> = {},
 ) {
   if (!Array.isArray(declarations)) throw new TypeError('Expected explicit array declarations');
   if (
@@ -456,10 +466,13 @@ export function createBasicPlusMa2ArraySession(
     typeof options.defaultNumericScalars !== 'boolean'
   )
     throw new TypeError('Expected a numeric scalar default policy');
+  if (typeof options.stringArrays !== 'undefined' && typeof options.stringArrays !== 'boolean')
+    throw new TypeError('Expected a string array selection policy');
   return new Ma2ScalarSession(
     declarations,
     options.defaultNumericScalars === true,
     options.nextRandom,
+    options.stringArrays === true,
   );
 }
 
@@ -471,8 +484,10 @@ class Ma2ScalarSession {
     declarations: readonly ArrayDeclaration[] | null = null,
     private readonly defaultNumericScalars = false,
     private readonly nextRandom?: () => Ma2Value,
+    private readonly stringArrays = false,
   ) {
-    this.#arrays = declarations === null ? null : createBasicPlusMa2ArrayStore(declarations);
+    this.#arrays =
+      declarations === null ? null : createBasicPlusMa2ArrayStore(declarations, stringArrays);
   }
 
   private context(): Ma2Context {
@@ -493,6 +508,44 @@ class Ma2ScalarSession {
 
   validateNode(expression: Expression): void {
     requireMa2NumericSyntax(expression, true, this.#arrays, this.nextRandom !== undefined);
+  }
+
+  validateStringReference(reference: NodeOf<'ArrayReference'>): void {
+    if (!this.stringArrays || !this.#arrays || !/^[A-Z][0-9]?\$$/.test(reference.name))
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_MA2_STRING',
+        'Expected a selected short string array',
+        reference.location.start,
+        reference.location.label,
+      );
+    this.#arrays.checkReference(reference);
+    for (const index of reference.indices) this.validateNode(index);
+  }
+
+  readStringNode(reference: NodeOf<'ArrayReference'>) {
+    this.validateStringReference(reference);
+    const result = this.stringIndices(reference);
+    return result.kind === 'value'
+      ? {kind: 'value' as const, value: this.#arrays!.readMa2String(reference, result.indices)}
+      : result;
+  }
+
+  writeStringNode(reference: NodeOf<'ArrayReference'>, value: string) {
+    this.validateStringReference(reference);
+    const result = this.stringIndices(reference);
+    if (result.kind !== 'value') return result;
+    this.#arrays!.writeMa2String(reference, result.indices, value);
+    return {kind: 'value' as const, value};
+  }
+
+  private stringIndices(reference: NodeOf<'ArrayReference'>) {
+    const indices: Ma2Value[] = [];
+    for (const expression of reference.indices) {
+      const index = evaluateTree(expression, this.context());
+      if (index.kind !== 'value') return index;
+      indices.push(index.value);
+    }
+    return {kind: 'value' as const, indices: ma2IntegerIndices(reference, indices)};
   }
 
   validateComparison(condition: Comparison): void {
@@ -610,7 +663,8 @@ class Ma2ScalarSession {
   }
 
   reset(declarations: readonly ArrayDeclaration[] = []): void {
-    const arrays = this.#arrays === null ? null : createBasicPlusMa2ArrayStore(declarations);
+    const arrays =
+      this.#arrays === null ? null : createBasicPlusMa2ArrayStore(declarations, this.stringArrays);
     this.#scalars.clear();
     this.#arrays = arrays;
   }

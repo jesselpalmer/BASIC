@@ -84,10 +84,10 @@ function arrayDeclarationsWithDefaults(
   const declared = new Set(declarations.map((declaration) => declaration.name.toUpperCase()));
   function declareDefault(name: string, rank: number, location: Location, nameLocation: Location) {
     if (declared.has(name)) return;
-    if (mode === 'ma2' && !/^[A-Z][0-9]?$/.test(name))
+    if (mode === 'ma2' && !/^[A-Z][0-9]?\$?$/.test(name))
       fail(
         'UNSUPPORTED_MA2_ARRAY_DEFAULT',
-        'Selected MA2 implicit arrays require numeric names',
+        'Selected MA2 implicit arrays require short numeric or string names',
         nameLocation,
       );
     declarations.push(

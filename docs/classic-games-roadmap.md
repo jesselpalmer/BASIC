@@ -8,9 +8,9 @@ original interpreter still needs verification. [Release tracker #109](https://gi
 
 | Measure                                                                |  Progress |
 | ---------------------------------------------------------------------- | --------: |
-| Runnable through the library, CLI/editor and browser                   | 55 of 108 |
-| Source reviewed against primary evidence                               | 56 of 108 |
-| Printed system identified                                              | 24 of 108 |
+| Runnable through the library, CLI/editor and browser                   | 57 of 108 |
+| Source reviewed against primary evidence                               | 59 of 108 |
+| Printed system identified                                              | 25 of 108 |
 | Raw listings certified through a complete game on the original dialect |  0 of 108 |
 
 The [corpus ledger](classic-games-ledger.json) tracks source and historical
@@ -19,6 +19,7 @@ runnable adaptations. These measures overlap.
 
 | Merged batch                                                                                                                              | Added runnable listings                                       | Running total |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [GUNNER](gunner-rsts-review.md), [BULEYE](buleye-rsts-review.md)                                                                          | GUNNER, BULEYE                                                |            57 |
 | [RUSROU](rusrou-edusystem30.md)                                                                                                           | RUSROU                                                        |            55 |
 | [BAGLES](bagles-rsts-review.md), [NIM](nim-edusystem30.md), [HMRABI](hmrabi-edusystem30.md)                                               | BAGLES, NIM, HMRABI                                           |            54 |
 | [HORSES](horses-edusystem30.md), [SALVO 1](salvo1-edusystem30.md)                                                                         | HORSES, SALVO 1                                               |            51 |
@@ -33,13 +34,12 @@ runnable adaptations. These measures overlap.
 
 ## Next compatibility targets
 
-- FIPFOP's [randomized adaptation](fipfop-rsts-review.md#play-randomized-fipfop)
-  now uses the archived random draws and trigonometric formulas. String arrays
-  and inline FOR modifiers remain the next steps for admitting its reviewed
-  source directly.
-- CHECKR needs a focused source review and complete archived game. Its
-  string responses, compact spelling and nested subroutine/loop paths need
-  disposition before a public replay.
+- [CHECKR's source review](checkr-rsts-review.md) restores printed board DATA
+  and a king-display comparison. Its opening matches both archived RSTS
+  builds. Complete-game support still needs selected MA2 DATA/READ/RESTORE,
+  GOSUB/RETURN and coordinate-row INPUT.
+- Extend the selected MA2 control forms needed by the remaining reviewed
+  listings, using complete archived playthroughs as acceptance.
 
 ## Verified playthroughs
 
@@ -222,6 +222,20 @@ replay, a loss and a fresh zero jackpot. [ROCKSP](rocksp-edusystem30-review.md)
 covers repeated moves, round counts and fresh RUN. [ROCKT1](rockt1-edusystem30-review.md)
 verifies a crash, an 11-second perfect landing and a fresh mission.
 
+The [GUNNER adaptation](gunner-rsts-review.md) matches five destroyed targets,
+automatic replay and defeat. Its output retains archived bell characters and
+target distances above 32,767. Choose **GUNNER · BASIC-PLUS adaptation**.
+The [BULEYE adaptation](buleye-rsts-review.md) matches eleven rounds between
+two named players, all scoring zones and a winning score of 200. Choose
+**BULEYE · BASIC-PLUS adaptation** and use integer throw choices 1–3.
+Both games run through the library, installed CLI/editor and browser.
+
+The [reviewed FIPFOP correction](fipfop-rsts-review.md) now runs with its
+string arrays, ampersand PRINT abbreviation and inline FOR modifiers. Choose
+**FIPFOP · BASIC-PLUS reviewed correction**. Both archived interpreters match
+the complete games. The correction replaces unsupported COT with 1/TAN; it
+is recorded separately from the raw and reviewed source.
+
 The [randomized FIPFOP adaptation](fipfop-rsts-review.md#play-randomized-fipfop)
 matches archived reset, restart, repeated moves, two solved puzzles and replay.
 Its numeric board uses ordinary FOR statements and the original formulas
@@ -258,8 +272,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **56 reviewed
-source differences / 52 unresolved**, **24 printed-system identifications / 84
+The [corpus ledger](classic-games-ledger.json) records **59 reviewed
+source differences / 49 unresolved**, **25 printed-system identifications / 83
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 

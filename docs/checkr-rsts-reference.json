@@ -1,0 +1,18 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "pinnedFixtureSha256": "cbb1a2b6f8bc971fef162e8de67ba67af25a6c61a55cbc38559928afb93c26b4",
+  "reviewedFixtureSha256": "d4ee62324283686e0456b8b3024459cad0bd12e1e7dd28ca20e562fb3fdaf251",
+  "boundedOpening": {
+    "inputs": ["YES", "0,0", "1,3", "2,4", "YES"],
+    "output": "   THIS PROGRAM WILL PLAY CHECKERS. THE COMPUTER IS X,\nAND YOU ARE O. THE COMPUTER WILL GO FIRST,-NOTE: SQUARES\nARE IN THE FORM-(X,Y) AND SQ. 1,1 IS THE BOTTOM LEFT!\nDO NOT ATTEMPT A DOUBLE JUMP OR YOUR PIECE MIGHT JUST \nDISAPPEAR(SAME FOR A TRIPLE)!\n     WAIT FOR THE COMP. TO MOVE!!!!!\n\n  I MOVE FROM ( 2  6 ) TO ( 1  5 )\nBOARD? \n  . X . X . X . X\n  X . X . X . X .\n  . . . X . X . X\n  X . . . . . . .\n  . . . . . . . .\n  O . O . O . O .\n  . O . O . O . O\n  O . O . O . O .\n\nFROM? THERE IS NO ONE OCCUPING THAT SPACE\n\nFROM? TO? \n  I MOVE FROM ( 1  7 ) TO ( 2  6 )\nBOARD? \n  . X . X . X . X\n  . . X . X . X .\n  . X . X . X . X\n  X . . . . . . .\n  . O . . . . . .\n  . . O . O . O .\n  . O . O . O . O\n  O . O . O . O .\n\nFROM? ",
+    "stoppedAt": "third human FROM prompt; complete game unverified"
+  },
+  "edu30Boundary": {
+    "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+    "source": ["10 INPUT D$", "20 IF D$<>\"YES\" THEN 40", "30 PRINT \"BOARD\"", "40 END"],
+    "output": "\f\n\n*NONE*  EDUSYSTEM-30\n\nS1 20\n\n"
+  }
+}

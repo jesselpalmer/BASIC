@@ -31,7 +31,7 @@ export function validateBasicPlusMa2Candidate(
       );
     labels.add(line.label);
   }
-  const instructions = programInstructions(lines);
+  const instructions = programInstructions(lines, {ma2PrintModifiers: true});
   for (const {statement} of instructions) {
     const targets =
       statement.type === 'GotoStatement' || statement.type === 'IfStatement'

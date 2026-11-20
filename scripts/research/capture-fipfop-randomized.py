@@ -154,6 +154,11 @@ def main():
     source = reviewed.decode('ascii').replace(
         '180 RANDOMIZE', '180 REM DEFAULT RNG PROBE',
     ).replace('COT(Q/N+Q)', '(1/TAN(Q/N+Q))')
+    executable_reviewed = (fipfop.FIXTURES / 'fipfop-ma2-reviewed.bas').read_bytes()
+    assert executable_reviewed == reviewed.replace(b'COT(Q/N+Q)', b'(1/TAN(Q/N+Q))')
+    assert executable_reviewed.decode('ascii').replace(
+        '180 RANDOMIZE', '180 REM DEFAULT RNG PROBE',
+    ) == source
     portable = (fipfop.FIXTURES / 'fipfop-random-ma2.bas').read_bytes()
     portable_source = portable.decode('ascii').replace('180 RANDOMIZE', '180 REM DEFAULT RNG PROBE')
     captures = []
@@ -173,6 +178,7 @@ def main():
         'reviewedFixtureSha256': fipfop.REVIEWED_SHA256,
         'replaySourceSha256': life2.digest(source.encode('ascii')),
         'portableFixtureSha256': life2.digest(portable),
+        'executableReviewedFixtureSha256': life2.digest(executable_reviewed),
         'inputs': INPUTS,
         **first,
     }, indent=2) + '\n', encoding='ascii')

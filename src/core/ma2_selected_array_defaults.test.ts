@@ -108,9 +108,7 @@ test('mixed implicit ranks reject before selected output; native and conformance
   expect(() =>
     createSelectedMa2Session('10 PRINT "READY"\n20 A(1,2)=3\n30 A(1)=4\n40 END'),
   ).toThrow('index(es)');
-  expect(() => createSelectedMa2Session('10 PRINT "READY"\n20 PRINT A$(1)\n30 END')).toThrow(
-    'implicit arrays require numeric names',
-  );
+  expect(createSelectedMa2Session('10 PRINT A$(1)\n20 END').advance().output).toBe('\n');
   expect(() => new Basic().run('10 A(0)=1\n20 END')).toThrow('requires DIM');
   expect(() => createBasicPlusMa2ArraySession().evaluate('A(0)')).toThrow('requires DIM');
 });

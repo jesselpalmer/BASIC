@@ -931,10 +931,11 @@
         "title": "BULEYE",
         "referencePage": 57,
         "dialectHint": "BASIC-PLUS",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 58
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
@@ -956,7 +957,8 @@
         "dialect-certification",
         "required-features",
         "behavioral-acceptance"
-      ]
+      ],
+      "reviewRecord": "buleye-rsts-review.md#buleye-source-review"
     },
     {
       "file": "bull.bas",
@@ -1195,10 +1197,11 @@
         "title": "CHECKR",
         "referencePage": 73,
         "dialectHint": null,
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 74
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
       "verifiedDialect": null,
       "observedFeatureLabels": {
@@ -1220,7 +1223,8 @@
         "dialect-certification",
         "required-features",
         "behavioral-acceptance"
-      ]
+      ],
+      "reviewRecord": "checkr-rsts-review.md#checkr-source-review"
     },
     {
       "file": "chemst.bas",
@@ -1970,11 +1974,14 @@
         "title": "GUNNER",
         "referencePage": 115,
         "dialectHint": null,
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 116
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
-      "dialectStatus": "unverified",
+      "sourceStatus": "reviewed-difference",
+      "dialectStatus": "printed-system-identified",
+      "printedSystem": "RSTS/E",
+      "reviewRecord": "gunner-rsts-review.md#gunner-source-review",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [90],

@@ -181,6 +181,30 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     expect(tokens[3]).toMatchObject({type: 'RAW_NUMBER', raw: '5'});
   });
 
+  it('keeps selected PRINT abbreviation, modifier and spaced transfer positions physical', () => {
+    const tokens = scan('10&"GO TO FOR &";FORI=1TO2\n20 GO \tTO30\n30 END');
+    expect(tokens[1]).toMatchObject({
+      type: 'KEYWORD',
+      value: 'PRINT',
+      raw: '&',
+      start: {column: 3},
+      end: {column: 4},
+    });
+    expect(tokens[2]).toMatchObject({type: 'STRING', value: 'GO TO FOR &'});
+    expect(tokens.find((token) => token.value === 'GOTO')).toMatchObject({
+      raw: 'GO \tTO',
+      start: {line: 2, column: 4},
+      end: {line: 2, column: 10},
+    });
+    expect(values('10REM & GO TO FOR')).toEqual([
+      ['LABEL', 10],
+      ['KEYWORD', 'REM'],
+      ['COMMENT', ' & GO TO FOR'],
+      ['EOF', null],
+    ]);
+    failure('10PRINT 1 GO TO20', 'UNSUPPORTED_LEXICAL_FORM');
+  });
+
   it('scans RANDOMIZE as a statement', () => {
     expect(scan('10RANDOMIZE')[1]).toMatchObject({
       type: 'KEYWORD',
@@ -201,7 +225,7 @@ describe('internal BASIC-PLUS1972 scanner conformance', () => {
     'READATHEN10',
     'ELSEEND',
     'PRINT1IFJ=2',
-    'PRINT1FORI=1TO2',
+    'PRINT1FORI=1TO2FORJ=1TO2',
     'IFJ=1THENPRINT1:ELSEEND',
     'IFJ=1THENPRINT1\n20ELSEEND',
     'PRINTGOTO20',

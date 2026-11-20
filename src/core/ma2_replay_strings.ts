@@ -12,9 +12,17 @@ function unsupported(message: string, location: Location): never {
 
 const shortStringName = /^[A-Z][0-9]?\$$/;
 
-/** Execution-owned bounded string scalars for the selected source subset. */
+interface StringArrayAccess {
+  validate(reference: NodeOf<'ArrayReference'>): void;
+  read(reference: NodeOf<'ArrayReference'>): string;
+  write(reference: NodeOf<'ArrayReference'>, value: string): void;
+}
+
+/** Execution-owned bounded strings for the selected source subset. */
 export class SelectedMa2StringState {
   readonly #values = new Map<string, string>();
+
+  constructor(private readonly arrays?: StringArrayAccess) {}
 
   reset(): void {
     this.#values.clear();
@@ -26,17 +34,22 @@ export class SelectedMa2StringState {
 
   validateAssignment(statement: NodeOf<'LetStatement'>): void {
     const {target, expression} = statement;
-    if (target.type !== 'Variable' || !shortStringName.test(target.name))
-      unsupported('Selected string assignment requires a short scalar target', target.location);
+    if (!shortStringName.test(target.name) || (target.type !== 'Variable' && !this.arrays))
+      unsupported(
+        'Selected string assignment requires a short scalar target or selected array',
+        target.location,
+      );
+    if (target.type === 'ArrayReference') this.arrays!.validate(target);
     this.validateOperand(expression);
   }
 
-  /** Validate the whole source before writes, then copy the current scalar value. */
+  /** Validate the whole source before writes, then copy the current string value. */
   assignSource(statement: NodeOf<'LetStatement'>): void {
     this.validateAssignment(statement);
     const value = this.resolve(statement.expression);
     this.#validate(value, statement.expression.location);
-    this.#values.set(statement.target.name, value);
+    if (statement.target.type === 'ArrayReference') this.arrays!.write(statement.target, value);
+    else this.#values.set(statement.target.name, value);
   }
 
   /** The input boundary reads first; commit only a matching validated result. */
@@ -56,6 +69,14 @@ export class SelectedMa2StringState {
       this.#validate(expression.value, expression.location);
       return;
     }
+    if (
+      expression.type === 'ArrayReference' &&
+      shortStringName.test(expression.name) &&
+      this.arrays
+    ) {
+      this.arrays.validate(expression);
+      return;
+    }
     if (expression.type !== 'Variable' || !shortStringName.test(expression.name))
       unsupported('Expected a selected short string scalar or literal', expression.location);
   }
@@ -63,6 +84,7 @@ export class SelectedMa2StringState {
   resolve(expression: Expression): string {
     this.validateOperand(expression);
     if (expression.type === 'StringLiteral') return expression.value;
+    if (expression.type === 'ArrayReference') return this.arrays!.read(expression);
     if (expression.type !== 'Variable') throw Error('Validated string operand changed');
     // BASIC-PLUS §§2.5.2/3.6.2/5.1.2 read an unassigned string as empty.
     // Keep the default implicit so a read does not become a stored assignment.

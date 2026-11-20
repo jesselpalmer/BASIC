@@ -30,8 +30,11 @@ export type Ma2ArrayWriteResult =
   Ma2WriteValue | (Ma2WriteFailure & Readonly<{location: Location}>);
 
 /** Internal explicit numeric-cell conformance; never a historical Program. */
-export function createBasicPlusMa2ArrayStore(declarations: readonly ArrayDeclaration[] = []) {
-  return new ArrayStore(declarations, 'ma2-conformance');
+export function createBasicPlusMa2ArrayStore(
+  declarations: readonly ArrayDeclaration[] = [],
+  allowStringArrays = false,
+) {
+  return new ArrayStore(declarations, 'ma2-conformance', allowStringArrays);
 }
 
 /** Mutable cells belong to one execution; declarations and observations never do. */
@@ -39,7 +42,11 @@ export class ArrayStore {
   readonly #arrays: ReadonlyMap<string, ArrayStorage>;
   readonly #mode: ArrayMode;
 
-  constructor(declarations: readonly ArrayDeclaration[] = [], mode: ArrayMode = 'native') {
+  constructor(
+    declarations: readonly ArrayDeclaration[] = [],
+    mode: ArrayMode = 'native',
+    allowStringArrays = false,
+  ) {
     if (
       mode !== 'native' &&
       mode !== 'ma2-conformance' &&
@@ -49,7 +56,12 @@ export class ArrayStore {
       throw new TypeError('Unsupported array storage context');
     this.#mode = mode;
     const shapes = arrayShapes(declarations);
-    if (mode === 'ma2-conformance' && shapes.some((shape) => !/^[A-Z][0-9]?$/.test(shape.name)))
+    if (
+      mode === 'ma2-conformance' &&
+      shapes.some(
+        (shape) => !(allowStringArrays ? /^[A-Z][0-9]?\$?$/ : /^[A-Z][0-9]?$/).test(shape.name),
+      )
+    )
       throw new TypeError('MA2 array conformance requires short numeric names');
     const zero =
       mode === 'ma2-conformance'
@@ -119,7 +131,26 @@ export class ArrayStore {
   readMa2(reference: NodeOf<'ArrayReference'>, indices: readonly number[]): Ma2Value {
     this.requireMa2();
     const array = this.lookup(reference);
+    if (array.name.endsWith('$')) throw new TypeError('Expected a numeric array');
     return array.values[this.offset(array, reference, indices)] as Ma2Value;
+  }
+
+  readMa2String(reference: NodeOf<'ArrayReference'>, indices: readonly number[]): string {
+    this.requireMa2();
+    const array = this.lookup(reference);
+    if (!array.name.endsWith('$')) throw new TypeError('Expected a string array');
+    return array.values[this.offset(array, reference, indices)] as string;
+  }
+
+  writeMa2String(
+    reference: NodeOf<'ArrayReference'>,
+    indices: readonly number[],
+    value: string,
+  ): void {
+    this.requireMa2();
+    const array = this.lookup(reference);
+    if (!array.name.endsWith('$')) throw new TypeError('Expected a string array');
+    array.values[this.offset(array, reference, indices)] = value;
   }
 
   readEduSystem30(
@@ -181,6 +212,7 @@ export class ArrayStore {
       return Object.freeze({...result, location});
     }
     const array = this.lookup(reference);
+    if (array.name.endsWith('$')) throw new TypeError('Expected a numeric array');
     array.values[this.offset(array, reference, indices)] = result.value;
     return result;
   }
@@ -313,7 +345,8 @@ export class ArrayStore {
             ? prefix.map((value) => observeEduSystem30(value as EduSystem30FloatingValue))
             : this.#mode === 'ma2-conformance'
               ? prefix.map((value) => {
-                  // This context can store only factory-validated canonical descriptors.
+                  if (array.name.endsWith('$')) return value as string;
+                  // Numeric cells contain factory-validated canonical descriptors.
                   const observation = observeMa2Value(value as Ma2Value) as Extract<
                     ReturnType<typeof observeMa2Value>,
                     {kind: 'value'}

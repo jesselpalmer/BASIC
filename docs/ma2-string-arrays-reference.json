@@ -1,0 +1,51 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "builds": [
+    {
+      "build": "V4A-12 MA2",
+      "diskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f"
+    },
+    {
+      "build": "V04B-17",
+      "diskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f"
+    }
+  ],
+  "cases": {
+    "defaults": {
+      "source": [
+        "10 DIM A$(2)",
+        "20 PRINT \"[\";A$(0);A$(2);\"]\"",
+        "30 A$=\"SCALAR\"",
+        "40 A$(1)=\"LONGER THAN DIM\"",
+        "50 PRINT A$;\":\";A$(1)",
+        "60 END"
+      ],
+      "output": "[]\nSCALAR:LONGER THAN DIM\n\n"
+    },
+    "implicit": {
+      "source": [
+        "10 PRINT \"[\";A$(10);\"]\"",
+        "20 A$(10)=\"TEN\"",
+        "30 PRINT A$(10)",
+        "40 PRINT A$(11)",
+        "50 END"
+      ],
+      "output": "[]\nTEN\nSUBSCRIPT OUT OF RANGE at line 40 \n\n"
+    },
+    "rankTwoTruncation": {
+      "source": [
+        "10 DIM A$(1,2)",
+        "20 A$(.9,1.9)=\"ONE\"",
+        "30 A$(-.9,2.9)=\"TWO\"",
+        "40 PRINT A$(0,1);\":\";A$(0,2)",
+        "50 PRINT A$(1,0)",
+        "60 END"
+      ],
+      "output": "ONE:TWO\n\n\n"
+    },
+    "laterDim": {
+      "source": ["10 A$(12)=\"TWELVE\"", "20 DIM A$(12)", "30 PRINT A$(12)", "40 END"],
+      "output": "TWELVE\n\n"
+    }
+  }
+}

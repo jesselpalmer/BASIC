@@ -65,6 +65,32 @@ python3 scripts/research/capture-fipfop-randomized.py \
   --v4b-disk /path/to/RSTS11v4B.DSK --output /tmp/fipfop-randomized-reference.json
 ```
 
+## Play the reviewed correction
+
+Select **FIPFOP · BASIC-PLUS reviewed correction** in the
+[playground](https://basic-playground-rho.vercel.app/). This
+[executable reviewed source](../scripts/package/fixtures/classic/fipfop-ma2-reviewed.bas)
+retains the reviewed listing's ampersand PRINT abbreviation, string board,
+inline PRINT FOR modifier, numeric formulas and loop branches.
+It changes only `COT(Q/N+Q)` at line 530 to `(1/TAN(Q/N+Q))`, the
+reciprocal expansion checked on both archived BASIC-PLUS builds.
+The [reviewed text](../scripts/package/fixtures/classic/fipfop-mar75-text.bas)
+retains the printed COT spelling and its archived diagnostic.
+
+Enter positions 1 through 10 to change the row from X to O. Enter `0` to
+reset the board or `11` for a new puzzle. Answer `YES` after solving to
+replay, or `NO` to finish. The library, installed CLI/editor and browser
+compare the same [varying-Q transcript](fipfop-randomized-reference.json),
+including invalid input, reset, repeated moves, two solved puzzles,
+replay and a fresh RUN. The selected profile's string arrays and inline
+PRINT FOR execute those source forms directly.
+
+The source keeps `RANDOMIZE`. The reference capture substitutes a REM for
+that statement so the archived monitors share a repeatable random stream.
+Public acceptance supplies zero host entropy and preserves the statement.
+The executable source hash is pinned separately from the reviewed text and
+the numeric-board adaptation.
+
 ## Play randomized FIPFOP
 
 Select **FIPFOP · BASIC-PLUS randomized adaptation** in the
@@ -106,8 +132,9 @@ Both the fixed-Q archive probe and the portable source produce the same
 stock V04B-17 transcript through invalid input retries, reset, restart,
 two solved boards, replay and exit. The installed library, CLI/editor
 and browser verify that replay and fresh RUN under the selected BASIC-PLUS
-profile. The reviewed listing's string arrays and inline FOR modifiers
-remain separate compatibility work.
+profile. The reviewed correction also executes its string arrays and
+inline PRINT FOR through this profile. Additional statement modifiers and
+original-interpreter attribution remain separate compatibility work.
 
 ```sh
 python3 scripts/research/capture-fipfop-rsts.py \

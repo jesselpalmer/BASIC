@@ -36,8 +36,15 @@ export async function runFipfopRandomAcceptance(
     createHash('sha256').update(fipfopRandomSource).digest('hex'),
     reference.portableFixtureSha256,
   );
-  const program = api.parseProgram(fipfopRandomSource, fipfopRandomOptions);
-  assert.equal(program.source, fipfopRandomSource);
+  await runFipfopSourceAcceptance(api, fipfopRandomSource);
+}
+
+export async function runFipfopSourceAcceptance(
+  api: Pick<typeof PublicApi, 'Basic' | 'parseProgram'>,
+  source: string,
+): Promise<void> {
+  const program = api.parseProgram(source, fipfopRandomOptions);
+  assert.equal(program.source, source);
   let output = '';
   const turns: (typeof fipfopRandomTurns)[number][] = [];
   let randomizations = 0;
