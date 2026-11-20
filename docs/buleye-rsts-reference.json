@@ -1,0 +1,120 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "pinnedFixtureSha256": "0524ba20134afa28d0198f240acee89dc3868e87c0034fafe2565ca1ffe496ba",
+  "reviewedFixtureSha256": "2dbd8bd1194c5f5e91d354d8b8a1bd8e60c665a6c3cbd19fb6c368ad9abbd9dd",
+  "portableFixtureSha256": "fb26081bfca96b59ba79773b16419510e2b4f385f76169302f3649685cab241b",
+  "turns": [
+    {
+      "prompt": "HOW MANY PLAYERS",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "ADA"
+    },
+    {
+      "prompt": "",
+      "answer": "BEN"
+    },
+    {
+      "prompt": "",
+      "answer": "-1"
+    },
+    {
+      "prompt": "",
+      "answer": "4"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    },
+    {
+      "prompt": "",
+      "answer": "2"
+    },
+    {
+      "prompt": "",
+      "answer": "3"
+    },
+    {
+      "prompt": "",
+      "answer": "1"
+    }
+  ],
+  "output": "GAME OF BULLSEYE\n\nIN THIS GAME, UP TO 20 PLAYERS THROW DARTS AT A TARGET\nWITH 10, 20, 30, AND 40 POINT ZONES.  THE OBJECTIVE IS\nTO GET 200 POINTS. \n\nTHROW         DESCRIPTION                 PROBABLE SCORE\n  1           FAST OVERARM                BULLSEYE OR COMPLETE MISS\n  2           CONTROLLED OVERARM          10, 20, OR 30 POINTS\n  3           UNDERARM                    ANYTHING\n\nHOW MANY PLAYERS? \nNAME OF PLAYER 1 ? NAME OF PLAYER 2 ? \nROUND 1 \n\nADA'S THROW? INPUT 1, 2, OR 3\n\nADA'S THROW? INPUT 1, 2, OR 3\n\nADA'S THROW? BULLSEYE!!  40 POINTS!\nTOTAL SCORE = 40 \n\nBEN'S THROW? 30-POINT ZONE!\nTOTAL SCORE = 30 \n\nROUND 2 \n\nADA'S THROW? 30-POINT ZONE!\nTOTAL SCORE = 70 \n\nBEN'S THROW? MISSED THE TARGET.  TOO BAD!\nTOTAL SCORE = 30 \n\nROUND 3 \n\nADA'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 80 \n\nBEN'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 40 \n\nROUND 4 \n\nADA'S THROW? 20-POINT ZONE\nTOTAL SCORE = 100 \n\nBEN'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 50 \n\nROUND 5 \n\nADA'S THROW? BULLSEYE!!  40 POINTS!\nTOTAL SCORE = 140 \n\nBEN'S THROW? MISSED THE TARGET.  TOO BAD!\nTOTAL SCORE = 50 \n\nROUND 6 \n\nADA'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 150 \n\nBEN'S THROW? 20-POINT ZONE\nTOTAL SCORE = 70 \n\nROUND 7 \n\nADA'S THROW? MISSED THE TARGET.  TOO BAD!\nTOTAL SCORE = 150 \n\nBEN'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 80 \n\nROUND 8 \n\nADA'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 160 \n\nBEN'S THROW? BULLSEYE!!  40 POINTS!\nTOTAL SCORE = 120 \n\nROUND 9 \n\nADA'S THROW? 30-POINT ZONE!\nTOTAL SCORE = 190 \n\nBEN'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 130 \n\nROUND 10 \n\nADA'S THROW? MISSED THE TARGET.  TOO BAD!\nTOTAL SCORE = 190 \n\nBEN'S THROW? 20-POINT ZONE\nTOTAL SCORE = 150 \n\nROUND 11 \n\nADA'S THROW? WHEW!  10 POINTS. \nTOTAL SCORE = 200 \n\nBEN'S THROW? BULLSEYE!!  40 POINTS!\nTOTAL SCORE = 190 \n\nWE HAVE A WINNER!!\n\nADA SCORED 200 POINTS. \n\nTHANKS FOR THE GAME!\n"
+}

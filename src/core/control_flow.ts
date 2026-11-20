@@ -180,6 +180,9 @@ export class ControlFlow {
       );
     }
     const start = this.#loopNumber(statement.start);
+    // BASIC-PLUS assigns the start before evaluating the limit and step,
+    // including PRINT FOR modifiers lowered to this same loop header.
+    if (this.loopPolicy === 'selected-ma2') this.evaluator.assign(statement.variable, start);
     const limit = this.#loopNumber(statement.end);
     const step = statement.step === null ? 1 : this.#loopNumber(statement.step);
     if (step === 0) {
@@ -204,7 +207,7 @@ export class ControlFlow {
             return evaluateEduSystem30Arithmetic('/', difference, eduSystem30FromNumber(step));
           }, statement.location)
         : null;
-    this.evaluator.assign(statement.variable, start);
+    if (this.loopPolicy !== 'selected-ma2') this.evaluator.assign(statement.variable, start);
     // The actual header position is independent of its prepared successor.
     const pair = this.prepared.pairsByFor.get(this.#currentIndex)!;
     if (skip && this.loopPolicy !== 'selected-ma2') {

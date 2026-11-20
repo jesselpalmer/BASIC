@@ -32,12 +32,15 @@ import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
 import {runCubeAcceptance} from './cube-acceptance.ts';
 import {runCrapsAcceptance} from './craps-acceptance.ts';
+import {runBuleyeAcceptance} from './buleye-acceptance.ts';
+import {runGunnerAcceptance} from './gunner-acceptance.ts';
 import {runRusrouAcceptance} from './rusrou-acceptance.ts';
 import {runHmrabiAcceptance} from './hmrabi-acceptance.ts';
 import {runNimAcceptance} from './nim-acceptance.ts';
 import {runSalvo1Acceptance} from './salvo1-acceptance.ts';
 import {runHorsesAcceptance} from './horses-acceptance.ts';
 import {runTictacAcceptance} from './tictac-acceptance.ts';
+import {runFipfopReviewedAcceptance} from './fipfop-reviewed-acceptance.ts';
 import {runFipfopRandomAcceptance} from './fipfop-random-acceptance.ts';
 import {runFipfopAcceptance} from './fipfop-acceptance.ts';
 import {runWekdayAcceptance} from './wekday-acceptance.ts';
@@ -119,12 +122,15 @@ export const libraryAcceptanceCases = [
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
   'adapted CUBE matches the archived win, wager retry and both losses',
   'adapted CRAPS matches archived wagers, shooter changes and endings',
+  'adapted BULEYE matches archived named-player rounds and replay',
+  'adapted GUNNER matches archived target hits, defeat and replay',
   'adapted RUSROU matches archived outcomes and next rounds',
   'adapted HMRABI matches archived city management and endings',
   'adapted NIM matches archived play, retries and replay',
   'adapted SALVO 1 matches archived victories and defeats',
   'adapted HORSES matches the archived race, payouts and return to DEMON',
   'adapted TICTAC matches the archived computer win, tie and return to DEMON',
+  'reviewed FIPFOP correction matches archived string boards and inline loops',
   'randomized FIPFOP matches archived restart, repeated moves and replay',
   'adapted FIPFOP matches the archived fixed puzzle, repeated move and replay',
   'adapted WEKDAY matches the archived date facts and return to DEMON',
@@ -497,6 +503,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   await check('adapted CRAPS matches archived wagers, shooter changes and endings', () =>
     runCrapsAcceptance(api),
   );
+  await check('adapted BULEYE matches archived named-player rounds and replay', () =>
+    runBuleyeAcceptance(api),
+  );
+  await check('adapted GUNNER matches archived target hits, defeat and replay', () =>
+    runGunnerAcceptance(api),
+  );
   await check('adapted RUSROU matches archived outcomes and next rounds', () =>
     runRusrouAcceptance(api),
   );
@@ -512,6 +524,9 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted TICTAC matches the archived computer win, tie and return to DEMON', () =>
     runTictacAcceptance(api),
+  );
+  await check('reviewed FIPFOP correction matches archived string boards and inline loops', () =>
+    runFipfopReviewedAcceptance(api),
   );
   await check('randomized FIPFOP matches archived restart, repeated moves and replay', () =>
     runFipfopRandomAcceptance(api),

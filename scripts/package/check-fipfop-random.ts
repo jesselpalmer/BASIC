@@ -10,14 +10,23 @@ import {
 import {runProcess} from '../subprocess.ts';
 
 export function checkFipfopRandomCli(executable: string, directory: string): void {
-  const file = join(directory, 'fipfop-random.basic.json');
-  const saved = join(directory, 'fipfop-random-copy.basic.json');
-  const preload = join(directory, 'fipfop-random-clock.ts');
+  checkFipfopSourceCli(executable, directory, 'fipfop-random', fipfopRandomSource);
+}
+
+export function checkFipfopSourceCli(
+  executable: string,
+  directory: string,
+  name: string,
+  source: string,
+): void {
+  const file = join(directory, `${name}.basic.json`);
+  const saved = join(directory, `${name}-copy.basic.json`);
+  const preload = join(directory, `${name}-clock.ts`);
   const document = {
     format: 'basic-program',
     version: 1,
     ...fipfopRandomOptions,
-    source: fipfopRandomSource,
+    source,
   };
   writeFileSync(file, JSON.stringify(document));
   writeFileSync(preload, 'Math.random = () => 0;\n');

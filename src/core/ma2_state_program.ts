@@ -55,9 +55,21 @@ function prepareSelectedMa2Program(
   };
   const state = createBasicPlusMa2ArraySession(candidate.arrayDeclarations, {
     defaultNumericScalars: true,
+    stringArrays: true,
     nextRandom: entropyHost ? nextRandom : undefined,
   });
-  const strings = new SelectedMa2StringState();
+  const strings = new SelectedMa2StringState({
+    validate: (reference) => state.validateStringReference(reference),
+    read: (reference) => {
+      const result = state.readStringNode(reference);
+      if (result.kind !== 'value') return fail(result, reference.location);
+      return result.value;
+    },
+    write: (reference, value) => {
+      const result = state.writeStringNode(reference, value);
+      if (result.kind !== 'value') fail(result, reference.location);
+    },
+  });
   const chunks: string[] = [];
   let outputLength = 0;
   let outputLocation = candidate.instructions[0]?.statement.location;
@@ -236,7 +248,10 @@ function prepareSelectedMa2Program(
   };
   const resolve = (expression: Expression) => {
     if (expression.type === 'StringLiteral') return expression.value;
-    if (expression.type === 'Variable' && expression.name.endsWith('$'))
+    if (
+      (expression.type === 'Variable' || expression.type === 'ArrayReference') &&
+      expression.name.endsWith('$')
+    )
       return strings.resolve(expression);
     const result = state.evaluateNode(expression);
     if (result.kind !== 'value') return fail(result, expression.location);
@@ -277,7 +292,7 @@ function prepareSelectedMa2Program(
       nextLocation: status === 'halted' ? null : (flow.nextInstruction?.statement.location ?? null),
       executed,
       output: chunks.join(''),
-      variables: state.snapshot(),
+      variables: Object.freeze([...state.snapshot(), ...strings.snapshot()]),
       arrays: state.snapshotArrays(),
     });
 
@@ -492,7 +507,7 @@ function prepareSelectedMa2Program(
     execute(this: void, instruction: Instruction, currentFlow: ControlFlow, halt: () => void) {
       executeInstruction(instruction, currentFlow, halt);
     },
-    variables: () => state.snapshot(),
+    variables: () => Object.freeze([...state.snapshot(), ...strings.snapshot()]),
     arrays: () => state.snapshotArrays(),
     readInput: readSelectedMa2Input,
     sleepDuration,

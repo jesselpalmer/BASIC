@@ -427,19 +427,8 @@ class Parser {
       }
       case 'PRINT':
         return this.isPrintUsing() ? this.printUsing(command) : this.print(command);
-      case 'FOR': {
-        const variable = this.loopVariable();
-        this.expect('OPERATOR', '=', 'Expected = after the loop variable');
-        const start = this.expression();
-        this.expect('KEYWORD', 'TO', 'Expected TO after the loop start');
-        const end = this.expression();
-        let step: Expression | null = null;
-        if (this.at('KEYWORD', 'STEP')) {
-          this.take();
-          step = this.expression();
-        }
-        return this.node('ForStatement', command, step ?? end, {variable, start, end, step});
-      }
+      case 'FOR':
+        return this.forStatement(command);
       case 'NEXT': {
         const variable = this.loopVariable();
         return this.node('NextStatement', command, variable, {variable});
@@ -817,7 +806,8 @@ class Parser {
       }
     };
     if (this.eduSystem30) takeEduSystem30Commas();
-    if (!this.atStatementEnd()) {
+    const atPrintEnd = () => this.atStatementEnd() || (this.candidate && this.at('KEYWORD', 'FOR'));
+    if (!atPrintEnd()) {
       let adjacent = false;
       for (;;) {
         const first = this.peek();
@@ -840,7 +830,7 @@ class Parser {
           eduSystem30Commas.push(0);
           if (this.at('PUNCTUATION', ',')) {
             takeEduSystem30Commas();
-            if (this.atStatementEnd()) break;
+            if (atPrintEnd()) break;
             adjacent = false;
             continue;
           }
@@ -886,17 +876,23 @@ class Parser {
           }
           // The manual's skipped-zone example has an item after the run;
           // a final run of multiple commas has no settled source contract.
-          if (candidateCommaSkips[candidateCommaSkips.length - 1] > 0 && this.atStatementEnd())
+          if (candidateCommaSkips[candidateCommaSkips.length - 1] > 0 && atPrintEnd())
             this.fail('UNEXPECTED_TOKEN', 'Expected a PRINT item after consecutive commas');
         }
-        if (this.atStatementEnd()) {
+        if (atPrintEnd()) {
           trailingSemicolon = separator.value === ';';
           break;
         }
       }
     }
-    return this.node('PrintStatement', command, last, {
+    const bodyLocation = this.location(command, last);
+    const forModifier =
+      this.candidate && this.at('KEYWORD', 'FOR')
+        ? {header: this.forStatement(this.take()), bodyLocation}
+        : undefined;
+    return this.node('PrintStatement', command, forModifier?.header ?? last, {
       items,
+      ...(forModifier ? {forModifier} : {}),
       separators,
       trailingSemicolon,
       ...(eduSystem30Commas.some((count) => count > 0) ? {eduSystem30Commas} : {}),
@@ -982,6 +978,20 @@ class Parser {
     }
     this.take();
     return this.node('NumberLiteral', token, token, {value: Number(token.raw), raw: token.raw});
+  }
+
+  forStatement(command: Token): NodeOf<'ForStatement'> {
+    const variable = this.loopVariable();
+    this.expect('OPERATOR', '=', 'Expected = after the loop variable');
+    const start = this.expression();
+    this.expect('KEYWORD', 'TO', 'Expected TO after the loop start');
+    const end = this.expression();
+    let step: Expression | null = null;
+    if (this.at('KEYWORD', 'STEP')) {
+      this.take();
+      step = this.expression();
+    }
+    return this.node('ForStatement', command, step ?? end, {variable, start, end, step});
   }
 
   loopVariable(): NodeOf<'Variable'> {

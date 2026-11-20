@@ -135,6 +135,12 @@ class Scanner {
           this.fail('INVALID_NUMBER', 'Expected a supported EDUSYSTEM-30 character literal', start);
         this.index += 2;
         this.emit('NUMBER', start, value);
+      } else if (this.policy.ma2 && character === '&' && this.statementStart) {
+        const start = this.position();
+        this.index++;
+        this.emit('KEYWORD', start, 'PRINT');
+        this.statementStart = false;
+        this.statementWord = 'PRINT';
       } else if (letter(character)) {
         this.readName();
       } else if ('+-*/^=<>'.includes(character)) {
@@ -175,6 +181,7 @@ class Scanner {
 
   historicalWordAllowed(word: string): boolean {
     const entry = this.policy.word(word, 0)!;
+    if (this.policy.ma2 && word === 'FOR' && this.statementWord === 'PRINT') return true;
     if (word === 'USING' && this.statementWord === 'PRINT') return true;
     if (entry.role === 'unsupported') return false;
     if (word === 'ELSE') return this.openConditionals > 0;
@@ -196,7 +203,7 @@ class Scanner {
       if (word === 'ELSE') this.openConditionals--;
       this.statementStart = true;
       this.statementWord = null;
-    } else if (this.statementStart || word === 'GOTO' || word === 'GOSUB') {
+    } else if (this.statementStart || word === 'GOTO' || word === 'GOSUB' || word === 'FOR') {
       this.statementStart = false;
       this.statementWord = word;
       if (word === 'IF') this.openConditionals++;
@@ -219,6 +226,7 @@ class Scanner {
       this.index < this.source.length &&
       !letter(this.source[this.index]) &&
       this.source[this.index] !== '!' &&
+      !(this.policy.ma2 && this.source[this.index] === '&') &&
       !/[ \t\r\n]/.test(this.source[this.index])
     )
       while (this.index < this.source.length && !/[ \t\r\n]/.test(this.source[this.index]))
@@ -405,6 +413,13 @@ class Scanner {
   readName() {
     const start = this.position();
     const beginning = this.index;
+    const spacedGoto = this.policy.ma2 && /^GO[ \t]+TO/.exec(this.source.slice(this.index));
+    if (spacedGoto) {
+      this.acceptHistoricalWord('GOTO');
+      this.index += spacedGoto[0].length;
+      this.emit('KEYWORD', start, 'GOTO');
+      return;
+    }
     let historicalKeyword = false;
     if (this.policy.compact) {
       if (this.source[this.index] !== this.source[this.index].toUpperCase())

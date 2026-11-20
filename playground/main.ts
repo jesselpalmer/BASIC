@@ -52,12 +52,15 @@ import plot from '../scripts/package/fixtures/classic/3dplot.bas' with {type: 't
 import mugwump from '../scripts/package/fixtures/classic/mugwump-mar75-text.bas' with {type: 'text'};
 import gomoko from '../scripts/package/fixtures/classic/gomoko-edusystem30-adapted.bas' with {type: 'text'};
 import cube from '../scripts/package/fixtures/classic/cube-edusystem30.bas' with {type: 'text'};
+import buleye from '../scripts/package/fixtures/classic/buleye-ma2.bas' with {type: 'text'};
+import gunner from '../scripts/package/fixtures/classic/gunner-ma2.bas' with {type: 'text'};
 import rusrou from '../scripts/package/fixtures/classic/rusrou-edusystem30.bas' with {type: 'text'};
 import hmrabi from '../scripts/package/fixtures/classic/hmrabi-edusystem30.bas' with {type: 'text'};
 import nim from '../scripts/package/fixtures/classic/nim-edusystem30.bas' with {type: 'text'};
 import salvo1 from '../scripts/package/fixtures/classic/salvo1-edusystem30.bas' with {type: 'text'};
 import horses from '../examples/omsi/HORSES.bas' with {type: 'text'};
 import tictac from '../examples/omsi/TICTAC.bas' with {type: 'text'};
+import fipfopReviewed from '../scripts/package/fixtures/classic/fipfop-ma2-reviewed.bas' with {type: 'text'};
 import fipfopRandom from '../scripts/package/fixtures/classic/fipfop-random-ma2.bas' with {type: 'text'};
 import fipfop from '../scripts/package/fixtures/classic/fipfop-ma2-fixed-q.bas' with {type: 'text'};
 import craps from '../scripts/package/fixtures/classic/craps-mark-adapted.bas' with {type: 'text'};
@@ -157,12 +160,15 @@ const examples: Readonly<Record<string, {source: string; dialect: Dialect}>> = {
   gomoko: {source: gomoko, dialect: 'edusystem-30'},
   amazin: {source: amazin, dialect: 'edusystem-30'},
   cube: {source: cube, dialect: 'edusystem-30'},
+  buleye: {source: buleye, dialect: 'basic-plus-v4a12-ma2'},
+  gunner: {source: gunner, dialect: 'basic-plus-v4a12-ma2'},
   rusrou: {source: rusrou, dialect: 'edusystem-30'},
   hmrabi: {source: hmrabi, dialect: 'edusystem-30'},
   nim: {source: nim, dialect: 'edusystem-30-mark'},
   salvo1: {source: salvo1, dialect: 'edusystem-30'},
   horses: {source: horses, dialect: 'edusystem-30-mark'},
   tictac: {source: tictac, dialect: 'edusystem-30-mark'},
+  'fipfop-reviewed': {source: fipfopReviewed, dialect: 'basic-plus-v4a12-ma2'},
   'fipfop-random': {source: fipfopRandom, dialect: 'basic-plus-v4a12-ma2'},
   fipfop: {source: fipfop, dialect: 'basic-plus-v4a12-ma2'},
   craps: {source: craps, dialect: 'edusystem-30-mark'},

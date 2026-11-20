@@ -87,9 +87,14 @@ function lineRoots(line: ParsedLine): readonly SimpleStatement[] {
 
 /** Every executable condition/body is visited, including dead branches. */
 export function lineStatements(line: ParsedLine): readonly SimpleStatement[] {
-  const pending = lineRoots(line)
-    .toReversed()
-    .map((statement) => ({statement, depth: 0, body: false}));
+  return statementsFromRoots(line, lineRoots(line));
+}
+
+function statementsFromRoots(
+  line: ParsedLine,
+  roots: readonly SimpleStatement[],
+): readonly SimpleStatement[] {
+  const pending = roots.toReversed().map((statement) => ({statement, depth: 0, body: false}));
   const statements: SimpleStatement[] = [];
   function fail(
     code: string,
@@ -143,10 +148,59 @@ export function lineStatements(line: ParsedLine): readonly SimpleStatement[] {
 }
 
 /** Positions belong to the prepared snapshot, never to invented BASIC labels. */
-export function programInstructions(lines: readonly ParsedLine[]): readonly Instruction[] {
+export function programInstructions(
+  lines: readonly ParsedLine[],
+  options: {readonly ma2PrintModifiers?: true} = {},
+): readonly Instruction[] {
   const instructions: Instruction[] = [];
   for (const line of lines) {
-    const statements = lineStatements(line);
+    const originalRoots = lineRoots(line);
+    if (line.statement.type === 'StatementSequence' && Object.hasOwn(line.statement, 'forModifier'))
+      throw new BasicSyntaxError(
+        'UNSUPPORTED_STATEMENT',
+        'A sequence cannot have a FOR modifier',
+        line.statement.location.start,
+        line.label,
+      );
+    for (const statement of statementsFromRoots(line, originalRoots)) {
+      if (!Object.hasOwn(statement, 'forModifier')) continue;
+      if (
+        !options.ma2PrintModifiers ||
+        statement.type !== 'PrintStatement' ||
+        !originalRoots.includes(statement)
+      )
+        throw new BasicSyntaxError(
+          'UNSUPPORTED_STATEMENT',
+          'PRINT FOR requires the selected BASIC-PLUS profile',
+          statement.location.start,
+          line.label,
+        );
+      if (
+        !statement.forModifier ||
+        statement.forModifier.header?.type !== 'ForStatement' ||
+        !statement.forModifier.bodyLocation
+      )
+        throw new BasicSyntaxError(
+          'INVALID_MODIFIER',
+          'Expected a PRINT FOR header and body location',
+          statement.location.start,
+          line.label,
+        );
+    }
+    const roots = originalRoots.flatMap((statement): SimpleStatement[] => {
+      if (statement.type !== 'PrintStatement' || !statement.forModifier) return [statement];
+      const {forModifier, ...body} = statement;
+      return [
+        forModifier.header,
+        {...body, location: forModifier.bodyLocation},
+        {
+          type: 'NextStatement',
+          variable: forModifier.header.variable,
+          location: forModifier.header.variable.location,
+        },
+      ];
+    });
+    const statements = statementsFromRoots(line, roots);
     const base = instructions.length;
     const nextLineIndex = base + statements.length;
     const sizes = new Map<SimpleStatement, number>();
@@ -161,7 +215,7 @@ export function programInstructions(lines: readonly ParsedLine[]): readonly Inst
       );
     const pending: {statement: SimpleStatement; index: number; next: number}[] = [];
     let start = base;
-    for (const statement of lineRoots(line)) {
+    for (const statement of roots) {
       const next = start + sizes.get(statement)!;
       pending.push({statement, index: start, next});
       start = next;
