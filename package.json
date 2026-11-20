@@ -45,11 +45,11 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "1.62.1",
     "@types/bun": "^1.4.4",
-    "eslint": "^10.13.0",
+    "eslint": "^10.15.0",
     "globals": "^17.13.0",
     "prettier": "3.9.10",
     "typescript": "^6.0.0",
-    "typescript-eslint": "^8.72.0"
+    "typescript-eslint": "^8.73.0"
   },
   "private": false,
   "publishConfig": {
