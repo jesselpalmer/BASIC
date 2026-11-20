@@ -156,7 +156,7 @@ describe('internal MA2 numeric expression path through the shared parser', () =>
       expect(() => parseMa2(source)).toThrow(BasicSyntaxError);
     for (const source of ['"x"', "'x'", 'A$', 'A%(1)', 'A%', 'ABS(A$)'])
       expect(error(source).code).toBe('UNSUPPORTED_EXPRESSION');
-    for (const source of ['RND', 'RND(0)', 'PI', 'SGN(1)', 'SIN(1)', 'FIX(1)', 'LOG10(1)'])
+    for (const source of ['RND', 'RND(0)', 'PI', 'SGN(1)', 'ATN(1)', 'FIX(1)', 'LOG10(1)'])
       expect(error(source).code).toBe('UNSUPPORTED_FUNCTION');
     for (const source of ['INT()', 'ABS(1,2)'])
       expect(error(source)).toMatchObject({

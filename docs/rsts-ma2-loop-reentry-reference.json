@@ -1,0 +1,83 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "probes": [
+    {
+      "name": "STALE",
+      "source": [
+        "10 FOR I=1 TO 10",
+        "20 IF C=0 THEN 50",
+        "30 PRINT \"OLD\";I",
+        "40 GOTO 90",
+        "45 NEXT I",
+        "47 GOTO 90",
+        "50 FOR I=2 TO 3",
+        "60 PRINT \"NEW\";I",
+        "70 NEXT I",
+        "75 C=1",
+        "80 GOTO 45",
+        "90 END"
+      ],
+      "output": "NEW 2 \nNEW 3 \nOLD 4 \n"
+    },
+    {
+      "name": "POST",
+      "source": [
+        "10 FOR I=1 TO 2",
+        "20 PRINT I",
+        "30 NEXT I",
+        "40 IF C=1 THEN 90",
+        "50 C=1:I=0:GOTO 30",
+        "90 END"
+      ],
+      "output": " 1 \n 2 \n 1 \n 2 \n"
+    },
+    {
+      "name": "UNSEEN",
+      "source": ["10 GOTO 30", "20 FOR I=1 TO 2", "30 PRINT \"BODY\"", "40 NEXT I", "50 END"],
+      "output": "BODY\n"
+    },
+    {
+      "name": "PRUNED",
+      "source": [
+        "10 FOR I=1 TO 2",
+        "20 FOR J=1 TO 2",
+        "30 GOTO 60",
+        "40 NEXT J",
+        "50 NEXT I",
+        "55 GOTO 100",
+        "60 FOR I=3 TO 3",
+        "70 PRINT \"NEW\";I",
+        "80 NEXT I",
+        "90 GOTO 40",
+        "100 END"
+      ],
+      "output": "NEW 3 \nNEW 3 \n"
+    },
+    {
+      "name": "SKIP",
+      "source": [
+        "10 FOR I=3 TO 1",
+        "20 PRINT I",
+        "30 NEXT I",
+        "40 C=C+1",
+        "50 IF C=2 THEN 90",
+        "60 I=0:GOTO 30",
+        "90 END"
+      ],
+      "output": " 1 \n"
+    },
+    {
+      "name": "DESC",
+      "source": [
+        "10 FOR I=2 TO 1 STEP -1",
+        "20 PRINT I",
+        "30 NEXT I",
+        "40 IF C=1 THEN 90",
+        "50 C=1:I=3:GOTO 30",
+        "90 END"
+      ],
+      "output": " 2 \n 1 \n 2 \n 1 \n"
+    }
+  ]
+}

@@ -154,12 +154,16 @@ def main():
     source = reviewed.decode('ascii').replace(
         '180 RANDOMIZE', '180 REM DEFAULT RNG PROBE',
     ).replace('COT(Q/N+Q)', '(1/TAN(Q/N+Q))')
+    portable = (fipfop.FIXTURES / 'fipfop-random-ma2.bas').read_bytes()
+    portable_source = portable.decode('ascii').replace('180 RANDOMIZE', '180 REM DEFAULT RNG PROBE')
     captures = []
     for disk, boot in [(args.v4a_disk, life2.boot), (args.v4b_disk, nicoma.boot)]:
+        observed = capture(args.simulator.resolve(), disk, replay, boot, source)
+        assert capture(args.simulator.resolve(), disk, replay, boot, portable_source) == observed
         captures.append({
             'secondaryPositions': capture(args.simulator.resolve(), disk, secondary_positions, boot),
             'binary64Comparison': capture(args.simulator.resolve(), disk, compare_binary64, boot),
-            'output': capture(args.simulator.resolve(), disk, replay, boot, source),
+            'output': observed,
         })
     first, second = captures
     assert first == second, captures
@@ -168,6 +172,7 @@ def main():
         'builds': [life2.BUILD, nicoma.BUILD],
         'reviewedFixtureSha256': fipfop.REVIEWED_SHA256,
         'replaySourceSha256': life2.digest(source.encode('ascii')),
+        'portableFixtureSha256': life2.digest(portable),
         'inputs': INPUTS,
         **first,
     }, indent=2) + '\n', encoding='ascii')

@@ -7,7 +7,7 @@ import type * as PublicApi from '../src/index.ts';
 export const baglesOptions = {dialect: 'basic-plus-v4a12-ma2'} as const;
 const fixture = (name: string) =>
   readFileSync(new URL(`./package/fixtures/classic/${name}`, import.meta.url));
-export const baglesSource = fixture('bagles-ma2.bas').toString('utf8');
+export const baglesSource = fixture('bagles-mar75-text.bas').toString('utf8');
 export const baglesTerminalTranscript = reference.output;
 export const baglesTurns = reference.turns;
 const terminalPrompts =
@@ -27,7 +27,7 @@ export async function runBaglesAcceptance(
   for (const [source, hash] of [
     [fixture('bagels.bas'), reference.pinnedFixtureSha256],
     [fixture('bagles-mar75-text.bas'), reference.reviewedFixtureSha256],
-    [baglesSource, reference.portableFixtureSha256],
+    [fixture('bagles-ma2.bas'), reference.portableFixtureSha256],
   ] as const) {
     assert.equal(createHash('sha256').update(source).digest('hex'), hash);
   }

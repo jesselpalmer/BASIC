@@ -16,7 +16,7 @@ It also runs the separately labeled adaptations
 [AMAZIN](amazin-edusystem30.md), [BUZZWD](buzzwd-edusystem30.md), and
 [GUESS](guess-edusystem30-review.md), [CALNDR](calndr-edusystem30-review.md),
 [ROCKSP](rocksp-edusystem30-review.md), [SALVO 1](salvo1-edusystem30.md), and
-[HMRABI](hmrabi-edusystem30.md).
+[HMRABI](hmrabi-edusystem30.md) and [RUSROU](rusrou-edusystem30.md).
 Select `edusystem-30-mark` for the reviewed [GOLF](golf-edusystem30.md) and
 [BLKJAK](blkjak-edusystem30-review.md) and [SLOTS](slots-edusystem30.md)
 listings, plus the [TOWER](tower-edusystem30-review.md),

@@ -3326,11 +3326,13 @@
         "title": "RUSROU",
         "referencePage": 192,
         "dialectHint": "BASIC-8",
-        "evidence": "upstream README; attribution not certified"
+        "evidence": "upstream README; attribution not certified",
+        "listingPageVerified": 192
       },
       "role": "listing",
-      "sourceStatus": "unresolved",
+      "sourceStatus": "reviewed-difference",
       "dialectStatus": "unverified",
+      "reviewRecord": "rusrou-edusystem30.md#rusrou-on-edusystem-30",
       "verifiedDialect": null,
       "observedFeatureLabels": {
         "randomization": [5]

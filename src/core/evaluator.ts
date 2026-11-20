@@ -33,6 +33,7 @@ import {
 import {
   ma2Binary,
   ma2Unary,
+  ma2Trigonometry,
   injectMa2Value,
   observeMa2Value,
   type Ma2Value,
@@ -416,7 +417,7 @@ function requireMa2NumericSyntax(
           pending.push(...node.arguments);
           break;
         }
-        if (node.name !== 'INT' && node.name !== 'ABS')
+        if (!['INT', 'ABS', 'SIN', 'COS', 'TAN'].includes(node.name))
           reject('UNSUPPORTED_FUNCTION', 'Unsupported constant MA2 intrinsic', node.nameLocation);
         if (node.arguments.length !== 1)
           reject(
@@ -932,11 +933,15 @@ function evaluateTree(
             if (node.arguments.length) values.pop();
             values.push(context.nextRandom!());
           } else {
+            const argument = values.pop()! as Ma2Value;
             ma2Operation = {
-              result: ma2Unary(
-                values.pop()! as Ma2Value,
-                node.name === 'ABS' ? 'absolute' : 'integer',
-              ),
+              result:
+                node.name === 'SIN' || node.name === 'COS' || node.name === 'TAN'
+                  ? ma2Trigonometry(
+                      argument,
+                      node.name === 'SIN' ? 'sine' : node.name === 'COS' ? 'cosine' : 'tangent',
+                    )
+                  : ma2Unary(argument, node.name === 'ABS' ? 'absolute' : 'integer'),
               location: node.nameLocation,
             };
           }

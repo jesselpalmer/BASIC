@@ -65,7 +65,7 @@ export class ControlFlow {
   #explicitTransfer = false;
   #loopFrames = new Map<number, LoopFrame>();
   #calls: CallFrame[] = [];
-  // Native and MA2 require unique active variables across suspended contexts.
+  // Native requires unique active variables across suspended contexts.
   #activeLoopVariables = new Set<string>();
 
   constructor(
@@ -170,7 +170,7 @@ export class ControlFlow {
 
   beginLoop(statement: NodeOf<'ForStatement'>): void {
     const name = statement.variable.name;
-    const uniqueVariables = this.loopPolicy !== 'selected-edu30';
+    const uniqueVariables = this.loopPolicy === 'native';
     if (uniqueVariables && this.#activeLoopVariables.has(name)) {
       throw new BasicRuntimeError(
         'LOOP_VARIABLE_ACTIVE',
@@ -207,10 +207,9 @@ export class ControlFlow {
     this.evaluator.assign(statement.variable, start);
     // The actual header position is independent of its prepared successor.
     const pair = this.prepared.pairsByFor.get(this.#currentIndex)!;
-    if (skip) {
+    if (skip && this.loopPolicy !== 'selected-ma2') {
       // EDU30 can restart an initialized header with bounds that now skip it.
       this.#loopFrames.delete(pair.forIndex);
-      this.#moveTo(pair.nextIndex + 1, statement.location);
     } else {
       this.#loopFrames.set(pair.forIndex, {
         ...pair,
@@ -220,12 +219,14 @@ export class ControlFlow {
       });
       if (uniqueVariables) this.#activeLoopVariables.add(name);
     }
+    if (skip) this.#moveTo(pair.nextIndex + 1, statement.location);
   }
 
   nextLoop(statement: NodeOf<'NextStatement'>): void {
     const pair = this.prepared.pairsByNext.get(this.#currentIndex)!;
     const frame = this.#loopFrames.get(pair.forIndex);
     if (!frame) {
+      if (this.loopPolicy === 'selected-ma2') return;
       throw new BasicRuntimeError(
         'LOOP_NOT_ACTIVE',
         `FOR loop for ${pair.variable} is not active`,
@@ -265,7 +266,9 @@ export class ControlFlow {
       }
       if (this.loopPolicy === 'native') this.evaluator.assign(statement.variable, value);
     }
-    this.#loopFrames.delete(frame.forIndex);
+    // MA2 keeps each executed header's limit and step after NEXT finishes.
+    // A later NEXT may resume it after an assignment to the visible scalar.
+    if (this.loopPolicy !== 'selected-ma2') this.#loopFrames.delete(frame.forIndex);
     this.#activeLoopVariables.delete(frame.variable);
   }
 
@@ -290,8 +293,8 @@ export class ControlFlow {
     location: Location,
     frames: ReadonlyMap<number, LoopFrame>,
   ): void {
-    // EDU30 allows transfers into a lexical FOR body without running its header.
-    if (this.loopPolicy === 'selected-edu30') return;
+    // The selected interpreters allow entry before a lexical FOR header runs.
+    if (this.loopPolicy !== 'native') return;
     for (const pair of this.prepared.loopPairs) {
       if (containsLoopBody(pair, index) && !frames.has(pair.forIndex)) {
         throw new BasicRuntimeError(

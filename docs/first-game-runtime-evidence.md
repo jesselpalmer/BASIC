@@ -97,11 +97,12 @@ also runs its new range. In the two same-scalar probes, the earlier range
 produces no further output after the new loop finishes. Nested probes record
 what happens when an outer FOR restarts with an inner loop still active.
 
-The selected profile currently rejects reinitializing an active loop variable.
-BAGLES completes its validation loops and uses an explicit guess counter in
-the portable adaptation. The
-[FOR restart captures](rsts-v4a-ma2-for-restart-reference.json) keep the
-archived control-flow cases available for future profile work.
+The selected profile now retains each lexical FOR header's limit and step
+across transfers and completion. Reexecuting a header replaces its captured
+values. Headers sharing a variable keep their own values, and a later NEXT
+can resume after an assignment to that scalar. Additional captures on both
+RSTS/E builds distinguish those cases. The [selected loop rules](selected-ma2-loops.md)
+enable the reviewed BAGLES source with its original validation and guess loops.
 
 ```sh
 python3 scripts/research/probe-ma2-for-restart.py \
