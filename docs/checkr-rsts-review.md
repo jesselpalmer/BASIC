@@ -35,14 +35,46 @@ opening-position check, not a completed game, kinging test or winning playthroug
 An isolated EDU30 probe containing the listing's scalar string comparison
 reports `S1 20` before requesting input. This rules out direct use of that
 statement on the pinned EDU30 image; it does not identify CHECKR's original
-interpreter. The complete game still needs a selected-profile implementation of
-DATA/READ/RESTORE, nested GOSUB/RETURN, and numeric coordinate-row INPUT, followed
-by an archived complete game including captures and kinging. The public MA2
-boundary currently rejects the reviewed source at line 1100 with
-`UNSUPPORTED_STATEMENT: Unsupported statement DATA`.
+interpreter. The selected-profile implementation needs DATA/READ/RESTORE, nested
+GOSUB/RETURN, and numeric coordinate-row INPUT. These support requirements are
+separate from identifying the original interpreter.
 
-No public game claim follows from this source review. CHECKR remains open in the
-108-file compatibility gate.
+## Complete archived game
+
+The separate [complete-game reference](checkr-complete-reference.json) loads
+and LIST-verifies the same reviewed 192-line source on both RSTS builds.
+Twenty-four human turns end with `VERY GOOD, YOU WIN!` and `-CHUCK OUT` after
+the computer has no available move. Every computer move is checked against
+the recorded coordinates, and every requested board is retained byte for byte.
+The monitor's final blank line before Ready is recorded separately from program
+output; the last printed CHUCK OUT newline remains in the acceptance transcript.
+The human makes nine single captures and promotes one piece; the printed `O*`
+king marker appears on eleven subsequent boards. An empty FROM square and an
+occupied TO square both retry before the first valid human move.
+
+The fixed input sequence was found by an offline single-move search, then
+replayed on each unmodified archived interpreter. The archived interpreter,
+rather than that search, supplies the output oracle. The shipped reviewed
+source adds no board initialization, move repair or forced ending. The printed
+warning about multiple jumps still applies. This is a complete selected-system
+replay and does not identify the original interpreter.
+
+Choose **CHECKR · BASIC-PLUS reviewed source** in the playground. Type `YES`
+to see the board, then enter FROM and TO coordinates as comma-separated pairs,
+such as `3,3` and `2,4`. The public acceptance helper compares the complete
+archived transcript and a fresh RUN; the editor checker also saves and reloads
+the exact selected document. The browser checker plays the full game, starts
+fresh and stops at the next board prompt.
+
+```sh
+python3 scripts/research/capture-checkr-complete.py \
+  --simulator /path/to/simh/BIN/pdp11 --v4a-disk /path/to/raw-v4a.dsk \
+  --v4b-disk /path/to/RSTS11v4B.DSK --pdp8 /path/to/simh/BIN/pdp8 \
+  --tape /path/to/edu30.tu56 --output /tmp/checkr-complete-reference.json
+```
+
+CHECKR remains part of the 108-file gate; its raw original-dialect certification
+and original interpreter attribution remain open.
 
 ```sh
 python3 scripts/research/capture-checkr-rsts.py \

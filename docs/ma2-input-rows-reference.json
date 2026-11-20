@@ -1,0 +1,121 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "cases": [
+    {
+      "name": "plain",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["1,2"],
+      "prompts": ["FROM"],
+      "output": "FROM?  2  4 \n"
+    },
+    {
+      "name": "spaces",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": [" 3 , -4 "],
+      "prompts": ["FROM"],
+      "output": "FROM?  6 -8 \n"
+    },
+    {
+      "name": "surplus",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["5,6,7"],
+      "prompts": ["FROM"],
+      "output": "FROM?  10  12 \n"
+    },
+    {
+      "name": "ignoredSurplusText",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["5,6,X"],
+      "prompts": ["FROM"],
+      "output": "FROM?  10  12 \n"
+    },
+    {
+      "name": "continuation",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["8", "9"],
+      "prompts": ["FROM", ""],
+      "output": "FROM? ?  16  18 \n"
+    },
+    {
+      "name": "invalidFirst",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["X,2", "3,4"],
+      "prompts": ["FROM", "FROM"],
+      "output": "FROM? ILLEGAL NUMBER at line 20 \nFROM?  6  8 \n",
+      "v4bOutput": "FROM? DATA FORMAT ERROR at line 20 \nFROM?  6  8 \n"
+    },
+    {
+      "name": "invalidAfterPartial",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["5,X", "3,4"],
+      "prompts": ["FROM", "FROM"],
+      "output": "FROM? ILLEGAL NUMBER at line 20 \nFROM?  6  8 \n",
+      "v4bOutput": "FROM? DATA FORMAT ERROR at line 20 \nFROM?  6  8 \n"
+    },
+    {
+      "name": "emptyFirst",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": [",2"],
+      "prompts": ["FROM"],
+      "output": "FROM?  0  4 \n"
+    },
+    {
+      "name": "emptyLast",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["1,"],
+      "prompts": ["FROM"],
+      "output": "FROM?  2  0 \n"
+    },
+    {
+      "name": "emptyLine",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["", "2"],
+      "prompts": ["FROM", ""],
+      "output": "FROM? ?  0  4 \n"
+    },
+    {
+      "name": "fraction",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["1.5,-2.5"],
+      "prompts": ["FROM"],
+      "output": "FROM?  3 -5 \n"
+    },
+    {
+      "name": "exponent",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["1E2,2"],
+      "prompts": ["FROM"],
+      "output": "FROM?  200  4 \n"
+    },
+    {
+      "name": "quotedNumber",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["\"1\",\"2\"", "3,4"],
+      "prompts": ["FROM", "FROM"],
+      "output": "FROM? ILLEGAL NUMBER at line 20 \nFROM?  6  8 \n",
+      "v4bOutput": "FROM? DATA FORMAT ERROR at line 20 \nFROM?  6  8 \n"
+    },
+    {
+      "name": "stoppedContinuation",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["8"],
+      "prompts": ["FROM"],
+      "pendingPrompt": "",
+      "stoppedValuesOutput": " 8  92 \n",
+      "output": "FROM? ? "
+    },
+    {
+      "name": "stoppedInvalidPartial",
+      "source": ["10 X=91:Y=92", "20 INPUT \"FROM\";X,Y", "30 PRINT INT(X*2);INT(Y*2)", "40 END"],
+      "responses": ["5,X"],
+      "prompts": ["FROM"],
+      "pendingPrompt": "FROM",
+      "stoppedValuesOutput": " 5  92 \n",
+      "output": "FROM? ILLEGAL NUMBER at line 20 \nFROM? ",
+      "v4bOutput": "FROM? DATA FORMAT ERROR at line 20 \nFROM? "
+    }
+  ]
+}

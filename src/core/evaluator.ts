@@ -35,6 +35,7 @@ import {
   ma2Unary,
   ma2Trigonometry,
   injectMa2Value,
+  bindMa2Words,
   observeMa2Value,
   type Ma2Value,
   type Ma2BinaryResult,
@@ -577,6 +578,18 @@ class Ma2ScalarSession {
     if (target.type === 'ArrayReference') this.validateNode(target);
     const result = this.evaluateNode(expression);
     if (result.kind !== 'value') return result;
+    if (target.type === 'Variable') {
+      this.#scalars.set(target.name, result.value);
+      return result;
+    }
+    return this.writeElement(target, result);
+  }
+
+  /** Commit canonical READ words without converting through a host number. */
+  assignWordsNode(target: AssignmentTarget, words: readonly [number, number]): Ma2ConstantResult {
+    this.validateNode(target);
+    const result = bindMa2Words(words);
+    if (result.kind !== 'value') return Object.freeze({...result, location: target.location});
     if (target.type === 'Variable') {
       this.#scalars.set(target.name, result.value);
       return result;

@@ -71,8 +71,8 @@ describe('classic-game ledger validation', () => {
   it('validates the pinned ledger and returns deterministic status counts', () => {
     expect(validateClassicLedger(sourceRoot)).toEqual({
       entries: 108,
-      sourceStatuses: {'reviewed-difference': 59, unresolved: 49},
-      dialectStatuses: {unverified: 83, 'printed-system-identified': 25},
+      sourceStatuses: {'reviewed-difference': 61, unresolved: 47},
+      dialectStatuses: {unverified: 81, 'printed-system-identified': 27},
       behaviorStatuses: {'partial-native-path': 2, 'not-run': 106},
       fixtureFiles: 3,
     });

@@ -1,11 +1,12 @@
 # Native DATA, READ, and RESTORE
 
 **Status:** implemented first native #122 slice; design recorded before code.
-Historical profiles and whole-game certification remain pending.
+The public selected BASIC-PLUS path has a separate [MA2 DATA contract](ma2-data.md).
+Original-dialect whole-game certification remains separate.
 
 The internal historical scanner has a separate [DATA source mode](historical-data-scanner.md)
-that retains pool fields as text. It does not enable historical parsing, READ
-conversion, pool preparation or a public profile; the native contract below stays typed.
+that retains pool fields as text. The selected MA2 path now uses these fields for target-dependent READ conversion;
+the native contract below stays typed.
 
 ## Evidence and boundary
 

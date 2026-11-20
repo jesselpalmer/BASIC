@@ -78,6 +78,21 @@ export function basicPlusMa2Val(text: string): BasicPlusMa2ValResult {
 
 export function basicPlusMa2ReadNumeric(
   text: string,
+  target: 'floating',
+  quoted: boolean,
+): Exclude<BasicPlusMa2ReadNumericResult, {numericKind: 'integer'}>;
+export function basicPlusMa2ReadNumeric(
+  text: string,
+  target: 'integer',
+  quoted: boolean,
+): Exclude<BasicPlusMa2ReadNumericResult, {numericKind: 'floating'}>;
+export function basicPlusMa2ReadNumeric(
+  text: string,
+  target: 'floating' | 'integer',
+  quoted: boolean,
+): BasicPlusMa2ReadNumericResult;
+export function basicPlusMa2ReadNumeric(
+  text: string,
   target: 'floating' | 'integer',
   quoted: boolean,
 ): BasicPlusMa2ReadNumericResult {

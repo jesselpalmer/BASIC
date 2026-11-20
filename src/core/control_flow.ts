@@ -129,10 +129,13 @@ export class ControlFlow {
         location.label,
       );
     }
-    const loops = new Map<number, LoopFrame>();
+    // MA2 stores each lexical FOR header for the whole run, including calls.
+    // Native and EDU30 retain their suspended caller/callee loop ownership.
+    const loops =
+      this.loopPolicy === 'selected-ma2' ? this.#loopFrames : new Map<number, LoopFrame>();
     this.#checkDestination(index, target.location, loops);
-    // The driver already advanced to the real following instruction. Suspend
-    // this map without copying or discarding the caller's live loop frames.
+    // The driver already advanced to the real following instruction. Native
+    // and EDU30 suspend their map; MA2 calls keep the same run-owned map.
     this.#calls.push({index: this.#index, loops: this.#loopFrames});
     this.#loopFrames = loops;
     this.#index = index;
@@ -149,9 +152,11 @@ export class ControlFlow {
         location.label,
       );
     }
-    for (const loop of this.#loopFrames.values()) this.#activeLoopVariables.delete(loop.variable);
-    this.#loopFrames.clear();
-    this.#loopFrames = frame.loops;
+    if (this.loopPolicy !== 'selected-ma2') {
+      for (const loop of this.#loopFrames.values()) this.#activeLoopVariables.delete(loop.variable);
+      this.#loopFrames.clear();
+      this.#loopFrames = frame.loops;
+    }
     this.#moveTo(frame.index, location);
   }
 
@@ -229,7 +234,13 @@ export class ControlFlow {
     const pair = this.prepared.pairsByNext.get(this.#currentIndex)!;
     const frame = this.#loopFrames.get(pair.forIndex);
     if (!frame) {
-      if (this.loopPolicy === 'selected-ma2') return;
+      if (this.loopPolicy === 'selected-ma2')
+        throw new BasicRuntimeError(
+          'UNSUPPORTED_MA2_LOOP_STATE',
+          'Selected MA2 NEXT requires an executed FOR header',
+          statement.location.start,
+          statement.location.label,
+        );
       throw new BasicRuntimeError(
         'LOOP_NOT_ACTIVE',
         `FOR loop for ${pair.variable} is not active`,

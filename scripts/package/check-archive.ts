@@ -149,6 +149,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'rusrou-acceptance.ts',
       'gunner-acceptance.ts',
       'buleye-acceptance.ts',
+      'checkr-acceptance.ts',
+      'synonm-acceptance.ts',
       'train-acceptance.ts',
     ]) {
       copyFileSync(join(root, 'scripts', harness), join(consumer, 'scripts', harness));
@@ -212,6 +214,8 @@ export async function checkArchive(root: string, archive: string): Promise<void>
       'rusrou-edusystem30-reference.json',
       'gunner-rsts-reference.json',
       'buleye-rsts-reference.json',
+      'checkr-complete-reference.json',
+      'synonm-rsts-reference.json',
       'train-edusystem30-reference.json',
     ])
       copyFileSync(join(installed, 'docs', reference), join(consumer, 'docs', reference));

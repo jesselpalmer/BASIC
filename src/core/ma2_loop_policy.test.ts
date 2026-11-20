@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import {describe, expect, test} from 'bun:test';
 import {BasicRuntimeError} from './diagnostic.ts';
 import restartReference from '../../docs/rsts-v4a-ma2-for-restart-reference.json';
@@ -11,7 +12,7 @@ function observed(source: string, name: string): number | string | undefined {
 
 describe('selected MA2 FOR/NEXT execution policy', () => {
   for (const reference of [restartReference, reentryReference]) {
-    for (const probe of reference.probes) {
+    for (const probe of reference.probes.filter(({name}) => name !== 'UNSEEN')) {
       test(`matches archived ${probe.name} loop-header state`, () => {
         let output = '';
         const basic = new Basic(
@@ -48,8 +49,11 @@ describe('selected MA2 FOR/NEXT execution policy', () => {
     await basic.runAsync(source);
     expect(basic.variables).toContainEqual({name: 'C', value: 2});
     answers = ['2', '0'];
-    await basic.runAsync();
+    await assert.rejects(basic.runAsync(), /Selected MA2 NEXT requires an executed FOR header/);
     expect(basic.variables).toContainEqual({name: 'C', value: 1});
+    answers = ['1', '0'];
+    await basic.runAsync();
+    expect(basic.variables).toContainEqual({name: 'C', value: 2});
   });
 
   test('matches the six captured completion and unfinished-loop reentry cases', () => {

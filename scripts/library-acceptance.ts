@@ -32,6 +32,8 @@ import {runMugwumpAcceptance} from './mugwump-acceptance.ts';
 import {runGomokoAcceptance} from './gomoko-acceptance.ts';
 import {runCubeAcceptance} from './cube-acceptance.ts';
 import {runCrapsAcceptance} from './craps-acceptance.ts';
+import {runSynonmAcceptance} from './synonm-acceptance.ts';
+import {runCheckrAcceptance} from './checkr-acceptance.ts';
 import {runBuleyeAcceptance} from './buleye-acceptance.ts';
 import {runGunnerAcceptance} from './gunner-acceptance.ts';
 import {runRusrouAcceptance} from './rusrou-acceptance.ts';
@@ -122,6 +124,8 @@ export const libraryAcceptanceCases = [
   'adapted AMAZIN matches archived seeded mazes and dimension retry',
   'adapted CUBE matches the archived win, wager retry and both losses',
   'adapted CRAPS matches archived wagers, shooter changes and endings',
+  'adapted SYNONM matches archived ten-question drill, help and completion',
+  'reviewed CHECKR matches archived captures, kinging and complete win',
   'adapted BULEYE matches archived named-player rounds and replay',
   'adapted GUNNER matches archived target hits, defeat and replay',
   'adapted RUSROU matches archived outcomes and next rounds',
@@ -502,6 +506,12 @@ export async function runLibraryAcceptance(api: Api, examplesDirectory: string):
   );
   await check('adapted CRAPS matches archived wagers, shooter changes and endings', () =>
     runCrapsAcceptance(api),
+  );
+  await check('adapted SYNONM matches archived ten-question drill, help and completion', () =>
+    runSynonmAcceptance(api),
+  );
+  await check('reviewed CHECKR matches archived captures, kinging and complete win', () =>
+    runCheckrAcceptance(api),
   );
   await check('adapted BULEYE matches archived named-player rounds and replay', () =>
     runBuleyeAcceptance(api),

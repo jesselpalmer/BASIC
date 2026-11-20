@@ -11,6 +11,8 @@ export async function checkLibraryConsumers(consumer: string, installed: string)
     const acceptance = runProcess({
       cwd: consumer,
       args: [entry, join(installed, 'examples')],
+      // The shared suite includes complete classic games, each with its own instruction budget.
+      timeout: 30000,
     });
     assert.equal(
       acceptance.stdout,

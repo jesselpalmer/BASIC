@@ -1,0 +1,114 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "v4aDiskSha256": "0ffda550c990c47fb7ceccfa1dba757b20fd3d9a406620c491630fbfa93bbf4f",
+  "v4bDiskSha256": "653dca363a376ba6a99a434cbacac7cd6ef050993db70184430544062802343f",
+  "probes": [
+    {
+      "name": "ORDER",
+      "source": ["10 READ I,A(I),J,A(J)", "20 PRINT I;A(2);J;A(1)", "30 END", "40 DATA 2,7,1,9"],
+      "output": " 2  7  1  9 \n"
+    },
+    {
+      "name": "MIXED",
+      "source": [
+        "10 READ A$,B,C$(1),D$",
+        "20 PRINT \"[\";A$;\"]\";B;\"[\";C$(1);\"][\";D$;\"]\"",
+        "30 END",
+        "40 DATA  - 1 , + 2 ,\"A, B\",\"\""
+      ],
+      "output": "[-1] 2 [A, B][]\n"
+    },
+    {
+      "name": "RESTORE",
+      "source": [
+        "80 DATA 8",
+        "10 GOTO 30",
+        "20 DATA 2",
+        "30 READ A,B",
+        "40 PRINT A;B",
+        "50 RESTORE",
+        "60 READ C",
+        "70 PRINT C",
+        "90 END"
+      ],
+      "output": " 2  8 \n 2 \n"
+    },
+    {
+      "name": "DECIMAL",
+      "source": [
+        "10 READ A,B",
+        "20 PRINT INT((A-1)*16777216);INT((B+1)*16777216)",
+        "30 END",
+        "40 DATA 1.0000001,-1.0000001"
+      ],
+      "output": " 0  0 \n"
+    },
+    {
+      "name": "ARRAY",
+      "source": [
+        "10 DIM A$(1,1)",
+        "20 READ A$(.9,1.9),B$(10)",
+        "30 PRINT A$(0,1);\":\";B$(10)",
+        "40 RESTORE",
+        "50 READ C$",
+        "60 PRINT C$",
+        "70 END",
+        "80 DATA \"FIRST\",\"SECOND\""
+      ],
+      "output": "FIRST:SECOND\nFIRST\n"
+    },
+    {
+      "name": "PARTIAL",
+      "source": [
+        "10 ON ERROR GOTO 90",
+        "20 DIM A(0)",
+        "30 DATA 7,8,9",
+        "40 READ I,A(1),J",
+        "50 END",
+        "90 PRINT ERR;I;J",
+        "100 READ S$",
+        "110 PRINT S$",
+        "120 END"
+      ],
+      "output": " 55  7  0 \n9\n"
+    },
+    {
+      "name": "QUOTED",
+      "source": [
+        "10 ON ERROR GOTO 90",
+        "20 A=7",
+        "30 DATA \"1\",2",
+        "40 READ A",
+        "50 END",
+        "90 PRINT ERR;A",
+        "100 READ S$",
+        "110 PRINT S$",
+        "120 END"
+      ],
+      "output": " 52  7 \n1\n"
+    },
+    {
+      "name": "EMPTY",
+      "source": ["10 READ A", "20 END"],
+      "output": "OUT OF DATA at line 10 \n"
+    }
+  ],
+  "v4bDifferences": [
+    {
+      "name": "QUOTED",
+      "source": [
+        "10 ON ERROR GOTO 90",
+        "20 A=7",
+        "30 DATA \"1\",2",
+        "40 READ A",
+        "50 END",
+        "90 PRINT ERR;A",
+        "100 READ S$",
+        "110 PRINT S$",
+        "120 END"
+      ],
+      "output": " 50  7 \n1\n"
+    }
+  ]
+}

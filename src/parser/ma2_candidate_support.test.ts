@@ -23,9 +23,9 @@ describe('selected MA2 candidate statement-form preflight', () => {
 
   test('rejects unsupported forms even after END or in a dead branch', () => {
     for (const source of [
-      '10 END\n20 INPUT A,B',
+      '10 END\n20 CHANGE A TO B$',
       '10 IF 1=0 THEN PRINT 1\n20 END',
-      '10 INPUT A,B\n20 END',
+      '10 CHANGE C TO D$\n20 END',
     ]) {
       try {
         preflight(source);

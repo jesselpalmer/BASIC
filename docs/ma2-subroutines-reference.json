@@ -1,0 +1,226 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "systems": ["RSTS V4A-12 V4A12MA2", "RSTS V04B-17 RSTSV4B"],
+  "probes": [
+    {
+      "name": "NEST",
+      "source": [
+        "10 N=1:GOSUB 100:PRINT \"MAIN\";N:END",
+        "100 N=N+2:GOSUB 200:N=N+1:RETURN",
+        "200 N=N*3:RETURN"
+      ],
+      "output": "MAIN 10 \n"
+    },
+    {
+      "name": "FORCALL",
+      "source": [
+        "10 FOR J=1 TO 2",
+        "20 GOSUB 100",
+        "30 PRINT \"BACK\";I;J",
+        "40 NEXT J",
+        "50 END",
+        "100 FOR I=1 TO 3",
+        "110 PRINT \"SUB\";I;J",
+        "120 RETURN",
+        "130 NEXT I",
+        "140 RETURN"
+      ],
+      "output": "SUB 1  1 \nBACK 1  1 \nSUB 1  2 \nBACK 1  2 \n"
+    },
+    {
+      "name": "PERSIST",
+      "source": [
+        "10 C=0:GOSUB 100",
+        "20 I=0:C=1",
+        "30 GOTO 120",
+        "40 END",
+        "100 FOR I=1 TO 2",
+        "110 IF C=0 THEN 150",
+        "120 PRINT I;",
+        "130 NEXT I",
+        "140 END",
+        "150 RETURN"
+      ],
+      "output": " 0  1  2 "
+    },
+    {
+      "name": "CROSS",
+      "source": [
+        "10 FOR I=1 TO 2",
+        "20 GOSUB 100",
+        "30 PRINT \"BACK\";I",
+        "40 NEXT I",
+        "50 END",
+        "100 PRINT \"SUB\";I",
+        "110 GOTO 40",
+        "120 RETURN"
+      ],
+      "output": "SUB 1 \nSUB 2 \n"
+    },
+    {
+      "name": "UNINIT",
+      "source": [
+        "10 GOSUB 110",
+        "20 PRINT \"AFTER\";I",
+        "30 END",
+        "100 FOR I=1 TO 2",
+        "110 PRINT \"BODY\";I",
+        "120 NEXT I",
+        "130 RETURN"
+      ],
+      "output": "BODY 0 \nAFTER-1 \n"
+    },
+    {
+      "name": "SAMEVAR",
+      "source": [
+        "10 N=0:FOR I=1 TO 2",
+        "20 GOSUB 100",
+        "30 N=N+1:PRINT \"BACK\";I",
+        "35 IF N=2 THEN 50",
+        "40 NEXT I",
+        "50 END",
+        "100 FOR I=1 TO 1",
+        "110 PRINT \"SUB\";I",
+        "120 NEXT I",
+        "130 RETURN"
+      ],
+      "output": "SUB 1 \nBACK 1 \nSUB 1 \nBACK 1 \n"
+    },
+    {
+      "name": "CHECKR",
+      "source": [
+        "10 FOR X=1 TO 3",
+        "20 FOR Y=1 TO 3",
+        "30 GOSUB 100",
+        "40 PRINT X;Y",
+        "50 NEXT Y",
+        "60 NEXT X",
+        "70 END",
+        "100 FOR X=8 TO 8",
+        "110 FOR Y=8 TO 8",
+        "120 RETURN",
+        "130 NEXT Y",
+        "140 NEXT X",
+        "150 RETURN"
+      ],
+      "output": " 8  8 \n"
+    },
+    {
+      "name": "RECURSE",
+      "source": [
+        "10 N=0:GOSUB 100:PRINT \"MAIN\";N:END",
+        "100 N=N+1:PRINT \"SUB\";N",
+        "110 IF N=3 THEN 130",
+        "120 GOSUB 100",
+        "130 RETURN"
+      ],
+      "output": "SUB 1 \nSUB 2 \nSUB 3 \nMAIN 3 \n"
+    },
+    {
+      "name": "NOCLL",
+      "source": ["10 RETURN", "20 END"],
+      "output": "RETURN WITHOUT GOSUB at line 10 \n"
+    },
+    {
+      "name": "UNSEEN",
+      "source": [
+        "10 I=0:GOTO 110",
+        "100 FOR I=1 TO 2",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE 0 \nAFTER-1 \n"
+    },
+    {
+      "name": "UNSET5",
+      "source": [
+        "10 I=5:GOTO 110",
+        "100 FOR I=1 TO 2",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE 5 \nAFTER 4 \n"
+    },
+    {
+      "name": "UNSETN",
+      "source": [
+        "10 I=-5:GOTO 110",
+        "100 FOR I=1 TO 2",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE-5 \nAFTER-6 \n"
+    },
+    {
+      "name": "UNSTEP",
+      "source": [
+        "10 I=0:GOTO 110",
+        "100 FOR I=1 TO 2 STEP 2",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE 0 \nAFTER 0 \n"
+    },
+    {
+      "name": "UNSDES",
+      "source": [
+        "10 I=0:GOTO 110",
+        "100 FOR I=1 TO 2 STEP -2",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE 0 \nAFTER 0 \n"
+    },
+    {
+      "name": "UNEXP1",
+      "source": [
+        "10 I=5:GOTO 110",
+        "100 FOR I=1 TO 2 STEP 1",
+        "110 PRINT \"BEFORE\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 END"
+      ],
+      "output": "BEFORE 5 \nAFTER 5 \n"
+    },
+    {
+      "name": "UNPOST",
+      "source": [
+        "10 I=5:C=0:GOTO 120",
+        "100 FOR I=10 TO 20",
+        "110 PRINT \"BODY\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 C=C+1",
+        "150 IF C=1 THEN 120",
+        "160 END"
+      ],
+      "output": "AFTER 4 \nAFTER 4 \n"
+    },
+    {
+      "name": "UNRES",
+      "source": [
+        "10 I=5:C=0:GOTO 120",
+        "100 FOR I=10 TO 20",
+        "110 PRINT \"BODY\";I",
+        "120 NEXT I",
+        "130 PRINT \"AFTER\";I",
+        "140 IF C=1 THEN 180",
+        "150 C=1:I=-2",
+        "160 GOTO 120",
+        "180 END"
+      ],
+      "output": "AFTER 4 \nBODY-1 \nBODY 0 \nAFTER 0 \n"
+    }
+  ]
+}
