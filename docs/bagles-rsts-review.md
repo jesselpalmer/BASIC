@@ -30,16 +30,16 @@ and guess five wins with `740`. A YES replay preserves the score and draws a
 new secret from the same stream. Twenty wrong guesses end with the reveal
 `259`. NO prints the one-point score and finishes at END.
 
-The adaptation uses `CHANGE A$ TO A1` in the selected BASIC-PLUS profile.
-It lets the FOR loop finish before redrawing a duplicate secret digit or
-retrying a nonnumeric guess. An explicit counter replaces the 20-guess FOR
-so replay can restart after an early win. These changes preserve the
-checked transcript and keep the selected loop scope. Replacing active
-FOR frames by reentering a FOR header remains separate compatibility work.
+The public game executes the reviewed text, including `CHANGE A$ TO A1`,
+redrawing duplicate secret digits, retrying nonnumeric guesses and replaying
+after an early win. Those paths restart active FOR counters. The selected
+BASIC-PLUS profile applies the [captured FOR restart behavior](first-game-runtime-evidence.md#for-restarts-in-bagles)
+to preserve the reviewed statement order. The earlier portable adaptation
+remains available alongside the reviewed text and its archived transcript.
 
 ## Play BAGLES
 
-Choose **BAGLES · BASIC-PLUS adaptation** in the [playground][playground].
+Choose **BAGLES · BASIC-PLUS selected profile** in the [playground][playground].
 Guess three distinct digits, including an initial zero when appropriate.
 PICO marks a correct digit in a different position, and FERMI marks a
 correct digit in the right position. BAGLES means no digit matches.
@@ -47,7 +47,7 @@ correct digit in the right position. BAGLES means no digit matches.
 The shipped source retains `RANDOMIZE` and draws a host entropy word. The
 installed library, CLI/editor, and browser replays supply zero entropy to
 compare the archive's default stream. The public tests cover fresh RUN,
-and the CLI editor saves and reloads the selected portable source.
+and the CLI editor saves and reloads the exact reviewed source.
 
 ```sh
 python3 scripts/research/capture-bagles-rsts.py \

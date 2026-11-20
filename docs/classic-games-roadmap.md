@@ -8,8 +8,8 @@ original interpreter still needs verification. [Release tracker #109](https://gi
 
 | Measure                                                                |  Progress |
 | ---------------------------------------------------------------------- | --------: |
-| Runnable through the library, CLI/editor and browser                   | 54 of 108 |
-| Source reviewed against primary evidence                               | 55 of 108 |
+| Runnable through the library, CLI/editor and browser                   | 55 of 108 |
+| Source reviewed against primary evidence                               | 56 of 108 |
 | Printed system identified                                              | 24 of 108 |
 | Raw listings certified through a complete game on the original dialect |  0 of 108 |
 
@@ -19,6 +19,7 @@ runnable adaptations. These measures overlap.
 
 | Merged batch                                                                                                                              | Added runnable listings                                       | Running total |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------: |
+| [RUSROU](rusrou-edusystem30.md)                                                                                                           | RUSROU                                                        |            55 |
 | [BAGLES](bagles-rsts-review.md), [NIM](nim-edusystem30.md), [HMRABI](hmrabi-edusystem30.md)                                               | BAGLES, NIM, HMRABI                                           |            54 |
 | [HORSES](horses-edusystem30.md), [SALVO 1](salvo1-edusystem30.md)                                                                         | HORSES, SALVO 1                                               |            51 |
 | [CRAPS](craps-edusystem30.md), [CUBE](cube-edusystem30.md), [TICTAC](tictac-edusystem30.md), [FIPFOP](fipfop-rsts-review.md)              | CRAPS, CUBE, TICTAC, FIPFOP                                   |            49 |
@@ -32,15 +33,13 @@ runnable adaptations. These measures overlap.
 
 ## Next compatibility targets
 
-- FIPFOP runs the fixed-Q puzzle. Two archived RSTS/E builds agree on the
-  [randomized restart and replay boards](fipfop-rsts-review.md#varying-q-replay-on-both-basic-plus-builds).
-  The selected profile still needs string arrays, inline FOR and historical
-  trigonometry. At a reachable input, both archived builds print
-  `TAN(262136)` as `13.5567`, while direct JavaScript yields about `16.1575`.
-- [BASIC-PLUS FOR restarts](first-game-runtime-evidence.md#for-restarts-in-bagles)
-  are now captured on reconstructed V4A-12 MA2. Establish which loop frames
-  survive reinitializing a counter before admitting the reviewed BAGLES source
-  directly.
+- FIPFOP's [randomized adaptation](fipfop-rsts-review.md#play-randomized-fipfop)
+  now uses the archived random draws and trigonometric formulas. String arrays
+  and inline FOR modifiers remain the next steps for admitting its reviewed
+  source directly.
+- CHECKR needs a focused source review and complete archived game. Its
+  string responses, compact spelling and nested subroutine/loop paths need
+  disposition before a public replay.
 
 ## Verified playthroughs
 
@@ -188,13 +187,15 @@ The [ACEYDU source review](aceydu-rsts-review.md) reproduces a complete
 archived RSTS/E session. The public selected profile runs the reviewed
 listing with a host entropy word for `RANDOMIZE`. A zero entropy word
 reproduces the archived default deal, wagers and replay.
-The [BAGLES adaptation](bagles-rsts-review.md) uses selected BASIC-PLUS
-`CHANGE` to validate each guess. It matches archived clues, invalid inputs,
+The [reviewed BAGLES listing](bagles-rsts-review.md) uses selected BASIC-PLUS
+`CHANGE` and its original FOR loops to validate each guess. It matches archived clues, invalid inputs,
 victory, replay and a 20-guess loss. The [NIM adaptation](nim-edusystem30.md)
 runs under EDUSYSTEM-30 MARK and matches an archived loss, same-board replay
 and win. The [HMRABI adaptation](hmrabi-edusystem30.md) matches complete
 archived city-management sessions in EDUSYSTEM-30 SPACE. The printed source
 identifies an EDUSYSTEM 70 conversion.
+The [RUSROU adaptation](rusrou-edusystem30.md) restores the printed random
+threshold and matches archived wins, losses, voluntary exits and new rounds.
 The [recovered OMSI library](basbal-edusystem30-review.md#recovered-demonstration-library)
 contains BASBAL, BASBL1 and the DEMON menu. With a second copy of the pinned
 tape mounted on DT1, stock EDU30.SV runs the full menu, baseball game and
@@ -221,8 +222,11 @@ replay, a loss and a fresh zero jackpot. [ROCKSP](rocksp-edusystem30-review.md)
 covers repeated moves, round counts and fresh RUN. [ROCKT1](rockt1-edusystem30-review.md)
 verifies a crash, an 11-second perfect landing and a fresh mission.
 
-The [FIPFOP fixed-Q adaptation](fipfop-rsts-review.md) reproduces both
-archived solved boards, including a repeated move and replay. The
+The [randomized FIPFOP adaptation](fipfop-rsts-review.md#play-randomized-fipfop)
+matches archived reset, restart, repeated moves, two solved puzzles and replay.
+Its numeric board uses ordinary FOR statements and the original formulas
+with selected MA2 SIN, COS and TAN. The fixed-Q adaptation also remains
+available with its archived solved boards. The
 [CRAPS adaptation](craps-edusystem30.md) verifies wager retries, shooter
 changes, a voluntary exit, and bankruptcy. The [CUBE adaptation](cube-edusystem30.md)
 replays a win and two kinds of loss. The [TICTAC tape edition](tictac-edusystem30.md)
@@ -254,8 +258,8 @@ under [release #109](https://github.com/jesselpalmer/BASIC/issues/109) and
 | Public selected Altair 8K    | The reviewed LIFE2 matches the archived win, draw, restarts and coordinate retries.                                                                                                                                                                                                                                                                                                                           | Bounded game forms and explicit array dimensions. See the [profile scope](altair-life2-profile.md).                                                                  |
 | Historical certification     | **3 executable public selected profile families; 0 certified raw original-dialect whole-game passes.**                                                                                                                                                                                                                                                                                                        | 1CHECK's original interpreter and the raw corpus require separate evidence.                                                                                          |
 
-The [corpus ledger](classic-games-ledger.json) records **55 reviewed
-source differences / 53 unresolved**, **24 printed-system identifications / 84
+The [corpus ledger](classic-games-ledger.json) records **56 reviewed
+source differences / 52 unresolved**, **24 printed-system identifications / 84
 unverified**, and **2 partial native paths / 106 not run**. These are distinct
 evidence categories. Raw execution has a separate evidence column.
 

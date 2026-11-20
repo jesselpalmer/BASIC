@@ -65,6 +65,29 @@ python3 scripts/research/capture-fipfop-randomized.py \
   --v4b-disk /path/to/RSTS11v4B.DSK --output /tmp/fipfop-randomized-reference.json
 ```
 
+## Play randomized FIPFOP
+
+Select **FIPFOP · BASIC-PLUS randomized adaptation** in the
+[playground](https://basic-playground-rho.vercel.app/) and enter positions
+1 through 10 to change the row from X to O. Enter `0` to reset the current
+board or `11` to draw another puzzle. Answer `YES` to replay after solving
+or `NO` to finish.
+
+The [randomized portable source](../scripts/package/fixtures/classic/fipfop-random-ma2.bas)
+uses a numeric board and ordinary PRINT and FOR statements. It retains the
+reviewed listing's `RANDOMIZE`, `Q=RND(Y)` and both secondary-position
+formulas, with `COT(x)` expanded into `1/TAN(x)`. The selected BASIC-PLUS
+profile evaluates SIN, COS and TAN using the archived MA2 arithmetic.
+The board check counts O cells after completing the FOR loop.
+
+The library, CLI/editor and browser replay the complete
+[varying-Q reference](fipfop-randomized-reference.json). It includes invalid
+input, reset, a new puzzle, consecutive repeated positions, two six-move
+solutions, YES replay and NO exit. Zero host entropy preserves the archive's
+default random sequence. A normal game draws host entropy on each new
+puzzle. The capture also runs the numeric source on both archived builds
+and compares its complete transcript with the reviewed string-board source.
+
 ## Play the fixed-Q adaptation
 
 Select **FIPFOP · BASIC-PLUS fixed-Q adaptation** in the
@@ -83,8 +106,7 @@ Both the fixed-Q archive probe and the portable source produce the same
 stock V04B-17 transcript through invalid input retries, reset, restart,
 two solved boards, replay and exit. The installed library, CLI/editor
 and browser verify that replay and fresh RUN under the selected BASIC-PLUS
-profile. The original listing's randomized puzzle generation and
-general BASIC-PLUS trigonometry, inline FOR modifiers and string arrays
+profile. The reviewed listing's string arrays and inline FOR modifiers
 remain separate compatibility work.
 
 ```sh

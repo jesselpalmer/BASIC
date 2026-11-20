@@ -7,7 +7,7 @@ import {
   baglesTurns,
 } from '../bagles-acceptance.ts';
 
-test('BAGLES matches archived invalid guesses, win, replay and loss', async ({page}) => {
+test('reviewed BAGLES matches archived invalid guesses, win, replay and loss', async ({page}) => {
   await page.addInitScript(() => {
     Math.random = () => 0;
   });

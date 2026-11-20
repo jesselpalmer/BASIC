@@ -1,5 +1,7 @@
 import {describe, expect, test} from 'bun:test';
 import {BasicRuntimeError} from './diagnostic.ts';
+import restartReference from '../../docs/rsts-v4a-ma2-for-restart-reference.json';
+import reentryReference from '../../docs/rsts-ma2-loop-reentry-reference.json';
 import Basic from './runtime.ts';
 import {createSelectedMa2Session, runSelectedMa2StateProgram} from './ma2_state_program.ts';
 
@@ -8,6 +10,48 @@ function observed(source: string, name: string): number | string | undefined {
 }
 
 describe('selected MA2 FOR/NEXT execution policy', () => {
+  for (const reference of [restartReference, reentryReference]) {
+    for (const probe of reference.probes) {
+      test(`matches archived ${probe.name} loop-header state`, () => {
+        let output = '';
+        const basic = new Basic(
+          {write: (text) => (output += text)},
+          {dialect: 'basic-plus-v4a12-ma2'},
+        );
+        const expected = reference === restartReference ? probe.output.slice(0, -1) : probe.output;
+        const source = probe.source.join('\n');
+        basic.run(source);
+        expect(output).toBe(expected);
+        output = '';
+        basic.run();
+        expect(output).toBe(expected);
+      });
+    }
+  }
+
+  test('a fresh run starts without the previous run loop headers', async () => {
+    let answers = ['1', '0'];
+    const basic = new Basic(
+      {readLine: () => Promise.resolve(answers.shift() ?? null)},
+      {dialect: 'basic-plus-v4a12-ma2'},
+    );
+    const source = [
+      '10 GOTO 50',
+      '20 FOR I=1 TO 2',
+      '30 C=C+1',
+      '40 NEXT I',
+      '50 INPUT X',
+      '60 IF X=1 THEN 20',
+      '70 IF X=2 THEN 30',
+      '80 END',
+    ].join('\n');
+    await basic.runAsync(source);
+    expect(basic.variables).toContainEqual({name: 'C', value: 2});
+    answers = ['2', '0'];
+    await basic.runAsync();
+    expect(basic.variables).toContainEqual({name: 'C', value: 1});
+  });
+
   test('matches the six captured completion and unfinished-loop reentry cases', () => {
     expect(observed('10 FOR J=1 TO 3\n20 NEXT J\n30 END', 'J')).toBe(3);
     expect(observed('10 FOR J=3 TO 1 STEP -1\n20 NEXT J\n30 END', 'J')).toBe(1);

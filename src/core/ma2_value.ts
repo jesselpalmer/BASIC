@@ -18,6 +18,10 @@ import {
   type BasicPlusMa2LiteralResult,
 } from './basic_plus_ma2_literal.ts';
 import type {NodeOf} from './types.ts';
+import {
+  basicPlusMa2Trigonometry,
+  type BasicPlusMa2TrigonometricOperation,
+} from './basic_plus_ma2_trigonometry.ts';
 
 export type Ma2Value = Readonly<{kind: 'ma2'; words: readonly [number, number]}>;
 type Value = Readonly<{kind: 'value'; value: Ma2Value}>;
@@ -28,6 +32,7 @@ type Unsupported = Readonly<{
 export type Ma2ValueResult = Value | Unsupported;
 export type Ma2BinaryResult =
   | Value
+  | Unsupported
   | Extract<BasicPlusMa2Result, {kind: 'unsupported'}>
   | Readonly<{
       kind: 'numeric-event';
@@ -100,4 +105,15 @@ export function compareMa2Values(left: Ma2Value, right: Ma2Value) {
 }
 export function observeMa2Value(input: Ma2Value) {
   return observeBasicPlusMa2(words(input));
+}
+
+export function ma2Trigonometry(
+  input: Ma2Value,
+  operation: BasicPlusMa2TrigonometricOperation,
+): Ma2BinaryResult {
+  const result = basicPlusMa2Trigonometry(words(input), operation);
+  if (result.kind === 'unsupported') return result;
+  if (result.kind === 'value') return normal(result.words);
+  const {continuationWords, ...event} = result;
+  return Object.freeze({...event, continuation: value(continuationWords)});
 }

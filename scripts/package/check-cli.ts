@@ -5,8 +5,10 @@ import metadata from '../../package.json' with {type: 'json'};
 import {runProcess, runWithOpenInput} from '../subprocess.ts';
 import {checkHorsesCli} from './check-horses.ts';
 import {checkTictacCli} from './check-tictac.ts';
+import {checkFipfopRandomCli} from './check-fipfop-random.ts';
 import {checkFipfopCli} from './check-fipfop.ts';
 import {checkWekdayCli} from './check-wekday.ts';
+import {checkRusrouCli} from './check-rusrou.ts';
 import {checkBaglesCli} from './check-bagles.ts';
 import {checkAceyduCli} from './check-aceydu.ts';
 import {checkDiceCli} from './check-dice.ts';
@@ -791,8 +793,10 @@ export async function checkLocalCli(consumer: string, installed: string): Promis
   checkDiceCli(executable, consumer);
   checkAceyduCli(executable, consumer);
   checkBaglesCli(executable, consumer);
+  await checkRusrouCli(executable, consumer);
   await checkWekdayCli(executable, consumer);
   checkFipfopCli(executable, consumer);
+  checkFipfopRandomCli(executable, consumer);
   await checkTictacCli(executable, consumer);
   await checkHorsesCli(executable, consumer);
 }

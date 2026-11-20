@@ -1,0 +1,20 @@
+{
+  "simulatorCommit": "698dc8a1b2135ab03f1da0be9ee44b5f1beeadc6",
+  "tapeSha256": "281c9c5f125996d3496c7118e4601e20c7f29320e4abc7626d26de01502a081a",
+  "pinnedSha256": "4243d3c6759e9a2b78133ba26ccd1bedd65cad74332a4eed10607daa2f61b8be",
+  "fixtureSha256": "a060424d2e45ada08282d831cf73c8437ceb5c2859e2cc75d2707181552de072",
+  "runs": [
+    {
+      "name": "eleven pulls survive, then loss and give up",
+      "clockWord": 46,
+      "answers": ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "2"],
+      "output": "THIS IS A GAME OF >>>>>>>>>>>RUSSIAN ROULETTE\n\nHERE IS A REVOLVER\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?- CLICK -\n\n?YOU WIN !!!\nLET SOMEONE ELSE BLOW HIS BRAINS OUT.\n\nHERE IS A REVOLVER\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?     BANG!!!! YOU'RE DEAD!\nCONDOLENCES WILL BE SENT TO YOUR RELATIVES.\n\n\n\n...NEXT VICTIM...\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?      CHICKEN !!!\n\n\n\n...NEXT VICTIM...\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?"
+    },
+    {
+      "name": "fresh run, give up and first-pull loss",
+      "clockWord": 100,
+      "answers": ["2", "1", "1", "1"],
+      "output": "THIS IS A GAME OF >>>>>>>>>>>RUSSIAN ROULETTE\n\nHERE IS A REVOLVER\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?      CHICKEN !!!\n\n\n\n...NEXT VICTIM...\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?- CLICK -\n\n?- CLICK -\n\n?     BANG!!!! YOU'RE DEAD!\nCONDOLENCES WILL BE SENT TO YOUR RELATIVES.\n\n\n\n...NEXT VICTIM...\nHIT '1' TO SPIN CHAMBER AND PULL TRIGGER.\n     (HIT '2' TO GIVE UP)\nGO:?"
+    }
+  ]
+}

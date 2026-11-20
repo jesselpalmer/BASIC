@@ -1115,12 +1115,8 @@ class Parser {
           arguments: [],
         });
       }
-      if (token.value !== 'INT' && token.value !== 'ABS')
-        this.fail(
-          'UNSUPPORTED_FUNCTION',
-          'Only INT and ABS belong to MA2 numeric expression conformance',
-          token,
-        );
+      if (!['INT', 'ABS', 'SIN', 'COS', 'TAN'].includes(token.value))
+        this.fail('UNSUPPORTED_FUNCTION', 'Unsupported MA2 numeric intrinsic', token);
       return this.call();
     }
     if (
